@@ -1,0 +1,60 @@
+@import "var.styl";
+
+.header-wrap
+  position fixed
+  height $header-height
+  width 100%
+  top 0
+  left 0
+  border-bottom 1px solid $main-color
+
+  .header
+    height 100%
+    display flex
+    justify-content flex-end
+
+
+  .user-info
+    min-width 200px
+    display flex
+    padding 10px
+    align-items center
+
+    .avatar
+      width 50px
+      height 50px
+      border-radius 50%
+      border 1px solid $main-color
+      overflow hidden
+
+      > img
+        display block
+        width 100%
+        height auto
+
+    .username
+      flex-grow 1
+      text-align center
+      font-size 25px
+      text-transform uppercase
+      padding 0 10px
+      color $main-color
+
+    .logout-btn
+      border none
+      display block
+      height 30px
+      width 30px
+      font-size 30px
+      text-align center
+
+      &:hover
+        cursor pointer
+      &:before
+        content '\f08b'
+        color $main-color
+        font-family FontAwesome
+
+
+
+
