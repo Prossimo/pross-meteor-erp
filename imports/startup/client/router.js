@@ -14,7 +14,6 @@ FlowRouter.route('/', {
     name: 'Root',
     action(){
         if(Meteor.userId()){
-            console.log("log")
             mount(App, {
                 content: <HomePage/>,
                 login: true

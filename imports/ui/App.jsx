@@ -6,9 +6,9 @@ class App extends React.Component{
     render() {
         return (
             <div className="app">
-                <Header user={Meteor.user()}/>
+                <Header user={Meteor.user()} login={this.props.login}/>
                 <div className="page-content">
-                    {this.props.content}
+                    {React.cloneElement(this.props.content, this.props)}
                 </div>
             </div>
         )

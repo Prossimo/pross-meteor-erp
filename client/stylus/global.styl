@@ -1,8 +1,11 @@
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
 @import "var.styl";
 
 *
   margin 0
   padding 0
+  box-sizing border-box
+
 
 ul
   list-style none
@@ -10,21 +13,29 @@ ul
 a
   text-decoration none
 
-button
+button, input
   border none
   background transparent
   &:active,
   &:focus
     outline none
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  transition: background-color 5000s ease-in-out 0s;
+}
+html
+  font-family 'Source Sans Pro', sans-serif
+  font-size 16px
+
+body
+  font-size 16px
 .app
   min-height 100vh
   width 100%
   overflow hidden
   padding-top $header-height
+  background linear-gradient(to bottom, $main-color, alpha($main-color, .2))
 
-  .page-content
-    height 100%
-    max-width 1200px
-    margin 0 auto
-    padding 0 10px

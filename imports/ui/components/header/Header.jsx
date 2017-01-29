@@ -1,5 +1,6 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
+import classNames  from 'classnames';
 
 class Header extends React.Component{
     constructor(props){
@@ -16,13 +17,13 @@ class Header extends React.Component{
     }
 
     render() {
-        let { user } = this.props;
+        let { user, login } = this.props;
         return (
-            <div className="header-wrap">
+            <div className={classNames("header-wrap", {"hide": !login})}>
                 <header className="header">
                     <div className="user-info">
                         <div className="avatar">
-                            <img src="http://lorempixel.com/100/100/people" alt=""/>
+                            <img src={"/icons/user.png"} alt={user && user.username}/>
                         </div>
                         <div className="username">
                             {user ? user.username : "Guest"}
