@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { Messages } from '../lib/collections'
 
 Meteor.methods({
     userRegistration(userData){
@@ -25,5 +26,16 @@ Meteor.methods({
         }
 
         return userData;
+    },
+
+    createMassage(msgData){
+        msgData.userId = this.userId;
+        Messages.insert(msgData, (err, id)=>{
+            if(!err){
+                return id;
+            }else{
+                throw new Meteor.Error(err)
+            }
+        });
     }
 });

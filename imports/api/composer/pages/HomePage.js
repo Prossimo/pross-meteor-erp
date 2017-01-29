@@ -2,13 +2,14 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../traker';
+import { Messages } from '../../lib/collections';
 
 import HomePage from '../../../ui/pages/HomePage';
 
 const reactiveMapper = (props, onData)=> {
-    if (Meteor.subscribe('users').ready()) {
-        let users = Meteor.users.find().fetch();
-        onData(null, { users });
+    if (Meteor.subscribe('messages').ready()) {
+        let messages = Messages.find().fetch();
+        onData(null, { messages });
     }
 };
 

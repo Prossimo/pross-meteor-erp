@@ -1,0 +1,194 @@
+@import "var.styl";
+
+.home-page
+  padding 30px 0
+  display flex
+
+  &.active-aside
+    .control-aside
+      transform translateX(0)
+
+    .aside-area
+      width $aside-width
+
+  .control-aside
+    width $aside-width
+    height 100vh
+    position fixed
+    top 0
+    left 0
+    transition .3s
+    transform translateX(-80%)
+    background #fff
+    z-index 5
+    padding-top $header-height + 40px
+    padding-left 25px
+    padding-right 15px
+
+    .categories-list
+      > li
+        padding 10px 0
+        line-height 30px
+        color $main-color
+
+        &:hover
+          background alpha($main-color, .1)
+          cursor pointer
+
+    .pinnedMod
+      display block
+      position absolute
+      top $header-height + 10px
+      right 10px
+      color alpha($main-color, .2)
+      width 30px
+      height 30px
+      text-align center
+      line-height 20px
+      font-size 25px
+      transform rotate(45deg)
+      transition .3s
+
+      &.on
+        transform rotate(0)
+        color $main-color
+
+      &:hover
+        cursor pointer
+
+      &:before
+        content '\f08d'
+        font-family FontAwesome
+
+  .aside-area
+    width 40px
+    transition .3s
+
+  .main-content
+    flex-grow 1
+    padding 0 20px
+    transition .3s
+
+    .tab-container
+      background $white
+      min-height 500px
+
+    .tab-controls
+      padding 30px 10px 20px
+
+      ul
+        display flex
+        overflow hidden
+        flex-wrap wrap
+
+      li
+        height 40px
+        line-height 40px
+        font-size 18px
+        padding 0 12px
+        margin 0 10px
+        position relative
+        overflow hidden
+
+        &.active
+          &:after
+            bottom 0
+
+        &:after
+          content ''
+          display block
+          position absolute
+          background $main-color
+          height 4px
+          bottom -4px
+          left 0
+          width 100%
+          transition .3s
+
+        &:hover
+          cursor pointer
+          background alpha($text-color, .1)
+
+          &:after
+            bottom 0
+
+    .tab-content
+      padding 20px 10px
+
+    .activity
+      padding 0 20px
+
+      .text-area-wrap
+        position relative
+
+        input[type="file"]
+          display none
+
+      .user-info
+        position absolute
+        left 10px
+        top 10px
+        overflow hidden
+        width 30px
+        height 30px
+
+        > img
+          display block
+          width 100%
+          height auto
+
+      textarea
+        display block
+        width 100%
+        padding 20px 50px 30px 50px
+        border 1px solid #ccc
+        border-radius 3px
+        font-family inherit
+
+        &:focus
+          outline none
+          box-shadow inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(102,175,233,0.6);
+
+      .add-doc-controls
+        position absolute
+        top 10px
+        right 10px
+        display block
+        width 20px
+        height 20px
+        text-align center
+        line-height 20px
+        font-size 18px
+
+        &:hover
+          cursor pointer
+
+          &:before
+            color $main-color
+
+        &:before
+          content '\f0c6'
+          font-family FontAwesome
+          color $text-color
+          transition .3s
+
+    .msg-controls
+      padding 20px 0 15px
+
+    .send-msg
+      background $main-color
+      color $white
+
+      &:hover
+        background alpha($main-color, .7)
+
+
+
+
+
+
+
+
+
+
+

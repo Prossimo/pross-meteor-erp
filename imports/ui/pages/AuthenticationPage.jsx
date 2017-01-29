@@ -9,7 +9,7 @@ class AuthenticationPage extends React.Component{
         super(props);
 
         this.state = {
-            signIn: false
+            signIn: true
         };
 
         this.toggleAuth = this.toggleAuth.bind(this)

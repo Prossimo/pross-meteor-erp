@@ -1,1 +1,3 @@
+import './headConfig'
 import './router';
+
