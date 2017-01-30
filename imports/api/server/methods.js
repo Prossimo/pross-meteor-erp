@@ -29,7 +29,8 @@ Meteor.methods({
     },
 
     createMassage(msgData){
-        msgData.userId = this.userId;
+        const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
+        msgData.author = author;
         Messages.insert(msgData, (err, id)=>{
             if(!err){
                 return id;
@@ -37,5 +38,37 @@ Meteor.methods({
                 throw new Meteor.Error(err)
             }
         });
+    },
+
+    deleteMsg(msg){
+        //todo more security, err cb
+        if(msg.author._id === this.userId){
+            Messages.remove({_id: msg._id}, (err)=>{
+                if(err) throw new Meteor.Error(err)
+            })
+        }
+    },
+
+    updateMsg(msg, text){
+        //todo more security, err cb
+        if(msg.author._id === this.userId){
+            Messages.update({_id: msg._id}, {$set: {msg: text}}, (err)=>{
+                if(err) throw new Meteor.Error(err)
+            })
+        }
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+

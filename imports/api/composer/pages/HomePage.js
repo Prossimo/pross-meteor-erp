@@ -8,7 +8,7 @@ import HomePage from '../../../ui/pages/HomePage';
 
 const reactiveMapper = (props, onData)=> {
     if (Meteor.subscribe('messages').ready()) {
-        let messages = Messages.find().fetch();
+        let messages = Messages.find({}, {sort: {createAt: -1}}).fetch();
         onData(null, { messages });
     }
 };

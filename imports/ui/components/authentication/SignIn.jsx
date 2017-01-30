@@ -1,13 +1,12 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
-import {Col, Form, FormGroup, ControlLabel} from 'react-bootstrap';
 
 class SignIn extends React.Component{
     constructor(props){
         super(props);
 
         this.state = {
-            username: '',
+            email: '',
             password: '',
             loginRequest: false,
             authError: ''
@@ -17,13 +16,13 @@ class SignIn extends React.Component{
     submit(e){
         e.preventDefault();
 
-        let username = this.state.username.trim(),
+        let email = this.state.email.trim(),
             password = this.state.password.trim();
 
-        if (username && password) {
+        if (email && password) {
             this.setState({loginRequest: true});
 
-            Meteor.loginWithPassword({username}, password, (err) => {
+            Meteor.loginWithPassword({email}, password, (err) => {
                 if (err) {
                     this.setState({authError: "Invalid username or password"});
                 }
@@ -66,16 +65,16 @@ class SignIn extends React.Component{
         return (
             <div className="sign-in-wrap">
                 <header className="auth-header">
-                    <h2 className="title">Welcome to meteor chat</h2>
+                    <h2 className="title">Welcome to app</h2>
                 </header>
                 <form className="auth-form" onSubmit={this.submit.bind(this)}>
                     <div className="flex-input">
-                        <label htmlFor="usern">Username</label>
-                        <input id="username"
-                               type="text"
+                        <label htmlFor="email">Email</label>
+                        <input id="email"
+                               type="email"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.username}
+                               value={this.state.email}
                                onChange={this.change.bind(this)}
                         />
                     </div>

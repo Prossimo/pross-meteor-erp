@@ -1,0 +1,87 @@
+.massage-list
+  padding 20px 0
+
+  .activity-msg
+    position relative
+    padding-left 80px
+    min-height 50px
+    font-size 14px
+    margin-bottom 30px
+
+    &:hover
+      .controls
+        opacity .8
+
+    .avatar
+      position absolute
+      width 35px
+      height 35px
+      overflow hidden
+      top 0
+      left 15px
+      border-radius 50%
+
+      > img
+        display block
+        width 100%
+        height auto
+
+    .info
+      display flex
+      padding 5px 0
+
+    .author
+      color $main-color
+
+    .date
+      padding 0 10px
+
+    .text
+      padding 15px 70px 20px 15px
+      background alpha($grey, .2)
+      border-radius 3px
+
+    .controls
+      opacity 0
+      color #232323
+      font-size 18px
+      display flex
+      font-family Fontawesome
+      flex-grow 1
+      justify-content flex-end
+      transition opacity .3s
+
+      > span
+        width 40px
+        height 20px
+        text-align center
+        line-height 20px
+        transition color .3s
+
+        &:hover
+          cursor pointer
+          color $main-color
+
+    .replay
+      &:before
+        content '\f112'
+
+    .edit
+      &:before
+        content '\f040'
+
+    .delete
+      &:before
+        content '\f1f8'
+
+    .btn-update
+      background $main-color
+      color $white
+
+      &:hover
+        background alpha($main-color, .8)
+
+    .btn-cancel
+      background $grey
+      color $white
+
