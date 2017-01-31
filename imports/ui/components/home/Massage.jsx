@@ -1,5 +1,6 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
+import Textarea from 'react-textarea-autosize';
 
 
 class Massage extends React.Component{
@@ -41,13 +42,12 @@ class Massage extends React.Component{
     }
 
     getContent(){
-        //todo add more style css for tetxarea
         const { editMode, text } = this.state;
         const { msg } = this.props;
         if(editMode){
             return (
                 <div>
-                    <textarea className="edit-msg"
+                    <Textarea className="edit-msg"
                               value={text}
                               onChange={this.changeText.bind(this)}/>
                     <div className="msg-controls">
@@ -105,3 +105,4 @@ class Massage extends React.Component{
 }
 
 export default Massage;
+

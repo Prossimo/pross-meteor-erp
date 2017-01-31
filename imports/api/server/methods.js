@@ -28,6 +28,19 @@ Meteor.methods({
         return userData;
     },
 
+    sendEmail: function (mailData) {
+        check(mailData, {
+            to: String,
+            from: String,
+            subject: String,
+            html: String
+        });
+        this.unblock();
+
+        Email.send(mailData);
+        return "Message is sending";
+    },
+
     createMassage(msgData){
         const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
         msgData.author = author;

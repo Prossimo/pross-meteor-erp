@@ -1,6 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import Massage from './Massage';
+import Textarea from 'react-textarea-autosize';
 
 class Activity extends React.Component{
     constructor(props){
@@ -38,6 +39,16 @@ class Activity extends React.Component{
         Meteor.call('createMassage', data);
         this.setState({msg: ''});
         localStorage.setItem("Activity.writingMsg", '');
+
+        //todo test email sending
+        const mailData = {
+            to: "frayeralex@gmail.com",
+            from: "foo@bar.com",
+            subject: "Add new message",
+            html: `<span> ${data.msg} </span>`
+        };
+
+        // Meteor.call("sendEmail", mailData)
     }
 
     getMassageList(){
@@ -80,7 +91,7 @@ class Activity extends React.Component{
                     <div className="user-info">
                         <img src="/icons/user.png" alt="user avatar"/>
                     </div>
-                    <textarea rows="3" placeholder="Write your message..."
+                    <Textarea rows={3} placeholder="Write your message..."
                               onChange={this.changeMsg.bind(this)}
                               onBlur={this.saveLS.bind(this)}
                               value={msg}

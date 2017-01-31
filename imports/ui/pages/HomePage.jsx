@@ -11,7 +11,7 @@ class HomePage extends React.Component{
         this.tabs = [
             {
                 label: "Activity",
-                content: <Activity/>
+                component: <Activity/>
             },
             {
                 label: "Quotes",
@@ -31,30 +31,11 @@ class HomePage extends React.Component{
             }
         ];
 
-        let asidePined = false;
-        if(localStorage.getItem("asidePined") === "true"){
-            asidePined = true;
-        }
-
         this.state = {
-            asideActive: asidePined,
-            asidePined,
             activeTab: this.tabs[0]
         }
     }
 
-    toggleAside(res){
-        const { asidePined } = this.state;
-        if(!asidePined){
-            this.setState({asideActive: res})
-        }
-    }
-
-    togglePinned(){
-        const { asidePined } = this.state;
-        this.setState({asidePined: !asidePined});
-        localStorage.setItem("asidePined", !asidePined);
-    }
 
     toggleTab(activeTab){
         this.setState({activeTab})
@@ -74,27 +55,18 @@ class HomePage extends React.Component{
 
     getContent(){
         const { activeTab } = this.state;
-        return React.cloneElement(activeTab.content, this.props)
+        if(activeTab.component){
+            return React.cloneElement(activeTab.component, this.props);
+        }else{
+            return activeTab.content
+        }
+
     }
 
 
     render() {
         return (
-            <div className={classNames("home-page", {"active-aside": this.state.asideActive})}>
-                <aside className="control-aside"
-                       onMouseEnter={this.toggleAside.bind(this, true)}
-                       onMouseLeave={this.toggleAside.bind(this, false)}>
-                    <ul className="categories-list">
-                        <li>Menu 1</li>
-                        <li>Menu 2</li>
-                        <li>Menu 3</li>
-                        <li>Menu 4</li>
-                        <li>Menu 5</li>
-                    </ul>
-                    <span className={classNames("pinnedMod", {"on": this.state.asidePined})}
-                          onClick={this.togglePinned.bind(this)}/>
-                </aside>
-                <div className="aside-area"></div>
+            <div className="home-page">
                 <div className="main-content">
                     <div className="tab-container">
                         <div className="tab-controls">

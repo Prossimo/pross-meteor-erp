@@ -1,0 +1,67 @@
+.projects-page
+  margin 0 auto
+  max-width 1200px
+  padding 20px 15px 0
+  background $white
+
+  .controls-panel
+    border-bottom 1px solid $grey
+    border-top 1px solid $grey
+    padding 10px 0
+    margin-bottom 20px
+
+    ul
+      display flex
+
+    .control-item
+      height 35px
+      padding 0 20px
+      line-height 33px
+      border-top 1px solid $main-color
+      border-bottom 1px solid $main-color
+      border-right 1px solid $main-color
+      font-size 14px
+      color $main-color
+
+      &:hover
+        cursor pointer
+        background alpha($grey, .2)
+
+      &:first-of-type
+        border-left 1px solid $main-color
+        border-radius 3px 0 0 3px
+        padding-left 21px
+
+      &:last-of-type
+        border-radius 0 3px 3px 0
+
+
+      &.non-active
+        border-color $grey
+        color $grey
+
+  .project-list
+    padding 0 0 30px
+
+  .project-item
+    padding 20px 10px
+    border 1px solid $grey
+    display flex
+
+    &:hover
+      cursor pointer
+      box-shadow 0 3px 5px 0 rgba(0,0,0,0.3)
+
+    .left-part
+      width 300px
+      flex-shrink 0
+
+    .right-part
+      flex-grow 1
+
+
+
+
+
+
+

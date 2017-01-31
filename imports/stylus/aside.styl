@@ -1,0 +1,71 @@
+.control-aside
+  width $aside-width
+  height 100vh
+  position fixed
+  top 0
+  left 0
+  transition .3s
+  transform translateX(-80%)
+  background #fff
+  z-index 5
+  padding-top $header-height
+
+  &.active
+    transform translateX(0)
+
+  .categories-list
+    > li
+      padding 10px 0
+      line-height 30px
+      color $main-color
+
+      &:hover
+        background alpha($main-color, .1)
+        cursor pointer
+
+  .pinnedMod
+    display block
+    position absolute
+    top $header-height + 10px
+    right 10px
+    color alpha($main-color, .2)
+    width 30px
+    height 30px
+    text-align center
+    line-height 20px
+    font-size 25px
+    transform rotate(45deg)
+    transition .3s
+
+    &.on
+      transform rotate(0)
+      color $main-color
+
+    &:hover
+      cursor pointer
+
+    &:before
+      content '\f08d'
+      font-family FontAwesome
+
+  .nav-list
+    padding-top 40px
+
+    .nav-item
+      height 50px
+      padding-left 40px
+      line-height 50px
+      border-left 5px solid transparent
+
+      &:after
+        content ''
+        display block
+
+      &:hover
+        cursor pointer
+        background alpha($grey, .3)
+        border-left 5px solid $main-color
+
+      &.active
+        border-left 5px solid $main-color
+
