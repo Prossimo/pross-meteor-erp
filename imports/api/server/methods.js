@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { Messages } from '../lib/collections'
+import { Messages, Files } from '../lib/collections'
 
 Meteor.methods({
     userRegistration(userData){
@@ -41,14 +41,17 @@ Meteor.methods({
         return "Message is sending";
     },
 
-    createMassage(msgData){
+    createMassage(msgData, files){
         const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
         msgData.author = author;
-        Messages.insert(msgData, (err, id)=>{
-            if(!err){
-                return id;
-            }else{
-                throw new Meteor.Error(err)
+        Messages.insert(msgData, (err, messageId)=>{
+            if(err) throw new Meteor.Error(err);
+
+            if(files.length){
+                files.forEach(item=>{
+                    item.messageId = messageId;
+                    Files.insert(item);
+                });
             }
         });
     },
@@ -65,10 +68,17 @@ Meteor.methods({
     updateMsg(msg, text){
         //todo more security, err cb
         if(msg.author._id === this.userId){
-            Messages.update({_id: msg._id}, {$set: {msg: text}}, (err)=>{
+            Messages.update(
+                {_id: msg._id},
+                {$set: {msg: text}}, (err)=>{
                 if(err) throw new Meteor.Error(err)
             })
         }
+    },
+
+    getFileDataURL(_id){
+        //todo check
+        return Files.findOne({_id});
     }
 });
 

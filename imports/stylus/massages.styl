@@ -85,3 +85,31 @@
       background $grey
       color $white
 
+    .msg-attached-list
+      padding 10px
+      display flex
+
+      .attached-item
+        color $main-color
+        font-size 14px
+        height 25px
+        margin-right 10px
+
+        &:last-of-type:after
+          content ''
+
+        &:after
+          content ','
+
+        &:before
+          content '\f0c6 '
+          font-family FontAwesome
+          padding-right 10px
+
+        span:hover
+          cursor pointer
+          text-decoration underline
+
+      a
+        display none
+

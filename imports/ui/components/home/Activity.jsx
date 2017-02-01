@@ -29,26 +29,46 @@ class Activity extends React.Component{
     }
 
     sendMsg(event){
-        const { msg } = this.state;
+        const { msg, attachedFiles } = this.state;
+        if(msg === '') return;
         let data = {
             createAt: new Date(),
             msg,
             attachments: [],
-            replays: []
+            replays: [],
         };
-        Meteor.call('createMassage', data);
-        this.setState({msg: ''});
+        let files = [];
+
+        function readAttached(reader, attachedFiles, index) {
+            if(attachedFiles[index]){
+                reader.readAsDataURL(attachedFiles[index]);
+            }else{
+                return true;
+            }
+        }
+        //todo validate type and size
+        if(attachedFiles.length){
+            let reader = new FileReader;
+            let step = 0;
+            reader.addEventListener('load',()=>{
+                const insertData = {
+                    name: attachedFiles[step].name,
+                    size: attachedFiles[step].size,
+                    type: attachedFiles[step].type,
+                    createAt: moment().toDate(),
+                    dataURL: reader.result
+                };
+                files.push(insertData);
+                if(readAttached(reader, attachedFiles, ++step)){
+                    Meteor.call('createMassage', data, files);
+                }
+            });
+            readAttached(reader, attachedFiles, step)
+        }else{
+            Meteor.call('createMassage', data);
+        }
+        this.setState({msg: '', attachedFiles: []});
         localStorage.setItem("Activity.writingMsg", '');
-
-        //todo test email sending
-        const mailData = {
-            to: "frayeralex@gmail.com",
-            from: "foo@bar.com",
-            subject: "Add new message",
-            html: `<span> ${data.msg} </span>`
-        };
-
-        // Meteor.call("sendEmail", mailData)
     }
 
     getMassageList(){
@@ -66,8 +86,11 @@ class Activity extends React.Component{
         if(attachedFiles.length){
             return (
                 <div className="attached-list">
-                    {attachedFiles.map(item=>{
-                        return <span className="attached-files" onClick={this.deleteAttached.bind(this, item)}>{item.name}</span>
+                    {attachedFiles.map((item,index)=>{
+                        return <span key={item.size+index}
+                                     className="attached-files"
+                                     onClick={this.deleteAttached.bind(this, item)}
+                        >{item.name}</span>
                     })}
                 </div>
             )
