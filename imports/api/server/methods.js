@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { Messages, Files } from '../lib/collections'
+import { Messages, Files } from '../lib/collections';
+import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP } from '../constatnts/roles';
 
 Meteor.methods({
     userRegistration(userData){
@@ -9,7 +10,7 @@ Meteor.methods({
         if(Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
 
         if(JSON.stringify(validation) === '{}'){
-            Accounts.createUser({
+            const userId = Accounts.createUser({
                 username,
                 email,
                 password,
@@ -21,6 +22,7 @@ Meteor.methods({
                     ]
                 }
             });
+            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE], DEFAULT_USER_GROUP );
         }else{
             userData.validation = validation;
         }

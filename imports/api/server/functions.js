@@ -1,7 +1,8 @@
+import { SUPER_ADMIN_ROLE } from '../constatnts/roles';
 
 export const createAdminUser = ()=>{
     if(!Meteor.users.findOne()){
-        Accounts.createUser({
+        const superAdminId = Accounts.createUser({
             username: "root",
             email: "root@admin.com",
             password: "asdfasdf",
@@ -13,5 +14,7 @@ export const createAdminUser = ()=>{
                 ]
             }
         });
+
+        Roles.addUsersToRoles( superAdminId, [ SUPER_ADMIN_ROLE ] );
     }
-}
+};

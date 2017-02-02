@@ -4,9 +4,8 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 
 import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
-import HomePage from '../../api/composer/pages/HomePage';
-import ProjectsPage from '../../ui/pages/ProjectsPage';
-import Project from '../../ui/components/projects/Project';
+import SingleProject from '../../api/composer/componencts/project/SingleProject';
+import ProjectsPage from '../../api/composer/pages/ProjectsPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -17,7 +16,7 @@ FlowRouter.route('/', {
     action(){
         if(Meteor.userId()){
             mount(App, {
-                content: <HomePage/>,
+                content: <ProjectsPage/>,
                 login: true
             })
         }else{
@@ -29,23 +28,12 @@ FlowRouter.route('/', {
     }
 });
 
-FlowRouter.route('/projects', {
-    name: 'Projects',
-    action(){
-        checkAuth();
-        mount(App, {
-            content: <ProjectsPage/>,
-            login: true
-        })
-    }
-});
-
 FlowRouter.route('/project/:id', {
     name: 'Project',
     action(){
         checkAuth();
         mount(App, {
-            content: <Project id={FlowRouter.getParam('id')}/>,
+            content: <SingleProject/>,
             login: true
         })
     }

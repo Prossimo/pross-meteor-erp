@@ -29,6 +29,7 @@ class Activity extends React.Component{
     }
 
     sendMsg(event){
+        const { project } = this.props;
         const { msg, attachedFiles } = this.state;
         if(msg === '') return;
         let data = {
@@ -36,6 +37,7 @@ class Activity extends React.Component{
             msg,
             attachments: [],
             replays: [],
+            projectId: project._id
         };
         let files = [];
 

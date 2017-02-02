@@ -1,8 +1,9 @@
 import { Mongo } from  'meteor/mongo';
+import { FILES, MESSAGES, PROJECTS} from '../constatnts/collections'
 
-export const Messages = new Mongo.Collection('Messages');
-export const Projects = new Mongo.Collection('Projects');
-export const Files = new Mongo.Collection('Files');
+export const Messages = new Mongo.Collection(MESSAGES);
+export const Projects = new Mongo.Collection(PROJECTS);
+export const Files = new Mongo.Collection(FILES);
 
 //hooks
 Files.after.insert(function (userId, doc) {

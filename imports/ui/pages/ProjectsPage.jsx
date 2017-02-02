@@ -5,35 +5,6 @@ import classNames from 'classnames';
 class ProjectsPage extends React.Component{
     constructor(props){
         super(props);
-        //todo load data as props
-        this.projectList = [
-            {
-                name: "Foo",
-                status: "active",
-                active: true
-            },
-            {
-                name: "Bar",
-                status: "delivered",
-                active: false
-            },
-            {
-                name: "project 2",
-                status: "active",
-                active: true
-            },
-            {
-                name: "project 4",
-                status: "active",
-                active: true
-            },
-            {
-                name: "project 5",
-                status: "delivered",
-                active: false
-            },
-
-        ];
 
         this.state ={
             active: true,
@@ -43,23 +14,24 @@ class ProjectsPage extends React.Component{
 
     renderProjectList(){
         const { active, delivered } = this.state;
-        let projectToShow = this.projectList.filter((item)=>{
+        const { projects } = this.props;
+        const projectToShow = projects.filter((item)=>{
             if(!active && !delivered) return false;
             if(active && delivered) return true;
             if(!delivered && active == item.active)return true;
             if(!active && delivered == !item.active)return true;
         });
-        console.log(projectToShow)
-
-
+        //todo right part of project list #36
         return (
             <ul className="project-list">
-                {projectToShow.map(item=>{
+                {projectToShow.map(project=>{
                     return(
-                        <li key={item.name} className="project-item">
+                        <li key={project._id}
+                            onClick={this.goToProject.bind(this, project)}
+                            className="project-item">
                             <div className="left-part">
-                                <p>{item.name}</p>
-                                <p>{item.status}</p>
+                                <p>{project.name}</p>
+                                <p>{project.status}</p>
                             </div>
                             <div className="right-part"></div>
                         </li>
@@ -67,6 +39,10 @@ class ProjectsPage extends React.Component{
                 })}
             </ul>
         )
+    }
+
+    goToProject(project){
+        FlowRouter.go("Project", {id: project._id})
     }
 
     toggleState(state){

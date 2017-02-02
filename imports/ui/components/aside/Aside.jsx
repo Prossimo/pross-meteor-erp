@@ -3,18 +3,14 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 
 
-class HomePage extends React.Component{
+class Aside extends React.Component{
     constructor(props){
         super(props);
 
         this.pages = [
             {
-                label: "Home",
-                route: "Root"
-            },
-            {
                 label: "Projects",
-                route: "Projects"
+                route: "Root"
             },
             {
                 label: "Users",
@@ -25,25 +21,14 @@ class HomePage extends React.Component{
                 route: "Companies"
             }
         ];
+    }
 
-        this.state = {
-            asideActive: localStorage.getItem("asidePined") === "true",
-            asidePined: localStorage.getItem("asidePined") === "true",
+    toggleAside(){
+        if(typeof this.props.toggleAside == 'function'){
+            this.props.toggleAside()
         }
     }
 
-    toggleAside(res){
-        const { asidePined } = this.state;
-        if(!asidePined){
-            this.setState({asideActive: res})
-        }
-    }
-
-    togglePinned(){
-        const { asidePined } = this.state;
-        this.setState({asidePined: !asidePined});
-        localStorage.setItem("asidePined", !asidePined);
-    }
 
     togglePage(item){
         FlowRouter.go(FlowRouter.path(item.route))
@@ -67,17 +52,14 @@ class HomePage extends React.Component{
     }
 
     render() {
+        const { asideActive } = this.props;
         return (
-            <aside className={classNames("control-aside", {"active": this.state.asideActive})}
+            <aside className={classNames("control-aside", {"active": asideActive})}
                    onMouseEnter={this.toggleAside.bind(this, true)}
                    onMouseLeave={this.toggleAside.bind(this, false)}>
-
                 {this.renderList()}
-
-                <span className={classNames("pinnedMod", {"on": this.state.asidePined})}
-                      onClick={this.togglePinned.bind(this)}/>
             </aside>
         )
     }
 }
-export default HomePage;
+export default Aside

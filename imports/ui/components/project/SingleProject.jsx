@@ -1,10 +1,11 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
+import { getUserName, getUserEmail } from '../../../api/lib/filters';
 
-import Activity from '../components/home/Activity';
+import Activity from '../home/Activity';
 
-class HomePage extends React.Component{
+class SingleProject extends React.Component{
     constructor(props){
         super(props);
 
@@ -60,15 +61,36 @@ class HomePage extends React.Component{
         }else{
             return activeTab.content
         }
+    }
+
+    renderProjectMembers(){
+        const { users } = this.props;
+
+        return (
+            <ul className="project-members">
+                {users.map(user=>{
+                    return(
+                        <li key={user._id} className="user-list">
+
+                                <span className="username"> {getUserName(user, true)} </span>
+                                <span className="email">{getUserEmail(user)}</span>
+
+                        </li>
+                    )
+                })}
+            </ul>
+        )
 
     }
 
-
     render() {
+        const { project } = this.props;
+        const sidebarTitle = "Project members";
         return (
-            <div className="home-page">
+            <div className="single-project">
                 <div className="main-content">
                     <div className="tab-container">
+                        <div className="project-title">{project.name}</div>
                         <div className="tab-controls">
                             <ul>
                                 {this.getTabs()}
@@ -79,8 +101,12 @@ class HomePage extends React.Component{
                         </div>
                     </div>
                 </div>
+                <aside className="project-sidebar">
+                    <h2 className="title">{sidebarTitle}</h2>
+                    {this.renderProjectMembers()}
+                </aside>
             </div>
         )
     }
 }
-export default HomePage;
+export default SingleProject;
