@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { Messages, Files } from '../lib/collections';
-import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP } from '../constatnts/roles';
+import { Messages, Files, CreatedUsers } from '../lib/collections';
+import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST } from '../constatnts/roles';
 
 Meteor.methods({
     userRegistration(userData){
@@ -49,7 +49,7 @@ Meteor.methods({
         Messages.insert(msgData, (err, messageId)=>{
             if(err) throw new Meteor.Error(err);
 
-            if(files.length){
+            if(files && files.length){
                 files.forEach(item=>{
                     item.messageId = messageId;
                     Files.insert(item);
@@ -81,6 +81,43 @@ Meteor.methods({
     getFileDataURL(_id){
         //todo check
         return Files.findOne({_id});
+    },
+
+    adminCreateUser(data){
+        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+        if(Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
+            throw new Meteor.Error('validEmail',`Email "${data.email}" is already exist`);
+        if(Accounts.findUserByUsername(data.username) || CreatedUsers.findOne({username: data.username}))
+            throw new Meteor.Error('validUsername', `"${data.username}" is already exist`);
+
+        data.createBy = this.userId;
+        data.createAt = new Date();
+        data.isActive = false;
+        CreatedUsers.insert(data);
+    },
+
+    checkCreatedAccount(email){
+        return CreatedUsers.find({email}).count();
+    },
+
+    initCreatedUser(email, password){
+        const createdUser = CreatedUsers.findOne({email, isActive: false});
+
+        const userId = Accounts.createUser({
+            username: createdUser.username,
+            email,
+            password,
+            profile: {
+                firstName: createdUser.firstName,
+                lastName: createdUser.lastName,
+                role: [
+                    {role: 'user'}
+                ]
+            }
+        });
+        Roles.addUsersToRoles(userId, [createdUser.role]);
+        CreatedUsers.update({_id: createdUser._id}, {$set: {isActive: true}});
+        return userId;
     }
 });
 

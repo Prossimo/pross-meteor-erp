@@ -4,6 +4,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 
 import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
+import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
 import ProjectsPage from '../../api/composer/pages/ProjectsPage';
 
@@ -34,6 +35,17 @@ FlowRouter.route('/project/:id', {
         checkAuth();
         mount(App, {
             content: <SingleProject/>,
+            login: true
+        })
+    }
+});
+
+FlowRouter.route('/admin', {
+    name: 'Admin',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <AdminPage/>,
             login: true
         })
     }

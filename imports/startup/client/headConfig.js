@@ -1,5 +1,5 @@
 
-const defaultTitle = "Meteor chat";
+const defaultTitle = "Meteor app";
 DocHead.setTitle(defaultTitle);
 
 const metaCharset = {"charset": "IE=edge"};

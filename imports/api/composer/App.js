@@ -10,9 +10,9 @@ const reactiveMapper = (props, onData)=> {
 
     if (Meteor.subscribe(GET_USERS).ready()) {
 
+        const currentUser = Meteor.users.findOne(Meteor.userId());
         const users = Meteor.users.find().fetch();
-
-        onData(null, { users });
+        onData(null, { currentUser, users });
     }
 };
 

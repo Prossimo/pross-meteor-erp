@@ -18,12 +18,14 @@ class App extends React.Component{
 
 
     render() {
-        const {login} = this.props;
+        const {login, currentUser} = this.props;
         const { asideActive } = this.state;
         return (
             <div className="app">
                 <Header user={Meteor.user()} login={login}/>
-                {login && <Aside toggleAside={this.toggleAside.bind(this)}
+                {login && <Aside
+                    toggleAside={this.toggleAside.bind(this)}
+                    currentUser={currentUser}
                     asideActive={asideActive}/>}
                 <div className={classNames("page-content", {"active-aside": asideActive})}>
                     {React.cloneElement(this.props.content, {...this.props})}

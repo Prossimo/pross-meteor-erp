@@ -110,7 +110,7 @@ class SignUp extends React.Component{
     }
 
     render() {
-        let {validation} = this.state;
+        const {validation, firstName, lastName, username, email, password, repeatPassword} = this.state;
         return (
             <div className="sign-up-wrap">
                 <header className="auth-header">
@@ -123,7 +123,7 @@ class SignUp extends React.Component{
                                type="text"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.firstName}
+                               value={firstName}
                                onChange={this.change.bind(this)}
                         />
                     </div>
@@ -133,7 +133,7 @@ class SignUp extends React.Component{
                                type="text"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.lastName}
+                               value={lastName}
                                onChange={this.change.bind(this)}
                         />
                     </div>
@@ -143,7 +143,7 @@ class SignUp extends React.Component{
                                type="text"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.username}
+                               value={username}
                                onChange={this.change.bind(this)}
                         />
                         <span className="validation">{validation.username}</span>
@@ -154,7 +154,7 @@ class SignUp extends React.Component{
                                type="email"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.email}
+                               value={email}
                                onChange={this.change.bind(this)}
                         />
                         <span className="validation">{validation.email}</span>
@@ -165,7 +165,7 @@ class SignUp extends React.Component{
                                type="password"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.password}
+                               value={password}
                                onChange={this.change.bind(this)}
                         />
                         <span className="validation">{validation.password}</span>
@@ -176,7 +176,7 @@ class SignUp extends React.Component{
                                type="password"
                                onFocus={this.focusInput.bind(this)}
                                onBlur={this.blurInput.bind(this)}
-                               value={this.state.repeatPassword}
+                               value={repeatPassword}
                                onChange={this.change.bind(this)}
                         />
                     </div>

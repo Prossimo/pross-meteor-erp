@@ -44,14 +44,17 @@ class SingleProject extends React.Component{
 
     getTabs(){
         const { activeTab } = this.state;
-        return this.tabs.map(item=>{
-            return (
-                <li key={item.label}
-                    onClick={this.toggleTab.bind(this, item)}
-                    className={classNames({"active": item === activeTab})}
-                >{item.label}</li>
-            )
-        })
+
+        return <ul>
+            {this.tabs.map(item=>{
+                return (
+                    <li key={item.label}
+                        onClick={this.toggleTab.bind(this, item)}
+                        className={classNames({"active": item === activeTab})}
+                    >{item.label}</li>
+                )
+            })}
+        </ul>
     }
 
     getContent(){
@@ -87,21 +90,19 @@ class SingleProject extends React.Component{
         const { project } = this.props;
         const sidebarTitle = "Project members";
         return (
-            <div className="single-project">
+            <div className="page-container single-project">
                 <div className="main-content">
                     <div className="tab-container">
-                        <div className="project-title">{project.name}</div>
+                        <h2 className="page-title">{project.name}</h2>
                         <div className="tab-controls">
-                            <ul>
-                                {this.getTabs()}
-                            </ul>
+                            {this.getTabs()}
                         </div>
                         <div className="tab-content">
                             {this.getContent()}
                         </div>
                     </div>
                 </div>
-                <aside className="project-sidebar">
+                <aside className="right-sidebar">
                     <h2 className="title">{sidebarTitle}</h2>
                     {this.renderProjectMembers()}
                 </aside>

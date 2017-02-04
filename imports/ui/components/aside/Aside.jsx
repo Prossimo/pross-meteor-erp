@@ -1,6 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constatnts/roles';
 
 
 class Aside extends React.Component{
@@ -21,6 +22,13 @@ class Aside extends React.Component{
                 route: "Companies"
             }
         ];
+
+        if(Roles.userIsInRole( props.currentUser._id, [ADMIN_ROLE,SUPER_ADMIN_ROLE] )){
+            this.pages.push({
+                label: "Admin",
+                route: "Admin"
+            })
+        }
     }
 
     toggleAside(){

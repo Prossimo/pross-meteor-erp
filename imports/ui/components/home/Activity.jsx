@@ -48,7 +48,7 @@ class Activity extends React.Component{
                 return true;
             }
         }
-        //todo validate type and size
+        //todo add mongo-grid package
         if(attachedFiles.length){
             let reader = new FileReader;
             let step = 0;
