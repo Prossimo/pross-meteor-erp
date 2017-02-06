@@ -7,6 +7,7 @@ import AuthenticationPage from '../../ui/pages/AuthenticationPage';
 import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
 import ProjectsPage from '../../api/composer/pages/ProjectsPage';
+import UserAccount from '../../ui/pages/UserAccount';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -46,6 +47,17 @@ FlowRouter.route('/admin', {
         checkAuth();
         mount(App, {
             content: <AdminPage/>,
+            login: true
+        })
+    }
+});
+
+FlowRouter.route('/account', {
+    name: 'User',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <UserAccount/>,
             login: true
         })
     }

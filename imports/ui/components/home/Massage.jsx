@@ -1,6 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import Textarea from 'react-textarea-autosize';
+import { getUserName } from '../../../api/lib/filters'
 
 
 class Massage extends React.Component{
@@ -10,8 +11,6 @@ class Massage extends React.Component{
         this.state = {
             editMode: false,
             text: props.msg.msg,
-            replayEditor: false,
-            replayText: ''
         }
     }
 
@@ -29,9 +28,6 @@ class Massage extends React.Component{
         this.setState({text: event.target.value})
     }
 
-    changeReplayText(event){
-        this.setState({replayText: event.target.value})
-    }
 
     saveEdited(){
         //todo err cb
@@ -42,38 +38,10 @@ class Massage extends React.Component{
         })
     }
 
-    saveReplay(){
-        //todo functionality for replay
-
-    }
 
     cancelEdit(){
         const { msg } = this.props;
-        this.setState({editMode: false, text: msg.msg, replayEditor: false })
-    }
-
-    replay(){
-        this.setState({replayEditor: true})
-    }
-
-    renderReplayEditor(){
-        const { replayEditor, replayText } = this.state;
-
-        if(replayEditor){
-            return (
-                <div>
-                    <Textarea className="edit-msg"
-                              value={replayText}
-                              onChange={this.changeReplayText.bind(this)}/>
-                    <div className="msg-controls">
-                        <button className="btn btn-update"
-                                onClick={this.saveReplay.bind(this)}>Replay</button>
-                        <button className="btn btn-cancel"
-                                onClick={this.cancelEdit.bind(this)}>Cancel</button>
-                    </div>
-                </div>
-            )
-        }
+        this.setState({editMode: false, text: msg.msg })
     }
 
     getContent(msg){
@@ -107,15 +75,9 @@ class Massage extends React.Component{
                           onClick={this.delete.bind(this)}/>
                 </div>
             )
-        }else{
-            return (
-                <div className="controls">
-                    <span className="replay"
-                          onClick={this.replay.bind(this)}/>
-                </div>
-            )
         }
     }
+
     preloadFile(item){
         Meteor.call('getFileDataURL', item.id, (err,res)=>{
             if(!err) {
@@ -129,38 +91,6 @@ class Massage extends React.Component{
                 link.dispatchEvent(event);
             }
         })
-    }
-
-    renderReplays(msg){
-        //todo refactor maybe add replay component
-        const self = this;
-
-        function render(item,index) {
-            return(
-                <li key={`${item}-${index}`}
-                    className="activity-msg">
-                    <div className="avatar">
-                        <img src="/icons/user.png" alt="user avatar"/>
-                    </div>
-                    <div className="info">
-                        <span className="author">{`${item.author.profile.firstName} ${item.author.profile.lastName}`}</span>
-                        <span className="date">{moment(item.createAt).format("dddd, MMMM Do YYYY, h:mm ")}</span>
-                        {self.getControls(item)}
-                    </div>
-                    {self.getContent(item)}
-                    {self.renderAttachedFiles(item)}
-                    {item.replays.length && item.replays.map((subItem,subIndex)=>render(item,index))}
-                </li>
-            )
-        }
-
-        if(msg.replays.length){
-            return (
-                <ul className="replay-list">
-                    {msg.replays.map((item,index)=>render(item,index))}
-                </ul>
-            )
-        }
     }
 
     renderAttachedFiles(msg){
@@ -189,14 +119,12 @@ class Massage extends React.Component{
                     <img src="/icons/user.png" alt="user avatar"/>
                 </div>
                 <div className="info">
-                    <span className="author">{`${msg.author.profile.firstName} ${msg.author.profile.lastName}`}</span>
+                    <span className="author">{getUserName(msg.author)}</span>
                     <span className="date">{moment(msg.createAt).format("dddd, MMMM Do YYYY, h:mm ")}</span>
                     {this.getControls(msg)}
                 </div>
                 {this.getContent(msg)}
                 {this.renderAttachedFiles(msg)}
-                {this.renderReplayEditor()}
-                {this.renderReplays(msg)}
             </li>
         )
     }

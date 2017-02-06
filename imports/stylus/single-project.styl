@@ -91,6 +91,61 @@
       background alpha($main-color, .7)
 
   .right-sidebar
+    overflow hidden
+
+    .title
+      position relative
+      z-index 5
+      background $white
+
+    .header-control
+      position relative
+
+      .add-user-btn
+        position absolute
+        width 30px
+        height 30px
+        color $main-color
+        font-size 25px
+        line-height 30px
+        text-align center
+        display block
+        top 50%
+        transform translateY(-50%)
+        right 0
+        z-index 5
+
+        &:after
+          content '\f067'
+          font-family FontAwesome
+
+        &:hover
+          cursor pointer
+
+      .add-user-form
+        position absolute
+        width 100%
+        padding 25px 0 25px
+        transition .3s
+        bottom 0
+        left 0
+        background $white
+        border-bottom 5px solid $main-color
+
+        &.active
+          transform translateY(100%)
+
+      .select-wrap
+        padding 0 0 15px
+
+        .members-select
+          margin-bottom 15px
+
+        .label
+          display block
+          margin-bottom 10px
+          font-size 16px
+
 
     .project-members
       padding 10px 0 0

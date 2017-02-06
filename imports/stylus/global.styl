@@ -143,3 +143,30 @@ body
         bottom 0
         left -15px
         background linear-gradient(to right,$main-color, transparent)
+
+.btn
+  display inline-block
+  padding 0 10px
+  min-width 80px
+  border-radius 4px
+  text-align center
+  height 30px
+  line-height 30px
+  border 1px solid $white
+  background transparent
+  color inherit
+  margin-right 10px
+
+  &:last-of-type
+    margin-bottom 0
+
+  &.primary-btn
+    background $main-color
+    color $white
+
+    &:hover
+      background alpha($main-color, .7)
+
+  &.default-btn
+    background $grey
+    color $white

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { Messages, Files, CreatedUsers } from '../lib/collections';
+import { Messages, Files, CreatedUsers, Projects } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST } from '../constatnts/roles';
 
 Meteor.methods({
@@ -118,6 +118,15 @@ Meteor.methods({
         Roles.addUsersToRoles(userId, [createdUser.role]);
         CreatedUsers.update({_id: createdUser._id}, {$set: {isActive: true}});
         return userId;
+    },
+
+    assignUsersToProject(projectId, usersIds){
+        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+        Projects.update({_id: projectId},{
+                $set: {
+                    members: usersIds
+                }
+            });
     }
 });
 

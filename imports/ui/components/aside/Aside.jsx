@@ -14,8 +14,8 @@ class Aside extends React.Component{
                 route: "Root"
             },
             {
-                label: "Users",
-                route: "Users"
+                label: "Account",
+                route: "User"
             },
             {
                 label: "Companies",
@@ -28,12 +28,6 @@ class Aside extends React.Component{
                 label: "Admin",
                 route: "Admin"
             })
-        }
-    }
-
-    toggleAside(){
-        if(typeof this.props.toggleAside == 'function'){
-            this.props.toggleAside()
         }
     }
 
@@ -60,11 +54,8 @@ class Aside extends React.Component{
     }
 
     render() {
-        const { asideActive } = this.props;
         return (
-            <aside className={classNames("control-aside", {"active": asideActive})}
-                   onMouseEnter={this.toggleAside.bind(this, true)}
-                   onMouseLeave={this.toggleAside.bind(this, false)}>
+            <aside className="control-aside active">
                 {this.renderList()}
             </aside>
         )

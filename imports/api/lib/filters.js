@@ -23,6 +23,21 @@ const userSchema = {
     ]
 }
 
+export const getUserRoles = (user)=>{
+    if(!user || !Array.isArray(roles)) return;
+    const { roles } = user;
+    if(roles.length == 1){
+        return roles[0];
+    }else if(roles.length > 1){
+        let emails = '';
+        roles.forEach(item=>{
+            emails += `${item}, `;
+        });
+        emails = emails.slice(-2);
+        return emails;
+    }
+}
+
 export const getUserName = (user, full)=>{
     if(!user) return;
     const { username } = user;
