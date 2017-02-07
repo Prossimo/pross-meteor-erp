@@ -126,7 +126,26 @@ Meteor.methods({
                 $set: {
                     members: usersIds
                 }
-            });
+            }
+        );
+    },
+
+    updateUserInfo(user){
+        if(user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
+            throw new Meteor.Error("Access denied");
+
+        Meteor.users.update({_id: this.userId},{
+            $set: {
+                username: user.username,
+                "profile.firstName": user.firstName,
+                "profile.lastName": user.lastName,
+                "profile.twitter": user.twitter,
+                "profile.facebook": user.facebook,
+                "profile.linkedIn": user.linkedIn,
+                "profile.companyName": user.companyName,
+                "profile.companyPosition": user.companyPosition
+            }
+        })
     }
 });
 

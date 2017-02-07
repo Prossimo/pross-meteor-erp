@@ -9,7 +9,7 @@ class UserAccount extends React.Component{
         this.tabs = [
             {
                 label: "Contact info",
-                component: <ContactInfo user={props.currentUser}/>
+                component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser}/>
             },
             {
                 label: 'My uploads',

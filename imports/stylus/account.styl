@@ -1,10 +1,81 @@
 .contact-info
   padding 0 20px
+  max-width 500px
 
-  > div
+  .group-wrap
+    padding 10px 0
+    color $main-color
+
+    .title
+      padding 0 10px
+      margin-bottom 13px
+
+
+  .field-wrap
+    position relative
     display flex
 
-  .label
-    width 200px
-    text-align right
+    &:hover
+      &:after
+        color alpha($main-color, 0.7)
+
+    &:after
+      position absolute
+      top 0
+      right 0
+      content '\f040'
+      font-family FontAwesome
+      color alpha($main-color, 0.3)
+      transition .3s
+
+    &.non-edit
+      &:after
+        content ''
+      .value
+        &:hover
+          cursor default
+          color inherit
+
+    > *
+      display block
+
+    .label,
+    input,
+    .value
+      display inline-block
+      height 25px
+      margin-bottom 10px
+      padding 0 10px
+      background $white
+      font-size 16px
+      line-height 25px
+      color $text-color
+
+
+    input
+      display none
+      flex-grow 1
+
+      &.show
+        display inline-block
+        border-bottom 3px solid $main-color
+
+    .label
+      position relative
+      width 120px
+
+    .value
+      position relative
+      padding-right 35px
+      border-bottom 1px solid $main-color
+      flex-grow 1
+
+      &.hide
+        display none
+
+      &:hover
+        cursor pointer
+        color $main-color
+
+
 

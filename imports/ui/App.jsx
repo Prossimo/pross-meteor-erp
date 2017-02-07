@@ -16,7 +16,6 @@ class App extends React.Component{
         }
     }
 
-
     render() {
         const { login } = this.props;
         return (

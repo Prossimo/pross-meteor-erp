@@ -24,8 +24,8 @@ const userSchema = {
 }
 
 export const getUserRoles = (user)=>{
-    if(!user || !Array.isArray(roles)) return;
     const { roles } = user;
+    if(!user || !Array.isArray(roles)) return;
     if(roles.length == 1){
         return roles[0];
     }else if(roles.length > 1){

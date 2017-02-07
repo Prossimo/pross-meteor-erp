@@ -5,8 +5,10 @@ import { getUserName, getUserEmail } from '../../../api/lib/filters';
 import Select from 'react-select';
 import { ADMIN_ROLE_LIST } from '../../../api/constatnts/roles';
 import Popup from '../popup/Popup';
+import ContactInfo from '../account/ContactInfo';
+import Quotes from './Quotes';
 
-import Activity from '../home/Activity';
+import Activity from './Activity';
 
 class SingleProject extends React.Component{
     constructor(props){
@@ -19,7 +21,7 @@ class SingleProject extends React.Component{
             },
             {
                 label: "Quotes",
-                content: <p>Quotes</p>
+                content: <Quotes/>
             },
             {
                 label: "Details",
@@ -96,7 +98,6 @@ class SingleProject extends React.Component{
                         <li key={user._id}
                             onClick={this.showUserInfo.bind(this, user)}
                             className="user-list">
-
                                 <span className="username"> {getUserName(user, true)} </span>
                                 <span className="email">{getUserEmail(user)}</span>
 
@@ -159,7 +160,10 @@ class SingleProject extends React.Component{
     }
 
     showUserInfo(user){
-        this.setState({showPopup: true, popupData: user})
+        this.setState({
+            showPopup: true,
+            popupData: <ContactInfo user={user}
+                                    editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
     }
 
     renderPopup(){

@@ -23,13 +23,13 @@ class Popup extends React.Component{
             return (
                 <div className="popup-area">
                     <div className="popup-container">
-                        <header>
-                            <h3>User data</h3>
+                        <header className="pop-head">
+                            <h3 >User data</h3>
                         </header>
                         <div className="body">
                             {this.props.content}
                         </div>
-                        <footer>
+                        <footer className="pop-footer">
                             <button className="btn primary-btn">Ok</button>
                             <button onClick={this.hide.bind(this)} className="btn default-btn">Cancel</button>
                         </footer>
