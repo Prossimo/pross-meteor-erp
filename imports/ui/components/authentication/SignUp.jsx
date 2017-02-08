@@ -1,6 +1,6 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
-
+import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
 
 class SignUp extends React.Component{
     constructor(props){
@@ -26,48 +26,50 @@ class SignUp extends React.Component{
             this.props.toggle();
         }
     }
+    
+    Check(validation){
+        this.setState({validation: Object.assign(this.state.validation, validation)});
+    }
 
     submit(event){
         event.preventDefault();
-        const { username, password, email, repeatPassword} = this.state;
-        let validation = {};
-
+        const { username, password, email, repeatPassword, validation} = this.state;
         if(username == ''){
-            validation.username = "Field is require"
-        } else if(username.length < 3) {
-            validation.username = "User name must be longer";
+            validation.username = "Field is required";
+            return this.Check(validation);
+        } else if(username.length < 3) {				
+            validation.username = "Username must be longer";
+            return this.Check(validation);
+        }       
+        if(!isValidEmail(email)) {
+        	   validation.email = "Please enter valid e-mail address";
+        	   return this.Check(validation);
+    	  }
+        if(!isValidPassword(password, 6)) {
+    	  		validation.password = "Please enter valid password";
+    	  		return this.Check(validation);
         }
-        if(email == '') {
-            validation.email = "Field is require";
-        } else if(email.indexOf("@") == -1) {
-            validation.email = "Invalid email";
-        }
-        if(password == '') {
-            validation.password = "Field is require";
-        } else if(password && password !== repeatPassword) {
-            validation.password = "Password is wrong!";
+        if(password && password !== repeatPassword) {
+            validation.password = "Passwords doesn't match";
+            return this.Check(validation);
         }
 
-        if(JSON.stringify(validation) !== '{}'){
-            this.setState({validation: Object.assign(this.state.validation, validation)});
-        }else{
-            this.setState({isLogining: true});
-            Meteor.call("userRegistration", this.state, (err,res)=>{
-                this.setState({isLogining: false});
-                if(!err){
-                    const { username, password, validation } = res;
-                    if(validation.email || validation.username){
-                        this.setState({validation: Object.assign(this.state.validation, validation)});
-                    }else{
-                        Meteor.loginWithPassword({username}, password, (err) => {
-                            FlowRouter.reload();
-                        });
-                    }
-                }
-            })
-        }
+        this.setState({isLogining: true});
+        Meteor.call("userRegistration", this.state, (err,res)=>{
+            this.setState({isLogining: false});
+            if(!err){
+            	const { username, password, validation } = res;
+               if(validation.email || validation.username){
+               	this.Check(validation);
+               }else{
+               	Meteor.loginWithPassword({username}, password, (err) => {
+                  	FlowRouter.reload();
+                  });
+               }
+            }
+    	  })
     }
-
+	
     focusInput(event){
         const { validation } = this.state;
         event.target.parentElement.classList.add('active');
@@ -84,16 +86,16 @@ class SignUp extends React.Component{
         }
         switch (event.target.id){
             case 'email':
-                if(value.indexOf("@") == -1)
-                    this.setState({validation: Object.assign(validation, {email: "Email must exist @"})});
+                if(!isValidEmail(value))
+                    this.setState({validation: Object.assign(validation, {email: "Please enter valid e-mail address"})});
                 break;
             case 'username':
                 if(value === '')
-                    this.setState({validation: Object.assign(validation, {username: "User name is require"})});
+                    this.setState({validation: Object.assign(validation, {username: "Username is required"})});
                 break;
             case 'repeatPassword':
                 if(value !== this.state.password)
-                    this.setState({validation:  Object.assign(validation, {password: "Password is wrong"})});
+                    this.setState({validation:  Object.assign(validation, {password: "Passwords doesn't match"})});
                 break;
             default:
                 return true;

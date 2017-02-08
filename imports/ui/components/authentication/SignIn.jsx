@@ -1,5 +1,6 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
+import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
 
 class SignIn extends React.Component{
     constructor(props){
@@ -22,11 +23,17 @@ class SignIn extends React.Component{
         const email = this.state.email.trim(),
             password = this.state.password.trim(),
             passwordRepeat = this.state.passwordRepeat.trim();
-        if(!email || !password || !checkCreateAccount) return this.setState({authError: "Some field is empty"});
+        if(!isValidEmail(email)) {
+    	  		return this.setState({ authError: "Please enter valid e-mail address" });
+    	  }
+    
+        if(!isValidPassword(password, 6)) {
+    	  		return this.setState({ authError: "Please enter valid password" });
+        }
 
         if (isUserCreated && password === passwordRepeat) {
             Meteor.call("initCreatedUser", email, password, (err, res)=>{
-                if(err) return console.log(err);
+                if(err) return this.setState({authError: err});
                 Meteor.loginWithPassword({email}, password, (err) => {
                     FlowRouter.reload();
                 });
