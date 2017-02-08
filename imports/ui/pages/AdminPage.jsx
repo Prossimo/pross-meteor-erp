@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import CreateUser from '../components/admin/CreateUser';
+import CreateProject from '../components/admin/CreateProject';
 
 class AdminPage extends React.Component{
     constructor(props){
@@ -14,7 +15,7 @@ class AdminPage extends React.Component{
             },
             {
                 label: 'Add project',
-                content: <p>Create new component</p>
+                component: <CreateProject/>
             }
         ];
 

@@ -2,6 +2,8 @@ import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import Massage from './Massage';
 import Textarea from 'react-textarea-autosize';
+import { getUserName, getUserEmail } from '../../../api/lib/filters';
+
 
 class Activity extends React.Component{
     constructor(props){
@@ -29,14 +31,43 @@ class Activity extends React.Component{
     }
 
     sendMsg(event){
-        const { project } = this.props;
+        const { project, currentUser, usersArr } = this.props;
         const { msg, attachedFiles } = this.state;
+
+
+        const memberEmails = project.members.map(item=>{
+            if(getUserEmail(currentUser) !== getUserEmail(usersArr[item]))
+                return getUserEmail(usersArr[item]);
+        });
+        if(memberEmails.length){
+            Meteor.call("sendEmail", {
+                to: memberEmails,
+                from: 'mail@prossimo.us',
+                subject: `New activity message from ${project.name} project`,
+                replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
+                html: `
+                    <h3>Hello</h3>
+                    <p>You have a new message from ${getUserName(currentUser, true)}</p>
+                    <p style="padding: 0 20px; border-left: 5px solid #232323">${msg}</p>
+                    <a href="${FlowRouter.url(FlowRouter.current().path)}">Go to app</a>
+                `
+            }, (err,res)=>{
+                if(!err){
+                    Alert.info(`Emails sending to project members`, {
+                        position: 'bottom-right',
+                        effect: 'bouncyflip',
+                        timeout: 6000
+                    });
+                }
+            });
+        }
+
+
         if(msg === '') return;
         let data = {
             createAt: new Date(),
             msg,
             attachments: [],
-            replays: [],
             projectId: project._id
         };
         let files = [];
@@ -48,6 +79,10 @@ class Activity extends React.Component{
                 return true;
             }
         }
+
+
+
+
         //todo add mongo-grid package
         if(attachedFiles.length){
             let reader = new FileReader;

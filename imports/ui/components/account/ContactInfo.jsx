@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import { getUserRoles, getUserEmail } from '../../../api/lib/filters';
-import { ADMIN_ROLE_LIST } from '/imports/api/constatnts/roles'
+import Alert from 'react-s-alert';
 
 class ContactInfo extends React.Component{
     constructor(props){
@@ -69,8 +69,20 @@ class ContactInfo extends React.Component{
             companyPosition
         };
 
-        Meteor.call("updateUserInfo", userData, (err,res)=>{
-            //todo cb
+        Meteor.call("updateUserInfo", userData, (err)=>{
+            if(!err) {
+                Alert.info(`Contact data successful updated!`, {
+                    position: 'bottom-right',
+                    effect: 'bouncyflip',
+                    timeout: 5000
+                });
+            }else{
+                Alert.warning(`Cannot update data, try again!`, {
+                    position: 'bottom-right',
+                    effect: 'bouncyflip',
+                    timeout: 5000
+                });
+            }
         })
     }
 

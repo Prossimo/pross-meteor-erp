@@ -1,9 +1,18 @@
 import { Meteor } from 'meteor/meteor';
+import { check, Match } from 'meteor/check';
 import { Messages, Files, CreatedUsers, Projects } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST } from '../constatnts/roles';
 
 Meteor.methods({
     userRegistration(userData){
+        check(userData, {
+            username: String,
+            email: String,
+            password: String,
+            firstName: String,
+            lastName: String,
+        });
+
         const { username, email, password, firstName, lastName } = userData;
         let validation = {};
         if(Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
@@ -22,6 +31,7 @@ Meteor.methods({
                     ]
                 }
             });
+            //todo change default role
             Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE], DEFAULT_USER_GROUP );
         }else{
             userData.validation = validation;
@@ -31,11 +41,12 @@ Meteor.methods({
     },
 
     sendEmail: function (mailData) {
-        check(mailData, {
-            to: String,
+        Match.test(mailData, {
+            to: Match.OneOf(String, Array),
             from: String,
+            replyTo: String,
             subject: String,
-            html: String
+            html: String,
         });
         this.unblock();
 
@@ -44,6 +55,7 @@ Meteor.methods({
     },
 
     createMassage(msgData, files){
+        //todo refactor add checking args
         const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
         msgData.author = author;
         Messages.insert(msgData, (err, messageId)=>{
@@ -59,7 +71,12 @@ Meteor.methods({
     },
 
     deleteMsg(msg){
-        //todo more security, err cb
+        check(msg, {
+            _id: String,
+            author: {
+                _id: String
+            },
+        });
         if(msg.author._id === this.userId){
             Messages.remove({_id: msg._id}, (err)=>{
                 if(err) throw new Meteor.Error(err)
@@ -68,7 +85,13 @@ Meteor.methods({
     },
 
     updateMsg(msg, text){
-        //todo more security, err cb
+        check(msg, {
+            _id: String,
+            author: {
+                _id: String
+            },
+        });
+        check(text, String)
         if(msg.author._id === this.userId){
             Messages.update(
                 {_id: msg._id},

@@ -12,7 +12,11 @@ const reactiveMapper = (props, onData)=> {
 
         const currentUser = Meteor.users.findOne(Meteor.userId());
         const users = Meteor.users.find().fetch();
-        onData(null, { currentUser, users });
+        let usersArr = {};
+        users.forEach(item=>{
+            usersArr[item._id] = item
+        });
+        onData(null, { currentUser, users, usersArr });
     }
 };
 

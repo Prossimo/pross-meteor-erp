@@ -101,7 +101,7 @@ class Massage extends React.Component{
                         return <li key={item.id}
                                    className="attached-item">
                             <span onClick={this.preloadFile.bind(this, item)}>{item.name}</span>
-                            <a href="#" id={`file-${item.id || item}`} download={item.name}/>
+                            <a href="#" id={`file-${item.id}`} download={item.name}/>
                         </li>
                     })}
                 </ul>

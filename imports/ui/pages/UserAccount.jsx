@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import ContactInfo from '../components/account/ContactInfo';
+import EmailSignature from '../components/account/EmailSignature';
 
 class UserAccount extends React.Component{
     constructor(props){
@@ -12,8 +13,8 @@ class UserAccount extends React.Component{
                 component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser}/>
             },
             {
-                label: 'My uploads',
-                content: <p>uploads</p>
+                label: 'Add Signature',
+                content: <EmailSignature/>
             }
         ];
 
