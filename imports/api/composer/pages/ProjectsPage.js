@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../traker';
 import { Projects } from '../../lib/collections';
-import { GET_PROJECTS } from '../../constatnts/collections';
+import { GET_PROJECTS } from '../../constants/collections';
 
 import ProjectsPage from '../../../ui/pages/ProjectsPage';
 

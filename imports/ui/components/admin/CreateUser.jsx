@@ -1,6 +1,6 @@
 import React from 'react';
 import Select from 'react-select';
-import { USER_ROLE_LIST } from '/imports/api/constatnts/roles';
+import { USER_ROLE_LIST } from '/imports/api/constants/roles';
 
 class CreateUser extends React.Component{
     constructor(props){

@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, Projects, CreatedUsers } from '../lib/collections';
-import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_ADMIN_CREATE_USERS } from '../constatnts/collections';
-import { ADMIN_ROLE_LIST } from '../constatnts/roles';
+import { Messages, Projects, CreatedUsers, Quotes } from '../lib/collections';
+import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_ADMIN_CREATE_USERS, GET_QUOTES } from '../constants/collections';
+import { ADMIN_ROLE_LIST } from '../constants/roles';
 
 Meteor.startup(()=>{
     Meteor.publish(GET_USERS, function(){
@@ -20,6 +20,12 @@ Meteor.startup(()=>{
     Meteor.publish(GET_PROJECTS, function(){
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
         return Projects.find({members: this.userId})
+    });
+
+    Meteor.publish(GET_QUOTES, function(projectId){
+        Match.test(projectId, String);
+
+        return Quotes.find()
     });
 
     Meteor.publish(GET_PROJECT, function(_id){

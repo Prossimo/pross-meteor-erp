@@ -3,6 +3,8 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import Massage from './Massage';
 import Textarea from 'react-textarea-autosize';
 import { getUserName, getUserEmail } from '../../../api/lib/filters';
+import { generateEmailHtml } from '/imports/api/lib/functions';
+import Alert from 'react-s-alert';
 
 
 class Activity extends React.Component{
@@ -34,32 +36,27 @@ class Activity extends React.Component{
         const { project, currentUser, usersArr } = this.props;
         const { msg, attachedFiles } = this.state;
 
-
         const memberEmails = project.members.map(item=>{
-            if(getUserEmail(currentUser) !== getUserEmail(usersArr[item]))
-                return getUserEmail(usersArr[item]);
+            return getUserEmail(usersArr[item]);
         });
+
+         function sendEmailCb(err) {
+            if(!err){
+                Alert.info(`Emails sending to project members`, {
+                    position: 'bottom-right',
+                    effect: 'bouncyflip',
+                    timeout: 3500
+                });
+            }
+        }
         if(memberEmails.length){
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
                 subject: `New activity message from ${project.name} project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                html: `
-                    <h3>Hello</h3>
-                    <p>You have a new message from ${getUserName(currentUser, true)}</p>
-                    <p style="padding: 0 20px; border-left: 5px solid #232323">${msg}</p>
-                    <a href="${FlowRouter.url(FlowRouter.current().path)}">Go to app</a>
-                `
-            }, (err,res)=>{
-                if(!err){
-                    Alert.info(`Emails sending to project members`, {
-                        position: 'bottom-right',
-                        effect: 'bouncyflip',
-                        timeout: 6000
-                    });
-                }
-            });
+                html: generateEmailHtml(currentUser, msg, FlowRouter.url(FlowRouter.current().path))
+            },sendEmailCb);
         }
 
 
@@ -79,9 +76,6 @@ class Activity extends React.Component{
                 return true;
             }
         }
-
-
-
 
         //todo add mongo-grid package
         if(attachedFiles.length){

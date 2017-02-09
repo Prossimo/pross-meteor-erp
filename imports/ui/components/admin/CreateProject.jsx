@@ -11,7 +11,7 @@ class CreateUser extends React.Component{
         return (
             <div className="create-project">
                 <form className="default-form">
-                    <h2 className="title">Add new project</h2>
+                    <h2 className="title">Add new project (not working yet)</h2>
                     <div className="field-wrap">
                         <span className="label">Project name</span>
                         <input type="text"/>

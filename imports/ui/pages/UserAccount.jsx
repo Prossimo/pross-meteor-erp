@@ -2,6 +2,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ContactInfo from '../components/account/ContactInfo';
 import EmailSignature from '../components/account/EmailSignature';
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE } from '/imports/api/constants/roles';
 
 class UserAccount extends React.Component{
     constructor(props){
@@ -11,12 +12,14 @@ class UserAccount extends React.Component{
             {
                 label: "Contact info",
                 component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser}/>
-            },
-            {
-                label: 'Add Signature',
-                content: <EmailSignature/>
             }
         ];
+        if(Roles.userIsInRole(props.currentUser._id, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+            this.tabs.push({
+                label: 'Add Signature',
+                content: <EmailSignature user={props.currentUser}/>
+            })
+        }
 
         this.state = {
             activeTab: this.tabs[0]

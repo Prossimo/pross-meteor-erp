@@ -3,7 +3,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 import { getUserName, getUserEmail } from '../../../api/lib/filters';
 import Select from 'react-select';
-import { ADMIN_ROLE_LIST } from '../../../api/constatnts/roles';
+import { ADMIN_ROLE_LIST } from '../../../api/constants/roles';
 import Popup from '../popup/Popup';
 import ContactInfo from '../account/ContactInfo';
 import Quotes from './Quotes';
@@ -21,7 +21,7 @@ class SingleProject extends React.Component{
             },
             {
                 label: "Quotes",
-                content: <Quotes/>
+                component: <Quotes/>
             },
             {
                 label: "Details",

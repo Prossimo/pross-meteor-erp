@@ -39,7 +39,7 @@ body
   width 100%
   overflow hidden
   padding-top $header-height
-  background linear-gradient(to bottom, $main-color, alpha($main-color, .2))
+  background alpha($main-color, .5)
 
   .page-content
     transition .3s
@@ -146,16 +146,17 @@ body
 
 .btn
   display inline-block
-  padding 0 10px
+  padding 0 20px
   min-width 80px
   border-radius 4px
   text-align center
-  height 30px
-  line-height 30px
+  height 35px
+  line-height 35px
   border 1px solid $white
   background transparent
   color inherit
   margin-right 10px
+  transition background .3s
 
   &:last-of-type
     margin-bottom 0
@@ -170,3 +171,6 @@ body
   &.default-btn
     background $grey
     color $white
+
+    &:hover
+      background alpha($grey, .7)

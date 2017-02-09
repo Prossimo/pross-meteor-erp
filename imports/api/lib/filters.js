@@ -54,3 +54,9 @@ export const getUserEmail = (user)=>{
     const { emails } = user;
     if(emails[0].address) return emails[0].address;
 };
+
+export const getUserSignature = (user)=>{
+    if(!user) return;
+    const { profile } = user;
+    return profile.signature ? profile.signature : '';
+}

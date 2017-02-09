@@ -4,7 +4,7 @@
   position fixed
   top 0
   left 0
-  transition .3s
+  transition transform .3s
   transform translateX(-80%)
   background #fff
   z-index 5
@@ -61,13 +61,14 @@
       &:after
         content ''
         display block
-        border-bottom 5px solid $main-color
-        border-right 5px solid transparent
-        border-left 5px solid transparent
+        border-bottom 7px solid alpha($main-color, .2)
+        border-right 7px solid transparent
+        border-left 7px solid transparent
         position absolute
-        transform rotate(90geg) translateY(-50%)
+        transform rotate(90deg) translateY(-50%)
         right 15px
         top 50%
+        margin-top -5px
 
       &:hover
         cursor pointer
@@ -76,4 +77,6 @@
 
       &.active
         border-left 5px solid $main-color
+        &:after
+          border-bottom 7px solid alpha($main-color, .8)
 
