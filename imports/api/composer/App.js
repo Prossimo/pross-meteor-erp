@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from './traker';
-import { GET_USERS } from '../constatnts/collections';
+import { GET_USERS } from '../constants/collections';
 
 import App from '../../ui/App';
 

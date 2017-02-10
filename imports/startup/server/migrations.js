@@ -4,8 +4,8 @@ import {
     STAKEHOLDER_ROLE,
     VENDOR_ROLE,
     EMPLOYEE_ROLE
-} from '../../api/constatnts/roles';
-import {Projects } from '../../api/lib/collections';
+} from '../../api/constants/roles';
+import {Projects, Quotes } from '../../api/lib/collections';
 
 Migrations.add({
     version: 1,
@@ -33,7 +33,7 @@ Migrations.add({
     version: 2,
     name: 'Add progect list',
     up() {
-        console.log('up2 - Snapshots added');
+        console.log('up2 - projects added');
         const projectList = [
             {
                 name: "Project #1",
@@ -72,6 +72,37 @@ Migrations.add({
     }
 });
 
+
+Migrations.add({
+    version: 3,
+    name: 'Add test quotes',
+    up() {
+        console.log('up3 - quotes added');
+        [
+            {
+                name: "Quote #1",
+                revisionNumber: "active",
+                active: true,
+                fileLink: '',
+                createAt: new Date()
+            },
+            {
+                name: "Quote 2",
+                status: "delivered",
+                active: false,
+                fileLink: '',
+                createAt: new Date()
+            }
+        ].forEach(item=>{
+            Quotes.insert(item)
+        })
+    },
+    down() {
+        console.log('down 3');
+        Quotes.remove({});
+    }
+});
+
 Meteor.startup(() => {
-    Migrations.migrateTo('latest');
+    Migrations.migrateTo(3);
 });

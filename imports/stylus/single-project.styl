@@ -169,8 +169,45 @@
         &:after
           content ')'
 
+.quotes
+  padding 0 20px
 
+  .single-quota
+    border-radius 3px
+    border 1px solid $grey
+    margin-bottom 15px
+    background $white
+    padding 10px 15px
+    display flex
+    overflow hidden
+    position relative
+    transition box-shadow .3s
 
+    &:hover
+      cursor pointer
+      box-shadow 0 3px 5px 0 alpha($main-color, .3)
+      &:after
+        transform rotate(35deg) scale(1.1)
+
+    &:after
+      content '\f1c1'
+      font-family FontAwesome
+      font-size 70px
+      position absolute
+      width 100px
+      height 100px
+      top 0
+      right 20%
+      transition transform .3s
+      transform rotate(35deg)
+      color alpha($main-color, .2)
+
+    .desc-part
+      flex-grow 1
+
+    .control-part
+      width 100px
+      flex-shrink 0
 
 
 

@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../traker';
 import { CreatedUsers } from '../../lib/collections';
-import { GET_ADMIN_CREATE_USERS } from '../../constatnts/collections';
+import { GET_ADMIN_CREATE_USERS } from '../../constants/collections';
 
 import AdminPage from '../../../ui/pages/AdminPage';
 

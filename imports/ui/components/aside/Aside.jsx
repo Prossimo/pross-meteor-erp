@@ -1,7 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
-import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constatnts/roles';
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constants/roles';
 
 
 class Aside extends React.Component{

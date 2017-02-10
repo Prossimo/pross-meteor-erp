@@ -1,7 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
-import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constatnts/roles';
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constants/roles';
 
 
 class Popup extends React.Component{
@@ -23,16 +23,13 @@ class Popup extends React.Component{
             return (
                 <div className="popup-area">
                     <div className="popup-container">
+                        <span onClick={this.hide.bind(this)} className="close-popup"/>
                         <header className="pop-head">
                             <h3 >User data</h3>
                         </header>
                         <div className="body">
                             {this.props.content}
                         </div>
-                        <footer className="pop-footer">
-                            <button className="btn primary-btn">Ok</button>
-                            <button onClick={this.hide.bind(this)} className="btn default-btn">Cancel</button>
-                        </footer>
                     </div>
                 </div>
             )
