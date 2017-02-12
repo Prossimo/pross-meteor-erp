@@ -40,7 +40,7 @@ class Activity extends React.Component{
             return getUserEmail(usersArr[item]);
         });
 
-         function sendEmailCb(err) {
+         const sendEmailCb = (err)=> {
             if(!err){
                 Alert.info(`Emails sending to project members`, {
                     position: 'bottom-right',
@@ -58,7 +58,6 @@ class Activity extends React.Component{
                 html: generateEmailHtml(currentUser, msg, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         }
-
 
         if(msg === '') return;
         let data = {
@@ -103,10 +102,26 @@ class Activity extends React.Component{
     }
 
     getMassageList(){
+        //todo refactor
         return(
             <div className="massage-list">
                 <ul>
-                    {this.props.messages.map(item=><Massage key={item._id}  msg={item}/>)}
+                    {this.props.messages.map(item=>{
+                        if(item.type === 'message'){
+                            return (
+                                <Massage key={item._id}  msg={item}/>
+                            )
+                        }else if(item.type === 'event'){
+                            return (
+                                <li key={item._id}
+                                    className="event-message">
+                                    {getUserName(item.author, true)}
+                                    {item.name} at
+                                    {moment(item.createAt).format("h:mm, MMMM Do YYYY")}
+                                </li>
+                            )
+                        }
+                    })}
                 </ul>
             </div>
         )

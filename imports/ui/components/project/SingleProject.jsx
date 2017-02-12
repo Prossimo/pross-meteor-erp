@@ -1,14 +1,17 @@
 import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
+import { ADMIN_ROLE_LIST, EMPLOYEE_ROLE } from '../../../api/constants/roles';
 import { getUserName, getUserEmail } from '../../../api/lib/filters';
+
 import Select from 'react-select';
-import { ADMIN_ROLE_LIST } from '../../../api/constants/roles';
 import Popup from '../popup/Popup';
 import ContactInfo from '../account/ContactInfo';
 import Quotes from './Quotes';
-
+import Inbox from './Inbox';
+import Details from './Details';
 import Activity from './Activity';
+import Invoices from './Invoices';
+import Documents from './Documents';
 
 class SingleProject extends React.Component{
     constructor(props){
@@ -25,20 +28,27 @@ class SingleProject extends React.Component{
             },
             {
                 label: "Details",
-                content: <p>Details</p>
+                component: <Details/>
             },
             {
                 label: "Invoices",
-                content: <p>Invoices</p>
+                component: <Invoices/>
             },
             {
                 label: "Documents",
-                content: <p>Documents</p>
+                component: <Documents/>
             }
         ];
 
+        if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
+            this.tabs.unshift({
+                label: "Inbox",
+                component: <Inbox/>
+            })
+        }
+
         this.state = {
-            activeTab: this.tabs[0],
+            activeTab: this.tabs.find(item=>item.label === "Activity"),
             addUserFormActive: false,
             showPopup: false,
             popupData: null,

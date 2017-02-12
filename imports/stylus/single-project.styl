@@ -169,7 +169,7 @@
         &:after
           content ')'
 
-.quotes
+.project-quotes-tab
   padding 0 20px
 
   .single-quota
@@ -178,7 +178,6 @@
     margin-bottom 15px
     background $white
     padding 10px 15px
-    display flex
     overflow hidden
     position relative
     transition box-shadow .3s
@@ -206,10 +205,55 @@
       flex-grow 1
 
     .control-part
-      width 100px
       flex-shrink 0
 
+    .quote-revision
+      display none
 
+    .revision-list
+      padding-left 20px
+      position relative
+      overflow hidden
 
+      &:before
+        content ''
+        position absolute
+        display block
+        width 5px
+        border-radius 3px
+        height 100%
+        left 0
+        top -20px
+        background $main-color
 
+    .revision-item
+      position relative
+      padding 10px
 
+      &:before,
+      &:after
+        content ''
+        position absolute
+        display block
+        background $main-color
+        top 50%
+        transform translateY(-50%)
+      &:before
+        height 5px
+        width 20px
+        left -20px
+      &:after
+        width 8px
+        height 8px
+        border-radius 50%
+        left -4px
+
+.project-inbox-tab,
+.details-inbox-tab,
+.documents-inbox-tab,
+.invoices-inbox-tab
+  padding 0 20px
+
+  .add-quote-form
+    width 100%
+    max-width 450px

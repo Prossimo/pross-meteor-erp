@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { check, Match } from 'meteor/check';
-import { Messages, Files, CreatedUsers, Projects } from '../lib/collections';
+import { Messages, Files, CreatedUsers, Projects, Quotes } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../constants/roles';
 
 Meteor.methods({
@@ -49,8 +49,6 @@ Meteor.methods({
             html: String,
         });
         this.unblock();
-
-        console.log(mailData)
 
         Email.send(mailData);
         return "Message is sending";
@@ -185,6 +183,14 @@ Meteor.methods({
                 [`profile.${field}`]: data
             }
         })
+    },
+
+    addNewQuote(data){
+        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+            throw new Meteor.Error("Access denied");
+        }
+
+        Quotes.insert(data);
     }
 });
 

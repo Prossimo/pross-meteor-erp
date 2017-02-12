@@ -28,3 +28,5 @@ check
 matb33:collection-hooks
 alanning:roles
 percolate:migrations
+cfs:standard-packages
+cfs:gridfs

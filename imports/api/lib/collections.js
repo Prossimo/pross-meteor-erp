@@ -1,22 +1,44 @@
 import { Mongo } from  'meteor/mongo';
-import { FILES, MESSAGES, PROJECTS} from '../constants/collections'
 
-export const Messages = new Mongo.Collection(MESSAGES);
-export const Projects = new Mongo.Collection(PROJECTS);
-export const Files = new Mongo.Collection(FILES);
+export const Messages = new Mongo.Collection("Messages");
+export const Projects = new Mongo.Collection("Projects");
 export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
+export const Events = new Mongo.Collection("Events");
 
-//todo rewrite hooks
-//hooks
-Files.after.insert(function (userId, doc) {
-    Messages.update(
-        {_id: doc.messageId},
-        {$addToSet: {
-            attachments: {
-                id: this._id,
-                name: doc.name
-            }
-        }}
-    )
+const fileStore = new FS.Store.GridFS("files");
+
+export const Files = new FS.Collection("files", {
+    stores: [fileStore]
+});
+
+//todo add security
+Files.allow({
+    insert(){
+        return true;
+    },
+    update(){
+        return true;
+    },
+    remove(){
+        return true;
+    },
+    download(){
+        return true;
+    }
+});
+
+
+Quotes.after.insert(function (userId, doc) {
+    const event = {
+        name: `Add new quote "${doc.name}"`,
+        createAt: doc.createAt,
+        projectId: doc.projectId,
+        createBy: doc.createBy,
+        meta: {
+            quoteId: doc._id,
+            fileId: doc.attachedFile.fileId
+        }
+    };
+    Events.insert(event)
 });

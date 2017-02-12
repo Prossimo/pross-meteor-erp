@@ -18,17 +18,17 @@ class Popup extends React.Component{
     }
 
     render() {
-        const { active } = this.props;
+        const { active, title, content } = this.props;
         if(active){
             return (
                 <div className="popup-area">
                     <div className="popup-container">
                         <span onClick={this.hide.bind(this)} className="close-popup"/>
                         <header className="pop-head">
-                            <h3 >User data</h3>
+                            <h3 >{title ? title : ''}</h3>
                         </header>
                         <div className="body">
-                            {this.props.content}
+                            {content}
                         </div>
                     </div>
                 </div>

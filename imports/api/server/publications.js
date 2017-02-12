@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, Projects, CreatedUsers, Quotes } from '../lib/collections';
-import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_ADMIN_CREATE_USERS, GET_QUOTES } from '../constants/collections';
+import { Messages, Projects, CreatedUsers, Quotes, Files, Events } from '../lib/collections';
+import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_PROJECT_EVENTS, GET_ADMIN_CREATE_USERS, GET_QUOTES, GET_PROJECT_FILES } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
 Meteor.startup(()=>{
@@ -25,7 +25,7 @@ Meteor.startup(()=>{
     Meteor.publish(GET_QUOTES, function(projectId){
         Match.test(projectId, String);
 
-        return Quotes.find()
+        return Quotes.find({projectId})
     });
 
     Meteor.publish(GET_PROJECT, function(_id){
@@ -38,6 +38,18 @@ Meteor.startup(()=>{
     Meteor.publish(GET_ADMIN_CREATE_USERS, function(){
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
             return CreatedUsers.find({createBy: this.userId});
+    });
+
+    Meteor.publish(GET_PROJECT_FILES, function(projectId){
+        Match.test(projectId, String);
+
+        return Files.find({'metadata.projectId': projectId});
+    });
+
+    Meteor.publish(GET_PROJECT_EVENTS, function(projectId){
+        Match.test(projectId, String);
+
+        return Events.find({projectId});
     });
 });
 
