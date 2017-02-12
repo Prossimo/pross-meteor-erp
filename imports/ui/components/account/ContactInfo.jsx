@@ -43,6 +43,11 @@ class ContactInfo extends React.Component{
         },0)
     }
 
+    hide(){
+        const { hide } = this.props;
+        if(typeof hide === 'function'){hide()}
+    }
+
     changeValue(stateName, event ){
         if(!this.props.editable) return;
 
@@ -53,12 +58,12 @@ class ContactInfo extends React.Component{
     }
 
     updateUserInfo(){
-        const { editable } = this.props;
+        const { editable, user } = this.props;
         if(!editable) return;
 
         const { username, firstName, lastName, twitter, facebook, linkedIn, companyName, companyPosition} = this.state;
         const userData = {
-            userId: Meteor.userId(),
+            userId: user._id,
             username,
             firstName,
             lastName,
@@ -76,6 +81,7 @@ class ContactInfo extends React.Component{
                     effect: 'bouncyflip',
                     timeout: 5000
                 });
+                this.hide();
             }else{
                 Alert.warning(`Cannot update data, try again!`, {
                     position: 'bottom-right',

@@ -1,6 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames  from 'classnames';
+import { getUserName, getUserEmail } from '../../../api/lib/filters';
 
 class Header extends React.Component{
     constructor(props){
@@ -23,11 +24,9 @@ class Header extends React.Component{
                 <header className="header">
                     <div className="user-info">
                         <div className="avatar">
-                            <img src={"/icons/user.png"} alt={user && user.username}/>
+                            <img src={"/icons/user.png"} alt={getUserName(user, true)}/>
                         </div>
-                        <div className="username">
-                            {user ? user.username : "Guest"}
-                            </div>
+                        <div className="username">{getUserName(user, true)}</div>
                         <div className="logout">
                             <button className="logout-btn"
                                 onClick={this.logout.bind(this)}/>
