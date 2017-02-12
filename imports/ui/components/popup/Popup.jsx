@@ -12,9 +12,7 @@ class Popup extends React.Component{
 
     hide(){
         const { hide } = this.props;
-        if(typeof hide === 'function'){
-            hide();
-        }
+        if(typeof hide === 'function'){hide()}
     }
 
     render() {

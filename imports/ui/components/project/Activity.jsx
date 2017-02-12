@@ -158,18 +158,24 @@ class Activity extends React.Component{
             <div className="activity">
                 <div className="text-area-wrap">
                     <div className="user-info">
-                        <img src="/icons/user.png" alt="user avatar"/>
+                        <img src="/icons/user.png"
+                             alt="user avatar"/>
                     </div>
-                    <Textarea rows={3} placeholder="Write your message..."
+                    <Textarea rows={3}
+                              placeholder="Write your message..."
                               onChange={this.changeMsg.bind(this)}
                               onBlur={this.saveLS.bind(this)}
                               value={msg}
                     />
-                    <label htmlFor="attach-file" className="add-doc-controls"/>
-                    <input id="attach-file" type="file" onChange={this.loadFile.bind(this)} />
+                    <label htmlFor="attach-file"
+                           className="add-doc-controls"/>
+                    <input id="attach-file"
+                           type="file"
+                           onChange={this.loadFile.bind(this)} />
                 </div>
                 <div className="msg-controls">
-                    <button className="btn send-msg" onClick={this.sendMsg.bind(this)}>Send message</button>
+                    <button className="btn send-msg"
+                            onClick={this.sendMsg.bind(this)}>Send message</button>
                 </div>
                 {this.getAttachedFiles()}
                 {this.getMassageList()}

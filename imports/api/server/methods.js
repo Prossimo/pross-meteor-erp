@@ -157,7 +157,7 @@ Meteor.methods({
         if(user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
             throw new Meteor.Error("Access denied");
 
-        Meteor.users.update({_id: this.userId},{
+        Meteor.users.update({_id: user.userId},{
             $set: {
                 username: user.username,
                 "profile.firstName": user.firstName,

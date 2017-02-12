@@ -173,12 +173,14 @@ class SingleProject extends React.Component{
         this.setState({
             showPopup: true,
             popupData: <ContactInfo user={user}
+                                    hide={this.hidePopup.bind(this)}
                                     editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
     }
 
     renderPopup(){
         const { popupData, showPopup } = this.state;
         return <Popup active={showPopup}
+                      title="User info"
                       hide={this.hidePopup.bind(this)}
                       content={popupData}/>
     }
