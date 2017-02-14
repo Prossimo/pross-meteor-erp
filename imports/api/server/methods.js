@@ -191,6 +191,33 @@ Meteor.methods({
         }
 
         Quotes.insert(data);
+    },
+
+    addRevisionQuote(data){
+        //todo add check arrgs security
+        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+            throw new Meteor.Error("Access denied");
+        }
+        const _id = data.quoteId;
+        delete data.quoteId;
+
+        Quotes.update({_id}, {
+            $push: {
+                revisions: data
+            }
+        })
+    },
+
+    editQuoteName(quoteId, name){
+        check(quoteId, String);
+        check(name, String);
+        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+            throw new Meteor.Error("Access denied");
+        }
+
+        Quotes.update({_id: quoteId}, {
+            $set: {name}
+        });
     }
 });
 

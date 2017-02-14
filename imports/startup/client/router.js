@@ -8,6 +8,7 @@ import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
 import ProjectsPage from '../../api/composer/pages/ProjectsPage';
 import UserAccount from '../../ui/pages/UserAccount';
+import Inbox from '../../ui/pages/InboxPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -19,12 +20,10 @@ FlowRouter.route('/', {
         if(Meteor.userId()){
             mount(App, {
                 content: <ProjectsPage/>,
-                login: true
             })
         }else{
             mount(App, {
                 content: <AuthenticationPage/>,
-                login: false
             })
         }
     }
@@ -36,7 +35,16 @@ FlowRouter.route('/project/:id', {
         checkAuth();
         mount(App, {
             content: <SingleProject/>,
-            login: true
+        })
+    }
+});
+
+FlowRouter.route('/inbox', {
+    name: 'Inbox',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <Inbox/>,
         })
     }
 });
@@ -47,7 +55,6 @@ FlowRouter.route('/admin', {
         checkAuth();
         mount(App, {
             content: <AdminPage/>,
-            login: true
         })
     }
 });
@@ -58,7 +65,6 @@ FlowRouter.route('/account', {
         checkAuth();
         mount(App, {
             content: <UserAccount/>,
-            login: true
         })
     }
 });

@@ -24,6 +24,12 @@ const reactiveMapper = (props, onData)=> {
         const project = Projects.findOne();
         const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
             item.url = files[item.attachedFile.fileId].url();
+            if(item.revisions){
+                item.revisions.map(revision=>{
+                    revision.url = files[revision.attachedFile.fileId].url();
+                    return revision;
+                })
+            }
             return item;
         });
 

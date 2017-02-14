@@ -7,7 +7,6 @@ import Select from 'react-select';
 import Popup from '../popup/Popup';
 import ContactInfo from '../account/ContactInfo';
 import Quotes from './Quotes';
-import Inbox from './Inbox';
 import Details from './Details';
 import Activity from './Activity';
 import Invoices from './Invoices';
@@ -39,13 +38,6 @@ class SingleProject extends React.Component{
                 component: <Documents/>
             }
         ];
-
-        if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
-            this.tabs.unshift({
-                label: "Inbox",
-                component: <Inbox/>
-            })
-        }
 
         this.state = {
             activeTab: this.tabs.find(item=>item.label === "Activity"),

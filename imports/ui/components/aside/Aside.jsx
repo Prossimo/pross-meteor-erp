@@ -1,7 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
-import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constants/roles';
+import { EMPLOYEE_ROLE, ADMIN_ROLE_LIST } from '../../../api/constants/roles';
 
 
 class Aside extends React.Component{
@@ -17,13 +17,15 @@ class Aside extends React.Component{
                 label: "Account",
                 route: "User"
             },
-            {
-                label: "Companies",
-                route: "Companies"
-            }
         ];
+        if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
+            this.pages.push({
+                label: "Inbox",
+                route: "Inbox"
+            })
+        }
 
-        if(Roles.userIsInRole( props.currentUser._id, [ADMIN_ROLE,SUPER_ADMIN_ROLE] )){
+        if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
             this.pages.push({
                 label: "Admin",
                 route: "Admin"
@@ -54,8 +56,9 @@ class Aside extends React.Component{
     }
 
     render() {
+        const { currentUser } = this.props;
         return (
-            <aside className="control-aside active">
+            <aside className={classNames("control-aside",{"active": currentUser})}>
                 {this.renderList()}
             </aside>
         )
