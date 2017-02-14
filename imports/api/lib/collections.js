@@ -42,3 +42,18 @@ Quotes.after.insert(function (userId, doc) {
     };
     Events.insert(event)
 });
+//todo after update revisions add new event
+Quotes.after.remove(function (userId, doc) {
+    const event = {
+        name: `Remove quote "${doc.name}"`,
+        createAt: new Date(),
+        projectId: doc.projectId,
+        createBy: doc.createBy,
+        meta: {
+            quoteId: doc._id,
+            fileId: doc.attachedFile.fileId
+        }
+    };
+    Events.insert(event);
+    Files.remove({_id: doc.attachedFile.fileId});
+});

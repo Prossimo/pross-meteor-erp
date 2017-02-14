@@ -179,13 +179,12 @@
     border 1px solid $grey
     margin-bottom 15px
     background $white
-    padding 10px 15px
+    padding 20px 25px
     overflow hidden
     position relative
     transition box-shadow .3s
 
     &:hover
-      cursor pointer
       box-shadow 0 3px 5px 0 alpha($main-color, .3)
       &:after
         transform rotate(35deg) scale(1.1)
@@ -193,11 +192,11 @@
     &:after
       content '\f1c1'
       font-family FontAwesome
-      font-size 70px
+      font-size 170px
       position absolute
       width 100px
       height 100px
-      top 0
+      top 25px
       right 20%
       transition transform .3s
       transform rotate(35deg)
@@ -205,12 +204,55 @@
 
     .desc-part
       flex-grow 1
+      display flex
+      flex-wrap wrap
+
+      > p
+        margin-bottom 10px
+
+      .quote-name
+
+        &.hide
+          display none
+        &:hover
+          cursor pointer
+          &:after
+            color alpha($main-color, .5)
+
+        &:after
+          content '\f040'
+          transition .3s
+          font-family FontAwesome
+          color alpha($main-color, .0)
+          padding-left 10px
+
+      .title
+        min-width 100px
+        padding-right 20px
+        font-size 18px
+        color $main-color
+        text-transform uppercase
+
+      .quote-info
+        margin-right 20px
+
+      .quote-name-input
+        display none
+        width 100px
+        border-bottom 1px solid $grey
+        font-size 14px
+
+        &.active
+          display inline-block
 
     .control-part
       flex-shrink 0
+      position relative
+      z-index 10
+      display flex
 
     .quote-revision
-      display none
+      padding 10px 0
 
     .revision-list
       padding-left 20px
@@ -225,12 +267,21 @@
         border-radius 3px
         height 100%
         left 0
-        top -20px
+        top -25px
         background $main-color
 
     .revision-item
       position relative
-      padding 10px
+      padding 10px 0 10px 20px
+      display flex
+      flex-wrap wrap
+      justify-content space-between
+      align-items center
+      align-content center
+      border-bottom 1px solid $grey
+      border-right 1px solid $grey
+      position relative
+      z-index 10
 
       &:before,
       &:after
@@ -249,6 +300,11 @@
         height 8px
         border-radius 50%
         left -4px
+
+  .info-label
+    padding 30px 20px
+    background alpha($grey, .3)
+    margin-bottom 10px
 
 .project-inbox-tab,
 .details-inbox-tab,

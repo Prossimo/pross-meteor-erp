@@ -10,20 +10,15 @@ class AddQuoteForm extends React.Component{
 
         this.state = {
             currentFile: null,
-            quoteName: '',
             totalCost: ''
         }
     }
 
     changeFileInput(event){
         if(event.target.files.length){
-            if(event.target.files[0].type !== "application/pdf") return (
-                Alert.warning(`You can add only PDF files!`, {
-                    position: 'bottom-right',
-                    effect: 'bouncyflip',
-                    timeout: 5000
-                })
-            );
+            if(event.target.files[0].type !== "application/pdf") {
+                return  this.showWarning(`You can add only PDF files!`);
+            }
 
             this.setState({
                 currentFile: event.target.files[0]
@@ -40,10 +35,6 @@ class AddQuoteForm extends React.Component{
                 </div>
             )
         }
-    }
-
-    inputChange(event){
-        this.setState({quoteName: event.target.value})
     }
 
     showWarning(text){
@@ -64,21 +55,18 @@ class AddQuoteForm extends React.Component{
     formSubmit(event){
         event.preventDefault();
 
-        const { currentFile, quoteName, totalCost } = this.state;
-        const { project, usersArr, currentUser, quotes } = this.props;
+        const { currentFile, totalCost } = this.state;
+        const { project, usersArr, currentUser, quote } = this.props;
 
         if(!currentFile)return this.showWarning(`You must add PDF file`);
-        if(quoteName === '')return this.showWarning(`Empty quote name`);
         if(totalCost === '')return this.showWarning(`Empty total cost field`);
 
-        const quoteData = {
-            name: quoteName,
-            revisionNumber: quotes.length,
+        const revisionData = {
+            quoteId: quote._id,
+            revisionNumber: quote.revisions.length + 1,
             totalCost: parseFloat(totalCost),
             createBy: Meteor.userId(),
             createAt: new Date(),
-            projectId: project._id,
-            revisions: [],
             attachedFile: {
                 name: currentFile.name,
                 type: currentFile.type,
@@ -103,17 +91,17 @@ class AddQuoteForm extends React.Component{
             this.showInfo(res);
         };
 
-        const addQuoteCb = (err)=>{
+        const addRevisionQuoteCb = (err)=>{
             if(err) return console.log(err);
             this.hide();
-            this.showInfo(`Add new quote`);
+            this.showInfo(`Add new revision`);
 
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `Add new quote in ${project.name} project`,
+                subject: `Add new revision to quote in ${project.name} project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                html: generateEmailHtml(currentUser, quoteData.name, FlowRouter.url(FlowRouter.current().path))
+                html: generateEmailHtml(currentUser, `${quote.name} - revision number: ${revisionData.revisionNumber} `, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         };
 
@@ -123,9 +111,9 @@ class AddQuoteForm extends React.Component{
                 currentFile: null,
                 quoteName: ''
             });
-            quoteData.attachedFile.fileId = res._id;
+            revisionData.attachedFile.fileId = res._id;
 
-            Meteor.call("addNewQuote", quoteData, addQuoteCb )
+            Meteor.call("addRevisionQuote", revisionData, addRevisionQuoteCb )
         };
 
         Files.insert(file, fileInsertCb);
@@ -143,25 +131,23 @@ class AddQuoteForm extends React.Component{
     }
 
     render() {
-        const { quoteName, totalCost } = this.state;
-        const { quotes } = this.props;
+        const { totalCost } = this.state;
+        const { quote } = this.props;
         return (
             <div className="add-quote-form">
                 <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
                     <div className="field-wrap">
-                        <span className="label">Quote title</span>
-                        <input type="text"
-                               onChange={this.inputChange.bind(this)}
-                               value={quoteName}/>
+                        <span className="label">{quote.name} revision</span>
                     </div>
+                    <div className="field-wrap">
+                        <span className="label">Revision number {quote.revisions.length + 1}</span>
+                    </div>
+
                     <div className="field-wrap">
                         <span className="label">Total cost ($)</span>
                         <input type="number"
                                onChange={this.totalChange.bind(this)}
                                value={totalCost}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span>Revision number {quotes.length}</span>
                     </div>
 
                     <div className="field-wrap">
@@ -173,7 +159,7 @@ class AddQuoteForm extends React.Component{
                                onChange={this.changeFileInput.bind(this)}/>
                         {this.renderAttachedFile()}
                     </div>
-                    <button className="btn primary-btn">Add quote</button>
+                    <button className="btn primary-btn">Add revision</button>
                 </form>
             </div>
         )

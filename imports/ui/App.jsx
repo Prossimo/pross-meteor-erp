@@ -9,20 +9,20 @@ class App extends React.Component{
         super(props);
 
     }
-
-    renderAside(){
-        const { login, currentUser } = this.props;
-        if(login){
-            return <Aside currentUser={currentUser}/>
+    renderAside(currentUser){
+        if(currentUser){
+            return (
+                <Aside currentUser={currentUser}/>
+            )
         }
     }
 
     render() {
-        const { login } = this.props;
+        const { currentUser } = this.props;
         return (
             <div className="app">
-                <Header user={Meteor.user()} login={login}/>
-                {this.renderAside()}
+                <Header user={currentUser} />
+                {this.renderAside(currentUser)}
                 <div className="page-content active-aside">
                     {React.cloneElement(this.props.content, {...this.props})}
                 </div>

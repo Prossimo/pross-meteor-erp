@@ -1,7 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames  from 'classnames';
-import { getUserName, getUserEmail } from '../../../api/lib/filters';
+import { getUserName } from '/imports/api/lib/filters';
 
 class Header extends React.Component{
     constructor(props){
@@ -18,9 +18,9 @@ class Header extends React.Component{
     }
 
     render() {
-        let { user, login } = this.props;
+        const { user } = this.props;
         return (
-            <div className={classNames("header-wrap", {"hide": !login})}>
+            <div className={classNames("header-wrap", {"hide": !user})}>
                 <header className="header">
                     <div className="user-info">
                         <div className="avatar">
