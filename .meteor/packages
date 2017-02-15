@@ -30,3 +30,7 @@ alanning:roles
 percolate:migrations
 cfs:standard-packages
 cfs:gridfs
+meteorhacks:npm
+
+
+npm-container

@@ -16,6 +16,8 @@
     "react-mounter": "^1.2.0",
     "react-s-alert": "^1.2.2",
     "react-select": "^1.0.0-rc.3",
-    "react-textarea-autosize": "^4.0.5"
+    "react-textarea-autosize": "^4.0.5",
+    "node-slack": "0.0.7",
+    "slackbots": "^1.0.2"
   }
 }

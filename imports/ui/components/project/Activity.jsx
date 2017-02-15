@@ -48,7 +48,8 @@ class Activity extends React.Component{
                     timeout: 3500
                 });
             }
-        }
+        };
+
         if(memberEmails.length){
             Meteor.call("sendEmail", {
                 to: memberEmails,

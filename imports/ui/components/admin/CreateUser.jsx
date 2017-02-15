@@ -1,6 +1,8 @@
 import React from 'react';
 import Select from 'react-select';
 import { USER_ROLE_LIST } from '/imports/api/constants/roles';
+import { isValidEmail } from '/imports/api/lib/validation';
+import { warning, info } from '/imports/api/lib/alerts';
 
 class CreateUser extends React.Component{
     constructor(props){
@@ -31,7 +33,6 @@ class CreateUser extends React.Component{
 
     blurInput(event){
         const value = event.target.value;
-        const { validation } = this.state;
         if(value === ''){
             event.target.parentElement.classList.remove('active');
         }
@@ -48,10 +49,11 @@ class CreateUser extends React.Component{
             role: selectedRole.value
         };
         if(!username) return this.setState({validUsername: "Username is require"});
-        if(!email) return this.setState({validEmail: "Email is require"});
+        if(!isValidEmail(email)) return this.setState({validEmail: "Email is require"});
 
         Meteor.call('adminCreateUser', userData, (err)=>{
             if(err) return this.setState({[err.error]: err.reason});
+            info('Successful create user!');
             this.setState(this.defaultState);
         })
     }

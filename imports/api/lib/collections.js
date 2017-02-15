@@ -5,6 +5,7 @@ export const Projects = new Mongo.Collection("Projects");
 export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
 export const Events = new Mongo.Collection("Events");
+export const SlackMessages = new Mongo.Collection("SlackMessages");
 
 const fileStore = new FS.Store.GridFS("files");
 
