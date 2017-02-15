@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import  { HTTP } from 'meteor/http';
 import { check, Match } from 'meteor/check';
 import { Messages, Files, CreatedUsers, Projects, Quotes } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../constants/roles';
@@ -169,6 +170,36 @@ Meteor.methods({
                 "profile.companyPosition": user.companyPosition
             }
         })
+    },
+
+    addProject(data){
+        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
+            throw new Meteor.Error("Access denied");
+        check(data, {
+            name: String,
+            active: Boolean,
+            members: [String]
+        });
+
+        //todo sync with try catch err
+        const createRes = HTTP.post('https://slack.com/api/channels.create', {
+            params: {
+                token: Meteor.settings.private.slack.apiToken,
+                name: data.name
+            }
+        });
+        //hardcode bot id
+        const inviteBot = HTTP.post('https://slack.com/api/channels.invite', {
+            params: {
+                token: Meteor.settings.private.slack.apiToken,
+                channel: createRes.data.channel.id,
+                user: 'U4596V0KS'
+            }
+        });
+
+        data.slackChanel = createRes.data.channel.id;
+
+        if(inviteBot.data.ok) Projects.insert(data);
     },
 
     updateUserProfileField(field, data){
