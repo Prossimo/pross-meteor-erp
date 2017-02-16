@@ -73,17 +73,18 @@ class AddQuoteForm extends React.Component{
 
         const quoteData = {
             name: quoteName,
-            revisionNumber: quotes.length,
-            totalCost: parseFloat(totalCost),
-            createBy: Meteor.userId(),
             createAt: new Date(),
             projectId: project._id,
-            revisions: [],
-            attachedFile: {
-                name: currentFile.name,
-                type: currentFile.type,
-                fileId: null
-            }
+            revisions: [
+                {
+                    revisionNumber: 0,
+                    totalPrice: parseFloat(totalCost),
+                    fileName: currentFile.name,
+                    fileId: null,
+                    createBy: Meteor.userId(),
+                    createAt: new Date(),
+                }
+            ],
         };
 
         const file = new FS.File(currentFile);
@@ -123,7 +124,7 @@ class AddQuoteForm extends React.Component{
                 currentFile: null,
                 quoteName: ''
             });
-            quoteData.attachedFile.fileId = res._id;
+            quoteData.revisions[0].fileId = res._id;
 
             Meteor.call("addNewQuote", quoteData, addQuoteCb )
         };
@@ -155,7 +156,7 @@ class AddQuoteForm extends React.Component{
                                value={quoteName}/>
                     </div>
                     <div className="field-wrap">
-                        <span className="label">Total cost ($)</span>
+                        <span className="label">Total price ($)</span>
                         <input type="number"
                                onChange={this.totalChange.bind(this)}
                                value={totalCost}/>

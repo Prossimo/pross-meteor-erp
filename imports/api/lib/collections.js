@@ -35,26 +35,33 @@ Quotes.after.insert(function (userId, doc) {
         name: `Add new quote "${doc.name}"`,
         createAt: doc.createAt,
         projectId: doc.projectId,
-        createBy: doc.createBy,
-        meta: {
-            quoteId: doc._id,
-            fileId: doc.attachedFile.fileId
-        }
+        createBy: doc.createBy
+    };
+    Events.insert(event)
+});
+
+Quotes.after.update(function (userId, doc, fieldNames, modifier, options) {
+    console.log("fieldNames", fieldNames)
+    console.log("modifier", modifier)
+    console.log("options", options)
+    const event = {
+        name: `update quote "${doc.name}"`,
+        createAt: doc.createAt,
+        projectId: doc.projectId,
+        createBy: doc.createBy
     };
     Events.insert(event)
 });
 //todo after update revisions add new event
 Quotes.after.remove(function (userId, doc) {
     const event = {
-        name: `Remove quote "${doc.name}"`,
+        name: `remove quote "${doc.name}"`,
         createAt: new Date(),
         projectId: doc.projectId,
         createBy: doc.createBy,
-        meta: {
-            quoteId: doc._id,
-            fileId: doc.attachedFile.fileId
-        }
     };
+    const filesId = doc.revisions.map(item=>item.fileId);
+
     Events.insert(event);
-    Files.remove({_id: doc.attachedFile.fileId});
+    Files.remove({_id: {$in: filesId}});
 });

@@ -4,6 +4,7 @@ import Popup from '../popup/Popup';
 import classNames from 'classnames';
 import AddQuoteForm from './AddQuoteForm';
 import AddQuoteRevisionForm from './AddQuoteRevisionForm';
+import currencyFormatter from 'currency-formatter';
 
 class Quotes extends React.Component{
     constructor(props){
@@ -82,10 +83,11 @@ class Quotes extends React.Component{
     renderQuotes(){
         const { quotes } = this.props;
 
-        if(quotes && quotes.length){
+        if(quotes.length){
             return(
                 <ul className="quotes-list">
                     {quotes.map(item=>{
+                        const latest = item.revisions[item.revisions.length-1];
                         return(
                             <li key={item._id}
 
@@ -93,28 +95,29 @@ class Quotes extends React.Component{
                                 <div className="flex-container">
                                     <div className="desc-part">
                                         {this.renderQuoteName(item)}
-                                        <p className="quote-info">Revision #{item.revisionNumber}</p>
-                                        <p className="quote-info">Total price {item.totalCost}$</p>
+                                        <p className="quote-info">Revision #{latest.revisionNumber}</p>
+                                        <p className="quote-info">Total price {currencyFormatter.format(latest.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
                                     </div>
                                     <div className="control-part">
                                         <button onClick={this.addRevision.bind(this, item)}
                                                 className="btn primary-btn">Upload revision</button>
-                                        <a href={item.url}
-                                           download={item.attachedFile.name}
+                                        <a href={latest.url}
+                                           download={latest.fileName}
                                            className="btn primary-btn"><i className="fa fa-download"/> Download PDF</a>
                                     </div>
                                 </div>
                                 <div className="quote-revision">
                                     <ul className="revision-list">
                                         {item.revisions && item.revisions.map(revision=>{
+                                            if(revision === latest) return null;
                                             return(
                                                 <li className="revision-item"
-                                                    key={revision.attachedFile.fileId}>
-                                                    <p className="quote-disc">Revision #{revision.revisionNumber}</p>
-                                                    <p className="quote-disc">Uploaded: {moment(revision.createAt).format("h:mm, MMMM Do YYYY")}</p>
-                                                    <p className="quote-disc">Total price {revision.totalCost}$</p>
+                                                    key={revision.fileId}>
+                                                    <p>Revision #{revision.revisionNumber}</p>
+                                                    <p>Uploaded: {moment(revision.createAt).format("h:mm, MMMM Do YYYY")}</p>
+                                                    <p>Total price {currencyFormatter.format(revision.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
                                                     <a href={revision.url}
-                                                       download={revision.attachedFile.name}
+                                                       download={revision.fileName}
                                                        className="btn primary-btn"><i className="fa fa-download"/> Download PDF</a>
                                                 </li>
                                             )

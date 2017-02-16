@@ -63,15 +63,12 @@ class AddQuoteForm extends React.Component{
 
         const revisionData = {
             quoteId: quote._id,
-            revisionNumber: quote.revisions.length + 1,
-            totalCost: parseFloat(totalCost),
+            revisionNumber: quote.revisions.length,
+            totalPrice: parseFloat(totalCost),
             createBy: Meteor.userId(),
             createAt: new Date(),
-            attachedFile: {
-                name: currentFile.name,
-                type: currentFile.type,
-                fileId: null
-            }
+            fileName: currentFile.name,
+            fileId: null
         };
 
         const file = new FS.File(currentFile);
@@ -111,7 +108,7 @@ class AddQuoteForm extends React.Component{
                 currentFile: null,
                 quoteName: ''
             });
-            revisionData.attachedFile.fileId = res._id;
+            revisionData.fileId = res._id;
 
             Meteor.call("addRevisionQuote", revisionData, addRevisionQuoteCb )
         };
@@ -137,10 +134,10 @@ class AddQuoteForm extends React.Component{
             <div className="add-quote-form">
                 <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
                     <div className="field-wrap">
-                        <span className="label">{quote.name} revision</span>
+                        <span className="label">{quote.name}</span>
                     </div>
                     <div className="field-wrap">
-                        <span className="label">Revision number {quote.revisions.length + 1}</span>
+                        <span className="label">Revision number {quote.revisions.length}</span>
                     </div>
 
                     <div className="field-wrap">

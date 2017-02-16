@@ -11,6 +11,7 @@ import Details from './Details';
 import Activity from './Activity';
 import Invoices from './Invoices';
 import Documents from './Documents';
+import Conversations from './Conversations';
 
 class SingleProject extends React.Component{
     constructor(props){
@@ -24,6 +25,10 @@ class SingleProject extends React.Component{
             {
                 label: "Quotes",
                 component: <Quotes/>
+            },
+            {
+                label: "Conversations",
+                component: <Conversations/>
             },
             {
                 label: "Details",

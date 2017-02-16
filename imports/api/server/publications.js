@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, Projects, CreatedUsers, Quotes, Files, Events } from '../lib/collections';
-import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_PROJECT_EVENTS, GET_ADMIN_CREATE_USERS, GET_QUOTES, GET_PROJECT_FILES } from '../constants/collections';
+import { Messages, Projects, CreatedUsers, Quotes, Files, Events, SlackMessages } from '../lib/collections';
+import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_ADMIN_CREATE_USERS, GET_QUOTES, GET_PROJECT_FILES } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
 Meteor.startup(()=>{
@@ -51,6 +51,17 @@ Meteor.startup(()=>{
 
         return Events.find({projectId});
     });
+
+    Meteor.publish(GET_SLACK_MSG, function (projectId) {
+        Match.test(projectId, String);
+
+        const project = Projects.findOne(projectId);
+        if(project.slackChanel){
+            return SlackMessages.find({channel: project.slackChanel})
+        }else{
+            return[];
+        }
+    })
 });
 
 

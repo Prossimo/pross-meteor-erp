@@ -221,6 +221,8 @@ Meteor.methods({
             throw new Meteor.Error("Access denied");
         }
 
+        data.createBy = this.userId;
+
         Quotes.insert(data);
     },
 
@@ -249,6 +251,40 @@ Meteor.methods({
         Quotes.update({_id: quoteId}, {
             $set: {name}
         });
+    },
+
+    updateUserConversationGroups(group, membersId){
+        check(group, String);
+        check(membersId, [String]);
+
+        const profile = Meteor.users.findOne({_id: this.userId}).profile;
+        if(profile.conversationGroups && profile.conversationGroups.length){
+            const updateGroups = profile.conversationGroups.map(item=>{
+                if(item.name === group){
+                    return {
+                        name: group,
+                        members: membersId
+                    }
+                }else{
+                    return item;
+                }
+            });
+            Meteor.users.update({_id: this.userId},{
+                $set: {
+                    'profile.conversationGroups': updateGroups
+                }
+            })
+        }else{
+            console.log()
+            Meteor.users.update({_id: this.userId},{
+                $set: {
+                    "profile.conversationGroups": [{
+                        name: group,
+                        members: membersId
+                    }]
+                }
+            })
+        }
     }
 });
 
