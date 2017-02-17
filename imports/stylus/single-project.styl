@@ -4,6 +4,16 @@
 
   .activity
     padding 0 20px
+    position relative
+
+    &:after
+      content '\f198'
+      font-family FontAwesome
+      position absolute
+      top 0
+      right 10%
+      color alpha($main-color, .1)
+      font-size 330px
 
     .text-area-wrap
       position relative
@@ -315,3 +325,39 @@
   .add-quote-form
     width 100%
     max-width 450px
+
+.conversations-tab
+  padding 0 20px
+  margin-top -30px
+  .tab-container
+    padding 0
+
+  .tab-controls
+    padding 0
+
+  .tab-content
+    padding 10px 0
+
+  .left-part,
+  .right-part
+    width 50%
+    padding 0 10px
+
+  .flex-container
+    margin-bottom 15px
+
+    .field-wrap
+      margin-top 10px
+      margin-bottom 10px
+      width 100%
+
+      input
+        width 100%
+        border-bottom 2px solid $main-color
+        padding 0 10px
+
+  .conversation-textarea
+    width 100%
+    border-radius 3px
+    padding 15px
+

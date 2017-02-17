@@ -12,3 +12,12 @@ export const generateEmailHtml = function(user, text, url){
     ${signature}
     `
 };
+
+export const simpleEmail = function (user,text) {
+    const signature = getUserSignature(user) ? decodeURI(getUserSignature(user)) : "";
+    return `
+    <p>text</p>
+    
+    ${signature}
+    `
+};

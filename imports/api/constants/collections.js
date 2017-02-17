@@ -12,3 +12,4 @@ export const GET_QUOTES = "getQuotes";
 export const GET_PROJECT_FILES = "getProjectFiles";
 export const GET_PROJECT_EVENTS = "getProjectEvents";
 export const GET_ADMIN_CREATE_USERS = "getAdminCreateUsers";
+export const GET_SLACK_MSG = "getSlackMsg";

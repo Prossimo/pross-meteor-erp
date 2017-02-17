@@ -2,34 +2,29 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
-import { Messages, Projects, Quotes, Files, Events } from '../../../lib/collections';
-import { GET_ACTIVITY, GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_PROJECT_EVENTS } from '../../../constants/collections';
+import { Projects, Quotes, Files, Events, SlackMessages } from '../../../lib/collections';
+import { GET_ACTIVITY, GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS } from '../../../constants/collections';
 
 import SingleProject from '../../../../ui/components/project/SingleProject';
 
 const reactiveMapper = (props, onData)=> {
     const projectId = FlowRouter.getParam('id');
-    if (Meteor.subscribe(GET_ACTIVITY, projectId).ready() &&
+    if (
         Meteor.subscribe(GET_PROJECT_EVENTS, projectId).ready() &&
         Meteor.subscribe(GET_PROJECT, projectId).ready() &&
         Meteor.subscribe(GET_QUOTES, projectId).ready() &&
-        Meteor.subscribe(GET_PROJECT_FILES, projectId).ready()
+        Meteor.subscribe(GET_PROJECT_FILES, projectId).ready() &&
+        Meteor.subscribe(GET_SLACK_MSG, projectId).ready()
     ) {
         const files = {};
         Files.find({}).fetch().forEach(item=>files[item._id]=item);
-        const msg = Messages.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
-            item.type = 'message';
-            return item;
-        });
+        const msg = SlackMessages.find({}, {sort: {createAt: -1}}).fetch();
         const project = Projects.findOne();
         const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
-            item.url = files[item.attachedFile.fileId].url();
-            if(item.revisions){
-                item.revisions.map(revision=>{
-                    revision.url = files[revision.attachedFile.fileId].url();
-                    return revision;
-                })
-            }
+            item.revisions.map(revision=>{
+                revision.url = files[revision.fileId].url();
+                return revision;
+            });
             return item;
         });
 
