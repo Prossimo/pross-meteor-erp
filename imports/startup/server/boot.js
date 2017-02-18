@@ -1,7 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import { createAdminUser } from '../../api/server/functions';
+import './fixtures';
 
 Meteor.startup(() => {
+
     createAdminUser();
 
     Meteor.startup(function () {
