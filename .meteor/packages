@@ -31,6 +31,8 @@ percolate:migrations
 cfs:standard-packages
 cfs:gridfs
 meteorhacks:npm
+xolvio:cleaner
+tmeasday:acceptance-test-driver
 
 
 npm-container

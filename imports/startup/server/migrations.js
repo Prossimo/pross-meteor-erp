@@ -33,5 +33,5 @@ Migrations.add({
 });
 
 Meteor.startup(() => {
-    Migrations.migrateTo(1);
+    if(!Meteor.isTest && !Meteor.isAppTest) Migrations.migrateTo(1);
 });
