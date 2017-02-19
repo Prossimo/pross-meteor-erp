@@ -30,3 +30,5 @@ alanning:roles
 percolate:migrations
 cfs:standard-packages
 cfs:gridfs
+xolvio:cleaner
+tmeasday:acceptance-test-driver
