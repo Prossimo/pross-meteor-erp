@@ -4,6 +4,8 @@ import { check, Match } from 'meteor/check';
 import { Messages, Files, CreatedUsers, Projects, Quotes } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../constants/roles';
 
+const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
+
 Meteor.methods({
     userRegistration(userData){
         check(userData, {
@@ -184,22 +186,26 @@ Meteor.methods({
         //todo sync with try catch err
         const createRes = HTTP.post('https://slack.com/api/channels.create', {
             params: {
-                token: Meteor.settings.private.slack.apiToken,
+                token: SLACK_API_KEY,
                 name: data.name
             }
         });
         //hardcode bot id
         const inviteBot = HTTP.post('https://slack.com/api/channels.invite', {
             params: {
-                token: Meteor.settings.private.slack.apiToken,
+                token: SLACK_API_KEY,
                 channel: createRes.data.channel.id,
-                user: 'U4596V0KS'
+                user: 'U477F4M6Y'
             }
         });
 
         data.slackChanel = createRes.data.channel.id;
 
-        if(inviteBot.data.ok) Projects.insert(data);
+        if(inviteBot.data.ok) {
+            Projects.insert(data);
+        }else{
+            throw new Meteor.Error("Problems with slack integration")
+        }
     },
 
     updateUserProfileField(field, data){
@@ -275,7 +281,6 @@ Meteor.methods({
                 }
             })
         }else{
-            console.log()
             Meteor.users.update({_id: this.userId},{
                 $set: {
                     "profile.conversationGroups": [{
