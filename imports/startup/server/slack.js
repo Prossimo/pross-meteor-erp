@@ -7,7 +7,6 @@ Meteor.startup(() => {
     const bot = new SlackBot({
         token: "xoxb-143253157236-jMQdyGbxvdujhuNuhU6cJNYq",
         name: "prossimobot"
-
     });
 
     //todo add err ws connection cb
@@ -22,12 +21,13 @@ Meteor.startup(() => {
 
     //todo replace
     Meteor.methods({
-        sendMessage(chenal, msg){
-            const params = {
-                icon_emoji: ':cat:'
-            };
-
-            bot.postMessageToChannel(chenal, msg, params)
+        sendBotMessage(chenal, msg, params){
+            if(params && params.username){
+                params.as_user = false;
+            }
+            bot.postMessage(chenal, msg, params, (err,res)=>{
+                console.log(err);
+            })
         },
     })
 });

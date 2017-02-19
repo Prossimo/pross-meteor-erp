@@ -96,7 +96,7 @@ class SingleProject extends React.Component{
 
     renderProjectMembers(){
         const { users, project } = this.props;
-
+        if(!users || !project )return null;
         return (
             <ul className="project-members">
                 {users.map(user=>{
@@ -185,12 +185,13 @@ class SingleProject extends React.Component{
     render() {
         const { project } = this.props;
         const sidebarTitle = "Project members";
+        const projectName = project && project.name ? project.name : '';
         return (
             <div className="page-container single-project">
                 {this.renderPopup()}
                 <div className="main-content">
                     <div className="tab-container">
-                        <h2 className="page-title">{project.name}</h2>
+                        <h2 className="page-title">{projectName}</h2>
                         <div className="tab-controls">
                             {this.getTabs()}
                         </div>

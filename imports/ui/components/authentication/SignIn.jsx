@@ -42,7 +42,6 @@ class SignIn extends React.Component{
         else{
             Meteor.loginWithPassword({email}, password, (err) => {
                 if (err) return this.setState({authError: "Invalid username or password"});
-
                 FlowRouter.reload();
             });
         }
