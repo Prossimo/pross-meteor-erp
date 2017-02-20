@@ -1,10 +1,10 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
-import { warning } from "/imports/api/lib/alerts";
+import {warning} from "/imports/api/lib/alerts";
 
-class SignUp extends React.Component{
-    constructor(props){
+class SignUp extends React.Component {
+    constructor(props) {
         super(props);
         this.state = {
             validation: {
@@ -15,110 +15,130 @@ class SignUp extends React.Component{
             firstName: '',
             lastName: '',
             email: '',
+            emailProvider: '',
             password: '',
             repeatPassword: '',
             username: ''
         }
     }
 
-    toggle(){
+    toggle() {
         if (typeof this.props.toggle === 'function') {
             this.props.toggle();
         }
     }
-    
-    Check(validation){
+
+    Check(validation) {
         this.setState({validation: Object.assign(this.state.validation, validation)});
     }
 
-    submit(event){
+    emailValidationError() {
+        const {validation} = this.state;
+
+        if (validation.email) {
+            return validation.email;
+        } else if (validation.emailProvider) {
+            return validation.emailProvider;
+        }
+    }
+
+    submit(event) {
         event.preventDefault();
-        const { username, password, email, repeatPassword, validation, firstName, lastName} = this.state;
-        if(username == ''){
+        const {username, password, email, emailProvider, repeatPassword, validation, firstName, lastName} = this.state;
+        if (username == '') {
             validation.username = "Field is required";
             return this.Check(validation);
-        } else if(username.length < 3) {				
+        } else if (username.length < 3) {
             validation.username = "Username must be longer";
             return this.Check(validation);
-        }       
-        if(!isValidEmail(email)) {
-        	   validation.email = "Please enter valid e-mail address";
-        	   return this.Check(validation);
-    	  }
-        if(!isValidPassword(password, 6)) {
-    	  		validation.password = "Please enter valid password";
-    	  		return this.Check(validation);
         }
-        if(password && password !== repeatPassword) {
+        if (!isValidEmail(email)) {
+            validation.email = "Please enter valid e-mail address";
+            return this.Check(validation);
+        }
+        if (emailProvider == '') {
+            validation.emailProvider = 'Email provider is required';
+            return this.Check(validation);
+        }
+        if (!isValidPassword(password, 6)) {
+            validation.password = "Please enter valid password";
+            return this.Check(validation);
+        }
+        if (password && password !== repeatPassword) {
             validation.password = "Passwords doesn't match";
             return this.Check(validation);
         }
         const user = {
             username,
             email,
+            emailProvider,
             password,
             firstName,
             lastName
         };
 
-        Meteor.call("userRegistration", user, (err,res)=>{
-            if(!err){
-            	const { email, password, validation } = res;
-               if(validation.email || validation.username){
-               	    this.Check(validation);
-               }else{
-                   Meteor.loginWithPassword({email}, password, (err) => {
-                       if(err) return warning('Login error, please try again!');
-                       FlowRouter.reload();
-                   });
-               }
+        Meteor.call("userRegistration", user, (err, res) => {console.log("Signup", res);
+            if (!err) {
+                const {email, password, validation} = res;
+                if (validation.email || validation.username) {
+                    this.Check(validation);
+                } else {
+                    Meteor.loginWithPassword({email}, password, (err) => {
+                        if (err) return warning('Login error, please try again!');
+                        FlowRouter.reload();
+                    });
+                }
             }
-    	  })
+        })
     }
-	
-    focusInput(event){
-        const { validation } = this.state;
+
+    focusInput(event) {
+        const {validation} = this.state;
         event.target.parentElement.classList.add('active');
-        if(validation[event.target.id]){
+        if (validation[event.target.id]) {
             this.setState({validation: Object.assign(validation, {[event.target.id]: ''})});
         }
     }
 
-    blurInput(event){
+    blurInput(event) {
         const value = event.target.value;
-        const { validation } = this.state;
-        if(value === ''){
+        const {validation} = this.state;
+        if (value === '' && event.target.id != 'emailProvider') {
             event.target.parentElement.classList.remove('active');
         }
-        switch (event.target.id){
+        switch (event.target.id) {
             case 'email':
-                if(!isValidEmail(value))
+                if (!isValidEmail(value))
                     this.setState({validation: Object.assign(validation, {email: "Please enter valid e-mail address"})});
                 break;
+            case 'emailProvider':
+                if (value === '')
+                    this.setState({validation: Object.assign(validation, {emailProvider: "Email provider is required"})});
+                break;
             case 'username':
-                if(value === '')
+                if (value === '')
                     this.setState({validation: Object.assign(validation, {username: "Username is required"})});
                 break;
             case 'repeatPassword':
-                if(value !== this.state.password)
-                    this.setState({validation:  Object.assign(validation, {password: "Passwords doesn't match"})});
+                if (value !== this.state.password)
+                    this.setState({validation: Object.assign(validation, {password: "Passwords doesn't match"})});
                 break;
             default:
                 return true;
         }
     }
 
-    change(event){
+    change(event) {
         this.setState({
             [event.target.id]: event.target.value
         });
-        if(event.target.value !== ''){
+        if (event.target.value !== '') {
             event.target.parentElement.classList.add('active')
         }
     }
 
     render() {
-        const {validation, firstName, lastName, username, email, password, repeatPassword} = this.state;
+        const {validation, firstName, lastName, username, email, emailProvider, password, repeatPassword} = this.state;
         return (
             <div className="sign-up-wrap">
                 <header className="auth-header">
@@ -156,7 +176,7 @@ class SignUp extends React.Component{
                         />
                         <span className="validation">{validation.username}</span>
                     </div>
-                    <div className="flex-input">
+                    <div className="flex-input-select">
                         <label htmlFor="email">Email</label>
                         <input id="email"
                                type="email"
@@ -165,7 +185,18 @@ class SignUp extends React.Component{
                                value={email}
                                onChange={this.change.bind(this)}
                         />
-                        <span className="validation">{validation.email}</span>
+                        <select id="emailProvider"
+                                onFocus={this.focusInput.bind(this)}
+                                onBlur={this.blurInput.bind(this)}
+                                onChange={this.change.bind(this)}>
+                            <option value="">-----</option>
+                            <option value="gmail">Gmail</option>
+                            <option value="exchange">Exchange</option>
+                            <option value="icloud">iCloud</option>
+                            <option value="outlook">Outlook</option>
+                            <option value="yahoo">Yahoo</option>
+                        </select>
+                        <span className="validation">{this.emailValidationError()}</span>
                     </div>
                     <div className="flex-input">
                         <label htmlFor="password">Password</label>
@@ -192,7 +223,8 @@ class SignUp extends React.Component{
                 </form>
                 <footer className="auth-footer">
                     <button onClick={this.toggle.bind(this)}
-                            className="toggle-auth">I have account</button>
+                            className="toggle-auth">I have account
+                    </button>
                 </footer>
             </div>
         )

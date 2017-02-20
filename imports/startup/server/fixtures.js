@@ -1,19 +1,21 @@
 import {resetDatabase} from 'meteor/xolvio:cleaner';
+import { Factory } from 'meteor/dburles:factory';
+import _ from 'underscore';
 import {SUPER_ADMIN_ROLE, EMPLOYEE_ROLE} from '../../api/constants/roles'
 import {Projects, Quotes} from '../../api/lib/collections';
+
+import '../../api/models'
 
 function createBaseData() {
     // 1. Generate user data
     const administrator = {
         username: 'admin',
         email: 'admin@prossimo.com',
+        emailProvider: 'eas',
         password: 'prossimo2017',
         profile: {
             firstName: "Prossimo",
-            lastName: "Admin",
-            role: [
-                {role: 'admin'}
-            ]
+            lastName: "Admin"
         }
     };
     const adminId = Accounts.createUser(administrator);
@@ -22,13 +24,11 @@ function createBaseData() {
     const user1 = {
         username: 'prossimo1',
         email: 'quotes@prossimo.us',
+        emailProvider: 'gmail',
         password: 'P4ssiveH0use',
         profile: {
             firstName: "Quote",
-            lastName: "User",
-            role: [
-                {role: 'user'}
-            ]
+            lastName: "User"
         }
     };
     const userId1 = Accounts.createUser(user1);
@@ -37,37 +37,11 @@ function createBaseData() {
     console.log("=========== Created user data ===========");
 
     // 2. Generate project data
-    const projectList = [
-        {
-            name: "Project #1",
-            status: "active",
-            active: true
-        },
-        {
-            name: "Project 2",
-            status: "delivered",
-            active: false
-        },
-        {
-            name: "project 3",
-            status: "active",
-            active: true
-        },
-        {
-            name: "project 4",
-            status: "active",
-            active: true
-        },
-        {
-            name: "project 5",
-            status: "delivered",
-            active: false
-        },
-    ];
 
-    projectList.forEach(item => {
-        Projects.insert(item)
+    _.times(10, ()=>{
+        Factory.create('project');
     })
+
     console.log("=========== Created project data ===========");
 
     const quoteList = [
