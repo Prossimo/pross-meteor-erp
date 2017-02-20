@@ -4,61 +4,6 @@ import faker from 'faker';
 import { Accounts } from 'meteor/accounts-base';
 Schema = {};
 
-Schema.Address = new SimpleSchema({
-    street: {
-        type: String,
-        optional: true
-    },
-    city: {
-        type: String,
-        optional: true
-    },
-    state: {
-        type: String,
-        optional: true
-    },
-    country: {
-        type: String,
-        optional: true
-    }
-});
-Schema.UserProfile = new SimpleSchema({
-    firstName: {
-        type: String,
-        optional: true
-    },
-    lastName: {
-        type: String,
-        optional: true
-    },
-    birthday: {
-        type: Date,
-        optional: true
-    },
-    gender: {
-        type: String,
-        allowedValues: ['Male', 'Female'],
-        optional: true
-    },
-    organization : {
-        type: String,
-        optional: true
-    },
-    website: {
-        type: String,
-        regEx: SimpleSchema.RegEx.Url,
-        optional: true
-    },
-    bio: {
-        type: String,
-        optional: true
-    },
-    address: {
-        type: Schema.Address,
-        optional: true
-    }
-});
-
 Schema.User = new SimpleSchema({
     username: {
         type: String,
@@ -99,12 +44,20 @@ Schema.User = new SimpleSchema({
         type: String
     },
     profile: {
-        type: Schema.UserProfile,
+        type: Object,
         optional: true
+    },
+    'profile.firstName': {
+        type: String
+    },
+    'profile.lastName': {
+        type: String
     }
 });
 
-Meteor.users.attachSchema(Schema.User);
+export const UserSchema = Schema.User;
+
+Meteor.users.attachSchema(UserSchema);
 Meteor.users.publicFields = {
     username: 1,
     emails: 1,
@@ -113,7 +66,6 @@ Meteor.users.publicFields = {
     roles: 1,
     createdAt: 1
 };
-export const UserSchema = Schema.User;
 
 // Deny all client-side updates to user documents
 Meteor.users.deny({
@@ -140,14 +92,20 @@ Meteor.users.helpers({
 
 if(Meteor.isServer) {
     Accounts.onCreateUser(function(options, user) {
-        /*if(options.firstName)
-        {
-            user.firstName = options.firstName;
+        console.log("Accounts.onCreateUser", options);
+        user.profile = {};
+        if(options.profile) {
+            const profile = options.profile;
+
+            if(profile.firstName)
+            {
+                user.profile.firstName = profile.firstName;
+            }
+            if(profile.firstName)
+            {
+                user.profile.lastName = profile.lastName;
+            }
         }
-        if(options.firstName)
-        {
-            user.lastName = options.lastName;
-        }*/
 
         if(options.emailProvider) {
             user.emails[0].provider = options.emailProvider;

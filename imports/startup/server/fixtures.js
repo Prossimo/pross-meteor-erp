@@ -13,7 +13,7 @@ function createBaseData() {
         email: 'admin@prossimo.com',
         emailProvider: 'eas',
         password: 'prossimo2017',
-        profiles: {
+        profile: {
             firstName: "Prossimo",
             lastName: "Admin"
         }

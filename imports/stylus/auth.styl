@@ -67,6 +67,39 @@
     left 10px
     color red
 
+.flex-input-select
+  height 40px
+  padding 10px 10px 0
+  position relative
+  border-bottom 2px solid $main-color
+  margin-bottom 20px
+
+  &.active
+    label
+      font-size 10px
+      top 0
+
+  input
+    width 75%
+    height 100%
+
+  select
+    width 25%
+    height 100%
+
+  label
+    position absolute
+    top 10px
+    left 10px
+    transition .3s
+
+  .validation
+    position absolute
+    bottom -20px
+    font-size 12px
+    left 10px
+    color red
+
 .btn
 
   &:hover

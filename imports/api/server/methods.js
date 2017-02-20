@@ -1,14 +1,17 @@
-import { Meteor } from 'meteor/meteor';
-import  { HTTP } from 'meteor/http';
-import { check, Match } from 'meteor/check';
+import {Meteor} from 'meteor/meteor';
+import  {HTTP} from 'meteor/http';
+import {check, Match} from 'meteor/check';
 import {
     Messages,
     Files,
     CreatedUsers,
     Projects,
     SlackUsers,
-    Quotes } from '../lib/collections';
-import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../constants/roles';
+    Quotes
+} from '../lib/collections';
+import {EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
+
+import NylasAPI from '../nylas/nylas-api';
 
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
 
@@ -17,34 +20,92 @@ Meteor.methods({
         check(userData, {
             username: String,
             email: String,
+            emailProvider: String,
             password: String,
             firstName: String,
             lastName: String,
         });
 
-        const { username, email, password, firstName, lastName } = userData;
+        const {username, email, emailProvider, password, firstName, lastName} = userData;
         let validation = {};
-        if(Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
-        if(Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
+        if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
+        if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
 
-        if(JSON.stringify(validation) === '{}'){
-            const userId = Accounts.createUser({
-                username,
-                email,
-                password,
-                profile: {
-                    firstName,
-                    lastName,
-                    role: [
-                        {role: EMPLOYEE_ROLE}
-                    ]
+        if (JSON.stringify(validation) === '{}') {
+            // Nylas Authentication
+            const authenticationData = {
+                "client_id": NylasAPI.AppID,
+                "name": `${firstName} ${lastName}`,
+                "email_address": email,
+                "provider": emailProvider,
+                "settings": {
+                    "username": email,
+                    "password": password
                 }
-            });
-            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
-        }
-        userData.validation = validation;
+            };
+            console.log("Nylas authentication data", authenticationData);
 
-        return userData;
+            return Promise.await(
+                NylasAPI.makeRequest({
+                    path: '/connect/authorize',
+                    method: 'POST',
+                    body: authenticationData,
+                    returnsModel: false,
+                    timeout: 60000,
+                    auth: {
+                        user: '',
+                        pass: '',
+                        sendImmediately: true
+                    }
+                }).then((result) => {
+                    console.log("NylasAPI makeRequest('/connect/authorize') result", result)
+                    return Promise.await(
+
+                        NylasAPI.makeRequest({
+                            path: '/connect/token',
+                            method: 'POST',
+                            timeout: 60000,
+                            body: {
+                                client_id: NylasAPI.AppID,
+                                client_secret: NylasAPI.AppSecret,
+                                code: result.code
+                            },
+                            auth: {
+                                user: '',
+                                pass: '',
+                                sendImmediately: true
+                            },
+                            error: (error) => {
+                                console.error("NylasAPI makeRequest('/connect/token') error", error)
+                            }
+                        }).then((result) => {
+                            console.log("NylasAPI makeRequest('/connect/token') result", result)
+                            const userId = Accounts.createUser({
+                                username,
+                                email,
+                                emailProvider,
+                                password,
+                                profile: {
+                                    firstName,
+                                    lastName,
+                                    role: [
+                                        {role: EMPLOYEE_ROLE}
+                                    ]
+                                }
+                            });
+                            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
+                            userData.validation = validation;
+
+                            return userData;
+                        })
+                    );
+                }).catch((error) => {
+                    console.log("NylasAPI makeRequest('/connect/authorize') error", error);
+                })
+            );
+
+
+        }
     },
 
     sendEmail: function (mailData) {
@@ -65,11 +126,11 @@ Meteor.methods({
         //todo refactor add checking args
         const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
         msgData.author = author;
-        Messages.insert(msgData, (err, messageId)=>{
-            if(err) throw new Meteor.Error(err);
+        Messages.insert(msgData, (err, messageId) => {
+            if (err) throw new Meteor.Error(err);
 
-            if(files && files.length){
-                files.forEach(item=>{
+            if (files && files.length) {
+                files.forEach(item => {
                     item.messageId = messageId;
                     Files.insert(item);
                 });
@@ -84,9 +145,9 @@ Meteor.methods({
                 _id: String
             },
         });
-        if(msg.author._id === this.userId){
-            Messages.remove({_id: msg._id}, (err)=>{
-                if(err) throw new Meteor.Error(err)
+        if (msg.author._id === this.userId) {
+            Messages.remove({_id: msg._id}, (err) => {
+                if (err) throw new Meteor.Error(err)
             })
         }
     },
@@ -99,12 +160,12 @@ Meteor.methods({
             },
         });
         check(text, String)
-        if(msg.author._id === this.userId){
+        if (msg.author._id === this.userId) {
             Messages.update(
                 {_id: msg._id},
-                {$set: {msg: text}}, (err)=>{
-                if(err) throw new Meteor.Error(err)
-            })
+                {$set: {msg: text}}, (err) => {
+                    if (err) throw new Meteor.Error(err)
+                })
         }
     },
 
@@ -114,10 +175,10 @@ Meteor.methods({
     },
 
     adminCreateUser(data){
-        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-        if(Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
-            throw new Meteor.Error('validEmail',`Email "${data.email}" is already exist`);
-        if(Accounts.findUserByUsername(data.username) || CreatedUsers.findOne({username: data.username}))
+        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+        if (Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
+            throw new Meteor.Error('validEmail', `Email "${data.email}" is already exist`);
+        if (Accounts.findUserByUsername(data.username) || CreatedUsers.findOne({username: data.username}))
             throw new Meteor.Error('validUsername', `"${data.username}" is already exist`);
 
         data.createBy = this.userId;
@@ -151,8 +212,8 @@ Meteor.methods({
     },
 
     assignUsersToProject(projectId, usersIds){
-        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-        Projects.update({_id: projectId},{
+        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+        Projects.update({_id: projectId}, {
                 $set: {
                     members: usersIds
                 }
@@ -161,10 +222,10 @@ Meteor.methods({
     },
 
     updateUserInfo(user){
-        if(user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
+        if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
             throw new Meteor.Error("Access denied");
 
-        Meteor.users.update({_id: user.userId},{
+        Meteor.users.update({_id: user.userId}, {
             $set: {
                 username: user.username,
                 "profile.firstName": user.firstName,
@@ -179,7 +240,7 @@ Meteor.methods({
     },
 
     addProject(data){
-        if(!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
+        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
             throw new Meteor.Error("Access denied");
         check(data, {
             name: String,
@@ -205,9 +266,9 @@ Meteor.methods({
 
         data.slackChanel = createRes.data.channel.id;
 
-        if(inviteBot.data.ok) {
+        if (inviteBot.data.ok) {
             Projects.insert(data);
-        }else{
+        } else {
             throw new Meteor.Error("Problems with slack integration")
         }
     },
@@ -230,10 +291,10 @@ Meteor.methods({
         }, requestCb);
 
         function requestCb(err, res) {
-            if(err || !res.data.ok) return;
-            const { members } = res.data;
-            members.length && members.forEach(item=>{
-                if(!SlackUsers.find({id: item.id}).count()) {
+            if (err || !res.data.ok) return;
+            const {members} = res.data;
+            members.length && members.forEach(item => {
+                if (!SlackUsers.find({id: item.id}).count()) {
                     SlackUsers.insert(item);
                 }
             })
@@ -244,7 +305,7 @@ Meteor.methods({
         check(field, String);
         check(data, Match.OneOf(String, Number));
 
-        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
         Meteor.users.update({_id: this.userId}, {
@@ -255,7 +316,7 @@ Meteor.methods({
     },
 
     addNewQuote(data){
-        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
 
@@ -267,7 +328,7 @@ Meteor.methods({
     },
 
     addRevisionQuote(data){
-        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
 
@@ -284,7 +345,7 @@ Meteor.methods({
     editQuoteName(quoteId, name){
         check(quoteId, String);
         check(name, String);
-        if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
 
@@ -298,24 +359,24 @@ Meteor.methods({
         check(membersId, [String]);
 
         const profile = Meteor.users.findOne({_id: this.userId}).profile;
-        if(profile.conversationGroups && profile.conversationGroups.length){
-            const updateGroups = profile.conversationGroups.map(item=>{
-                if(item.name === group){
+        if (profile.conversationGroups && profile.conversationGroups.length) {
+            const updateGroups = profile.conversationGroups.map(item => {
+                if (item.name === group) {
                     return {
                         name: group,
                         members: membersId
                     }
-                }else{
+                } else {
                     return item;
                 }
             });
-            Meteor.users.update({_id: this.userId},{
+            Meteor.users.update({_id: this.userId}, {
                 $set: {
                     'profile.conversationGroups': updateGroups
                 }
             })
-        }else{
-            Meteor.users.update({_id: this.userId},{
+        } else {
+            Meteor.users.update({_id: this.userId}, {
                 $set: {
                     "profile.conversationGroups": [{
                         name: group,
