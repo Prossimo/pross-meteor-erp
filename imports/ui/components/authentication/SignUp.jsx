@@ -1,12 +1,12 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
+import { warning } from "/imports/api/lib/alerts";
 
 class SignUp extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            isLogining: false,
             validation: {
                 email: '',
                 password: '',
@@ -33,7 +33,7 @@ class SignUp extends React.Component{
 
     submit(event){
         event.preventDefault();
-        const { username, password, email, repeatPassword, validation} = this.state;
+        const { username, password, email, repeatPassword, validation, firstName, lastName} = this.state;
         if(username == ''){
             validation.username = "Field is required";
             return this.Check(validation);
@@ -53,18 +53,24 @@ class SignUp extends React.Component{
             validation.password = "Passwords doesn't match";
             return this.Check(validation);
         }
+        const user = {
+            username,
+            email,
+            password,
+            firstName,
+            lastName
+        };
 
-        this.setState({isLogining: true});
-        Meteor.call("userRegistration", this.state, (err,res)=>{
-            this.setState({isLogining: false});
+        Meteor.call("userRegistration", user, (err,res)=>{
             if(!err){
-            	const { username, password, validation } = res;
+            	const { email, password, validation } = res;
                if(validation.email || validation.username){
-               	this.Check(validation);
+               	    this.Check(validation);
                }else{
-               	Meteor.loginWithPassword({username}, password, (err) => {
-                  	FlowRouter.reload();
-                  });
+                   Meteor.loginWithPassword({email}, password, (err) => {
+                       if(err) return warning('Login error, please try again!');
+                       FlowRouter.reload();
+                   });
                }
             }
     	  })

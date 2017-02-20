@@ -1,8 +1,9 @@
 import React from 'react';
 import Alert from 'react-s-alert';
 import { Files } from '/imports/api/lib/collections';
-import { getUserName, getUserEmail } from '../../../api/lib/filters';
+import { getUserName, getUserEmail, getAvatarUrl, getSlackUsername } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
+import { warning, info } from '/imports/api/lib/alerts';
 
 class AddQuoteForm extends React.Component{
     constructor(props){
@@ -37,21 +38,6 @@ class AddQuoteForm extends React.Component{
         }
     }
 
-    showWarning(text){
-        return Alert.warning(text, {
-            position: 'bottom-right',
-            effect: 'bouncyflip',
-            timeout: 5000
-        })
-    }
-    showInfo(text){
-        return Alert.info(text, {
-            position: 'bottom-right',
-            effect: 'bouncyflip',
-            timeout: 3500
-        });
-    }
-
     formSubmit(event){
         event.preventDefault();
 
@@ -60,6 +46,23 @@ class AddQuoteForm extends React.Component{
 
         if(!currentFile)return this.showWarning(`You must add PDF file`);
         if(totalCost === '')return this.showWarning(`Empty total cost field`);
+
+        const params = {
+            username: getSlackUsername(usersArr[Meteor.userId()]),
+            icon_url: getAvatarUrl(usersArr[Meteor.userId()]),
+            attachments: [
+                {
+                    "color": "#36a64f",
+                    "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to revision #${quote.revisions.length}>`
+
+                }
+            ]
+        };
+
+        const slackText = `Add revision #${quote.revisions.length}
+        to ${quote.name} by ${getUserName(currentUser, true)}`;
+
+        Meteor.call("sendBotMessage", project.slackChanel, slackText, params);
 
         const revisionData = {
             quoteId: quote._id,
@@ -83,15 +86,17 @@ class AddQuoteForm extends React.Component{
         });
 
         const sendEmailCb = (err,res)=> {
-            if(err)return this.showWarning("Email sending failed");
+            if(err)return warning("Email sending failed");
 
-            this.showInfo(res);
+            info(res);
         };
 
         const addRevisionQuoteCb = (err)=>{
-            if(err) return console.log(err);
             this.hide();
-            this.showInfo(`Add new revision`);
+
+            if(err) return warning(err.reason);
+
+            this.info(`Add new revision`);
 
             Meteor.call("sendEmail", {
                 to: memberEmails,
@@ -103,14 +108,15 @@ class AddQuoteForm extends React.Component{
         };
 
         const fileInsertCb = (err, res)=>{
-            if (err) return console.log(err);
+            if (err) return warning(err.reason);
             this.setState({
                 currentFile: null,
                 quoteName: ''
             });
+            info("Success upload file");
             revisionData.fileId = res._id;
 
-            Meteor.call("addRevisionQuote", revisionData, addRevisionQuoteCb )
+            Meteor.call("addRevisionQuote", revisionData, addRevisionQuoteCb)
         };
 
         Files.insert(file, fileInsertCb);

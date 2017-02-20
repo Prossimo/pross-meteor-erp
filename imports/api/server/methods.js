@@ -1,8 +1,16 @@
 import { Meteor } from 'meteor/meteor';
 import  { HTTP } from 'meteor/http';
 import { check, Match } from 'meteor/check';
-import { Messages, Files, CreatedUsers, Projects, Quotes } from '../lib/collections';
+import {
+    Messages,
+    Files,
+    CreatedUsers,
+    Projects,
+    SlackUsers,
+    Quotes } from '../lib/collections';
 import { EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../constants/roles';
+
+const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
 
 Meteor.methods({
     userRegistration(userData){
@@ -28,15 +36,13 @@ Meteor.methods({
                     firstName,
                     lastName,
                     role: [
-                        {role: 'user'}
+                        {role: EMPLOYEE_ROLE}
                     ]
                 }
             });
-            //todo change default role
-            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE], DEFAULT_USER_GROUP );
-        }else{
-            userData.validation = validation;
+            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
         }
+        userData.validation = validation;
 
         return userData;
     },
@@ -184,22 +190,54 @@ Meteor.methods({
         //todo sync with try catch err
         const createRes = HTTP.post('https://slack.com/api/channels.create', {
             params: {
-                token: Meteor.settings.private.slack.apiToken,
+                token: SLACK_API_KEY,
                 name: data.name
             }
         });
         //hardcode bot id
         const inviteBot = HTTP.post('https://slack.com/api/channels.invite', {
             params: {
-                token: Meteor.settings.private.slack.apiToken,
+                token: SLACK_API_KEY,
                 channel: createRes.data.channel.id,
-                user: 'U4596V0KS'
+                user: 'U477F4M6Y'
             }
         });
 
         data.slackChanel = createRes.data.channel.id;
 
-        if(inviteBot.data.ok) Projects.insert(data);
+        if(inviteBot.data.ok) {
+            Projects.insert(data);
+        }else{
+            throw new Meteor.Error("Problems with slack integration")
+        }
+    },
+
+    postSlackMessage(channel, message){
+        HTTP.post('https://slack.com/api/chat.postMessage', {
+            params: {
+                token: SLACK_API_KEY,
+                channel: channel,
+                text: message
+            }
+        })
+    },
+
+    getSlackUsers(){
+        HTTP.get('https://slack.com/api/users.list', {
+            params: {
+                token: SLACK_API_KEY,
+            }
+        }, requestCb);
+
+        function requestCb(err, res) {
+            if(err || !res.data.ok) return;
+            const { members } = res.data;
+            members.length && members.forEach(item=>{
+                if(!SlackUsers.find({id: item.id}).count()) {
+                    SlackUsers.insert(item);
+                }
+            })
+        }
     },
 
     updateUserProfileField(field, data){
@@ -223,14 +261,16 @@ Meteor.methods({
 
         data.createBy = this.userId;
 
+        Meteor.call("sendBotMessage", data.projectId, `Add new quote ${data.name}`);
+
         Quotes.insert(data);
     },
 
     addRevisionQuote(data){
-        //todo add check arrgs security
         if(!Roles.userIsInRole(this.userId, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
             throw new Meteor.Error("Access denied");
         }
+
         const _id = data.quoteId;
         delete data.quoteId;
 
@@ -275,7 +315,6 @@ Meteor.methods({
                 }
             })
         }else{
-            console.log()
             Meteor.users.update({_id: this.userId},{
                 $set: {
                     "profile.conversationGroups": [{

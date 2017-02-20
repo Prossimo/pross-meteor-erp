@@ -6,6 +6,7 @@ export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
 export const Events = new Mongo.Collection("Events");
 export const SlackMessages = new Mongo.Collection("SlackMessages");
+export const SlackUsers = new Mongo.Collection("SlackUsers");
 
 const fileStore = new FS.Store.GridFS("files");
 
@@ -41,9 +42,6 @@ Quotes.after.insert(function (userId, doc) {
 });
 
 Quotes.after.update(function (userId, doc, fieldNames, modifier, options) {
-    console.log("fieldNames", fieldNames)
-    console.log("modifier", modifier)
-    console.log("options", options)
     const event = {
         name: `update quote "${doc.name}"`,
         createAt: doc.createAt,
@@ -64,4 +62,23 @@ Quotes.after.remove(function (userId, doc) {
 
     Events.insert(event);
     Files.remove({_id: {$in: filesId}});
+});
+
+SlackUsers.after.insert(function (userId, doc) {
+    const email = doc.profile.email;
+    if(!email) return;
+    const user = Accounts.findUserByEmail(email);
+    if(!user) return;
+    Meteor.users.update({_id: user._id},{
+        $set: {
+            'slack': doc
+        }
+    })
+});
+
+SlackMessages.before.insert(function (userId, doc) {
+    if(!doc.user) return;
+    const user = Meteor.users.findOne({'slack.id': doc.user});
+    if(!user) return;
+    return doc.userId = user._id;
 });

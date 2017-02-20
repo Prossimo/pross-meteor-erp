@@ -18,7 +18,13 @@ const reactiveMapper = (props, onData)=> {
     ) {
         const files = {};
         Files.find({}).fetch().forEach(item=>files[item._id]=item);
-        const msg = SlackMessages.find({}, {sort: {createAt: -1}}).fetch();
+        const msg = SlackMessages.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
+            if(item.userId){
+                item.author = props.usersArr[item.userId]
+            }
+            return item;
+
+        });
         const project = Projects.findOne();
         const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
             item.revisions.map(revision=>{

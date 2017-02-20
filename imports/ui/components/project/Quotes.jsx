@@ -43,7 +43,7 @@ class Quotes extends React.Component{
     }
 
     addRevision(quote){
-        const { project, usersArr, currentUser } = this.props;
+        const { project, usersArr, currentUser, users } = this.props;
         this.setState({
             showPopup: true,
             popupTitle: `Add revision to ${quote.name}`,
@@ -56,8 +56,8 @@ class Quotes extends React.Component{
     }
 
     changeEditMode(event){
-        if(Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
-
+        console.log("click")
+        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
         event.persist();
         this.setState({editQuoteNameMode: true});
         setTimeout(()=>{
