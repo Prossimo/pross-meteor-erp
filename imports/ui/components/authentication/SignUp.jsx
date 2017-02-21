@@ -2,6 +2,9 @@ import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
 import {warning} from "/imports/api/lib/alerts";
+import request from 'request';
+import config from '/imports/api/config/config.json';
+
 
 class SignUp extends React.Component {
     constructor(props) {
@@ -20,6 +23,8 @@ class SignUp extends React.Component {
             repeatPassword: '',
             username: ''
         }
+
+        this.receiveMessageFromGoolgeAuthWindow = this.receiveMessageFromGoolgeAuthWindow.bind(this);
     }
 
     toggle() {
@@ -68,16 +73,49 @@ class SignUp extends React.Component {
             validation.password = "Passwords doesn't match";
             return this.Check(validation);
         }
-        const user = {
-            username,
-            email,
-            emailProvider,
-            password,
-            firstName,
-            lastName
-        };
 
-        Meteor.call("userRegistration", user, (err, res) => {console.log("Signup", res);
+        this.userRegistrationData = {
+                username,
+                email,
+                emailProvider,
+                password,
+                firstName,
+                lastName
+            };
+
+        if(emailProvider == 'gmail') {
+            const url = require('url');
+            googleUrl = url.format({
+                protocol: 'https',
+                host: 'accounts.google.com/o/oauth2/auth',
+                query: {
+                    response_type: 'code',
+                    //state: state,
+                    client_id: config.google.clientId,
+                    redirect_uri: config.google.redirectUri,
+                    access_type: 'offline',
+                    scope: 'https://www.googleapis.com/auth/userinfo.email \
+                            https://www.googleapis.com/auth/userinfo.profile \
+                            https://mail.google.com/ \
+                            https://www.google.com/m8/feeds \
+                            https://www.googleapis.com/auth/calendar',
+                    login_hint: email,
+                    prompt: 'consent'
+                }
+            });
+
+            const myPopup = window.open(googleUrl, "Google authentication", "width=730,height=650");
+
+            window.addEventListener("message", this.receiveMessageFromGoolgeAuthWindow, false);
+        } else {
+            this.userRegistration();
+        }
+    }
+
+    userRegistration() {
+        userData = this.userRegistrationData;
+        console.log("UserRegistration method invoked with data", userData);
+        Meteor.call("userRegistration", userData, (err, res) => {console.log("Signup", res);
             if (!err) {
                 const {email, password, validation} = res;
                 if (validation.email || validation.username) {
@@ -90,6 +128,58 @@ class SignUp extends React.Component {
                 }
             }
         })
+    }
+
+    receiveMessageFromGoolgeAuthWindow(event) {
+        console.log("Event arrived from other window", event);
+
+        const code = event.data;
+        if(code) {
+            options = {
+                method: 'POST',
+                url: 'https://www.googleapis.com/oauth2/v4/token',
+                form: {
+                    code: code,
+                    grant_type: 'authorization_code',
+                    client_id: config.google.clientId,
+                    client_secret: config.google.clientSecret,
+                    redirect_uri: config.google.redirectUri
+                },
+                json: true
+            };
+            request(options, (error, response, body) => {
+                console.log("GoogleAPIToken result", error, response, body);
+
+                if(!error && body) {
+
+                    const googleAccessToken = body.access_token;
+                    const googleRefreshToken = body.refresh_token;
+
+                    if(googleAccessToken && googleRefreshToken) {
+                        request({
+                            method: 'GET',
+                            url: `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleAccessToken}`,
+                            json: true
+                        }, (error, response, body)=>{
+                            console.log("GoogleUserInfo api result", error, response, body);
+                            if(!error && body) {
+
+                                const googleEmail = body.email;
+
+                                if(googleEmail != this.userRegistrationData.email) {
+                                    return warning('Registraion email is different from Google authentication email!');
+                                } else {
+                                    this.userRegistrationData.googleRefreshToken = googleRefreshToken;
+
+                                    this.userRegistration();
+                                }
+                            }
+                        })
+                    }
+                }
+
+            })
+        }
     }
 
     focusInput(event) {

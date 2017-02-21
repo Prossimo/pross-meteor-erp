@@ -116,7 +116,7 @@ class NylasAPI {
 
                 }
             }
-            handlePromise.finally(()=>{
+            handlePromise.then(()=>{
                 return Promise.reject(err);
             });
         }

@@ -74,3 +74,11 @@ FlowRouter.notFound = {
         FlowRouter.go("Root");
     }
 };
+
+FlowRouter.route('/auth/google/callback', {
+    name: 'GoogleCallback',
+    action() {
+        window.close();
+        window.opener.postMessage(FlowRouter.getQueryParam('code'), "http://localhost:3000");
+    }
+})
