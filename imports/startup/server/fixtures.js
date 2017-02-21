@@ -1,4 +1,4 @@
-import {resetDatabase} from 'meteor/xolvio:cleaner';
+//import {resetDatabase} from 'meteor/xolvio:cleaner';
 import { Factory } from 'meteor/dburles:factory';
 import _ from 'underscore';
 import {SUPER_ADMIN_ROLE, EMPLOYEE_ROLE} from '../../api/constants/roles'
@@ -68,7 +68,7 @@ function createBaseData() {
 }
 
 if (Meteor.isAppTest) {
-    resetDatabase();
+    // resetDatabase();
 
     createBaseData();
 }

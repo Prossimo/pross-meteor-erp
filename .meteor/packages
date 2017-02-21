@@ -29,7 +29,7 @@ matb33:collection-hooks
 alanning:roles
 percolate:migrations
 cfs:standard-packages
-cfs:gridfs
+cfs:filesystem
 meteorhacks:npm
 xolvio:cleaner
 tmeasday:acceptance-test-driver
@@ -39,6 +39,3 @@ dburles:factory
 aldeed:collection2-core@2.0.0
 aldeed:schema-deny
 dburles:collection-helpers
-
-
-npm-container

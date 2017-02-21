@@ -96,7 +96,7 @@ class AddQuoteForm extends React.Component{
 
             if(err) return warning(err.reason);
 
-            this.info(`Add new revision`);
+            info(`Add new revision`);
 
             Meteor.call("sendEmail", {
                 to: memberEmails,
