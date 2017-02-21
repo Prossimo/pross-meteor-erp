@@ -9,7 +9,7 @@ import {
     SlackUsers,
     Quotes
 } from '../lib/collections';
-import {EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
+import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
 import NylasAPI from '../nylas/nylas-api';
 
@@ -294,7 +294,7 @@ Meteor.methods({
             if (err || !res.data.ok) return;
             const {members} = res.data;
             members.length && members.forEach(item => {
-                if (!SlackUsers.find({id: item.id}).count()) {
+                if (!SlackUsers.findOne({id: item.id})) {
                     SlackUsers.insert(item);
                 }
             })

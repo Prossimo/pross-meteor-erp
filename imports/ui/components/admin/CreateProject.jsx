@@ -3,7 +3,7 @@ import { getUserName } from '/imports/api/lib/filters';
 import Select from 'react-select';
 import { info, warning } from '/imports/api/lib/alerts';
 
-class CreateUser extends React.Component{
+class CreateProject extends React.Component{
     constructor(props){
         super(props);
         this.state = {
@@ -67,11 +67,13 @@ class CreateUser extends React.Component{
                             clearable={false}
                         />
                     </div>
-                    <button className="btn primary-btn">Add project</button>
+                    <div className="submit-wrap">
+                        <button className="btn primary-btn">Add project</button>
+                    </div>
                 </form>
             </div>
         )
     }
 }
 
-export default  CreateUser;
+export default  CreateProject;

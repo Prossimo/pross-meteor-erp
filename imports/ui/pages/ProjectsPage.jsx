@@ -3,6 +3,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 import AllProjects from '../components/project/AllProjects';
 import AddProject from '../components/project/AddProject';
+import CreateProject from '/imports/ui/components/admin/CreateProject';
 
 class ProjectsPage extends React.Component{
     constructor(props){
@@ -11,11 +12,11 @@ class ProjectsPage extends React.Component{
         this.tabs = [
             {
                 label: "All projects",
-                content: <AllProjects projects={props.projects}/>
+                component: <AllProjects projects={props.projects}/>
             },
             {
                 label: "Add project",
-                content: <AddProject/>
+                component: <CreateProject {...props}/>
             }
         ];
         
@@ -45,7 +46,7 @@ class ProjectsPage extends React.Component{
     
     getContent(){
         const { activeTab } = this.state;
-        return activeTab.content;
+        return activeTab.component;
     }
 
     render() {
