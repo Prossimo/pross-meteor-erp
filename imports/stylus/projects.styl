@@ -59,6 +59,54 @@
     .right-part
       flex-grow 1
 
+  
+  .tab-container
+    background $white
+    min-height 500px
+
+  .tab-controls
+    padding 0px 30px 20px
+
+    ul
+      display flex
+      overflow hidden
+      flex-wrap wrap
+      margin 0 -10px
+
+    li
+      height 40px
+      line-height 40px
+      font-size 18px
+      padding 0 12px
+      margin 0 10px
+      position relative
+      overflow hidden
+
+      &.active
+        &:after
+          bottom 0
+
+      &:after
+        content ''
+        display block
+        position absolute
+        background $main-color
+        height 4px
+        bottom -4px
+        left 0
+        width 100%
+        transition .3s
+
+      &:hover
+        cursor pointer
+        background alpha($text-color, .1)
+
+        &:after
+          bottom 0
+
+  .tab-content
+    padding 20px 10px
+
 
 
 
