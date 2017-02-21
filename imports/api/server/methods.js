@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import {Meteor} from 'meteor/meteor';
 import  {HTTP} from 'meteor/http';
 import {check, Match} from 'meteor/check';
@@ -12,6 +13,7 @@ import {
 import {EMPLOYEE_ROLE, DEFAULT_USER_GROUP, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
 import NylasAPI from '../nylas/nylas-api';
+import config from '../config/config.json';
 
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
 
@@ -24,88 +26,99 @@ Meteor.methods({
             password: String,
             firstName: String,
             lastName: String,
+            googleRefreshToken: Match.Maybe(String)
         });
 
-        const {username, email, emailProvider, password, firstName, lastName} = userData;
+        const {username, email, emailProvider, password, firstName, lastName, googleRefreshToken} = userData;
         let validation = {};
         if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
         if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
 
-        if (JSON.stringify(validation) === '{}') {
-            // Nylas Authentication
-            const authenticationData = {
-                "client_id": NylasAPI.AppID,
-                "name": `${firstName} ${lastName}`,
-                "email_address": email,
-                "provider": emailProvider,
-                "settings": {
-                    "username": email,
-                    "password": password
-                }
-            };
-            console.log("Nylas authentication data", authenticationData);
-
-            return Promise.await(
-                NylasAPI.makeRequest({
-                    path: '/connect/authorize',
-                    method: 'POST',
-                    body: authenticationData,
-                    returnsModel: false,
-                    timeout: 60000,
-                    auth: {
-                        user: '',
-                        pass: '',
-                        sendImmediately: true
-                    }
-                }).then((result) => {
-                    console.log("NylasAPI makeRequest('/connect/authorize') result", result)
-                    return Promise.await(
-
-                        NylasAPI.makeRequest({
-                            path: '/connect/token',
-                            method: 'POST',
-                            timeout: 60000,
-                            body: {
-                                client_id: NylasAPI.AppID,
-                                client_secret: NylasAPI.AppSecret,
-                                code: result.code
-                            },
-                            auth: {
-                                user: '',
-                                pass: '',
-                                sendImmediately: true
-                            },
-                            error: (error) => {
-                                console.error("NylasAPI makeRequest('/connect/token') error", error)
-                            }
-                        }).then((result) => {
-                            console.log("NylasAPI makeRequest('/connect/token') result", result)
-                            const userId = Accounts.createUser({
-                                username,
-                                email,
-                                emailProvider,
-                                password,
-                                profile: {
-                                    firstName,
-                                    lastName,
-                                    role: [
-                                        {role: EMPLOYEE_ROLE}
-                                    ]
-                                }
-                            });
-                            Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
-                            userData.validation = validation;
-
-                            return userData;
-                        })
-                    );
-                }).catch((error) => {
-                    console.log("NylasAPI makeRequest('/connect/authorize') error", error);
-                })
-            );
-
-
+        if(!_.isEmpty(validation)) {
+            userData.validation = validation;
+            return userData;
         }
+
+        // Nylas Authentication
+        const authenticationData = {
+            "client_id": NylasAPI.AppID,
+            "name": `${firstName} ${lastName}`,
+            "email_address": email,
+            "provider": emailProvider
+        };
+
+        if(emailProvider == 'gmail') {
+            authenticationData.settings = {
+                google_client_id: config.google.clientId,
+                google_client_secret: config.google.clientSecret,
+                google_refresh_token: googleRefreshToken
+            }
+        } else {
+            authenticationData.settings = {
+                username: email,
+                password: password
+            }
+        }
+        console.log("Nylas authentication data", authenticationData);
+
+        return Promise.await(
+            NylasAPI.makeRequest({
+                path: '/connect/authorize',
+                method: 'POST',
+                body: authenticationData,
+                returnsModel: false,
+                timeout: 60000,
+                auth: {
+                    user: '',
+                    pass: '',
+                    sendImmediately: true
+                }
+            }).then((result) => {
+                console.log("NylasAPI makeRequest('/connect/authorize') result", result)
+                return Promise.await(
+
+                    NylasAPI.makeRequest({
+                        path: '/connect/token',
+                        method: 'POST',
+                        timeout: 60000,
+                        body: {
+                            client_id: NylasAPI.AppID,
+                            client_secret: NylasAPI.AppSecret,
+                            code: result.code
+                        },
+                        auth: {
+                            user: '',
+                            pass: '',
+                            sendImmediately: true
+                        },
+                        error: (error) => {
+                            console.error("NylasAPI makeRequest('/connect/token') error", error)
+                        }
+                    }).then((result) => {
+                        console.log("NylasAPI makeRequest('/connect/token') result", result)
+                        const userId = Accounts.createUser({
+                            username,
+                            email,
+                            emailProvider,
+                            password,
+                            profile: {
+                                firstName,
+                                lastName,
+                                role: [
+                                    {role: EMPLOYEE_ROLE}
+                                ]
+                            }
+                        });
+                        Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
+                        userData.validation = validation;
+
+                        return userData;
+                    })
+                );
+            }).catch((error) => {
+                console.log("NylasAPI makeRequest('/connect/authorize') error", error);
+            })
+        );
     },
 
     sendEmail: function (mailData) {
