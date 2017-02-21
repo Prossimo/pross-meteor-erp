@@ -18,6 +18,9 @@ Projects.schema = new SimpleSchema({
     name: { type: String },
     status: { type: String },
     active: { type: Boolean },
+    slackChanel: { type: String, optional: true },
+    members: { type: Array },
+    "members.$": { type: String },
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true }
 });
@@ -28,6 +31,8 @@ Projects.publicFields = {
     name: 1,
     status: 1,
     active: 1,
+    members: 1,
+    slackChanel: 1,
     createdAt: 1,
     modifiedAt: 1
 };
@@ -44,6 +49,6 @@ Projects.before.insert(function (userId, doc) {
 });
 
 Projects.before.update(function (userId, doc, fieldNames, modifier, options) {
-    modifier.$set = modifier.$set || {};
+    // modifier.$set = modifier.$set || {};
     modifier.$set.modifiedAt = Date.now();
 });

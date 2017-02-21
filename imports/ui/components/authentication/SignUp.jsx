@@ -117,11 +117,11 @@ class SignUp extends React.Component {
         console.log("UserRegistration method invoked with data", userData);
         Meteor.call("userRegistration", userData, (err, res) => {console.log("Signup", res);
             if (!err) {
-                const {email, password, validation} = res;
-                if (validation.email || validation.username) {
+                const {validation} = res;
+                if (validation && validation.email || validation.username) {
                     this.Check(validation);
                 } else {
-                    Meteor.loginWithPassword({email}, password, (err) => {
+                    Meteor.loginWithPassword({email: user.email}, user.password, (err) => {
                         if (err) return warning('Login error, please try again!');
                         FlowRouter.reload();
                     });

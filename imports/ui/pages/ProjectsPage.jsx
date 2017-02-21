@@ -12,11 +12,11 @@ class ProjectsPage extends React.Component{
         this.tabs = [
             {
                 label: "All projects",
-                component: <AllProjects projects={props.projects}/>
+                component: <AllProjects/>
             },
             {
                 label: "Add project",
-                component: <CreateProject {...props}/>
+                component: <CreateProject/>
             }
         ];
         
@@ -46,7 +46,9 @@ class ProjectsPage extends React.Component{
     
     getContent(){
         const { activeTab } = this.state;
-        return activeTab.component;
+        if(!activeTab.component) return null;
+
+        return React.cloneElement(activeTab.component, this.props)
     }
 
     render() {

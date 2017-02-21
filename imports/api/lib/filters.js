@@ -75,7 +75,7 @@ export const getUserEmail = (user)=>{
 };
 
 export const getAvatarUrl = (user)=>{
-    const defaultUser = '/icons/user.png';
+    const defaultUser = FlowRouter.url('/icons/user.png');
     if(!user || !user.slack) return defaultUser;
     return user.slack.profile.image_48 ? user.slack.profile.image_48 : defaultUser;
 };

@@ -16,6 +16,7 @@ import NylasAPI from '../nylas/nylas-api';
 import config from '../config/config.json';
 
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
+const SLACK_BOT_ID = "U477F4M6Y";
 
 Meteor.methods({
     userRegistration(userData){
@@ -151,42 +152,6 @@ Meteor.methods({
         });
     },
 
-    deleteMsg(msg){
-        check(msg, {
-            _id: String,
-            author: {
-                _id: String
-            },
-        });
-        if (msg.author._id === this.userId) {
-            Messages.remove({_id: msg._id}, (err) => {
-                if (err) throw new Meteor.Error(err)
-            })
-        }
-    },
-
-    updateMsg(msg, text){
-        check(msg, {
-            _id: String,
-            author: {
-                _id: String
-            },
-        });
-        check(text, String)
-        if (msg.author._id === this.userId) {
-            Messages.update(
-                {_id: msg._id},
-                {$set: {msg: text}}, (err) => {
-                    if (err) throw new Meteor.Error(err)
-                })
-        }
-    },
-
-    getFileDataURL(_id){
-        //todo delete and use mongo-grid
-        return Files.findOne({_id});
-    },
-
     adminCreateUser(data){
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
         if (Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
@@ -225,13 +190,26 @@ Meteor.methods({
     },
 
     assignUsersToProject(projectId, usersIds){
+        check(projectId, String);
+        check(usersIds, [String]);
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-        Projects.update({_id: projectId}, {
-                $set: {
-                    members: usersIds
-                }
+        Projects.update(projectId, {
+                $set: {members: usersIds}
             }
         );
+
+        const channelId = Projects.findOne(projectId).slackChanel;
+
+        Meteor.users.find({_id: {$in: usersIds}, slack: {$exists: true}})
+            .forEach(user=>{
+                HTTP.post('https://slack.com/api/channels.invite', {
+                    params: {
+                        token: SLACK_API_KEY,
+                        channel: responseCreateChannel.data.channel.id,
+                        user: user.slack.id
+                    }
+                })
+            });
     },
 
     updateUserInfo(user){
@@ -253,37 +231,45 @@ Meteor.methods({
     },
 
     addProject(data){
-        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
+        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
-        check(data, {
-            name: String,
-            active: Boolean,
-            members: [String]
-        });
+        }
+        check(data, { name: String, members: [String] });
 
-        //todo sync with try catch err
-        const createRes = HTTP.post('https://slack.com/api/channels.create', {
+        data.active = true;
+        data.status = 'active';
+
+        const responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
             params: {
                 token: SLACK_API_KEY,
                 name: data.name
             }
         });
-        //hardcode bot id
-        const inviteBot = HTTP.post('https://slack.com/api/channels.invite', {
+        if(!responseCreateChannel.data.ok) throw new Meteor.Error("Creating slack channel failed!");
+        data.slackChanel = responseCreateChannel.data.channel.id;
+
+        const responseInviteBot = HTTP.post('https://slack.com/api/channels.invite', {
             params: {
                 token: SLACK_API_KEY,
-                channel: createRes.data.channel.id,
-                user: 'U477F4M6Y'
+                channel: responseCreateChannel.data.channel.id,
+                user: SLACK_BOT_ID
             }
         });
 
-        data.slackChanel = createRes.data.channel.id;
+        if(!responseInviteBot.data.ok) throw new Meteor.Error("Bot cannot add to channel");
 
-        if (inviteBot.data.ok) {
-            Projects.insert(data);
-        } else {
-            throw new Meteor.Error("Problems with slack integration")
-        }
+        Meteor.users.find({_id: {$in: data.members}, slack: {$exists: true}})
+            .forEach(user=>{
+                HTTP.post('https://slack.com/api/channels.invite', {
+                    params: {
+                        token: SLACK_API_KEY,
+                        channel: responseCreateChannel.data.channel.id,
+                        user: user.slack.id
+                    }
+                })
+            });
+
+        Projects.insert(data);
     },
 
     postSlackMessage(channel, message){
@@ -334,8 +320,6 @@ Meteor.methods({
         }
 
         data.createBy = this.userId;
-
-        Meteor.call("sendBotMessage", data.projectId, `Add new quote ${data.name}`);
 
         Quotes.insert(data);
     },

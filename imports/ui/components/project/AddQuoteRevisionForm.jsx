@@ -53,14 +53,12 @@ class AddQuoteForm extends React.Component{
             attachments: [
                 {
                     "color": "#36a64f",
-                    "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to revision #${quote.revisions.length}>`
-
+                    "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${project.name}>`
                 }
             ]
         };
 
-        const slackText = `Add revision #${quote.revisions.length}
-        to ${quote.name} by ${getUserName(currentUser, true)}`;
+        const slackText = `I just added revision #${quote.revisions.length} of "${quote.name}"`;
 
         Meteor.call("sendBotMessage", project.slackChanel, slackText, params);
 

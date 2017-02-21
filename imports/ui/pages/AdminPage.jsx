@@ -45,11 +45,8 @@ class AdminPage extends React.Component{
 
     getContent(){
         const { activeTab } = this.state;
-        if(activeTab.component){
-            return React.cloneElement(activeTab.component, this.props);
-        }else{
-            return activeTab.content
-        }
+        if(!activeTab.component) return null;
+        return React.cloneElement(activeTab.component, this.props)
     }
 
     render() {
@@ -57,7 +54,7 @@ class AdminPage extends React.Component{
             <div className="page-container admin-page">
                 <div className="main-content">
                     <div className="tab-container">
-                        <h2 className="page-title">Admin page 2</h2>
+                        <h2 className="page-title">Admin page</h2>
                         <div className="tab-controls">
                             {this.getTabs()}
                         </div>

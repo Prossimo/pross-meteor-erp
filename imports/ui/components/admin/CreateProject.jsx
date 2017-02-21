@@ -22,12 +22,14 @@ class CreateProject extends React.Component{
 
         const data = {
             name: projectName,
-            active: true,
             members: selectUsers.map(item=>item.value)
         };
 
         Meteor.call("addProject", data, err=>{
-            if(err) return warning(`Problems with creating new project`);
+            if(err) {
+                warning(`Problems with creating new project`);
+                return console.log(err)
+            }
 
             this.setState({selectUsers: [], projectName: ''});
             info(`Success add new project & integration with Slack`);
