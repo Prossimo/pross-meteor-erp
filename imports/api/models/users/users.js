@@ -20,10 +20,6 @@ Schema.User = new SimpleSchema({
         type: String,
         regEx: SimpleSchema.RegEx.Email
     },
-    "emails.$.provider": {
-        type: String,
-        optional: true
-    },
     "emails.$.verified": {
         type: Boolean
     },
@@ -51,6 +47,25 @@ Schema.User = new SimpleSchema({
         type: String
     },
     'profile.lastName': {
+        type: String
+    },
+    nylas: {
+        type: Object,
+        optional: true
+    },
+    'nylas.access_token': {
+        type: String
+    },
+    'nylas.account_id': {
+        type: String
+    },
+    'nylas.email_address': {
+        type: String
+    },
+    'nylas.provider': {
+        type: String
+    },
+    'nylas.organization_unit': {
         type: String
     },
     slack: {
@@ -107,15 +122,37 @@ if(Meteor.isServer) {
             {
                 user.profile.firstName = profile.firstName;
             }
-            if(profile.firstName)
+            if(profile.lastName)
             {
                 user.profile.lastName = profile.lastName;
             }
         }
+        if(options.nylas) {
+            user.nylas = {};
+            const nylas = options.nylas;
 
-        if(options.emailProvider) {
-            user.emails[0].provider = options.emailProvider;
+            if(nylas.access_token)
+            {
+                user.nylas.access_token = nylas.access_token;
+            }
+            if(nylas.account_id)
+            {
+                user.nylas.account_id = nylas.account_id;
+            }
+            if(nylas.organization_unit)
+            {
+                user.nylas.organization_unit = nylas.organization_unit;
+            }
+            if(nylas.email_address)
+            {
+                user.nylas.email_address = nylas.email_address;
+            }
+            if(nylas.provider)
+            {
+                user.nylas.provider = nylas.provider;
+            }
         }
+
         return user;
     });
 }
