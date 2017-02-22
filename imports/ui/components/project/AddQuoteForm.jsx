@@ -3,6 +3,7 @@ import Alert from 'react-s-alert';
 import { Files } from '/imports/api/lib/collections';
 import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
+import { warning, info } from '/imports/api/lib/alerts';
 
 class AddQuoteForm extends React.Component{
     constructor(props){
@@ -11,19 +12,16 @@ class AddQuoteForm extends React.Component{
         this.state = {
             currentFile: null,
             quoteName: '',
-            totalCost: ''
+            totalCost: '',
+            alertsActive: true
         }
     }
 
     changeFileInput(event){
         if(event.target.files.length){
-            if(event.target.files[0].type !== "application/pdf") return (
-                Alert.warning(`You can add only PDF files!`, {
-                    position: 'bottom-right',
-                    effect: 'bouncyflip',
-                    timeout: 5000
-                })
-            );
+            if(event.target.files[0].type !== "application/pdf") {
+                return warning("You can add only PDF files!");
+            }
 
             this.setState({
                 currentFile: event.target.files[0]
@@ -33,43 +31,28 @@ class AddQuoteForm extends React.Component{
 
     renderAttachedFile(){
         const { currentFile } = this.state;
-        if(currentFile){
-            return (
-                <div className="attached-file">
-                    <span className="file-name">{currentFile.name}</span>
-                </div>
-            )
-        }
+        if(!currentFile) return null;
+
+        return (
+            <div className="attached-file">
+                <span className="file-name">{currentFile.name}</span>
+            </div>
+        )
     }
 
     inputChange(event){
         this.setState({quoteName: event.target.value})
     }
 
-    showWarning(text){
-        return Alert.warning(text, {
-            position: 'bottom-right',
-            effect: 'bouncyflip',
-            timeout: 5000
-        })
-    }
-    showInfo(text){
-        return Alert.info(text, {
-            position: 'bottom-right',
-            effect: 'bouncyflip',
-            timeout: 3500
-        });
-    }
-
     formSubmit(event){
         event.preventDefault();
 
-        const { currentFile, quoteName, totalCost } = this.state;
-        const { project, usersArr, currentUser, quotes } = this.props;
+        const { currentFile, quoteName, totalCost, alertsActive } = this.state;
+        const { project, usersArr, currentUser } = this.props;
 
-        if(!currentFile)return this.showWarning(`You must add PDF file`);
-        if(quoteName === '')return this.showWarning(`Empty quote name`);
-        if(totalCost === '')return this.showWarning(`Empty total cost field`);
+        if(!currentFile)return warning(`You must add PDF file`);
+        if(quoteName === '')return warning(`Empty quote name`);
+        if(totalCost === '')return warning(`Empty total cost field`);
 
         const quoteData = {
             name: quoteName,
@@ -99,15 +82,17 @@ class AddQuoteForm extends React.Component{
         });
 
         const sendEmailCb = (err,res)=> {
-            if(err)return this.showWarning("Email sending failed");
+            if(err)return warning("Email sending failed");
 
-            this.showInfo(res);
+            info(res);
         };
 
         const addQuoteCb = (err)=>{
             if(err) return console.log(err);
             this.hide();
-            this.showInfo(`Add new quote`);
+            info(`Add new quote`);
+
+            if(!alertsActive) return;
 
             Meteor.call("sendEmail", {
                 to: memberEmails,
@@ -158,9 +143,13 @@ class AddQuoteForm extends React.Component{
         this.setState({totalCost: event.target.value})
     }
 
+    toggleCheck(){
+        const { alertsActive } = this.state;
+        this.setState({alertsActive: !alertsActive});
+    }
+
     render() {
-        const { quoteName, totalCost } = this.state;
-        const { quotes } = this.props;
+        const { quoteName, totalCost, alertsActive } = this.state;
         return (
             <div className="add-quote-form">
                 <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
@@ -177,7 +166,7 @@ class AddQuoteForm extends React.Component{
                                value={totalCost}/>
                     </div>
                     <div className="field-wrap">
-                        <span>Revision number {quotes.length}</span>
+                        <span className="revision-field">Revision # <span className="revision-label">0</span></span>
                     </div>
 
                     <div className="field-wrap">
@@ -189,7 +178,16 @@ class AddQuoteForm extends React.Component{
                                onChange={this.changeFileInput.bind(this)}/>
                         {this.renderAttachedFile()}
                     </div>
-                    <button className="btn primary-btn">Add quote</button>
+                    <input type="checkbox"
+                           id="alert-checkbox"
+                           onChange={this.toggleCheck.bind(this)}
+                           checked={alertsActive}
+                           className="hidden-checkbox"/>
+                    <label htmlFor="alert-checkbox"
+                           className="check-label">Alert stakeholders</label>
+                    <div className="submit-wrap">
+                        <button className="btn primary-btn">Add quote</button>
+                    </div>
                 </form>
             </div>
         )

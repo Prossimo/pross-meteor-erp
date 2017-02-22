@@ -17,6 +17,19 @@ class Quotes extends React.Component{
         }
     }
 
+    componentDidMount(){
+        this.slideToggle = function (event) {
+            $(event.currentTarget).toggleClass('up');
+            $(event.currentTarget).siblings('.revision-list').slideToggle();
+        };
+
+        $(document).on('click', '.show-revisions', this.slideToggle);
+    }
+
+    componentWillUnmount(){
+        $(document).off('click', '.show-revisions', this.slideToggle);
+    }
+
     hidePopup(){
         this.setState({showPopup: false, popupData: null})
     }
@@ -56,7 +69,6 @@ class Quotes extends React.Component{
     }
 
     changeEditMode(event){
-        console.log("click")
         if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
         event.persist();
         this.setState({editQuoteNameMode: true});
@@ -80,71 +92,11 @@ class Quotes extends React.Component{
         }
     }
 
-    renderQuotes(){
-        const { quotes } = this.props;
-
-        if(quotes.length){
-            return(
-                <ul className="quotes-list">
-                    {quotes.map(item=>{
-                        const latest = item.revisions[item.revisions.length-1];
-                        return(
-                            <li key={item._id}
-
-                                className="single-quota">
-                                <div className="flex-container">
-                                    <div className="desc-part">
-                                        {this.renderQuoteName(item)}
-                                        <p className="quote-info">Revision #{latest.revisionNumber}</p>
-                                        <p className="quote-info">Total price {currencyFormatter.format(latest.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
-                                    </div>
-                                    <div className="control-part">
-                                        <button onClick={this.addRevision.bind(this, item)}
-                                                className="btn primary-btn">Upload revision</button>
-                                        <a href={latest.url}
-                                           download={latest.fileName}
-                                           className="btn primary-btn"><i className="fa fa-download"/> Download PDF</a>
-                                    </div>
-                                </div>
-                                <div className="quote-revision">
-                                    <ul className="revision-list">
-                                        {item.revisions && item.revisions.map(revision=>{
-                                            if(revision === latest) return null;
-                                            return(
-                                                <li className="revision-item"
-                                                    key={revision.fileId}>
-                                                    <p>Revision #{revision.revisionNumber}</p>
-                                                    <p>Uploaded: {moment(revision.createAt).format("h:mm, MMMM Do YYYY")}</p>
-                                                    <p>Total price {currencyFormatter.format(revision.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
-                                                    <a href={revision.url}
-                                                       download={revision.fileName}
-                                                       className="btn primary-btn"><i className="fa fa-download"/> Download PDF</a>
-                                                </li>
-                                            )
-                                        })}
-                                    </ul>
-                                </div>
-                            </li>
-                        )
-                    })}
-                </ul>
-            )
-        }else{
-            return (
-                <div className="info-label">
-                    <p>No quotes yet</p>
-                </div>
-            )
-        }
-    }
-
     renderQuoteName(item){
         const { editQuoteNameMode } = this.state;
 
         if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])){
-            return(
-                <p className="title">{item.name}</p>
-            )
+            return <p className="title">{item.name}</p>;
         }
 
         return(
@@ -160,8 +112,76 @@ class Quotes extends React.Component{
         )
     }
 
+    renderQuotes(){
+        const { quotes } = this.props;
+
+        if(!quotes.length){
+            return (
+                <div className="info-label">
+                    <p>No quotes yet</p>
+                </div>
+            )
+        }
+
+        return(
+            <ul className="quotes-list">
+                {quotes.map(item=>{
+                    const latest = item.revisions[item.revisions.length-1];
+                    return(
+                        <li key={item._id}
+                            className="single-quota">
+                            <div className="flex-container">
+                                <div className="desc-part">
+                                    {this.renderQuoteName(item)}
+                                    <p className="quote-info">
+                                        <span className="latest-label">latest version</span>
+                                        Revision <span className="revision-label"> # {latest.revisionNumber}</span></p>
+                                    <p className="quote-info">
+                                        <i className="fa fa-calendar-o"/> {moment(latest.createAt).format("MMMM Do YYYY")}</p>
+                                    <p className="quote-info">
+                                        Total price: {currencyFormatter.format(latest.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
+                                </div>
+                                <div className="control-part">
+                                    <button onClick={this.addRevision.bind(this, item)}
+                                            className="btn primary-btn">
+                                        <i className="fa fa-plus"/> REVISION</button>
+                                    <a href={latest.url}
+                                       download={latest.fileName}
+                                       className="btn primary-btn">
+                                        <i className="fa fa-download"/> PDF</a>
+                                </div>
+                            </div>
+                            <div className="quote-revision">
+                                <ul className="revision-list">
+                                    {Array.isArray(item.revisions) && item.revisions.map(revision=>{
+                                        if(revision === latest) return null;
+                                        return(
+                                            <li className="revision-item"
+                                                key={revision.fileId}>
+                                                <p>Revision
+                                                    <span className="revision-label"> # {revision.revisionNumber}</span></p>
+                                                <p>
+                                                    <i className="fa fa-calendar-o"/> {moment(revision.createAt).format("MMMM Do YYYY")}</p>
+                                                <p>Total price {currencyFormatter.format(revision.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 1})}</p>
+                                                <a href={revision.url}
+                                                   download={revision.fileName}
+                                                   className="btn primary-btn"><i className="fa fa-download"/> PDF</a>
+                                            </li>
+                                        )
+                                    })}
+                                </ul>
+                                {Array.isArray(item.revisions) && item.revisions.length > 1 ? <span className="show-revisions"/> : null}
+                            </div>
+                        </li>
+                    )
+                })}
+            </ul>
+        )
+
+    }
+
     renderAddQuotes(){
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
+        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
 
         return(
             <div className="add-quotes">
