@@ -100,7 +100,6 @@ Meteor.methods({
                         const userId = Accounts.createUser({
                             username,
                             email,
-                            emailProvider,
                             password,
                             profile: {
                                 firstName,
@@ -108,7 +107,8 @@ Meteor.methods({
                                 role: [
                                     {role: EMPLOYEE_ROLE}
                                 ]
-                            }
+                            },
+                            nylas: result
                         });
                         Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
                         userData.validation = validation;
