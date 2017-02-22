@@ -22,14 +22,14 @@ class NylasAPIRequest {
 
     run() {
         if(!this.options.auth) {
-            if(!this.options.accountId) {
+            /*if(!this.options.accountId) {
                 const err = new APIError({
                     statusCode: 400,
                     body: 'Cannot make Nylas request without specifying `auth` or an `accountId`.'
                 });
                 return Promise.reject(err);
-            }
-            const token = this.api.accessTokenForAccountId();
+            }*/
+            const token = this.api.accessTokenForCurrentUser(); console.log('Current user nylas access token', token);
             if(!token) {
                 const err = new APIError({
                     statusCode: 400,
@@ -87,6 +87,14 @@ class NylasAPI {
         this.AppSecret = '9tbqdscu0b5q16r422t76onnx';
         this.APIRoot = 'https://api.nylas.com';
 
+    }
+
+    accessTokenForCurrentUser () {
+        console.log(Meteor.userId());
+        const currentUser = Meteor.users.findOne({_id:Meteor.userId()});
+
+        console.log("Meteor current user", currentUser);
+        return currentUser.nylas.access_token;
     }
 
     makeRequest(options = {}) {
