@@ -20,6 +20,7 @@
     "react-s-alert": "^1.2.2",
     "react-select": "^1.0.0-rc.3",
     "react-textarea-autosize": "^4.0.5",
+    "reflux": "^6.2.0",
     "simpl-schema": "^0.2.2",
     "slackbots": "^1.0.2",
     "underscore": "^1.8.3"
