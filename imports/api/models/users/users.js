@@ -52,6 +52,11 @@ Schema.User = new SimpleSchema({
     },
     'profile.lastName': {
         type: String
+    },
+    slack: {
+        type: Object,
+        optional: true,
+        blackbox: true
     }
 });
 
@@ -64,6 +69,7 @@ Meteor.users.publicFields = {
     firstName: 1,
     lastName: 1,
     roles: 1,
+    slack: 1,
     createdAt: 1
 };
 

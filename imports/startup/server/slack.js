@@ -21,11 +21,10 @@ Meteor.startup(() => {
 
     //todo replace
     Meteor.methods({
-        sendBotMessage(chenal, msg, params){
-            if(params && params.username){
-                params.as_user = false;
-            }
-            bot.postMessage(chenal, msg, params, (err,res)=>{
+        sendBotMessage(channel, msg, params){
+            if(params && params.username) params.as_user = false;
+
+            bot.postMessage(channel, msg, params, err=>{
                 console.log(err);
             })
         },

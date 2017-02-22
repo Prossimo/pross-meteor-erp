@@ -1,7 +1,7 @@
 import React from 'react';
 import Alert from 'react-s-alert';
 import { Files } from '/imports/api/lib/collections';
-import { getUserName, getUserEmail } from '../../../api/lib/filters';
+import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
 
 class AddQuoteForm extends React.Component{
@@ -124,9 +124,26 @@ class AddQuoteForm extends React.Component{
                 currentFile: null,
                 quoteName: ''
             });
-            quoteData.revisions[0].fileId = res._id;
 
-            Meteor.call("addNewQuote", quoteData, addQuoteCb )
+            quoteData.revisions[0].fileId = res._id;
+            Meteor.call("addNewQuote", quoteData, addQuoteCb );
+
+            if(typeof project.slackChanel === 'undefined') return;
+
+            const params = {
+                username: getSlackUsername(usersArr[Meteor.userId()]),
+                icon_url: getAvatarUrl(usersArr[Meteor.userId()]),
+                attachments: [
+                    {
+                        "color": "#36a64f",
+                        "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${project.name}>`
+                    }
+                ]
+            };
+
+            const slackText = `I just added new quote "${quoteData.name}"`;
+
+            Meteor.call("sendBotMessage", project.slackChanel, slackText, params);
         };
 
         Files.insert(file, fileInsertCb);
@@ -134,9 +151,7 @@ class AddQuoteForm extends React.Component{
 
     hide(){
         const { hide } = this.props;
-        if(typeof hide === 'function'){
-            hide();
-        }
+        if(typeof hide === 'function') hide();
     }
 
     totalChange(event){

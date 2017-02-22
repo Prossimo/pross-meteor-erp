@@ -57,7 +57,7 @@ Meteor.startup(()=>{
 
         const project = Projects.findOne(projectId);
         if(project.slackChanel){
-            return SlackMessages.find({channel: project.slackChanel})
+            return SlackMessages.find({channel: project.slackChanel, subtype: {$ne: "bot_message"}})
         }else{
             return[];
         }

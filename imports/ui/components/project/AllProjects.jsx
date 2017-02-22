@@ -23,17 +23,17 @@ class AllProjects extends React.Component{
             if(!delivered && active == item.active)return true;
             if(!active && delivered == !item.active)return true;
         });
-        //todo right part of project list #36
+
         return (
             <ul className="project-list">
                 {projectToShow.map(project=>{
                     return(
                         <li key={project._id}
                             onClick={this.goToProject.bind(this, project)}
-                            className="project-item">
+                            className={classNames("project-item", {"slack-integrate": !!project.slackChanel})}>
                             <div className="left-part">
-                                <p>{project.name}</p>
-                                <p>{project.status}</p>
+                                <p className="title">{project.name}</p>
+                                <p className={classNames("status", {[project.status]: project.status})}>{project.status}</p>
                             </div>
                             <div className="right-part"></div>
                         </li>
@@ -53,11 +53,11 @@ class AllProjects extends React.Component{
            <div className=""> 
            		<div className="controls-panel">
            			<ul>
-               		<li className={classNames("control-item", {"non-active": !active})}
-                  		onClick={this.toggleState.bind(this, "active")}>Active</li>
-                  	<li className={classNames("control-item", {"non-active": !delivered})}
-                     	onClick={this.toggleState.bind(this, "delivered")}>Delivered</li>
-               	</ul>
+                        <li className={classNames("control-item", {"non-active": !active})}
+                            onClick={this.toggleState.bind(this, "active")}>Active</li>
+                        <li className={classNames("control-item", {"non-active": !delivered})}
+                            onClick={this.toggleState.bind(this, "delivered")}>Delivered</li>
+                    </ul>
            		</div>
                {this.renderProjectList()}
            </div>
