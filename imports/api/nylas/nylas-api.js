@@ -45,8 +45,6 @@ class NylasAPIRequest {
             };
         }
 
-
-
         console.log("NylasAPI->run", JSON.stringify(this.options));
 
         return new Promise((resolve, reject) => {

@@ -1,34 +1,31 @@
 import React from 'react';
+import Spinner from '../components/utils/spinner';
 import Actions from '../../api/nylas/actions';
 import FolderStore from '../../api/nylas/folder-store';
-import LabelStore from '../../api/nylas/label-store';
+import ThreadStore from '../../api/nylas/thread-store';
 import ItemFolder from '../components/inbox/ItemFolder';
-import ItemLabel from '../components/inbox/ItemLabel';
-import Spinner from '../components/utils/spinner'
+import ItemThread from '../components/inbox/ItemThread';
 
 class Inbox extends React.Component{
     constructor(props){
         super(props);
 
         this.onFolderStoreChanged = this.onFolderStoreChanged.bind(this);
-        this.onLabelStoreChanged = this.onLabelStoreChanged.bind(this);
+        this.onThreadStoreChanged = this.onThreadStoreChanged.bind(this);
 
-        const provider = Meteor.user().nylas.provider;
         this.state = {
-            provider: provider,
             folders: [],
-            labels: [],
+            threads: [],
             loading: true
         }
 
-        provider == 'gmail' ? Actions.loadLabels() : Actions.loadFolders();
-
+        Actions.loadFolders();
     }
 
     componentDidMount() {
         this.unsubscribes = [];
         this.unsubscribes.push(FolderStore.listen(this.onFolderStoreChanged));
-        this.unsubscribes.push(LabelStore.listen(this.onLabelStoreChanged));
+        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
     }
 
     componentWillUnmount() {
@@ -38,19 +35,23 @@ class Inbox extends React.Component{
     onFolderStoreChanged() {
         this.setState({
             folders: FolderStore.getData(),
-            loading: FolderStore.isLoading()
+            loading: this.isLoading()
         })
     }
 
-    onLabelStoreChanged() {
+    onThreadStoreChanged() {
         this.setState({
-            labels: LabelStore.getData(),
-            loading: LabelStore.isLoading()
+            threads: ThreadStore.getData(),
+            loading: this.isLoading()
         })
+    }
+
+    isLoading() {
+        return FolderStore.isLoading() && ThreadStore.isLoading();
     }
 
     render() {
-        const {provider, loading} = this.state;
+        const {loading} = this.state;
         return (
             <div className="inbox-page">
                 <h2 className="page-title">Inbox page</h2>
@@ -60,10 +61,14 @@ class Inbox extends React.Component{
                     (<div className="content-panel">
                         <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
                             <div className="list-folder">
-                                {provider == 'gmail' ? this.renderLabels() : this.renderFolders()}
+                                {this.renderFolders()}
                             </div>
                         </div>
-                        <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)'}}>Thread panel</div>
+                        <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)', overflowY:'auto', height:'100%'}}>
+                            <div className="list-thread">
+                                {this.renderThreads()}
+                            </div>
+                        </div>
                             <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
                     </div>)
                 }
@@ -71,15 +76,16 @@ class Inbox extends React.Component{
         )
     }
 
-    renderLabels() {
-        const {labels} = this.state;
-
-        return labels.map((label)=><ItemLabel key={label.id} data={label}/>)
-    }
     renderFolders() {
         const {folders} = this.state;
 
         return folders.map((folder)=><ItemFolder key={folder.id} data={folder}/>)
+    }
+
+    renderThreads() {
+        const {threads} = this.state;
+
+        return threads.map((thread)=><ItemThread key={thread.id} data={thread}/>)
     }
 }
 

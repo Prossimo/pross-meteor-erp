@@ -1,26 +1,28 @@
 import Reflux from 'reflux'
+import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 
-class LabelStore extends Reflux.Store {
+class ThreadStore extends Reflux.Store {
     constructor() {
         super();
-        this.listenTo(Actions.loadLabels, this.loadData)
+        this.listenTo(Actions.loadThreads, this.loadData)
 
         this.data = [];
 
         this.loading = false;
     }
 
-    loadData() {
+    loadData(filters) {
         this.loading = true;
         this.trigger();
 
+        const query = queryString.stringify(filters);
         NylasAPI.makeRequest({
-            path: '/labels',
+            path: `/threads?${query}`,
             method: 'GET'
         }).then((result) => {
-            console.log("Nylas get labels result", result);
+            console.log("Nylas get threads result", result);
 
             this.data = result;
 
@@ -38,4 +40,4 @@ class LabelStore extends Reflux.Store {
     }
 }
 
-module.exports = new LabelStore()
+module.exports = new ThreadStore()
