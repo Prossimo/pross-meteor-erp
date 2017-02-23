@@ -11,7 +11,8 @@ class AddQuoteForm extends React.Component{
 
         this.state = {
             currentFile: null,
-            totalCost: ''
+            totalCost: '',
+            alertsActive: true
         }
     }
 
@@ -41,7 +42,7 @@ class AddQuoteForm extends React.Component{
     formSubmit(event){
         event.preventDefault();
 
-        const { currentFile, totalCost } = this.state;
+        const { currentFile, totalCost, alertsActive } = this.state;
         const { project, usersArr, currentUser, quote } = this.props;
 
         if(!currentFile)return this.showWarning(`You must add PDF file`);
@@ -96,6 +97,8 @@ class AddQuoteForm extends React.Component{
 
             info(`Add new revision`);
 
+            if(!alertsActive) return;
+
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
@@ -131,8 +134,13 @@ class AddQuoteForm extends React.Component{
         this.setState({totalCost: event.target.value})
     }
 
+    toggleCheck(){
+        const { alertsActive } = this.state;
+        this.setState({alertsActive: !alertsActive});
+    }
+
     render() {
-        const { totalCost } = this.state;
+        const { totalCost, alertsActive } = this.state;
         const { quote } = this.props;
         return (
             <div className="add-quote-form">
@@ -141,7 +149,7 @@ class AddQuoteForm extends React.Component{
                         <span className="label">{quote.name}</span>
                     </div>
                     <div className="field-wrap">
-                        <span className="label">Revision number {quote.revisions.length}</span>
+                        <span className="revision-field">Revision number <span className="revision-label">{quote.revisions.length}</span></span>
                     </div>
 
                     <div className="field-wrap">
@@ -160,7 +168,16 @@ class AddQuoteForm extends React.Component{
                                onChange={this.changeFileInput.bind(this)}/>
                         {this.renderAttachedFile()}
                     </div>
-                    <button className="btn primary-btn">Add revision</button>
+                    <input type="checkbox"
+                           id="alert-checkbox"
+                           onChange={this.toggleCheck.bind(this)}
+                           checked={alertsActive}
+                           className="hidden-checkbox"/>
+                    <label htmlFor="alert-checkbox"
+                           className="check-label">Alert stakeholders</label>
+                    <div className="submit-wrap">
+                        <button className="btn primary-btn">Add revision</button>
+                    </div>
                 </form>
             </div>
         )
