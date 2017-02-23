@@ -4,6 +4,7 @@ import FolderStore from '../../api/nylas/folder-store';
 import LabelStore from '../../api/nylas/label-store';
 import ItemFolder from '../components/inbox/ItemFolder';
 import ItemLabel from '../components/inbox/ItemLabel';
+import Spinner from '../components/utils/spinner'
 
 class Inbox extends React.Component{
     constructor(props){
@@ -16,7 +17,8 @@ class Inbox extends React.Component{
         this.state = {
             provider: provider,
             folders: [],
-            labels: []
+            labels: [],
+            loading: true
         }
 
         provider == 'gmail' ? Actions.loadLabels() : Actions.loadFolders();
@@ -35,30 +37,36 @@ class Inbox extends React.Component{
 
     onFolderStoreChanged() {
         this.setState({
-            folders: FolderStore.getData()
+            folders: FolderStore.getData(),
+            loading: FolderStore.isLoading()
         })
     }
 
     onLabelStoreChanged() {
         this.setState({
-            labels: LabelStore.getData()
+            labels: LabelStore.getData(),
+            loading: LabelStore.isLoading()
         })
     }
 
     render() {
-        const {provider} = this.state;
+        const {provider, loading} = this.state;
         return (
             <div className="inbox-page">
                 <h2 className="page-title">Inbox page</h2>
-                <div className="content-panel">
-                    <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
-                        <div style={{position:'relative',display:'flex',flexDirection:'column',height:'100%'}}>
-                            {provider == 'gmail' ? this.renderLabels() : this.renderFolders()}
+
+                {loading && <Spinner visible={true}/>}
+                {!loading &&
+                    (<div className="content-panel">
+                        <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
+                            <div className="list-folder">
+                                {provider == 'gmail' ? this.renderLabels() : this.renderFolders()}
+                            </div>
                         </div>
-                    </div>
-                    <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)'}}>Thread panel</div>
-                    <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
-                </div>
+                        <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)'}}>Thread panel</div>
+                            <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
+                    </div>)
+                }
             </div>
         )
     }

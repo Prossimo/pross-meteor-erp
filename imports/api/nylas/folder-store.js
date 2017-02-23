@@ -9,9 +9,12 @@ class FolderStore extends Reflux.Store {
 
         this.data = [];
 
+        this.loading = false;
     }
 
     loadData() {
+        this.loading = true;
+        this.trigger();
 
         NylasAPI.makeRequest({
             path: '/labels',
@@ -21,12 +24,17 @@ class FolderStore extends Reflux.Store {
 
             this.data = result;
 
+            this.loading = false;
             this.trigger();
         })
     }
 
     getData() {
         return this.data;
+    }
+
+    isLoading() {
+        return this.loading;
     }
 }
 
