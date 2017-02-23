@@ -230,11 +230,11 @@ Meteor.methods({
         })
     },
 
-    addProject(data){
+    addProject(data){ console.log(data);
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
         }
-        check(data, { name: String, members: [String], is_main_stakeholder: Boolean });
+        check(data, { name: String, members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date });
 
         data.active = true;
         data.status = 'active';

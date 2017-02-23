@@ -4,6 +4,9 @@ import Select from 'react-select';
 import { info, warning } from '/imports/api/lib/alerts';
 import Switch from 'rc-switch';
 import '../../../stylus/switch.styl';
+import moment from 'moment';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 class CreateProject extends React.Component{
     constructor(props){
@@ -16,19 +19,22 @@ class CreateProject extends React.Component{
             }],
             selectOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
             is_main_stakeholder: false,
+            actualDeliveryDate: moment(),
+            productionStartDate: moment()
         }
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectUsers, is_main_stakeholder } = this.state;
+        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate } = this.state;
 
         const data = {
             name: projectName,
             members: selectUsers.map(item=>item.value),
-            is_main_stakeholder: is_main_stakeholder
+            is_main_stakeholder: is_main_stakeholder,
+            actualDeliveryDate: actualDeliveryDate.toDate(),
+            productionStartDate: productionStartDate.toDate()
         };
-
         Meteor.call("addProject", data, err=>{
             if(err) {
                 warning(`Problems with creating new project`);
@@ -49,12 +55,19 @@ class CreateProject extends React.Component{
     }
     
     onSwitchStakeholder(value) {
-  		  this.setState({is_main_stakeholder: value})
+  		this.setState({is_main_stakeholder: value})
 	 }
-
+	 
+    onChangeDeliveryDate(date) {
+    	this.setState({actualDeliveryDate: date});
+    }
+    
+    onChangeProductionDate(date) {
+    	this.setState({productionStartDate: date});
+    }
 
     render() {
-        const { projectName, selectUsers, selectOptions } = this.state;
+        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate } = this.state;
 
         return (
             <div className="create-project">
@@ -83,6 +96,18 @@ class CreateProject extends React.Component{
                             className={"members-select"}
                             clearable={false}
                         />
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Actual Delivery Date</span>
+                        <DatePicker
+        					selected={actualDeliveryDate}
+        					onChange={this.onChangeDeliveryDate.bind(this)} />
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Production Start Date</span>
+                        <DatePicker
+        					selected={productionStartDate}
+        					onChange={this.onChangeProductionDate.bind(this)} />
                     </div>
                     <div className="submit-wrap">
                         <button className="btn primary-btn">Add project</button>
