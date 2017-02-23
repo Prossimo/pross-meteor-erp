@@ -2,6 +2,8 @@ import React from 'react';
 import { getUserName } from '/imports/api/lib/filters';
 import Select from 'react-select';
 import { info, warning } from '/imports/api/lib/alerts';
+import Switch from 'rc-switch';
+import '../../../stylus/switch.styl';
 
 class CreateProject extends React.Component{
     constructor(props){
@@ -12,17 +14,19 @@ class CreateProject extends React.Component{
                 label: getUserName(props.currentUser, true),
                 value: props.currentUser._id
             }],
-            selectOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}})
+            selectOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
+            is_main_stakeholder: false,
         }
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectUsers } = this.state;
+        const { projectName, selectUsers, is_main_stakeholder } = this.state;
 
         const data = {
             name: projectName,
-            members: selectUsers.map(item=>item.value)
+            members: selectUsers.map(item=>item.value),
+            is_main_stakeholder: is_main_stakeholder
         };
 
         Meteor.call("addProject", data, err=>{
@@ -43,6 +47,10 @@ class CreateProject extends React.Component{
     changeSelectUser(value){
         this.setState({selectUsers: value})
     }
+    
+    onSwitchStakeholder(value) {
+  		  this.setState({is_main_stakeholder: value})
+	 }
 
 
     render() {
@@ -57,6 +65,13 @@ class CreateProject extends React.Component{
                         <input type="text"
                                onChange={this.changeInput.bind(this)}
                                value={projectName}/>
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Is Main Stakeholder</span>
+                        <Switch onChange={this.onSwitchStakeholder.bind(this)}
+        							checkedChildren={'Yes'}
+        							unCheckedChildren={'No'}
+      						/>
                     </div>
                     <div className="select-wrap">
                         <span className="label">Add members</span>

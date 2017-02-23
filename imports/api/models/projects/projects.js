@@ -22,7 +22,8 @@ Projects.schema = new SimpleSchema({
     members: { type: Array },
     "members.$": { type: String },
     createdAt: { type: Date, denyUpdate: true, optional: true },
-    modifiedAt: { type: Date, denyInsert: true, optional: true }
+    modifiedAt: { type: Date, denyInsert: true, optional: true },
+    is_main_stakeholder: { type: Boolean }
 });
 
 Projects.attachSchema(Projects.schema);
@@ -34,7 +35,8 @@ Projects.publicFields = {
     members: 1,
     slackChanel: 1,
     createdAt: 1,
-    modifiedAt: 1
+    modifiedAt: 1,
+    is_main_stakeholder: 1
 };
 
 Factory.define('project', Projects, {

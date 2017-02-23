@@ -234,7 +234,7 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
         }
-        check(data, { name: String, members: [String] });
+        check(data, { name: String, members: [String], is_main_stakeholder: Boolean });
 
         data.active = true;
         data.status = 'active';
