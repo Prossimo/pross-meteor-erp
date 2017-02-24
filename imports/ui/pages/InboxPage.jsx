@@ -16,10 +16,13 @@ class Inbox extends React.Component{
         this.state = {
             folders: [],
             threads: [],
-            loading: true
+            loading: true,
+            hasNylasInfo: Meteor.user().nylas!=null
         }
 
-        Actions.loadFolders();
+        if(this.state.hasNylasInfo) {
+            Actions.loadFolders();
+        }
     }
 
     componentDidMount() {
@@ -51,31 +54,36 @@ class Inbox extends React.Component{
     }
 
     render() {
-        const {loading} = this.state;
+        const {hasNylasInfo} = this.state;
         return (
             <div className="inbox-page">
                 <h2 className="page-title">Inbox page</h2>
-
-                {loading && <Spinner visible={true}/>}
-                {!loading &&
-                    (<div className="content-panel">
-                        <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
-                            <div className="list-folder">
-                                {this.renderFolders()}
-                            </div>
-                        </div>
-                        <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)', overflowY:'auto', height:'100%'}}>
-                            <div className="list-thread">
-                                {this.renderThreads()}
-                            </div>
-                        </div>
-                            <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
-                    </div>)
-                }
+                {hasNylasInfo && this.renderInbox()}
+                {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
             </div>
         )
     }
 
+    renderInbox() {
+        const {loading}  = this.state;
+        if(loading) {
+            return <Spinner visible={true}/>
+        } else {
+            return (<div className="content-panel">
+                <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
+                    <div className="list-folder">
+                        {this.renderFolders()}
+                    </div>
+                </div>
+                <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)', overflowY:'auto', height:'100%'}}>
+                    <div className="list-thread">
+                        {this.renderThreads()}
+                    </div>
+                </div>
+                <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
+            </div>)
+        }
+    }
     renderFolders() {
         const {folders} = this.state;
 

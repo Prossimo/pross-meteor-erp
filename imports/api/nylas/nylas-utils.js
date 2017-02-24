@@ -3,8 +3,10 @@ import moment from 'moment';
 
 module.exports = {
     getParticipantsName: (participants)=>{
+        const currentUser = Meteor.user();
+        if(!currentUser) return;
         const others = participants.filter((participant)=>{
-            return participant.email != Meteor.user().email()
+            return participant.email != currentUser.email()
         });
         return others.map((participant)=>{return participant.name && participant.name.length ? participant.name : participant.email;}).join(', ');
     },
