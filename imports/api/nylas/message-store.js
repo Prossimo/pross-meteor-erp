@@ -3,13 +3,12 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 
-class ThreadStore extends Reflux.Store {
+class MessageStore extends Reflux.Store {
     constructor() {
         super();
-        this.listenTo(Actions.loadThreads, this.loadData)
+        this.listenTo(Actions.loadMessages, this.loadData)
 
         this.data = [];
-        this.selectedThread = null;
 
         this.loading = false;
     }
@@ -20,10 +19,10 @@ class ThreadStore extends Reflux.Store {
 
         const query = queryString.stringify(filters);
         NylasAPI.makeRequest({
-            path: `/threads?${query}`,
+            path: `/messages?${query}`,
             method: 'GET'
         }).then((result) => {
-            console.log("Nylas get threads result", result);
+            console.log("Nylas get messages result", result);
 
             this.data = result;
 
@@ -39,15 +38,6 @@ class ThreadStore extends Reflux.Store {
     isLoading() {
         return this.loading;
     }
-
-    selectThread(thread) {
-        Actions.loadMessages({thread_id: thread.id});
-        this.selectedThread = thread;
-    }
-
-    getSelectedThread() {
-        return this.selectedThread;
-    }
 }
 
-module.exports = new ThreadStore()
+module.exports = new MessageStore()
