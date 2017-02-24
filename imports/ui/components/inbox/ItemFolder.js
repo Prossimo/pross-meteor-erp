@@ -9,7 +9,7 @@ class ItemFolder extends React.Component{
     render() {
 
         return (
-            <div>{this.props.data.name}</div>
+            <div className="item">{this.props.data.name}</div>
         )
     }
 }

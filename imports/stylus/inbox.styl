@@ -31,3 +31,93 @@
   .column-panel
     margin 5px
     flex 1 1 0%
+
+    .list-folder {
+      .item {
+        color: rgba(35, 31, 32, 0.8);
+        flex: 1;
+        display: flex;
+        align-items: baseline;
+        font-size: 14px;
+        font-weight: 400;
+        padding-right: 14px;
+        line-height: 27.3px;
+        clear: both;
+      }
+    }
+
+    .list-thread {
+      cursor: default;
+      .item {
+        color: rgba(35, 31, 32, 0.8);
+        flex: 1;
+        display: flex;
+        align-items: center;
+        font-size: $font-size;
+        font-weight: 400;
+        padding: 12px;
+        line-height: 21px;
+        clear: both;
+        white-space: nowrap;
+        border-bottom: 1px solid rgba(221,221,221,1);
+        height: 85px;
+
+        &:hover {
+          background: rgba(221,221,221,0.7);
+        }
+
+        .thread-info-column {
+          flex:1;
+          overflow: hidden;
+
+          .unread-true {
+            font-weight: bold;
+          }
+          .participants-wrapper {
+            display: flex;
+            align-items: center;
+            min-height: 24px;
+
+            .participants {
+              .unread {
+                font-weight: $font-weight-semi-bold;
+              }
+            }
+
+            .timestamp {
+              font-size: $font-size-small;
+              font-weight: $font-weight-normal;
+              margin-right: 8px;
+              opacity: 0.62;
+            }
+          }
+
+          .subject {
+            font-size: $font-size-small;
+            font-weight: $font-weight-normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+            margin-right: 8px;
+            padding-right: $padding-base-horizontal;
+
+            .unread {
+              font-weight: $font-weight-semi-bold;
+            }
+          }
+
+          .snippet {
+            font-size: $font-size-small;
+            font-weight: $font-weight-normal;
+            overflow: hidden;
+            text-overflow ellipsis;
+            opacity: 0.7;
+            text-align: left;
+            min-height: 21px;
+            margin-right: 4px;
+            flex: 1;
+          }
+        }
+      }
+    }
+
