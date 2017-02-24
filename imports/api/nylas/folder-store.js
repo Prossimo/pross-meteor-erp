@@ -9,6 +9,7 @@ class FolderStore extends Reflux.Store {
         this.listenTo(Actions.loadFolders, this.loadData)
 
         this.data = [];
+        this.selectedFolder = null;
 
         this.loading = false;
     }
@@ -30,7 +31,7 @@ class FolderStore extends Reflux.Store {
                 const inbox = _.findWhere(result, {name:'inbox'});
 
                 if(inbox) {
-                    Actions.loadThreads({in:inbox.id});
+                    this.selectFolder(inbox);
                 }
             }
             this.loading = false;
@@ -44,6 +45,15 @@ class FolderStore extends Reflux.Store {
 
     isLoading() {
         return this.loading;
+    }
+
+    selectFolder(folder) {
+        Actions.loadThreads({in:folder.id});
+        this.selectedFolder = folder;
+    }
+
+    getSelectedFolder() {
+        return this.selectedFolder;
     }
 }
 

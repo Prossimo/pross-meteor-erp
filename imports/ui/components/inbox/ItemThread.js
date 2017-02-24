@@ -8,13 +8,13 @@ class ItemThread extends React.Component{
     }
 
     render() {
-        const {participants, subject, snippet, unread, last_message_received_timestamp} = this.props.data;
+        const {participants, subject, snippet, unread, last_message_received_timestamp} = this.props.thread;
         return (
-            <div className="item">
+            <div className={`item${this.props.selected ? " focused" :""}`} onClick={(evt)=>{this.props.onClick(evt)}}>
                 <div className="thread-info-column">
                     <div className="participants-wrapper">
                         <div className="participants">
-                            <span className={unread&&"unread"}>{NylasUtils.getParticipantsName(participants)}</span>
+                            <span className={unread&&"unread"}>{NylasUtils.getParticipantsNamesString(participants)}</span>
                         </div>
                         <span style={{flexGrow:1, flexShrink:1, flexBasis:'0%'}}></span>
                         <span className="timestamp">{NylasUtils.shortTimeString(last_message_received_timestamp)}</span>

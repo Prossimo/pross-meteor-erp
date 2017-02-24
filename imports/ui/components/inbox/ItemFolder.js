@@ -9,7 +9,7 @@ class ItemFolder extends React.Component{
     render() {
 
         return (
-            <div className="item">{this.props.data.name}</div>
+            <div className={`item${this.props.selected ? " focused" :""}`} onClick={(evt)=>{this.props.onClick(evt)}}>{this.props.folder.name}</div>
         )
     }
 }

@@ -48,6 +48,7 @@ class SignUp extends React.Component {
     }
 
     submit(event) {
+
         event.preventDefault();
         const {username, password, email, emailProvider, repeatPassword, validation, firstName, lastName} = this.state;
         if (username == '') {
@@ -121,7 +122,7 @@ class SignUp extends React.Component {
                 if (validation && validation.email || validation.username) {
                     this.Check(validation);
                 } else {
-                    Meteor.loginWithPassword({email: user.email}, user.password, (err) => {
+                    Meteor.loginWithPassword({email: userData.email}, userData.password, (err) => {
                         if (err) return warning('Login error, please try again!');
                         FlowRouter.reload();
                     });
@@ -133,53 +134,59 @@ class SignUp extends React.Component {
     receiveMessageFromGoolgeAuthWindow(event) {
         console.log("Event arrived from other window", event);
 
-        const code = event.data;
-        if(code) {
-            options = {
-                method: 'POST',
-                url: 'https://www.googleapis.com/oauth2/v4/token',
-                form: {
-                    code: code,
-                    grant_type: 'authorization_code',
-                    client_id: config.google.clientId,
-                    client_secret: config.google.clientSecret,
-                    redirect_uri: config.google.redirectUri
-                },
-                json: true
-            };
-            request(options, (error, response, body) => {
-                console.log("GoogleAPIToken result", error, response, body);
+        try {
+            const json = JSON.parse(event.data);
+            const code = json.googleAuthCode;
+            if(code) {
+                options = {
+                    method: 'POST',
+                    url: 'https://www.googleapis.com/oauth2/v4/token',
+                    form: {
+                        code: code,
+                        grant_type: 'authorization_code',
+                        client_id: config.google.clientId,
+                        client_secret: config.google.clientSecret,
+                        redirect_uri: config.google.redirectUri
+                    },
+                    json: true
+                };
+                request(options, (error, response, body) => {
+                    console.log("GoogleAPIToken result", error, response, body);
 
-                if(!error && body) {
+                    if(!error && body) {
 
-                    const googleAccessToken = body.access_token;
-                    const googleRefreshToken = body.refresh_token;
+                        const googleAccessToken = body.access_token;
+                        const googleRefreshToken = body.refresh_token;
 
-                    if(googleAccessToken && googleRefreshToken) {
-                        request({
-                            method: 'GET',
-                            url: `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleAccessToken}`,
-                            json: true
-                        }, (error, response, body)=>{
-                            console.log("GoogleUserInfo api result", error, response, body);
-                            if(!error && body) {
+                        if(googleAccessToken && googleRefreshToken) {
+                            request({
+                                method: 'GET',
+                                url: `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleAccessToken}`,
+                                json: true
+                            }, (error, response, body)=>{
+                                console.log("GoogleUserInfo api result", error, response, body);
+                                if(!error && body) {
 
-                                const googleEmail = body.email;
+                                    const googleEmail = body.email;
 
-                                if(googleEmail != this.userRegistrationData.email) {
-                                    return warning('Registraion email is different from Google authentication email!');
-                                } else {
-                                    this.userRegistrationData.googleRefreshToken = googleRefreshToken;
+                                    if(googleEmail != this.userRegistrationData.email) {
+                                        return warning('Registraion email is different from Google authentication email!');
+                                    } else {
+                                        this.userRegistrationData.googleRefreshToken = googleRefreshToken;
 
-                                    this.userRegistration();
+                                        this.userRegistration();
+                                    }
                                 }
-                            }
-                        })
+                            })
+                        }
                     }
-                }
 
-            })
+                })
+            }
+        } catch (e) {
+            return false;
         }
+
     }
 
     focusInput(event) {

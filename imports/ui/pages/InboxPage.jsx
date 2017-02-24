@@ -3,8 +3,10 @@ import Spinner from '../components/utils/spinner';
 import Actions from '../../api/nylas/actions';
 import FolderStore from '../../api/nylas/folder-store';
 import ThreadStore from '../../api/nylas/thread-store';
+import MessageStore from '../../api/nylas/message-store';
 import ItemFolder from '../components/inbox/ItemFolder';
 import ItemThread from '../components/inbox/ItemThread';
+import ItemMessage from '../components/inbox/ItemMessage';
 
 class Inbox extends React.Component{
     constructor(props){
@@ -12,20 +14,28 @@ class Inbox extends React.Component{
 
         this.onFolderStoreChanged = this.onFolderStoreChanged.bind(this);
         this.onThreadStoreChanged = this.onThreadStoreChanged.bind(this);
+        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this);
 
         this.state = {
             folders: [],
             threads: [],
-            loading: true
+            messages: [],
+            loading: true,
+            hasNylasInfo: Meteor.user().nylas!=null,
+            selectedFolder: null,
+            selectedThread: null
         }
 
-        Actions.loadFolders();
+        if(this.state.hasNylasInfo) {
+            Actions.loadFolders();
+        }
     }
 
     componentDidMount() {
         this.unsubscribes = [];
         this.unsubscribes.push(FolderStore.listen(this.onFolderStoreChanged));
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
+        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged));
     }
 
     componentWillUnmount() {
@@ -35,7 +45,8 @@ class Inbox extends React.Component{
     onFolderStoreChanged() {
         this.setState({
             folders: FolderStore.getData(),
-            loading: this.isLoading()
+            loading: this.isLoading(),
+            selectedFolder: FolderStore.getSelectedFolder()
         })
     }
 
@@ -46,46 +57,82 @@ class Inbox extends React.Component{
         })
     }
 
+    onMessageStoreChanged() {
+        this.setState({
+            messages: MessageStore.getData(),
+            loading: this.isLoading()
+        })
+    }
+
     isLoading() {
         return FolderStore.isLoading() && ThreadStore.isLoading();
     }
 
     render() {
-        const {loading} = this.state;
+        const {hasNylasInfo} = this.state;
         return (
             <div className="inbox-page">
-                <h2 className="page-title">Inbox page</h2>
-
-                {loading && <Spinner visible={true}/>}
-                {!loading &&
-                    (<div className="content-panel">
-                        <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)'}}>
-                            <div className="list-folder">
-                                {this.renderFolders()}
-                            </div>
-                        </div>
-                        <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)', overflowY:'auto', height:'100%'}}>
-                            <div className="list-thread">
-                                {this.renderThreads()}
-                            </div>
-                        </div>
-                            <div className="column-panel" style={{order:3, flex:1}}>View panel</div>
-                    </div>)
-                }
+                <h2 className="header-panel">Inbox page</h2>
+                {hasNylasInfo && this.renderInbox()}
+                {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
             </div>
         )
     }
 
+    renderInbox() {
+        const {loading}  = this.state;
+        if(loading) {
+            return <Spinner visible={true}/>
+        } else {
+            return (<div className="content-panel">
+                <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)', paddingRight:5}}>
+                    <div className="list-folder">
+                        {this.renderFolders()}
+                    </div>
+                </div>
+                <div className="column-panel" style={{order:2, minWidth:250, maxWidth:450, borderRight:'1px solid rgba(221,221,221,0.6)', overflowY:'auto', height:'100%'}}>
+                    <div className="list-thread">
+                        {this.renderThreads()}
+                    </div>
+                </div>
+                <div className="column-panel" style={{order:3, flex:1}}>
+                    <div className="list-message">
+                        {this.renderMessages()}
+                    </div>
+                </div>
+            </div>)
+        }
+    }
     renderFolders() {
-        const {folders} = this.state;
+        const {folders, selectedFolder} = this.state;
 
-        return folders.map((folder)=><ItemFolder key={folder.id} data={folder}/>)
+        return folders.map((folder)=><ItemFolder key={folder.id} folder={folder} onClick={(evt)=>{this.onFolderSelected(folder)}} selected={selectedFolder && folder.id==selectedFolder.id}/>)
     }
 
     renderThreads() {
-        const {threads} = this.state;
+        const {threads, selectedThread} = this.state;
 
-        return threads.map((thread)=><ItemThread key={thread.id} data={thread}/>)
+        return threads.map((thread)=><ItemThread key={thread.id} thread={thread} onClick={(evt)=>this.onThreadSelected(thread)} selected={selectedThread && thread.id==selectedThread.id}/>)
+    }
+
+    renderMessages() {
+        const {messages} = this.state;
+
+        return messages.map((message)=><ItemMessage key={message.id} message={message}/>)
+    }
+
+    onFolderSelected(folder) {
+        console.log("Folder selected", folder);
+        this.setState({selectedFolder: folder});
+
+        FolderStore.selectFolder(folder);
+    }
+
+    onThreadSelected(thread) {
+        console.log('Thread selected', thread);
+        this.setState({selectedThread: thread});
+
+        ThreadStore.selectThread(thread);
     }
 }
 
