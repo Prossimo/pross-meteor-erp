@@ -3,7 +3,6 @@ import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import _ from 'underscore';
 import {Projects} from '../../lib/collections';
-
 export const STATUSES = ['active', 'delivered'];
 
 // Deny all client-side updates since we will be using methods to manage this collection
@@ -22,7 +21,11 @@ Projects.schema = new SimpleSchema({
     members: { type: Array },
     "members.$": { type: String },
     createdAt: { type: Date, denyUpdate: true, optional: true },
-    modifiedAt: { type: Date, denyInsert: true, optional: true }
+    modifiedAt: { type: Date, denyInsert: true, optional: true },
+    is_main_stakeholder: { type: Boolean },
+    actualDeliveryDate: { type: Date},
+    productionStartDate: { type: Date},
+    estDeliveryRange: { type: Array }
 });
 
 Projects.attachSchema(Projects.schema);
@@ -34,7 +37,11 @@ Projects.publicFields = {
     members: 1,
     slackChanel: 1,
     createdAt: 1,
-    modifiedAt: 1
+    modifiedAt: 1,
+    is_main_stakeholder: 1,
+    actualDeliveryDate: 1,
+    productionStartDate: 1,
+    estDeliveryRange: 1
 };
 
 Factory.define('project', Projects, {

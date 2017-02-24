@@ -2,7 +2,6 @@ import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 import AllProjects from '../components/project/AllProjects';
-import AddProject from '../components/project/AddProject';
 import CreateProject from '/imports/ui/components/admin/CreateProject';
 
 class ProjectsPage extends React.Component{
