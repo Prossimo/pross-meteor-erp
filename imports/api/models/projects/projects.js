@@ -24,7 +24,8 @@ Projects.schema = new SimpleSchema({
     modifiedAt: { type: Date, denyInsert: true, optional: true },
     is_main_stakeholder: { type: Boolean },
     actualDeliveryDate: { type: Date},
-    productionStartDate: { type: Date}
+    productionStartDate: { type: Date},
+    estDeliveryRange: { type: Array }
 });
 
 Projects.attachSchema(Projects.schema);
@@ -39,7 +40,8 @@ Projects.publicFields = {
     modifiedAt: 1,
     is_main_stakeholder: 1,
     actualDeliveryDate: 1,
-    productionStartDate: 1
+    productionStartDate: 1,
+    estDeliveryRange: 1
 };
 
 Factory.define('project', Projects, {

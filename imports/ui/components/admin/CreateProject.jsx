@@ -20,21 +20,25 @@ class CreateProject extends React.Component{
             selectOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
             is_main_stakeholder: false,
             actualDeliveryDate: moment(),
-            productionStartDate: moment()
+            productionStartDate: moment(),
+            startDate: moment().subtract(29, 'days'),
+            endDate: moment()
         }
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate } = this.state;
+        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate } = this.state;
 
         const data = {
             name: projectName,
             members: selectUsers.map(item=>item.value),
             is_main_stakeholder: is_main_stakeholder,
             actualDeliveryDate: actualDeliveryDate.toDate(),
-            productionStartDate: productionStartDate.toDate()
+            productionStartDate: productionStartDate.toDate(),
+            estDeliveryRange: [startDate.toDate(), endDate.toDate()]
         };
+        console.log(data);
         Meteor.call("addProject", data, err=>{
             if(err) {
                 warning(`Problems with creating new project`);
@@ -65,9 +69,17 @@ class CreateProject extends React.Component{
     onChangeProductionDate(date) {
     	this.setState({productionStartDate: date});
     }
+    
+    handleChangeStart(date) {
+        this.setState({startDate: date});
+    }
+    
+    handleChangeEnd(date) {
+        this.setState({endDate: date});
+    }
 
     render() {
-        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate } = this.state;
+        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate } = this.state;
 
         return (
             <div className="create-project">
@@ -96,6 +108,19 @@ class CreateProject extends React.Component{
                             className={"members-select"}
                             clearable={false}
                         />
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Est. Delivery Range</span>
+                        <DatePicker
+									selected={startDate}
+									selectsStart  startDate={startDate}
+									endDate={endDate}
+									onChange={this.handleChangeStart.bind(this)} />
+								<DatePicker
+									selected={endDate}
+									selectsEnd  startDate={startDate}
+									endDate={endDate}
+									onChange={this.handleChangeEnd.bind(this)} />
                     </div>
                     <div className="select-wrap">
                         <span className="label">Actual Delivery Date</span>
