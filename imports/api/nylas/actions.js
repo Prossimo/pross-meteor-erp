@@ -2,7 +2,8 @@ import Reflux from 'reflux'
 
 const Actions = Reflux.createActions([
     'loadFolders',
-    'loadLabels'
+    'loadLabels',
+    'loadThreads'
 ]);
 
 module.exports = Actions;

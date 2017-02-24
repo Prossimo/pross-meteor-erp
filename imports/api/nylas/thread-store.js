@@ -1,38 +1,31 @@
 import Reflux from 'reflux'
+import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 
-
-class FolderStore extends Reflux.Store {
+class ThreadStore extends Reflux.Store {
     constructor() {
         super();
-        this.listenTo(Actions.loadFolders, this.loadData)
+        this.listenTo(Actions.loadThreads, this.loadData)
 
         this.data = [];
 
         this.loading = false;
     }
 
-    loadData() {
+    loadData(filters) {
         this.loading = true;
         this.trigger();
 
-        const provider = Meteor.user().nylas.provider;
+        const query = queryString.stringify(filters);
         NylasAPI.makeRequest({
-            path: provider=='gmail' ? '/labels' : '/folders',
+            path: `/threads?${query}`,
             method: 'GET'
         }).then((result) => {
-            console.log("Nylas get folders result", result);
+            console.log("Nylas get threads result", result);
 
             this.data = result;
 
-            if(result) {
-                const inbox = _.findWhere(result, {name:'inbox'});
-
-                if(inbox) {
-                    Actions.loadThreads({in:inbox.id});
-                }
-            }
             this.loading = false;
             this.trigger();
         })
@@ -47,4 +40,4 @@ class FolderStore extends Reflux.Store {
     }
 }
 
-module.exports = new FolderStore()
+module.exports = new ThreadStore()
