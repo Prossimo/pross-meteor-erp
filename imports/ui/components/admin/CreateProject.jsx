@@ -22,13 +22,15 @@ class CreateProject extends React.Component{
             actualDeliveryDate: moment(),
             productionStartDate: moment(),
             startDate: moment().subtract(29, 'days'),
-            endDate: moment()
+            endDate: moment(),
+            shippingContactPhone: ''
         }
+        this.changeState = this.changeState.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate } = this.state;
+        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone } = this.state;
 
         const data = {
             name: projectName,
@@ -36,7 +38,8 @@ class CreateProject extends React.Component{
             is_main_stakeholder: is_main_stakeholder,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
-            estDeliveryRange: [startDate.toDate(), endDate.toDate()]
+            estDeliveryRange: [startDate.toDate(), endDate.toDate()],
+            shippingContactPhone: shippingContactPhone
         };
         console.log(data);
         Meteor.call("addProject", data, err=>{
@@ -49,37 +52,19 @@ class CreateProject extends React.Component{
             info(`Success add new project & integration with Slack`);
         });
     }
+    
+    changeState(key) {
+    	 return e => {
+    		  let state = {};
+    	     let value = e.target ? e.target.value : e;
+    	     state[key] = value;
+           this.setState(state);
+       };
+    }
 
-    changeInput(event){
-        this.setState({projectName: event.target.value})
-    }
-
-    changeSelectUser(value){
-        this.setState({selectUsers: value})
-    }
-    
-    onSwitchStakeholder(value) {
-  		this.setState({is_main_stakeholder: value})
-	 }
-	 
-    onChangeDeliveryDate(date) {
-    	this.setState({actualDeliveryDate: date});
-    }
-    
-    onChangeProductionDate(date) {
-    	this.setState({productionStartDate: date});
-    }
-    
-    handleChangeStart(date) {
-        this.setState({startDate: date});
-    }
-    
-    handleChangeEnd(date) {
-        this.setState({endDate: date});
-    }
 
     render() {
-        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate } = this.state;
+        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone } = this.state;
 
         return (
             <div className="create-project">
@@ -88,12 +73,12 @@ class CreateProject extends React.Component{
                     <div className="field-wrap">
                         <span className="label">Project name</span>
                         <input type="text"
-                               onChange={this.changeInput.bind(this)}
+                               onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
                     <div className="select-wrap">
                         <span className="label">Is Main Stakeholder</span>
-                        <Switch onChange={this.onSwitchStakeholder.bind(this)}
+                        <Switch onChange={this.changeState('is_main_stakeholder')}
         							checkedChildren={'Yes'}
         							unCheckedChildren={'No'}
       						/>
@@ -103,11 +88,17 @@ class CreateProject extends React.Component{
                         <Select
                             multi
                             value={selectUsers}
-                            onChange={this.changeSelectUser.bind(this)}
+                            onChange={this.changeState('selectUsers')}
                             options={selectOptions}
                             className={"members-select"}
                             clearable={false}
                         />
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Shipping Contact Phone</span>
+                        <input type="text"
+                               onChange={this.changeState('shippingContactPhone')}
+                               value={shippingContactPhone}/>
                     </div>
                     <div className="select-wrap">
                         <span className="label">Est. Delivery Range</span>
@@ -115,24 +106,24 @@ class CreateProject extends React.Component{
 									selected={startDate}
 									selectsStart  startDate={startDate}
 									endDate={endDate}
-									onChange={this.handleChangeStart.bind(this)} />
+									onChange={this.changeState('startDate')} />
 								<DatePicker
 									selected={endDate}
 									selectsEnd  startDate={startDate}
 									endDate={endDate}
-									onChange={this.handleChangeEnd.bind(this)} />
+									onChange={this.changeState('endDate')} />
                     </div>
                     <div className="select-wrap">
                         <span className="label">Actual Delivery Date</span>
                         <DatePicker
-        					selected={actualDeliveryDate}
-        					onChange={this.onChangeDeliveryDate.bind(this)} />
+        							selected={actualDeliveryDate}
+        							onChange={this.changeState('actualDeliveryDate')} />
                     </div>
                     <div className="select-wrap">
                         <span className="label">Production Start Date</span>
                         <DatePicker
-        					selected={productionStartDate}
-        					onChange={this.onChangeProductionDate.bind(this)} />
+        							selected={productionStartDate}
+        							onChange={this.changeState('productionStartDate')} />
                     </div>
                     <div className="submit-wrap">
                         <button className="btn primary-btn">Add project</button>

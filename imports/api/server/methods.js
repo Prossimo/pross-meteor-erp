@@ -14,6 +14,7 @@ import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../c
 
 import NylasAPI from '../nylas/nylas-api';
 import config from '../config/config.json';
+import '../lib/extendMatch.js';
 
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
 const SLACK_BOT_ID = "U477F4M6Y";
@@ -234,7 +235,7 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
         }
-        check(data, { name: String, members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date, estDeliveryRange: [Date] });
+        check(data, { name: String, members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date, estDeliveryRange: [Date], shippingContactPhone: Match.phone });
         data.active = true;
         data.status = 'active';
 
