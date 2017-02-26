@@ -25,9 +25,9 @@ class FolderStore extends Reflux.Store {
         }).then((result) => {
             console.log("Nylas get folders result", result);
 
-            this.data = result;
-
             if(result) {
+                this.data = result;
+
                 const inbox = _.findWhere(result, {name:'inbox'});
 
                 if(inbox) {

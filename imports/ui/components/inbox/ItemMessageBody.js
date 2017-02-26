@@ -1,5 +1,6 @@
 import React from 'react';
 import NylasUtils from '../../../api/nylas/nylas-utils';
+import EmailFrame from './EmailFrame';
 
 class ItemMessageBody extends React.Component{
 
@@ -8,7 +9,7 @@ class ItemMessageBody extends React.Component{
     }
 
     render() {
-        return <div>{this.props.message.body}</div>
+        return <EmailFrame showQuotedText={false} content={this.props.message.body}/>
     }
 }
 
