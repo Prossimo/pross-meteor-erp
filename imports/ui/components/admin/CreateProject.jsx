@@ -1,6 +1,7 @@
 import React from 'react';
 import { getUserName } from '/imports/api/lib/filters';
 import Select from 'react-select';
+import Textarea from 'react-textarea-autosize';
 import { info, warning } from '/imports/api/lib/alerts';
 import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project';
 import Switch from 'rc-switch';
@@ -29,14 +30,16 @@ class CreateProject extends React.Component{
             endDate: moment(),
             shippingContactPhone: '',
             billingContactPhone: '',
-            selectedDesignation: this.designation[0]
+            selectedDesignation: this.designation[0],
+            shippingNotes: '',
+            billingNotes: ''
         }
         this.changeState = this.changeState.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectedDesignation, selectCategory, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes } = this.state;
 
         const data = {
             name: projectName,
@@ -48,7 +51,9 @@ class CreateProject extends React.Component{
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
             shippingContactPhone: shippingContactPhone,
-            billingContactPhone: billingContactPhone
+            billingContactPhone: billingContactPhone,
+            shippingNotes: shippingNotes,
+            billingNotes: billingNotes
         };
         console.log(data);
         Meteor.call("addProject", data, err=>{
@@ -73,7 +78,7 @@ class CreateProject extends React.Component{
 
 
     render() {
-        const { projectName, selectedDesignation, selectCategory, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes } = this.state;
         const { designation, stakeholder_category } = this;
 
         return (
@@ -132,10 +137,26 @@ class CreateProject extends React.Component{
                                value={shippingContactPhone}/>
                     </div>
                     <div className="field-wrap">
+                        <span className="label">Shipping Notes</span>
+                        <Textarea rows={3}
+                          placeholder="Enter text"
+                          className=""
+                          value={shippingNotes}
+                          onChange={this.changeState('shippingNotes')}/>
+                    </div>
+                    <div className="field-wrap">
                         <span className="label">Billing Contact Phone</span>
                         <input type="text"
                                onChange={this.changeState('billingContactPhone')}
                                value={billingContactPhone}/>
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Billing Notes</span>
+                        <Textarea rows={3}
+                          placeholder="Enter text"
+                          className=""
+                          value={billingNotes}
+                          onChange={this.changeState('billingNotes')}/>
                     </div>
                     <div className="select-wrap">
                         <span className="label">Est. Delivery Range</span>
