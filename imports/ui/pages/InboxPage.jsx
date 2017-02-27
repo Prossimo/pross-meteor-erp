@@ -3,10 +3,9 @@ import Spinner from '../components/utils/spinner';
 import Actions from '../../api/nylas/actions';
 import FolderStore from '../../api/nylas/folder-store';
 import ThreadStore from '../../api/nylas/thread-store';
-import MessageStore from '../../api/nylas/message-store';
 import ItemFolder from '../components/inbox/ItemFolder';
 import ItemThread from '../components/inbox/ItemThread';
-import ItemMessage from '../components/inbox/ItemMessage';
+import MessageList from '../components/inbox/MessageList';
 
 class Inbox extends React.Component{
     constructor(props){
@@ -14,12 +13,10 @@ class Inbox extends React.Component{
 
         this.onFolderStoreChanged = this.onFolderStoreChanged.bind(this);
         this.onThreadStoreChanged = this.onThreadStoreChanged.bind(this);
-        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this);
 
         this.state = {
             folders: [],
             threads: [],
-            messages: [],
             loading: true,
             hasNylasInfo: Meteor.user().nylas!=null,
             selectedFolder: null,
@@ -35,7 +32,6 @@ class Inbox extends React.Component{
         this.unsubscribes = [];
         this.unsubscribes.push(FolderStore.listen(this.onFolderStoreChanged));
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
-        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged));
     }
 
     componentWillUnmount() {
@@ -53,13 +49,6 @@ class Inbox extends React.Component{
     onThreadStoreChanged() {
         this.setState({
             threads: ThreadStore.getData(),
-            loading: this.isLoading()
-        })
-    }
-
-    onMessageStoreChanged() {
-        this.setState({
-            messages: MessageStore.getData(),
             loading: this.isLoading()
         })
     }
@@ -95,10 +84,8 @@ class Inbox extends React.Component{
                         {this.renderThreads()}
                     </div>
                 </div>
-                <div className="column-panel" style={{order:3, flex:1}}>
-                    <div className="list-message">
-                        {this.renderMessages()}
-                    </div>
+                <div className="column-panel" style={{order:3, flex:1, overflowY:'auto', height:'100%'}}>
+                    {this.renderMessages()}
                 </div>
             </div>)
         }
@@ -116,9 +103,7 @@ class Inbox extends React.Component{
     }
 
     renderMessages() {
-        const {messages} = this.state;
-
-        return messages.map((message)=><ItemMessage key={message.id} message={message}/>)
+        return <MessageList />
     }
 
     onFolderSelected(folder) {

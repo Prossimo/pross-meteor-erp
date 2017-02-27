@@ -1,14 +1,44 @@
-//colors
+// ============= colors ===============
 $main-color = #5b8bff;
 $white = #fff;
+$black  = #000;
 $text-color = #555;
 $grey = #ccc;
 
+$blue       = #419bf9;
+$blue-dark  = #3187e1;
+$blue-light = #009ec4;
+
+//background colors
 $background-primary       =   white;
 $background-off-primary   =   #fdfdfd;
 $background-secondary     =   #f6f6f6;
 $background-tertiary      =   #6d7987;
 
+//border colors
+$border-color-primary   = darken($background-primary, 10%);
+$border-color-secondary = darken($background-secondary, 10%);
+$border-color-tertiary  = darken($background-tertiary, 10%);
+$border-color-divider   = $border-color-secondary;
+
+//text colors
+$text-color                     =   $black;
+$text-color-subtle              =   fadeout($text-color, 20%);
+$text-color-very-subtle         =   fadeout($text-color, 50%);
+$text-color-inverse             =   $white;
+$text-color-inverse-subtle      =   fadeout($text-color-inverse, 20%);
+$text-color-inverse-very-subtle =   fadeout($text-color-inverse, 50%);
+
+$text-color-heading   = #434648;
+
+$text-color-link        = $blue;
+$text-color-link-hover  = $blue-dark;
+$text-color-link-active = $blue-dark;
+
+$text-color-selected    = $text-color-inverse;
+
+$text-color-search-match          =   #fff000;
+$text-color-search-current-match  =   #ff8b1a;
 
 //height
 $header-height = 60px;
@@ -22,6 +52,7 @@ $font-weight-blond      =   300;
 $font-weight-normal     =   400;
 $font-weight-medium     =   500;
 $font-weight-semi-bold  =   600;
+$headings-font-weight   =   600;
 
 // font-size
 $font-size-base     =   14px;
@@ -33,7 +64,14 @@ $font-size-large    =   $font-size-base * 1.14; // 16px
 $font-size-larger   =   $font-size-base * 1.29; // 18px
 
 
-// padding
+// -------- Spacing -----------
+$spacing-standard       = $font-size-base;
+$spacing-quarter        = $spacing-standard * 0.25;
+$spacing-half           = $spacing-standard * 0.5;
+$spacing-three-quarters = $spacing-standard * 0.75;
+$spacing-double         = $spacing-standard * 2;
+
+
 $padding-base-vertical      =   5px;
 $padding-base-horizontal    =   12px;
 
@@ -42,3 +80,9 @@ $padding-large-horizontal   =   16px;
 
 $padding-small-vertical     =   4px;
 $padding-small-horizontal   =   10px;
+
+
+
+$border-radius-base     =   3px;
+$border-radius-large    =   5px;
+$border-radius-small    =   2px;

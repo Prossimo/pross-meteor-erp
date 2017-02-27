@@ -8,16 +8,17 @@ class MessageStore extends Reflux.Store {
         super();
         this.listenTo(Actions.loadMessages, this.loadData)
 
+        this.currentThread = null;
         this.data = [];
 
         this.loading = false;
     }
 
-    loadData(filters) {
+    loadData(thread) {
         this.loading = true;
         this.trigger();
 
-        const query = queryString.stringify(filters);
+        const query = queryString.stringify({thread_id: thread.id});
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
             method: 'GET'
@@ -29,6 +30,8 @@ class MessageStore extends Reflux.Store {
             this.loading = false;
             this.trigger();
         })
+
+        this.currentThread = thread;
     }
 
     getData() {
@@ -37,6 +40,10 @@ class MessageStore extends Reflux.Store {
 
     isLoading() {
         return this.loading;
+    }
+
+    getCurrentThread() {
+        return this.currentThread;
     }
 }
 
