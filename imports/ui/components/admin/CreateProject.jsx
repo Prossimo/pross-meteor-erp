@@ -2,6 +2,7 @@ import React from 'react';
 import { getUserName } from '/imports/api/lib/filters';
 import Select from 'react-select';
 import { info, warning } from '/imports/api/lib/alerts';
+import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project';
 import Switch from 'rc-switch';
 import '../../../stylus/switch.styl';
 import moment from 'moment';
@@ -11,8 +12,11 @@ import 'react-datepicker/dist/react-datepicker.css';
 class CreateProject extends React.Component{
     constructor(props){
         super(props);
+        this.designation = DESIGNATION_LIST.map(item=>({label: item, value: item}));
+        this.stakeholder_category = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
         this.state = {
             projectName: '',
+            selectCategory: [this.stakeholder_category[0]],
             selectUsers: [{
                 label: getUserName(props.currentUser, true),
                 value: props.currentUser._id
@@ -23,23 +27,28 @@ class CreateProject extends React.Component{
             productionStartDate: moment(),
             startDate: moment().subtract(29, 'days'),
             endDate: moment(),
-            shippingContactPhone: ''
+            shippingContactPhone: '',
+            billingContactPhone: '',
+            selectedDesignation: this.designation[0]
         }
         this.changeState = this.changeState.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone } = this.state;
 
         const data = {
             name: projectName,
+            sec_stakeholder_designation: selectedDesignation.value,
+            stakeholder_category: selectCategory.map(item=>item.value),
             members: selectUsers.map(item=>item.value),
             is_main_stakeholder: is_main_stakeholder,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
-            shippingContactPhone: shippingContactPhone
+            shippingContactPhone: shippingContactPhone,
+            billingContactPhone: billingContactPhone
         };
         console.log(data);
         Meteor.call("addProject", data, err=>{
@@ -64,7 +73,8 @@ class CreateProject extends React.Component{
 
 
     render() {
-        const { projectName, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone } = this.state;
+        const { designation, stakeholder_category } = this;
 
         return (
             <div className="create-project">
@@ -84,6 +94,27 @@ class CreateProject extends React.Component{
       						/>
                     </div>
                     <div className="select-wrap">
+                    		<span className="label">Secondary Stakeholder Designation</span>
+                    		<Select
+                        	 value={selectedDesignation}
+                            onChange={this.changeState('selectedDesignation')}
+                            options={designation}
+                            className={"select-role"}
+                            clearable={false}
+                    		/>
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Stakeholder Category</span>
+                        <Select
+                            multi
+                            value={selectCategory}
+                            onChange={this.changeState('selectCategory')}
+                            options={stakeholder_category}
+                            className={"members-select"}
+                            clearable={false}
+                        />
+                    </div>
+                    <div className="select-wrap">
                         <span className="label">Add members</span>
                         <Select
                             multi
@@ -99,6 +130,12 @@ class CreateProject extends React.Component{
                         <input type="text"
                                onChange={this.changeState('shippingContactPhone')}
                                value={shippingContactPhone}/>
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Billing Contact Phone</span>
+                        <input type="text"
+                               onChange={this.changeState('billingContactPhone')}
+                               value={billingContactPhone}/>
                     </div>
                     <div className="select-wrap">
                         <span className="label">Est. Delivery Range</span>

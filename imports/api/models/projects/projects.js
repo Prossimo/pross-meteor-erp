@@ -15,6 +15,8 @@ export const STATUSES = ['active', 'delivered'];
 Projects.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     name: { type: String },
+    sec_stakeholder_designation: { type: String },
+    stakeholder_category: { type: Array },
     status: { type: String },
     active: { type: Boolean },
     slackChanel: { type: String, optional: true },
@@ -26,13 +28,16 @@ Projects.schema = new SimpleSchema({
     actualDeliveryDate: { type: Date},
     productionStartDate: { type: Date},
     estDeliveryRange: { type: Array },
-    shippingContactPhone: { type: String }
+    shippingContactPhone: { type: String },
+    billingContactPhone: { type: String }
 });
 
 Projects.attachSchema(Projects.schema);
 
 Projects.publicFields = {
     name: 1,
+    sec_stakeholder_designation: 1,
+    stakeholder_category: 1,
     status: 1,
     active: 1,
     members: 1,
@@ -43,6 +48,7 @@ Projects.publicFields = {
     actualDeliveryDate: 1,
     productionStartDate: 1,
     estDeliveryRange: 1,
+    billingContactPhone: 1,
     shippingContactPhone: 1
 };
 

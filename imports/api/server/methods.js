@@ -235,7 +235,7 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
         }
-        check(data, { name: String, members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date, estDeliveryRange: [Date], shippingContactPhone: Match.phone });
+        check(data, { name: String, sec_stakeholder_designation: String, stakeholder_category: [String],  members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date, estDeliveryRange: [Date], shippingContactPhone: Match.phone, billingContactPhone: Match.phone });
         data.active = true;
         data.status = 'active';
 
