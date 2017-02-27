@@ -8,7 +8,7 @@ import Switch from 'rc-switch';
 import '../../../stylus/switch.styl';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+
 
 class CreateProject extends React.Component{
     constructor(props){
@@ -84,7 +84,7 @@ class CreateProject extends React.Component{
         return (
             <div className="create-project">
                 <form onSubmit={this.submitForm.bind(this)}
-                      className="default-form">
+                      className="default-form flex-form">
                     <div className="field-wrap">
                         <span className="label">Project name</span>
                         <input type="text"

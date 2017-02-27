@@ -97,9 +97,10 @@ class AddQuoteForm extends React.Component{
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `Add new quote in ${project.name} project`,
+                subject: `Add new quote in "${project.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                html: generateEmailHtml(currentUser, quoteData.name, FlowRouter.url(FlowRouter.current().path))
+                attachments: [quoteData.revisions[0].fileId],
+                html: generateEmailHtml(currentUser, `Go to project "${project.name}"`, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         };
 
@@ -111,7 +112,7 @@ class AddQuoteForm extends React.Component{
             });
 
             quoteData.revisions[0].fileId = res._id;
-            Meteor.call("addNewQuote", quoteData, addQuoteCb );
+            Meteor.call("addNewQuote", quoteData, addQuoteCb);
 
             if(typeof project.slackChanel === 'undefined') return;
 

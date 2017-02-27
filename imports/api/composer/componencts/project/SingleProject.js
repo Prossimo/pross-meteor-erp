@@ -2,11 +2,13 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
-import { Projects, Quotes, Files, Events, SlackMessages } from '../../../lib/collections';
-import { GET_ACTIVITY, GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS } from '../../../constants/collections';
+import { Projects, Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
+import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS } from '../../../constants/collections';
 
-import SingleProject from '../../../../ui/components/project/SingleProject';
-
+import SingleProject from '/imports/ui/components/project/SingleProject';
+const options = {
+    loadingHandler: () => (<p className="page-loader"/>)
+};
 const reactiveMapper = (props, onData)=> {
     const projectId = FlowRouter.getParam('id');
     if (
@@ -41,9 +43,9 @@ const reactiveMapper = (props, onData)=> {
         });
         const messages = msg.concat(events).sort((a,b)=>{return a.createAt > b.createAt ? -1 : 1});
 
-        onData(null, { messages, project, quotes});
+        onData(null, { messages, project, quotes})
     }
 };
 
-export default compose(getTrackerLoader(reactiveMapper))(SingleProject);
+export default compose(getTrackerLoader(reactiveMapper),options)(SingleProject);
 
