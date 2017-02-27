@@ -8,3 +8,8 @@ export const isValidPassword = (value, min_length) => {
 		return false;
 	return true;
 };
+
+export const isValidPhone = value => {
+	const filter = /^([0-9\(\)\/\+ \-]*)$/; 
+	return filter.test(value);
+};
