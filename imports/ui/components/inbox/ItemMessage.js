@@ -2,6 +2,7 @@ import React from 'react';
 import NylasUtils from '../../../api/nylas/nylas-utils';
 import ItemMessageBody from './ItemMessageBody';
 import MessageParticipants from './MessageParticipants';
+import MessageTimestamp from './MessageTimestamp';
 
 class ItemMessage extends React.Component {
 
@@ -22,7 +23,29 @@ class ItemMessage extends React.Component {
     }
 
     renderCollapsed() {
-        return (<div>this is the collapsed message view</div>)
+        attachmentIcon = []
+        if (this.props.message.files.length > 0)
+            attachmentIcon = <div className="collapsed-attachment"></div>
+
+        displayName = this.props.message.from&&this.props.message.from.length ? NylasUtils.displayName(this.props.message.from[0]) : ''
+        return (
+            <div className={this.props.className} onClick={this._toggleCollapsed}>
+                <div className="message-item-white-wrap">
+                    <div className="message-item-area">
+                        <div className="collapsed-from">
+                            {displayName}
+                        </div>
+                        <div className="collapsed-snippet">
+                            {this.props.message.snippet}
+                        </div>
+                        <div className="collapsed-timestamp">
+                            <MessageTimestamp date={this.props.message.date}/>
+                        </div>
+                        {attachmentIcon}
+                    </div>
+                </div>
+            </div>
+        )
     }
 
     renderFull() {
@@ -52,15 +75,15 @@ class ItemMessage extends React.Component {
 
     onClickHeader(e) {
 
-        if(this.state.detailedHeaders) return;
+        if (this.state.detailedHeaders) return;
 
         el = e.target
-        while(el !== e.currentTarget) {
+        while (el !== e.currentTarget) {
             wl = ["message-header-right",
                 "collapsed-participants",
                 "header-toggle-control"]
-            if("message-header-right" in el.classList) return;
-            if("collapsed-participants" in el.classList) return;
+            if ("message-header-right" in el.classList) return;
+            if ("collapsed-participants" in el.classList) return;
 
             el = el.parentElement;
         }
@@ -90,8 +113,8 @@ class ItemMessage extends React.Component {
 
     onClickParticipants(e) {
         el = e.target
-        while(el != e.currentTarget) {
-            if("collapsed-participants" in el.classList) {
+        while (el != e.currentTarget) {
+            if ("collapsed-participants" in el.classList) {
                 this.setState({detailedHeaders: true});
 
                 e.stopPropagation();

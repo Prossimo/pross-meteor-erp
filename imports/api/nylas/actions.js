@@ -4,7 +4,13 @@ const Actions = Reflux.createActions([
     'loadFolders',
     'loadLabels',
     'loadThreads',
-    'loadMessages'
+    'loadMessages',
+
+    'toggleMessageExpanded',
+    'toggleAllMessagesExpanded',
+    'toggleHiddenMessages',
+
+    'fetchFile'
 ]);
 
 module.exports = Actions;
