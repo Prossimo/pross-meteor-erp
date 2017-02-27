@@ -25,7 +25,9 @@ class ThreadStore extends Reflux.Store {
         }).then((result) => {
             console.log("Nylas get threads result", result);
 
-            this.data = result;
+            if(result) {
+                this.data = result;
+            }
 
             this.loading = false;
             this.trigger();
@@ -41,7 +43,7 @@ class ThreadStore extends Reflux.Store {
     }
 
     selectThread(thread) {
-        Actions.loadMessages({thread_id: thread.id});
+        Actions.loadMessages(thread);
         this.selectedThread = thread;
     }
 
