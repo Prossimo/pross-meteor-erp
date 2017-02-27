@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import _ from "underscore";
 //import {autolink} from './autolinker';
 //import {autoscaleImages} from './autoscale-images';
-
+import EventedIFrame from './EventedIFrame'
 export default class EmailFrame extends React.Component {
 
 
@@ -14,9 +14,9 @@ export default class EmailFrame extends React.Component {
         //this._unlisten = EmailFrameStylesStore.listen(this._writeContent);
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    /*shouldComponentUpdate(nextProps, nextState) {
         //return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state));
-    }
+    }*/
 
     componentDidUpdate() {
         this._writeContent();
@@ -122,13 +122,12 @@ export default class EmailFrame extends React.Component {
                 className="iframe-container"
                 ref="iframeHeightHolder"
                 style={{height: this._lastComputedHeight}}>
-                {/*<EventedIFrame
+                <EventedIFrame
                     ref="iframe"
                     seamless="seamless"
-                    searchable
-                    onResize={this._onMustRecalculateFrameHeight}
-                />*/}
-                <iframe ref="iframe"></iframe>
+                    //searchable
+                    //onResize={this._onMustRecalculateFrameHeight}
+                />
             </div>
         );
     }
