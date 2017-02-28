@@ -19,7 +19,7 @@ class AddQuoteForm extends React.Component{
     changeFileInput(event){
         if(event.target.files.length){
             if(event.target.files[0].type !== "application/pdf") {
-                return  this.showWarning(`You can add only PDF files!`);
+                return  warning(`You can add only PDF files!`);
             }
 
             this.setState({
@@ -45,8 +45,8 @@ class AddQuoteForm extends React.Component{
         const { currentFile, totalCost, alertsActive } = this.state;
         const { project, usersArr, currentUser, quote } = this.props;
 
-        if(!currentFile)return this.showWarning(`You must add PDF file`);
-        if(totalCost === '')return this.showWarning(`Empty total cost field`);
+        if(!currentFile)return warning(`You must add PDF file`);
+        if(totalCost === '')return warning(`Empty total cost field`);
 
         const params = {
             username: getSlackUsername(usersArr[Meteor.userId()]),
@@ -85,26 +85,25 @@ class AddQuoteForm extends React.Component{
         });
 
         const sendEmailCb = (err,res)=> {
-            if(err)return warning("Email sending failed");
+            if(err) return warning("Email sending failed");
 
             info(res);
         };
 
         const addRevisionQuoteCb = (err)=>{
             this.hide();
-
-            if(err) return warning(err.reason);
-
             info(`Add new revision`);
+            if(err) return warning(err.reason);
 
             if(!alertsActive) return;
 
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `Add new revision to quote in ${project.name} project`,
+                subject: `Add new revision to "${project.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                html: generateEmailHtml(currentUser, `${quote.name} - revision number: ${revisionData.revisionNumber} `, FlowRouter.url(FlowRouter.current().path))
+                attachments: [revisionData.fileId],
+                html: generateEmailHtml(currentUser, `Go to project "${project.name}"`, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         };
 

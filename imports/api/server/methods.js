@@ -123,15 +123,25 @@ Meteor.methods({
         );
     },
 
-    sendEmail: function (mailData) {
+    sendEmail(mailData) {
         Match.test(mailData, {
-            to: Match.OneOf(String, Array),
+            to: Match.OneOf(String, [String]),
             from: String,
             replyTo: String,
             subject: String,
+            attachments: Match.Maybe([String]),
             html: String,
         });
         this.unblock();
+
+        if(_.isArray(mailData.attachments) && mailData.attachments.length){
+            mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item=>{
+                return {
+                    fileName: item.original.name,
+                    filePath: `${Meteor.absoluteUrl(`cfs/files/files/${item._id}/${item.original.name}`)}`
+                }
+            });
+        }
 
         Email.send(mailData);
         return "Message is sending";
