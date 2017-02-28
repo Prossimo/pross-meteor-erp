@@ -303,3 +303,21 @@ div.error-msg
       left 50%
       font-size 25px
       color $main-color
+
+.data-table
+  width 100%
+  margin-bottom 15px
+
+  tr
+    height 25px
+    &:nth-child(odd)
+      background alpha($main-color, .1)
+    &:nth-child(even)
+      background alpha($grey, .1)
+
+
+  td
+    padding 0 10px
+    &:first-of-type
+      width 250px
+      text-align right
