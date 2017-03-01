@@ -32,6 +32,8 @@ Projects.schema = new SimpleSchema({
     billingContactPhone: { type: String },
     shippingNotes: { type: String },
     billingNotes: { type: String },
+    estProductionTime: { type: Number },
+    actProductionTime: { type: Number },
 });
 
 Projects.attachSchema(Projects.schema);
@@ -54,6 +56,8 @@ Projects.publicFields = {
     shippingContactPhone: 1,
     shippingNotes: 1,
     billingNotes: 1,
+    estProductionTime: 1,
+    actProductionTime: 1,
 };
 
 Factory.define('project', Projects, {

@@ -8,6 +8,7 @@ import Switch from 'rc-switch';
 import '../../../stylus/switch.styl';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
+import NumericInput from 'react-numeric-input';
 
 
 class CreateProject extends React.Component{
@@ -32,14 +33,16 @@ class CreateProject extends React.Component{
             billingContactPhone: '',
             selectedDesignation: this.designation[0],
             shippingNotes: '',
-            billingNotes: ''
+            billingNotes: '',
+            estProdTime: '',
+            actProdTime: ''
         }
         this.changeState = this.changeState.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, selectedDesignation, selectCategory, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, is_main_stakeholder, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes, estProdTime, actProdTime } = this.state;
 
         const data = {
             name: projectName,
@@ -53,7 +56,9 @@ class CreateProject extends React.Component{
             shippingContactPhone: shippingContactPhone,
             billingContactPhone: billingContactPhone,
             shippingNotes: shippingNotes,
-            billingNotes: billingNotes
+            billingNotes: billingNotes,
+            estProductionTime: estProdTime,
+            actProductionTime: actProdTime
         };
         console.log(data);
         Meteor.call("addProject", data, err=>{
@@ -69,16 +74,18 @@ class CreateProject extends React.Component{
     
     changeState(key) {
     	 return e => {
-    		  let state = {};
-    	     let value = e.target ? e.target.value : e;
-    	     state[key] = value;
-           this.setState(state);
+    	 	  if(e) {
+    		  		let state = {};
+    	     		let value = e.target ? e.target.value : e;
+    	     		state[key] = value;
+           		this.setState(state);
+           }
        };
     }
 
 
     render() {
-        const { projectName, selectedDesignation, selectCategory, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes } = this.state;
+        const { projectName, selectedDesignation, selectCategory, selectUsers, selectOptions, actualDeliveryDate, productionStartDate, startDate, endDate, shippingContactPhone, billingContactPhone, shippingNotes, billingNotes, estProdTime, actProdTime } = this.state;
         const { designation, stakeholder_category } = this;
 
         return (
@@ -182,6 +189,14 @@ class CreateProject extends React.Component{
                         <DatePicker
         							selected={productionStartDate}
         							onChange={this.changeState('productionStartDate')} />
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Est. Production Time (weeks)</span>
+                        <NumericInput min={0} value={estProdTime} className="" onChange={this.changeState('estProdTime')} />
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Actual Production Time (weeks)</span>
+                        <NumericInput min={0} value={actProdTime} className="" onChange={this.changeState('actProdTime')} />
                     </div>
                     <div className="submit-wrap">
                         <button className="btn primary-btn">Add project</button>
