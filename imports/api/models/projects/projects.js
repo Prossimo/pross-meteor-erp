@@ -11,14 +11,12 @@ export const STATUSES = ['active', 'delivered'];
     update() { return true; },
     remove() { return true; }
 });*/
-
+//todo alex change format member property -> it must contain {is_main_stakeholder, stakeholder_category, memberName}
 Projects.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     name: { type: String },
     sec_stakeholder_designation: { type: String },
     stakeholder_category: { type: Array },
-    status: { type: String },
-    active: { type: Boolean },
     slackChanel: { type: String, optional: true },
     members: { type: Array },
     "members.$": { type: String },
@@ -28,10 +26,19 @@ Projects.schema = new SimpleSchema({
     actualDeliveryDate: { type: Date},
     productionStartDate: { type: Date},
     estDeliveryRange: { type: Array },
-    shippingContactPhone: { type: String },
-    billingContactPhone: { type: String },
-    shippingNotes: { type: String },
-    billingNotes: { type: String },
+    shippingMode: { type: String, optional: true },
+    shippingContactPhone: { type: String, optional: true },
+    shippingContactName: { type: String, optional: true },
+    shippingContactEmail: { type: String, optional: true },
+    shippingAddress: { type: String, optional: true },
+    shippingNotes: { type: String, optional: true },
+    billingContactPhone: { type: String, optional: true },
+    billingContactName: { type: String, optional: true },
+    billingContactEmail: { type: String, optional: true },
+    billingAddress: { type: String, optional: true },
+    billingNotes: { type: String, optional: true },
+    supplier: { type: String, optional: true },
+    shipper: { type: String, optional: true },
 });
 
 Projects.attachSchema(Projects.schema);
@@ -50,10 +57,19 @@ Projects.publicFields = {
     actualDeliveryDate: 1,
     productionStartDate: 1,
     estDeliveryRange: 1,
-    billingContactPhone: 1,
+    shippingMode: 1,
     shippingContactPhone: 1,
+    shippingContactName: 1,
+    shippingContactEmail: 1,
+    shippingAddress: 1,
     shippingNotes: 1,
+    billingContactPhone: 1,
+    billingContactName: 1,
+    billingContactEmail: 1,
+    billingAddress: 1,
     billingNotes: 1,
+    supplier: 1,
+    shipper: 1,
 };
 
 Factory.define('project', Projects, {

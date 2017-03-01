@@ -245,9 +245,29 @@ Meteor.methods({
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
             throw new Meteor.Error("Access denied");
         }
-        check(data, { name: String, sec_stakeholder_designation: String, stakeholder_category: [String],  members: [String], is_main_stakeholder: Boolean, actualDeliveryDate: Date, productionStartDate: Date, estDeliveryRange: [Date], shippingContactPhone: Match.phone, shippingNotes: String, billingContactPhone: Match.phone, billingNotes: String });
-        data.active = true;
-        data.status = 'active';
+        check(data, {
+            name: String,
+            sec_stakeholder_designation: String,
+            shippingMode: String,
+            stakeholder_category: [String],
+            members: [String],
+            is_main_stakeholder: Boolean,
+            actualDeliveryDate: Date,
+            productionStartDate: Date,
+            estDeliveryRange: [Date],
+            shippingContactPhone: Match.Maybe(Match.phone),
+            shippingContactName: Match.Maybe(String),
+            shippingContactEmail: Match.Maybe(String),
+            shippingAddress:  Match.Maybe(String),
+            shippingNotes:  Match.Maybe(String),
+            billingContactPhone:  Match.Maybe(Match.phone),
+            billingContactName: Match.Maybe(String),
+            billingContactEmail: Match.Maybe(String),
+            billingAddress: Match.Maybe(String),
+            billingNotes: Match.Maybe(String),
+            supplier: Match.Maybe(String),
+            shipper: Match.Maybe(String),
+        });
 
         const responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
             params: {
