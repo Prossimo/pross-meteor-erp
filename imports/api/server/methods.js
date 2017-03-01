@@ -255,6 +255,8 @@ Meteor.methods({
             actualDeliveryDate: Date,
             productionStartDate: Date,
             estDeliveryRange: [Date],
+            estProductionTime: Number,
+            actProductionTime: Number,
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
             shippingContactEmail: Match.Maybe(String),

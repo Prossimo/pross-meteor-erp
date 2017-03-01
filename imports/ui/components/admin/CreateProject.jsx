@@ -8,6 +8,7 @@ import Switch from 'rc-switch';
 import '../../../stylus/switch.styl';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
+import NumericInput from 'react-numeric-input';
 
 
 class CreateProject extends React.Component{
@@ -42,7 +43,9 @@ class CreateProject extends React.Component{
             shippingNotes: '',
             billingNotes: '',
             supplier: '',
-            shipper: ''
+            shipper: '',
+            estProductionTime: '',
+            actProductionTime: '',
         };
 
         this.state = this.defaultState;
@@ -53,7 +56,7 @@ class CreateProject extends React.Component{
         event.preventDefault();
         const { projectName, is_main_stakeholder, selectUsers, shipper, supplier,
             selectedDesignation, selectedShippingMode, selectCategory,
-            actualDeliveryDate, productionStartDate, startDate, endDate,
+            actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress,  shippingContactEmail,  shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes } = this.state;
         //todo @alex change format member property -> it must contain {is_main_stakeholder, stakeholder_category, memberName}
@@ -80,7 +83,9 @@ class CreateProject extends React.Component{
             shippingNotes,
             billingNotes,
             supplier,
-            shipper
+            shipper,
+            estProductionTime,
+            actProductionTime
         };
         console.log(data);
         Meteor.call("addProject", data, err=>{
@@ -95,12 +100,16 @@ class CreateProject extends React.Component{
     }
     
     changeState(key) {
-    	 return e => this.setState({[key]: e.target ? e.target.value : e});
+    	  return e => {
+    	 		if(e) {
+    	 			 this.setState({[key]: e.target ? e.target.value : e});
+    	 		}
+    	  }
     }
 
     render() {
         const { projectName, selectedDesignation, selectedShippingMode, selectCategory, selectUsers, supplier, shipper, memberOptions,
-            actualDeliveryDate, productionStartDate, startDate, endDate,
+            actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes } = this.state;
         const { designation, stakeholder_category, shippingMode } = this;
@@ -258,6 +267,14 @@ class CreateProject extends React.Component{
                         <DatePicker
         							selected={productionStartDate}
         							onChange={this.changeState('productionStartDate')} />
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Estimate Production Time (weeks)</span>
+                        <NumericInput min={0} value={estProductionTime} className="" onChange={this.changeState('estProductionTime')} />
+                    </div>
+                    <div className="field-wrap">
+                        <span className="label">Actual Production Time (weeks)</span>
+                        <NumericInput min={0} value={actProductionTime} className="" onChange={this.changeState('actProductionTime')} />
                     </div>
                     <div className="field-wrap">
                         <span className="label">Shipper</span>
