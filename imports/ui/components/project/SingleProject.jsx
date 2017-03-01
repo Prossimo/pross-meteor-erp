@@ -95,19 +95,17 @@ class SingleProject extends React.Component{
     }
 
     renderProjectMembers(){
-        const { users, project } = this.props;
-        if(!users || !project )return null;
+        const { project } = this.props;
+        if(!project )return null;
         return (
             <ul className="project-members">
-                {users.map(user=>{
-                    if(project.members && project.members.indexOf(user._id)>-1)
+                {project.members.map(item=>{
                     return(
-                        <li key={user._id}
-                            onClick={this.showUserInfo.bind(this, user)}
+                        <li key={item.user._id}
+                            onClick={this.showUserInfo.bind(this, item.user)}
                             className="user-list">
-                                <span className="username"> {getUserName(user, true)} </span>
-                                <span className="email">{getUserEmail(user)}</span>
-
+                                <span className="username"> {getUserName(item.user, true)} </span>
+                                <span className="email">{getUserEmail(item.user)}</span>
                         </li>
                     )
                 })}

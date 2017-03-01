@@ -19,8 +19,16 @@ class Quotes extends React.Component{
 
     componentDidMount(){
         this.slideToggle = function (event) {
-            $(event.currentTarget).toggleClass('up');
-            $(event.currentTarget).siblings('.revision-list').slideToggle();
+            const quote = event.currentTarget;
+            if( $(quote).hasClass('up')){
+                $(quote).removeClass('up');
+                $(quote).siblings('.revision-list').slideUp();
+            }else {
+                $(quote).addClass('up');
+                $(quote).siblings('.revision-list').slideDown();
+                $(quote).parents('.single-quota').siblings('.single-quota').find('.revision-list').slideUp();
+                $(quote).parents('.single-quota').siblings('.single-quota').find('.show-revisions').removeClass('up');
+            }
         };
 
         $(document).on('click', '.show-revisions', this.slideToggle);
@@ -122,6 +130,8 @@ class Quotes extends React.Component{
                 </div>
             )
         }
+
+        //todo @alex:refactoring create a QuoteItem Component to make data scope (fix change quote name bug)
 
         return(
             <ul className="quotes-list">

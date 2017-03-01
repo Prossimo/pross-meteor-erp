@@ -25,9 +25,14 @@ const reactiveMapper = (props, onData)=> {
                 item.author = props.usersArr[item.userId]
             }
             return item;
-
         });
-        const project = Projects.findOne();
+
+        let project = Projects.findOne();
+        project.members = project.members.map(member=>{
+            member.user = props.usersArr[member.userId];
+            return member;
+        });
+
         const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
             item.revisions.map(revision=>{
                 revision.url = files[revision.fileId].url();

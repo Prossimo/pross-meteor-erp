@@ -3,7 +3,6 @@ import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import _ from 'underscore';
 import {Projects} from '../../lib/collections';
-export const STATUSES = ['active', 'delivered'];
 
 // Deny all client-side updates since we will be using methods to manage this collection
 /*Projects.deny({
@@ -11,51 +10,54 @@ export const STATUSES = ['active', 'delivered'];
     update() { return true; },
     remove() { return true; }
 });*/
-//todo alex change format member property -> it must contain {is_main_stakeholder, stakeholder_category, memberName}
+
 Projects.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
-    name: { type: String },
-    sec_stakeholder_designation: { type: String },
-    stakeholder_category: { type: Array },
-    slackChanel: { type: String, optional: true },
-    members: { type: Array },
-    "members.$": { type: String },
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true },
-    is_main_stakeholder: { type: Boolean },
-    actualDeliveryDate: { type: Date},
-    productionStartDate: { type: Date},
+    slackChanel: { type: String, optional: true },
+
+    name: { type: String },
+    members: { type: Array },
+    "members.$": { type: Object },
+    "members.$.userId": { type: String },
+    "members.$.isMainStakeholder": { type: Boolean },
+    "members.$.destination": { type: String },
+    "members.$.category": { type: Array },
+    "members.$.category.$": { type: String },
+
+    actualDeliveryDate: { type: Date },
+    productionStartDate: { type: Date },
     estDeliveryRange: { type: Array },
+    "estDeliveryRange.$": { type: Date },
+
     shippingMode: { type: String, optional: true },
     shippingContactPhone: { type: String, optional: true },
     shippingContactName: { type: String, optional: true },
     shippingContactEmail: { type: String, optional: true },
     shippingAddress: { type: String, optional: true },
     shippingNotes: { type: String, optional: true },
+
     billingContactPhone: { type: String, optional: true },
     billingContactName: { type: String, optional: true },
     billingContactEmail: { type: String, optional: true },
     billingAddress: { type: String, optional: true },
     billingNotes: { type: String, optional: true },
+
     supplier: { type: String, optional: true },
     shipper: { type: String, optional: true },
-    estProductionTime: { type: Number },
-    actProductionTime: { type: Number },
+    estProductionTime: { type: Number, optional: true },
+    actProductionTime: { type: Number, optional: true },
 });
 
 Projects.attachSchema(Projects.schema);
 
 Projects.publicFields = {
     name: 1,
-    sec_stakeholder_designation: 1,
-    stakeholder_category: 1,
-    status: 1,
-    active: 1,
     members: 1,
     slackChanel: 1,
     createdAt: 1,
     modifiedAt: 1,
-    is_main_stakeholder: 1,
     actualDeliveryDate: 1,
     productionStartDate: 1,
     estDeliveryRange: 1,
@@ -77,9 +79,7 @@ Projects.publicFields = {
 };
 
 Factory.define('project', Projects, {
-    name: () => faker.name.jobTitle(),
-    status: () => _.sample(STATUSES),
-    active: () => _.sample([true, false])
+    name: () => faker.name.jobTitle()
 });
 
 

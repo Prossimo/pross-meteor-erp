@@ -5,98 +5,191 @@ import Textarea from 'react-textarea-autosize';
 import { info, warning } from '/imports/api/lib/alerts';
 import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST } from '/imports/api/constants/project';
 import Switch from 'rc-switch';
-import '../../../stylus/switch.styl';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import NumericInput from 'react-numeric-input';
 
+class ProjectMemberConfig extends React.Component{
+    constructor(props){
+        super(props);
+        this.designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
+        this.categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
+
+        this.state = {
+            selectedDesignation: this.designationOptions[0],
+            selectedCategory: [this.categoryOptions[0]]
+        }
+    }
+
+    componentDidMount(){
+        const { changeParentState, member, isMainStakeholder } = this.props;
+        changeParentState(member.value, 'destination', this.designationOptions[0].value);
+        changeParentState(member.value, 'category', [this.categoryOptions[0].value]);
+        changeParentState(member.value, 'isMainStakeholder', !!isMainStakeholder);
+    }
+
+    changeDesignation(selectedDesignation){
+        const { changeParentState, member } = this.props;
+        changeParentState(member.value, 'destination', selectedDesignation.value);
+
+        this.setState({selectedDesignation});
+    }
+
+    changeCategory(selectedCategory){
+        const { changeParentState, member } = this.props;
+        changeParentState(member.value, 'category', selectedCategory.map(item=>item.value));
+
+        this.setState({selectedCategory})
+    }
+    changeMainStakeholder(isMainStakeholder){
+        const { changeParentState, member } = this.props;
+        changeParentState(member.value, 'isMainStakeholder', isMainStakeholder);
+
+        this.setState({isMainStakeholder});
+    }
+
+    render(){
+        const { member, isMainStakeholder } = this.props;
+        const { selectedDesignation, selectedCategory } = this.state;
+        return(
+            <tr>
+                <td>{member.label}</td>
+                <td>
+                    <Switch onChange={this.changeMainStakeholder.bind(this)}
+                            checkedChildren={'Yes'}
+                            unCheckedChildren={'No'}
+                            checked={isMainStakeholder}
+                    />
+                </td>
+                <td>
+                    <Select
+                        value={selectedDesignation}
+                        onChange={this.changeDesignation.bind(this)}
+                        options={this.designationOptions}
+                        className={"select-role"}
+                        clearable={false}
+                    />
+                </td>
+                <td>
+                    <Select
+                        multi
+                        value={selectedCategory}
+                        onChange={this.changeCategory.bind(this)}
+                        options={this.categoryOptions}
+                        className={"select-role"}
+                        clearable={false}
+                    />
+                </td>
+            </tr>
+        )
+    }
+}
 
 class CreateProject extends React.Component{
     constructor(props){
         super(props);
-        this.designation = DESIGNATION_LIST.map(item=>({label: item, value: item}));
-        this.stakeholder_category = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
-        this.defaultState = {
+
+        this.state = {
             projectName: '',
-            selectCategory: [this.stakeholder_category[0]],
             selectUsers: [{
                 label: getUserName(props.currentUser, true),
-                value: props.currentUser._id
+                value: props.currentUser._id,
+                isMainStakeholder: true
             }],
             memberOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
-            is_main_stakeholder: false,
             actualDeliveryDate: moment(),
             productionStartDate: moment(),
             startDate: moment().subtract(29, 'days'),
             endDate: moment(),
+
             shippingContactPhone: '',
             shippingContactName: '',
             shippingContactEmail: '',
             shippingAddress: '',
+            shippingNotes: '',
+
             billingContactPhone: '',
             billingContactName: '',
             billingContactEmail: '',
             billingAddress: '',
-            selectedDesignation: this.designation[0],
-            selectedShippingMode: this.shippingMode[0],
-            shippingNotes: '',
             billingNotes: '',
+
+            selectedShippingMode: this.shippingMode[0],
             supplier: '',
             shipper: '',
-            estProductionTime: '',
-            actProductionTime: '',
+            estProductionTime: 0,
+            actProductionTime: 0,
         };
-
-        this.state = this.defaultState;
         this.changeState = this.changeState.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName, is_main_stakeholder, selectUsers, shipper, supplier,
-            selectedDesignation, selectedShippingMode, selectCategory,
-            actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
+        const { projectName,  selectUsers, shipper, supplier,
+            selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress,  shippingContactEmail,  shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes } = this.state;
-        //todo @alex change format member property -> it must contain {is_main_stakeholder, stakeholder_category, memberName}
-        //todo @alex some field of 'data' is a member properties
 
         const data = {
             name: projectName,
-            sec_stakeholder_designation: selectedDesignation.value,
-            shippingMode: selectedShippingMode.value,
-            stakeholder_category: selectCategory.map(item=>item.value),
-            members: selectUsers.map(item=>item.value),
-            is_main_stakeholder: is_main_stakeholder,
+            members: selectUsers.map(member=>{
+                return{
+                    userId: member.value,
+                    isMainStakeholder: member.isMainStakeholder,
+                    destination: member.destination,
+                    category: member.category
+                }
+            }),
+
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
-            shippingAddress,
+
             shippingContactName,
             shippingContactEmail,
+            shippingAddress,
             shippingContactPhone,
-            billingContactPhone,
+            shippingNotes,
+
             billingContactName,
             billingContactEmail,
             billingAddress,
-            shippingNotes,
+            billingContactPhone,
             billingNotes,
+
+            shippingMode: selectedShippingMode.value,
             supplier,
             shipper,
             estProductionTime,
             actProductionTime
         };
-        console.log(data);
-        Meteor.call("addProject", data, err=>{
+
+        //console.log(data)
+
+        Meteor.call("addProject", data, (err, res)=>{
             if(err) {
                 warning(`Problems with creating new project`);
                 return console.log(err)
             }
 
-            this.setState(this.defaultState);
             info(`Success add new project & integration with Slack`);
+            setTimeout(()=>{FlowRouter.go(FlowRouter.path("Project", {id: res}))},1000)
         });
+    }
+
+    changeMembersState(memberId, state, value){
+        let { selectUsers } = this.state;
+        selectUsers.forEach((member)=>{
+            if(member.value === memberId){
+                member[state] = value;
+            }else if(state === 'isMainStakeholder' && value){
+                member['isMainStakeholder'] = false;
+            }
+        });
+        if(selectUsers.every(item=>item.isMainStakeholder === false)) return;
+
+        this.setState({selectUsers})
     }
     
     changeState(key) {
@@ -106,14 +199,40 @@ class CreateProject extends React.Component{
     	 		}
     	  }
     }
+    renderMembersConfig(){
+        const { selectUsers } = this.state;
+        if(!selectUsers.length) return null;
+
+        const membersList = selectUsers.map(item=>{
+            return <ProjectMemberConfig key={item.label}
+                                        isMainStakeholder={item.isMainStakeholder}
+                                        changeParentState={this.changeMembersState.bind(this)}
+                                        member={item}
+                                        users={this.props.usersArr}/>
+        });
+
+        return (
+            <table className="data-table large">
+                <thead className="project-members-table">
+                <tr>
+                    <td>Member</td>
+                    <td>Is main Stakeholder</td>
+                    <td>Secondary Stakeholder Designatioon</td>
+                    <td>Stakeholder Catagory</td>
+                </tr>
+                </thead>
+                <tbody>{membersList}</tbody>
+            </table>
+        )
+    }
 
     render() {
-        const { projectName, selectedDesignation, selectedShippingMode, selectCategory, selectUsers, supplier, shipper, memberOptions,
+        const { projectName, selectedShippingMode, selectUsers, supplier, shipper, memberOptions,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes } = this.state;
-        const { designation, stakeholder_category, shippingMode } = this;
-        //todo @alex add dynamic form to add members
+        const { shippingMode } = this;
+
         return (
             <div className="create-project">
                 <form onSubmit={this.submitForm.bind(this)}
@@ -123,34 +242,6 @@ class CreateProject extends React.Component{
                         <input type="text"
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Is Main Stakeholder</span>
-                        <Switch onChange={this.changeState('is_main_stakeholder')}
-        							checkedChildren={'Yes'}
-        							unCheckedChildren={'No'}
-      						/>
-                    </div>
-                    <div className="select-wrap">
-                    		<span className="label">Secondary Stakeholder Designation</span>
-                    		<Select
-                        	 value={selectedDesignation}
-                            onChange={this.changeState('selectedDesignation')}
-                            options={designation}
-                            className={"select-role"}
-                            clearable={false}
-                    		/>
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Stakeholder Category</span>
-                        <Select
-                            multi
-                            value={selectCategory}
-                            onChange={this.changeState('selectCategory')}
-                            options={stakeholder_category}
-                            className={"members-select"}
-                            clearable={false}
-                        />
                     </div>
                     <div className="select-wrap">
                         <span className="label">Add members</span>
@@ -163,70 +254,80 @@ class CreateProject extends React.Component{
                             clearable={false}
                         />
                     </div>
-                    <div className="field-wrap">
-                        <span className="label">Shipping Address</span>
-                        <input type="text"
-                               onChange={this.changeState('shippingAddress')}
-                               value={shippingAddress}/>
+                    <div className="field-wrap full-width top-10 bottom-10">
+                        {this.renderMembersConfig()}
                     </div>
-                    <div className="field-wrap">
-                        <span className="label">Shipping Contact Name</span>
-                        <input type="text"
-                               onChange={this.changeState('shippingContactName')}
-                               value={shippingContactName}/>
+                    <div className="form-group">
+                        <h3 className="legend">Shipping</h3>
+                        <div className="field-wrap">
+                            <span className="label">Contact name</span>
+                            <input type="text"
+                                   onChange={this.changeState('shippingContactName')}
+                                   value={shippingContactName}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Address</span>
+                            <input type="text"
+                                   onChange={this.changeState('shippingAddress')}
+                                   value={shippingAddress}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Contact email</span>
+                            <input type="email"
+                                   onChange={this.changeState('shippingContactEmail')}
+                                   value={shippingContactEmail}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Contact phone</span>
+                            <input type="text"
+                                   onChange={this.changeState('shippingContactPhone')}
+                                   value={shippingContactPhone}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Notes</span>
+                            <Textarea rows={3}
+                                      placeholder="Enter text"
+                                      className=""
+                                      value={shippingNotes}
+                                      onChange={this.changeState('shippingNotes')}/>
+                        </div>
                     </div>
-                    <div className="field-wrap">
-                        <span className="label">Shipping Contact Phone</span>
-                        <input type="text"
-                               onChange={this.changeState('shippingContactPhone')}
-                               value={shippingContactPhone}/>
+                    <div className="form-group">
+                        <h3 className="legend">Billing</h3>
+                        <div className="field-wrap">
+                            <span className="label">Contact name</span>
+                            <input type="text"
+                                   onChange={this.changeState('billingContactName')}
+                                   value={billingContactName}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Address</span>
+                            <input type="text"
+                                   onChange={this.changeState('billingAddress')}
+                                   value={billingAddress}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Contact email</span>
+                            <input type="email"
+                                   onChange={this.changeState('billingContactEmail')}
+                                   value={billingContactEmail}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Contact phone</span>
+                            <input type="text"
+                                   onChange={this.changeState('billingContactPhone')}
+                                   value={billingContactPhone}/>
+                        </div>
+                        <div className="field-wrap">
+                            <span className="label">Notes</span>
+                            <Textarea rows={3}
+                                      placeholder="Enter text"
+                                      className=""
+                                      value={billingNotes}
+                                      onChange={this.changeState('billingNotes')}/>
+                        </div>
                     </div>
-                    <div className="field-wrap">
-                        <span className="label"> Shipping Contact Email</span>
-                        <input type="email"
-                               onChange={this.changeState('shippingContactEmail')}
-                               value={shippingContactEmail}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Shipping Notes</span>
-                        <Textarea rows={3}
-                          placeholder="Enter text"
-                          className=""
-                          value={shippingNotes}
-                          onChange={this.changeState('shippingNotes')}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Billing Contact Phone</span>
-                        <input type="text"
-                               onChange={this.changeState('billingContactPhone')}
-                               value={billingContactPhone}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Billing Contact Name</span>
-                        <input type="text"
-                               onChange={this.changeState('billingContactName')}
-                               value={billingContactName}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Billing Contact Email</span>
-                        <input type="email"
-                               onChange={this.changeState('billingContactEmail')}
-                               value={billingContactEmail}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Billing Address</span>
-                        <input type="text"
-                               onChange={this.changeState('billingAddress')}
-                               value={billingAddress}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Billing Notes</span>
-                        <Textarea rows={3}
-                          placeholder="Enter text"
-                          className=""
-                          value={billingNotes}
-                          onChange={this.changeState('billingNotes')}/>
-                    </div>
+
                     <div className="field-wrap">
                         <span className="label">Supplier</span>
                         <input type="text"

@@ -208,6 +208,24 @@ div.error-msg
   max-width 450px
   width 100%
 
+  .form-group
+    background alpha($main-color, .05)
+    border 1px dotted $main-color
+    border-radius 5px
+
+
+  .legend
+    padding 10px 0
+
+  .top-10
+    margin-top 10px
+  .top-20
+    margin-top 20px
+  .bottom-10
+    margin-bottom 10px
+  .bottom-20
+    margin-bottom 20px
+
   &.flex-form
     max-width 100%
     display flex
@@ -217,6 +235,9 @@ div.error-msg
       width 50%
       padding 0 10px
       transition .3s
+
+    .full-width
+      width 100%
 
     @media(max-width 850px)
       > div
@@ -321,3 +342,7 @@ div.error-msg
     &:first-of-type
       width 250px
       text-align right
+
+  &.large
+    tr
+      height 50px
