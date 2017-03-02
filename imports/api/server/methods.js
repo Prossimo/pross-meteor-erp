@@ -216,7 +216,7 @@ Meteor.methods({
                 HTTP.post('https://slack.com/api/channels.invite', {
                     params: {
                         token: SLACK_API_KEY,
-                        channel: responseCreateChannel.data.channel.id,
+                        channel: channelId,
                         user: user.slack.id
                     }
                 })
@@ -276,13 +276,21 @@ Meteor.methods({
             shipper: Match.Maybe(String),
         });
 
-        const responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
+        let responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
             params: {
                 token: SLACK_API_KEY,
                 name: data.name
             }
         });
-        if(!responseCreateChannel.data.ok) throw new Meteor.Error("Creating slack channel failed!");
+
+        if(!responseCreateChannel.data.ok) {
+            if(responseCreateChannel.data.error = 'name_taken'){
+                throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);
+            }
+            throw new Meteor.Error(`Some problems with created slack channel! Sorry try later`);
+        }
+
+
         data.slackChanel = responseCreateChannel.data.channel.id;
 
         const responseInviteBot = HTTP.post('https://slack.com/api/channels.invite', {
