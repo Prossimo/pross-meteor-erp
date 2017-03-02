@@ -234,7 +234,7 @@ class CreateProject extends React.Component{
                                value={supplier}/>
                     </div>
                     <div className="select-wrap">
-                        <span className="label">Secondary Stakeholder Designation</span>
+                        <span className="label">Shipping Mode</span>
                         <Select
                             value={selectedShippingMode}
                             onChange={this.changeState('selectedShippingMode')}
