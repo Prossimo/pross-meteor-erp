@@ -82,7 +82,7 @@ module.exports = NylasUtils = {
     participantsForReplyAll: (message) => {
         excludedFroms = message.from.map((c) => c.email)
         excludeMeAndFroms = (cc) => {
-            _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
+            return _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
         }
 
         to = null
@@ -103,7 +103,13 @@ module.exports = NylasUtils = {
     },
 
     canReplyAll: (message) => {
-        const {to, cc} = participantsForReplyAll(message)
+        const {to, cc} = NylasUtils.participantsForReplyAll(message)
         return to.length > 1 || cc.length > 0
+    },
+    generateTempId: () => {
+        s4 = ()=>{return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)}
+
+        return 'local-' + s4() + s4() + '-' + s4()
     }
+
 }

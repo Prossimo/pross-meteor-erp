@@ -12,6 +12,8 @@ class MessageList extends React.Component {
         this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this);
 
         this.state = this._getStateFromStore()
+        this.state.minified = true
+        this.MINIFY_THRESHOLD = 3
     }
 
     componentDidMount() {
@@ -26,7 +28,11 @@ class MessageList extends React.Component {
     }
 
     onMessageStoreChanged() {
-        this.setState(this._getStateFromStore())
+        newState = this._getStateFromStore();
+
+        if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)
+            newState.minified = true
+        this.setState(newState)
     }
 
     _getStateFromStore() {
@@ -84,9 +90,9 @@ class MessageList extends React.Component {
         let elements = []
 
         let {messages} = this.state;
-        let lastMessage = !_.last(messages);
-        let hasReplyArea = !(lastMessage && lastMessage.draft)
-        //messages = this._messagesWithMinification(messages)
+        let lastMessage = _.last(messages);
+        let hasReplyArea = lastMessage && !lastMessage.draft
+        messages = this._messagesWithMinification(messages)
         messages.forEach((message, idx) => {
 
             if (message.type == "minifiedBundle") {
@@ -116,15 +122,60 @@ class MessageList extends React.Component {
         return elements
     }
 
-    _renderMinifiedBundle(bundle) {
+    _messagesWithMinification(messages=[]) {
+        if(!this.state.minified) return messages;
+
+        messages = _.clone(messages)
+        minifyRanges = []
+        consecutiveCollapsed = 0
+
+        messages.forEach((message, idx) => {
+            if(idx == 0)return
+
+            expandState = this.state.messagesExpandedState[message.id]
+
+            if(!expandState)
+                consecutiveCollapsed += 1
+            else
+            {
+                if(expandState == "default")
+                    minifyOffset = 1
+                else //if expandState is "explicit"
+                    minifyOffset = 0
+
+                if(consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset)
+                    minifyRanges.push({
+                        start: idx - consecutiveCollapsed,
+                        length: (consecutiveCollapsed - minifyOffset)
+                    })
+                consecutiveCollapsed = 0
+            }
+        })
+
+        indexOffset = 0
+        for(range of minifyRanges) {
+            start = range.start - indexOffset
+            minified = {
+                type: "minifiedBundle",
+                messages: messages.slice(start, start + range.length)
+            }
+            messages.splice(start, range.length, minified)
+
+            indexOffset += (range.length - 1)
+        }
+
+        return messages
+    }
+
+    _renderMinifiedBundle(bundle) { console.log('_renderMinifiedBundle', bundle)
         BUNDLE_HEIGHT = 36
-        lines = [0, ...10].bundle.messages
+        lines = bundle.messages.slice(0, 10);
         h = Math.round(BUNDLE_HEIGHT / lines.length)
 
         return (
             <div className="minified-bundle"
                  onClick={() => this.setState({minified: false})}
-                 key={Utils.generateTempId()}>
+                 key={NylasUtils.generateTempId()}>
                 <div className="num-messages">{bundle.messages.length} older messages</div>
                 <div className="msg-lines" style={{height: h * lines.length}}>
                     {
@@ -137,10 +188,11 @@ class MessageList extends React.Component {
     }
 
     _renderReplyArea() {
+        const icon = `/icons/inbox/${this._replyType()}-footer.png`
         return (
             <div className="footer-reply-area-wrap" onClick={this._onClickReplyArea} key='reply-area'>
                 <div className="footer-reply-area">
-                    <img src="/icons/"/>
+                    <img src={icon} width="19px"/>
                     <span className="reply-text">Write a reply…</span>
                 </div>
             </div>
@@ -150,7 +202,7 @@ class MessageList extends React.Component {
 
     _replyType() {
         defaultReplyType = 'reply-all'; //PlanckEnv.config.get('core.sending.defaultReplyType')
-        lastMessage = _.last(_.filer(this.state.messages?this.state.messages:[], (m)=>!m.draft))
+        lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m)=>!m.draft))
         if (!lastMessage) return 'reply';
 
         if (NylasUtils.canReplyAll(lastMessage)) {

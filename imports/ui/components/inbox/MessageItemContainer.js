@@ -53,12 +53,13 @@ export default class MessageItemContainer extends React.Component {
 
 
     _renderMessage({pending}) {
+        const classnames = this._classNames();
         return <ItemMessage
             ref="message"
             pending={pending}
             thread={this.props.thread}
             message={this.props.message}
-            className={this._classNames()}
+            className={classnames}
             collapsed={this.props.collapsed}
             isLastMsg={this.props.isLastMsg}/>
     }
