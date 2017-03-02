@@ -9,6 +9,8 @@ class MessageParticipants extends React.Component {
 
     constructor(props) {
         super(props);
+
+        this.selectText = this.selectText.bind(this);
     }
 
 
@@ -16,7 +18,8 @@ class MessageParticipants extends React.Component {
         return _.union(this.props.to, this.props.cc, this.props.bcc);
     }
 
-    shortNames(participants = [], max = MAX_COLLAPSED) {console.log("MessageParticipants",participants);
+    shortNames(participants = [], max = MAX_COLLAPSED) {
+        console.log("MessageParticipants", participants);
         let names = NylasUtils.getParticipantsNamesArray(participants, false);
         if (names.length > max) {
             extra = names.length - max;
@@ -26,7 +29,7 @@ class MessageParticipants extends React.Component {
         return names.join(", ");
     }
 
-    selectText(e){
+    selectText(e) {
         textNode = e.currentTarget.childNodes[0]
 
         range = document.createRange()
@@ -119,6 +122,34 @@ class MessageParticipants extends React.Component {
         )
     }
 
+    renderFullContacts(contacts = []) {console.log('MessageParticipants->renderFullContacts', contacts);
+        return _.map(contacts, (c, i) => {console.log('Contact', c, i)
+            if (contacts.length == 1) comma = ""
+            else if (i == contacts.length - 1) comma = ""
+            else comma = ","
+
+            if (c.name && c.name.length && c.name != c.email) {
+                return (
+                    <div key={`${c.email}-${i}`} className="participant selectable">
+                        <div className="participant-primary" onClick={this.selectText}>
+                            {c.name}
+                        </div>
+                        <div className="participant-secondary">
+                            {"<"}<span onClick={this.selectText}>{c.email}</span>{`>${comma}`}
+                        </div>
+                    </div>
+                )
+            } else {
+                return (
+                    <div key={`${c.email}-${i}`} className="participant selectable">
+                        <div className="participant-primary">
+                            <span onClick={this.selectText}>{c.email}</span>{comma}
+                        </div>
+                    </div>
+                )
+            }
+        });
+    }
 
     renderCollapsed() {
         let childSpans = [];
