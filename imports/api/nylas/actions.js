@@ -10,7 +10,10 @@ const Actions = Reflux.createActions([
     'toggleAllMessagesExpanded',
     'toggleHiddenMessages',
 
-    'fetchFile'
+    'fetchFile',
+
+    'composeReply',
+    'composeForward'
 ]);
 
 module.exports = Actions;

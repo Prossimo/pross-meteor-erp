@@ -40,6 +40,8 @@ class MessageStore extends Reflux.Store {
 
             this._messages = result;
 
+            this._messages.sort((m1, m2)=>{return m1.date-m2.date})
+
             this._loading = false;
 
             this._expandMessagesToDefault();

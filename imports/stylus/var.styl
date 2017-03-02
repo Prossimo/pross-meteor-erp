@@ -15,6 +15,14 @@ $background-off-primary   =   #fdfdfd;
 $background-secondary     =   #f6f6f6;
 $background-tertiary      =   #6d7987;
 
+
+$color-info     = $blue-dark;
+$color-success  = #5CB346;
+$color-warning  = #f0ad4e;
+$color-error    = #d9534f;
+$color-danger   = #d9534f;
+
+
 //border colors
 $border-color-primary   = darken($background-primary, 10%);
 $border-color-secondary = darken($background-secondary, 10%);
@@ -81,8 +89,30 @@ $padding-large-horizontal   =   16px;
 $padding-small-vertical     =   4px;
 $padding-small-horizontal   =   10px;
 
-
-
 $border-radius-base     =   3px;
 $border-radius-large    =   5px;
 $border-radius-small    =   2px;
+
+
+//============================== Shadows ===============================//
+
+$standard-shadow-color  = rgba(0, 0, 0, 0.15);
+$standard-shadow        = 0 1px 4px 0 $standard-shadow-color;
+$standard-shadow-up     = 0 -1px 4px 0 $standard-shadow-color;
+$shadow-border          = 0 0.5px 0 $standard-shadow-color, 0 -0.5px 0 $standard-shadow-color, 0.5px 0 0 $standard-shadow-color, -0.5px 0 0 $standard-shadow-color;
+
+//=============================== Buttons ==============================//
+
+$btn-shadow               = $standard-shadow;
+
+$btn-default-bg-color     = darken($background-primary, 0.5%);
+$btn-default-text-color   = $text-color;
+
+$btn-action-bg-color      = $color-success;
+$btn-action-text-color    = $text-color;
+
+$btn-emphasis-bg-color    = #5b90fb;
+$btn-emphasis-text-color  = $text-color-inverse;
+
+$btn-danger-bg-color      = $color-danger;
+$btn-danger-text-color    = $text-color-inverse;

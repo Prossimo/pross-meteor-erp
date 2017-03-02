@@ -1,9 +1,11 @@
 import React from 'react';
+import classNames from 'classnames';
 import Actions from '../../../api/nylas/actions';
 import NylasUtils from '../../../api/nylas/nylas-utils';
 import ItemMessageBody from './ItemMessageBody';
 import MessageParticipants from './MessageParticipants';
 import MessageTimestamp from './MessageTimestamp';
+import MessageControls from './MessageControls';
 
 
 class ItemMessage extends React.Component {
@@ -74,12 +76,36 @@ class ItemMessage extends React.Component {
     }
 
     renderHeader() {
+        classes = classNames({
+            "message-header": true,
+            "pending": this.props.pending
+        });
         return (
-            <div className="message-header" onClick={this._onClickHeader}>
+            <header className={classes} onClick={this._onClickHeader}>
+                {this.renderHeaderSideItems()}
+                <div className="message-header-right">
+                    <MessageTimestamp className="message-time"
+                                      isDetailed={this.state.detailedHeaders}
+                                      date={this.props.message.date}/>
+
+                    <MessageControls thread={this.props.thread} message={this.props.message}/>
+                </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}
                 {this.renderFolder()}
                 {this.renderHeaderDetailToggle()}
+            </header>
+        )
+    }
+
+    renderHeaderSideItems() {
+        styles = {
+            position: "absolute",
+            marginTop: -2
+        }
+        return (
+            <div className="pending-spinner" style={styles}>
+                <img src="/icons/inbox/sending-spinner.gif" />
             </div>
         )
     }
@@ -129,16 +155,22 @@ class ItemMessage extends React.Component {
             return (
                 <div className="header-toggle-control"
                      style={{top: "18px", left: "-14px"}}
-                     onClick={ (e) => {this.setState({detailedHeaders: false}); e.stopPropagation()}}>
-                    <img src="/icons/inbox/message-disclosure-triangle-active.png" style={{width:"50%"}}/>
+                     onClick={ (e) => {
+                         this.setState({detailedHeaders: false});
+                         e.stopPropagation()
+                     }}>
+                    <img src="/icons/inbox/message-disclosure-triangle-active.png" style={{width: "50%"}}/>
                 </div>
             )
         else
             return (
                 <div className="header-toggle-control inactive"
                      style={{top: "18px"}}
-                     onClick={ (e) => {this.setState({detailedHeaders: true}); e.stopPropagation()}}>
-                    <img src="/icons/inbox/message-disclosure-triangle.png" style={{width:"50%"}}/>
+                     onClick={ (e) => {
+                         this.setState({detailedHeaders: true});
+                         e.stopPropagation()
+                     }}>
+                    <img src="/icons/inbox/message-disclosure-triangle.png" style={{width: "50%"}}/>
                 </div>
             )
     }
