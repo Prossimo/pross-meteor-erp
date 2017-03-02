@@ -247,26 +247,31 @@ Meteor.methods({
         }
         check(data, {
             name: String,
-            sec_stakeholder_designation: String,
             shippingMode: String,
-            stakeholder_category: [String],
-            members: [String],
-            is_main_stakeholder: Boolean,
+            members: [{
+                userId: String,
+                isMainStakeholder: Boolean,
+                destination: String,
+                category: [String]
+            }],
             actualDeliveryDate: Date,
             productionStartDate: Date,
             estDeliveryRange: [Date],
-            estProductionTime: Number,
-            actProductionTime: Number,
+
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
             shippingContactEmail: Match.Maybe(String),
             shippingAddress:  Match.Maybe(String),
             shippingNotes:  Match.Maybe(String),
+
             billingContactPhone:  Match.Maybe(Match.phone),
             billingContactName: Match.Maybe(String),
             billingContactEmail: Match.Maybe(String),
             billingAddress: Match.Maybe(String),
             billingNotes: Match.Maybe(String),
+
+            estProductionTime: Match.Maybe(Number),
+            actProductionTime: Match.Maybe(Number),
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
         });
@@ -290,7 +295,7 @@ Meteor.methods({
 
         if(!responseInviteBot.data.ok) throw new Meteor.Error("Bot cannot add to channel");
 
-        Meteor.users.find({_id: {$in: data.members}, slack: {$exists: true}})
+        Meteor.users.find({_id: {$in: data.members.map(item=>item.userId)}, slack: {$exists: true}})
             .forEach(user=>{
                 HTTP.post('https://slack.com/api/channels.invite', {
                     params: {
@@ -301,7 +306,7 @@ Meteor.methods({
                 })
             });
 
-        Projects.insert(data);
+        return Projects.insert(data);
     },
 
     postSlackMessage(channel, message){
