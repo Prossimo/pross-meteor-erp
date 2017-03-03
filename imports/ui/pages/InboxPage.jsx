@@ -6,6 +6,7 @@ import ThreadStore from '../../api/nylas/thread-store';
 import ItemFolder from '../components/inbox/ItemFolder';
 import ItemThread from '../components/inbox/ItemThread';
 import MessageList from '../components/inbox/MessageList';
+import Toolbar from '../components/inbox/Toolbar';
 
 class Inbox extends React.Component{
     constructor(props){
@@ -61,7 +62,7 @@ class Inbox extends React.Component{
         const {hasNylasInfo} = this.state;
         return (
             <div className="inbox-page">
-                <h2 className="header-panel">Inbox page</h2>
+                <Toolbar />
                 {hasNylasInfo && this.renderInbox()}
                 {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
             </div>
@@ -74,7 +75,7 @@ class Inbox extends React.Component{
             return <Spinner visible={true}/>
         } else {
             return (<div className="content-panel">
-                <div className="column-panel" style={{order:1, minWidth:150, maxWidth:150, borderRight:'1px solid rgba(221,221,221,0.6)', paddingRight:5}}>
+                <div className="column-panel" style={{order:1, minWidth:150, maxWidth:200, borderRight:'1px solid rgba(221,221,221,0.6)', paddingRight:5}}>
                     <div className="list-folder">
                         {this.renderFolders()}
                     </div>
