@@ -1,17 +1,20 @@
 import React from 'react';
-import Alert from 'react-s-alert';
 import { Files } from '/imports/api/lib/collections';
 import { getUserName, getUserEmail, getAvatarUrl, getSlackUsername } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';
+import _ from 'underscore';
 
 class AddQuoteForm extends React.Component{
     constructor(props){
         super(props);
 
+        const defaultRevisionNumber = _.isArray(props.quote.revisions) ? props.quote.revisions.length : 0;
+
         this.state = {
             currentFile: null,
             totalCost: '',
+            revisionNumber: defaultRevisionNumber,
             alertsActive: true
         }
     }
@@ -28,6 +31,14 @@ class AddQuoteForm extends React.Component{
         }
     }
 
+    revisionNumberChange(event){
+        const { quote } = this.props;
+        const { value: revisionNumber } = event.target;
+        if(revisionNumber > quote.revisions.length) return;
+
+        this.setState({revisionNumber: parseInt(revisionNumber)});
+    }
+
     renderAttachedFile(){
         const { currentFile } = this.state;
         if(currentFile){
@@ -41,14 +52,26 @@ class AddQuoteForm extends React.Component{
 
     formSubmit(event){
         event.preventDefault();
-
-        const { currentFile, totalCost, alertsActive } = this.state;
+        const { currentFile, totalCost, alertsActive, revisionNumber } = this.state;
         const { project, usersArr, currentUser, quote } = this.props;
 
         if(!currentFile)return warning(`You must add PDF file`);
         if(totalCost === '')return warning(`Empty total cost field`);
+        if(revisionNumber === '')return warning(`Empty revision number field`);
 
-        const params = {
+        const needUpdate = quote.revisions.some(revision=>revision.revisionNumber === revisionNumber);
+        const memberEmails = project.members.map(member=>getUserEmail(member.user));
+        const revisionData = {
+            revisionNumber,
+            quoteId: quote._id,
+            totalPrice: parseFloat(totalCost),
+            [needUpdate?"updateBy":"createBy"]: Meteor.userId(),
+            [needUpdate?"updateAt":"createAt"]: moment().toDate(),
+            fileName: currentFile.name,
+            fileId: null
+        };
+
+        const slackMsgParans = {
             username: getSlackUsername(usersArr[Meteor.userId()]),
             icon_url: getAvatarUrl(usersArr[Meteor.userId()]),
             attachments: [
@@ -58,49 +81,31 @@ class AddQuoteForm extends React.Component{
                 }
             ]
         };
-
-        const slackText = `I just added revision #${quote.revisions.length} of "${quote.name}"`;
-
-        Meteor.call("sendBotMessage", project.slackChanel, slackText, params);
-
-        const revisionData = {
-            quoteId: quote._id,
-            revisionNumber: quote.revisions.length,
-            totalPrice: parseFloat(totalCost),
-            createBy: Meteor.userId(),
-            createAt: new Date(),
-            fileName: currentFile.name,
-            fileId: null
-        };
+        const slackText = `I just ${needUpdate?"updated":"added"} revision #${revisionNumber}"`;
 
         const file = new FS.File(currentFile);
         file.metadata = {
             userId: Meteor.userId(),
             projectId: project._id,
-            createAt: new Date
         };
-
-        const memberEmails = project.members.map(item=>{
-            return getUserEmail(usersArr[item]);
-        });
 
         const sendEmailCb = (err,res)=> {
             if(err) return warning("Email sending failed");
-
             info(res);
         };
 
-        const addRevisionQuoteCb = (err)=>{
+        const revisionCb = (err)=>{
             this.hide();
-            info(`Add new revision`);
+            info(`${needUpdate?"Update":"Add"} revision success!`);
             if(err) return warning(err.reason);
+            //// step # 3 - notify slack/email
+            Meteor.call("sendBotMessage", project.slackChanel, slackText, slackMsgParans);
 
             if(!alertsActive) return;
-
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `Add new revision to "${project.name}" project`,
+                subject: `${needUpdate?"Update":"Add"} revision "${project.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
                 attachments: [revisionData.fileId],
                 html: generateEmailHtml(currentUser, `Go to project "${project.name}"`, FlowRouter.url(FlowRouter.current().path))
@@ -116,9 +121,14 @@ class AddQuoteForm extends React.Component{
             info("Success upload file");
             revisionData.fileId = res._id;
 
-            Meteor.call("addRevisionQuote", revisionData, addRevisionQuoteCb)
+            // step # 2 - add new or update revision
+            if(needUpdate) {
+                Meteor.call("updateQuoteRevision", revisionData, revisionCb)
+            }else{
+                Meteor.call("addQuoteRevision", revisionData, revisionCb)
+            }
         };
-
+        // step # 1 - load pdf to FS
         Files.insert(file, fileInsertCb);
     }
 
@@ -139,7 +149,7 @@ class AddQuoteForm extends React.Component{
     }
 
     render() {
-        const { totalCost, alertsActive } = this.state;
+        const { totalCost, alertsActive, revisionNumber } = this.state;
         const { quote } = this.props;
         return (
             <div className="add-quote-form">
@@ -148,7 +158,10 @@ class AddQuoteForm extends React.Component{
                         <span className="label">{quote.name}</span>
                     </div>
                     <div className="field-wrap">
-                        <span className="revision-field">Revision number <span className="revision-label">{quote.revisions.length}</span></span>
+                        <span className="label">Revision number </span>
+                        <input type="number"
+                               onChange={this.revisionNumberChange.bind(this)}
+                               value={revisionNumber}/>
                     </div>
 
                     <div className="field-wrap">

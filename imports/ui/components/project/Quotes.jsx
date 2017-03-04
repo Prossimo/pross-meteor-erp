@@ -91,7 +91,7 @@ class Quotes extends React.Component{
     }
 
     changeQuoteName(quote, event){
-        if(event.key == 'Enter'){
+        if(event.key === 'Enter'){
             Meteor.call('editQuoteName', quote._id, event.target.value, (err)=>{
                 if(err) return console.log(err);
             });

@@ -369,19 +369,62 @@ Meteor.methods({
         Quotes.insert(data);
     },
 
-    addRevisionQuote(data){
+    addQuoteRevision(data){
+        check(data, {
+            revisionNumber: Number,
+            quoteId: String,
+            totalPrice: Number,
+            createBy: String,
+            createAt: Date,
+            fileName: String,
+            fileId: String
+        });
         if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
 
-        const _id = data.quoteId;
+        const quoteId = data.quoteId;
         delete data.quoteId;
 
-        Quotes.update({_id}, {
+        Quotes.update(quoteId, {
             $push: {
                 revisions: data
             }
         })
+    },
+
+    updateQuoteRevision(data){
+        check(data, {
+            revisionNumber: Number,
+            quoteId: String,
+            totalPrice: Number,
+            updateBy: String,
+            updateAt: Date,
+            fileName: String,
+            fileId: String
+        });
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
+            throw new Meteor.Error("Access denied");
+        }
+        let oldFileId;
+
+        const quote = Quotes.findOne(data.quoteId);
+
+        const revisions = quote.revisions.map(revision=>{
+            if(revision.revisionNumber === data.revisionNumber){
+                oldFileId = revision.fileId;
+
+                revision.totalPrice = data.totalPrice;
+                revision.updateBy = data.updateBy;
+                revision.updateAt = data.updateAt;
+                revision.fileName = data.fileName;
+                revision.fileId = data.fileId;
+            }
+            return revision;
+        });
+
+        Quotes.update(quote._id, {$set: {revisions}});
+        Files.remove(oldFileId);
     },
 
     editQuoteName(quoteId, name){

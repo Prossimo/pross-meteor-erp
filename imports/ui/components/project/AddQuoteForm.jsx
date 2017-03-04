@@ -77,8 +77,8 @@ class AddQuoteForm extends React.Component{
             createAt: new Date
         };
 
-        const memberEmails = project.members.map(item=>{
-            return getUserEmail(usersArr[item]);
+        const memberEmails = project.members.map(member=>{
+            return getUserEmail(member.user);
         });
 
         const sendEmailCb = (err,res)=> {
