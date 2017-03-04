@@ -13,7 +13,11 @@ const Actions = Reflux.createActions([
     'fetchFile',
 
     'composeReply',
-    'composeForward'
+    'composeForward',
+    'composeNewBlankDraft',
+
+    'openPopover',
+    'closePopover'
 ]);
 
 module.exports = Actions;

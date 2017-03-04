@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Actions from '../../../api/nylas/actions';
 
 export default class ComposeButton extends React.Component {
@@ -22,6 +23,8 @@ export default class ComposeButton extends React.Component {
                 onClick={this._onNewCompose}>
                 <img src="/icons/inbox/toolbar-compose.png" width="50%"/>
             </button>
+
+
         );
     }
 }
