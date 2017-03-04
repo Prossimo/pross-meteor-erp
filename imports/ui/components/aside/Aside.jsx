@@ -10,25 +10,46 @@ class Aside extends React.Component{
 
         this.pages = [
             {
-                label: "Projects",
+                label: "Leads",
+                route: "Leads"
+            },
+            {
+                label: "Opportunities",
                 route: "Root"
             },
             {
-                label: "Account",
+                label: "Orders",
+                route: "Orders"
+            },
+            {
+                label: "Tickets",
+                route: "Tickets"
+            },
+            {
+                label: "Contacts",
+                route: "Contacts"
+            },
+            {
+                label: "Settings",
                 route: "User"
             },
+            {
+                label: "Financial",
+                route: "Financial"
+            },
         ];
+
         if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
-            this.pages.push({
+            this.pages.unshift({
                 label: "Inbox",
                 route: "Inbox"
             })
         }
 
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
-            this.pages.push({
-                label: "Admin",
-                route: "Admin"
+            this.pages.unshift({
+                label: "Dashboard",
+                route: "Dashboard"
             })
         }
     }
