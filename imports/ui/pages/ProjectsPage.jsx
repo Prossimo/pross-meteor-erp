@@ -1,5 +1,4 @@
 import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 import AllProjects from '../components/project/AllProjects';
 import CreateProject from '/imports/ui/components/admin/CreateProject';

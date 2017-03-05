@@ -200,27 +200,39 @@ Meteor.methods({
         return userId;
     },
 
-    assignUsersToProject(projectId, usersIds){
+    addMemberToProject(projectId, member){
         check(projectId, String);
-        check(usersIds, [String]);
+        check(member, {
+            userId: String,
+            isMainStakeholder: Boolean,
+            destination: Match.OneOf(String, null),
+            category: Match.OneOf([String], [])
+        });
+
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-        Projects.update(projectId, {
-                $set: {members: usersIds}
+
+        Projects.update(projectId, {$push: {members: member}});
+    },
+
+    addUserToSlackChannel(userId, channel){
+        check(userId, String);
+        check(channel, String);
+
+        const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}});
+
+        if(!user) throw new Meteor.Error("User don`t integrate with slack");
+
+        const res = HTTP.post('https://slack.com/api/channels.invite', {
+            params: {
+                token: SLACK_API_KEY,
+                channel,
+                user: user.slack.id
             }
-        );
-
-        const channelId = Projects.findOne(projectId).slackChanel;
-
-        Meteor.users.find({_id: {$in: usersIds}, slack: {$exists: true}})
-            .forEach(user=>{
-                HTTP.post('https://slack.com/api/channels.invite', {
-                    params: {
-                        token: SLACK_API_KEY,
-                        channel: responseCreateChannel.data.channel.id,
-                        user: user.slack.id
-                    }
-                })
-            });
+        });
+        if(!res.data.ok){
+            if(res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
+        }
+        return res;
     },
 
     updateUserInfo(user){
@@ -276,13 +288,21 @@ Meteor.methods({
             shipper: Match.Maybe(String),
         });
 
-        const responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
+        let responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
             params: {
                 token: SLACK_API_KEY,
                 name: data.name
             }
         });
-        if(!responseCreateChannel.data.ok) throw new Meteor.Error("Creating slack channel failed!");
+
+        if(!responseCreateChannel.data.ok) {
+            if(responseCreateChannel.data.error = 'name_taken'){
+                throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);
+            }
+            throw new Meteor.Error(`Some problems with created slack channel! Sorry try later`);
+        }
+
+
         data.slackChanel = responseCreateChannel.data.channel.id;
 
         const responseInviteBot = HTTP.post('https://slack.com/api/channels.invite', {
@@ -361,19 +381,62 @@ Meteor.methods({
         Quotes.insert(data);
     },
 
-    addRevisionQuote(data){
+    addQuoteRevision(data){
+        check(data, {
+            revisionNumber: Number,
+            quoteId: String,
+            totalPrice: Number,
+            createBy: String,
+            createAt: Date,
+            fileName: String,
+            fileId: String
+        });
         if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
             throw new Meteor.Error("Access denied");
         }
 
-        const _id = data.quoteId;
+        const quoteId = data.quoteId;
         delete data.quoteId;
 
-        Quotes.update({_id}, {
+        Quotes.update(quoteId, {
             $push: {
                 revisions: data
             }
         })
+    },
+
+    updateQuoteRevision(data){
+        check(data, {
+            revisionNumber: Number,
+            quoteId: String,
+            totalPrice: Number,
+            updateBy: String,
+            updateAt: Date,
+            fileName: String,
+            fileId: String
+        });
+        if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
+            throw new Meteor.Error("Access denied");
+        }
+        let oldFileId;
+
+        const quote = Quotes.findOne(data.quoteId);
+
+        const revisions = quote.revisions.map(revision=>{
+            if(revision.revisionNumber === data.revisionNumber){
+                oldFileId = revision.fileId;
+
+                revision.totalPrice = data.totalPrice;
+                revision.updateBy = data.updateBy;
+                revision.updateAt = data.updateAt;
+                revision.fileName = data.fileName;
+                revision.fileId = data.fileId;
+            }
+            return revision;
+        });
+
+        Quotes.update(quote._id, {$set: {revisions}});
+        Files.remove(oldFileId);
     },
 
     editQuoteName(quoteId, name){

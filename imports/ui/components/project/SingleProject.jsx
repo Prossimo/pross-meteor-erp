@@ -1,8 +1,9 @@
 import React from 'react';
 import classNames from 'classnames';
-import { ADMIN_ROLE_LIST, EMPLOYEE_ROLE } from '../../../api/constants/roles';
-import { getUserName, getUserEmail } from '../../../api/lib/filters';
-
+import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
+import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project';
+import { getUserName, getUserEmail } from '/imports/api/lib/filters';
+import { info, warning } from '/imports/api/lib/alerts'
 import Select from 'react-select';
 import Popup from '../popup/Popup';
 import ContactInfo from '../account/ContactInfo';
@@ -45,23 +46,12 @@ class SingleProject extends React.Component{
         ];
 
         this.state = {
-            activeTab: this.tabs.find(item=>item.label === "Activity"),
-            addUserFormActive: false,
+            activeTab: this.tabs.find(tab=>tab.label === "Activity"),
             showPopup: false,
             popupData: null,
-            selectUsers: props.users.map(item=>{
-                if(props.project.members && props.project.members.indexOf(item._id)>-1)
-                return{
-                    label: getUserName(item, true),
-                    value: item._id,
-                }
-            }),
-            selectOptions: props.users.map(item=>{
-                return {
-                    label: getUserName(item, true),
-                    value: item._id,
-                }
-            })
+            selectUser: null,
+            selectedCategory: [],
+            selectedDesignation: null,
         }
     }
 
@@ -93,19 +83,27 @@ class SingleProject extends React.Component{
             return activeTab.content
         }
     }
-
+    //todo change style
     renderProjectMembers(){
         const { project } = this.props;
         if(!project )return null;
         return (
             <ul className="project-members">
-                {project.members.map(item=>{
+                {project.members.map(member=>{
                     return(
-                        <li key={item.user._id}
-                            onClick={this.showUserInfo.bind(this, item.user)}
-                            className="user-list">
-                                <span className="username"> {getUserName(item.user, true)} </span>
-                                <span className="email">{getUserEmail(item.user)}</span>
+                        <li key={member.user._id}
+                            className="member-list">
+
+                            <span onClick={this.showUserInfo.bind(this, member.user)}
+                                  className={classNames("memberName", {"main": member.isMainStakeholder}) }>
+                                {getUserName(member.user, true)}</span>
+                            <span className="email">{getUserEmail(member.user)}</span>
+                            <div>
+                                {member.category.map(cat=>{
+                                    return <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>
+                                })}
+                            </div>
+
                         </li>
                     )
                 })}
@@ -113,50 +111,97 @@ class SingleProject extends React.Component{
         )
     }
 
+    changeDesignation(selectedDesignation){
+        this.setState({selectedDesignation});
+    }
+
+    changeCategory(selectedCategory){
+        this.setState({selectedCategory});
+    }
+
     renderAddUserForm(){
-        const { addUserFormActive, selectOptions, selectUsers } = this.state;
+        const { project, users } = this.props;
+        const { selectUser, selectedCategory, selectedDesignation} = this.state;
+        const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
+        const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
+        const membersIds = project.members.map(i=>i.userId);
+        const selectOptions = users
+            .filter(user=>membersIds.indexOf(user._id)<0)
+            .map(user=>{
+            return {
+                label: `${getUserName(user, true)} ${getUserEmail(user)}`,
+                value: user._id,
+            }
+        });
         if(Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST))
         return(
             <div>
-                <button className="add-user-btn" onClick={this.toggleAddUserForm.bind(this)}/>
-                <div className={classNames("add-user-form",{"active": addUserFormActive})}>
+                <div className="add-member-form">
                     <div className="select-wrap">
-                        <span className="label">Select users</span>
                         <Select
-                            multi
-                            value={selectUsers}
+                            value={selectUser}
+                            placeholder="Choose user"
                             onChange={this.changeSelectUser.bind(this)}
                             options={selectOptions}
                             className={"members-select"}
                             clearable={false}
                         />
-                        <button onClick={this.assignUsers.bind(this)} className="btn primary-btn">Update</button>
-                        <button onClick={this.hideForm.bind(this)} className="btn default-btn">Cancel</button>
                     </div>
+                    <div className="select-wrap">
+                        <Select
+                            value={selectedDesignation}
+                            placeholder="User designation"
+                            onChange={this.changeDesignation.bind(this)}
+                            options={designationOptions}
+                            className={"members-select"}
+                            clearable={false}
+                        />
+                    </div>
+                    <div className="select-wrap">
+                        <Select
+                            multi
+                            placeholder="User categories"
+                            value={selectedCategory}
+                            onChange={this.changeCategory.bind(this)}
+                            options={categoryOptions}
+                            className={"members-select"}
+                            clearable={false}
+                        />
+                    </div>
+                    <button onClick={this.assignUsers.bind(this)} className="btn primary-btn">Add member</button>
                 </div>
             </div>
         )
     }
 
-    hideForm(){
-        this.setState({addUserFormActive: false})
-    }
-
-    toggleAddUserForm(){
-        const { addUserFormActive } = this.state;
-        this.setState({addUserFormActive: !addUserFormActive})
-    }
-
-    changeSelectUser(value){
-        this.setState({selectUsers: value})
+    changeSelectUser(selectUser){
+        this.setState({selectUser})
     }
 
     assignUsers(){
-        const { selectUsers } = this.state;
+        const { selectUser, selectedDesignation, selectedCategory } = this.state;
         const { project } = this.props;
-        Meteor.call("assignUsersToProject", project._id, selectUsers.map(item=>item.value), (err,res)=>{
-            if(err) return console.log(err);
-            this.setState({addUserFormActive: false})
+        if(_.isNull(selectUser)) return warning("Choose user");
+
+        const member = {
+            userId: selectUser.value,
+            isMainStakeholder: false,
+            destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
+            category: selectedCategory.map(i=>i.value)
+        };
+
+        Meteor.call("addMemberToProject", project._id, member, err=>{
+            if(err) return warning(err.reason? err.reason : "Add member failed!");
+            this.setState({
+                selectUser: null,
+                selectedDesignation: null,
+                selectedCategory: []
+            });
+            info("Add member to project success!");
+        });
+        Meteor.call("addUserToSlackChannel", member.userId, project.slackChanel, err=>{
+            if(err) return warning(err.error);
+            info("User success add to slack channel!");
         })
     }
 
@@ -183,7 +228,7 @@ class SingleProject extends React.Component{
     render() {
         const { project } = this.props;
         const sidebarTitle = "Project members";
-        const projectName = project && project.name ? project.name : '';
+        const projectName = project.name;
         return (
             <div className="page-container single-project">
                 {this.renderPopup()}
@@ -201,8 +246,8 @@ class SingleProject extends React.Component{
                 <aside className="right-sidebar">
                     <div className="header-control">
                         <h2 className="title">{sidebarTitle}</h2>
-                        {this.renderAddUserForm()}
                     </div>
+                    {this.renderAddUserForm()}
                     {this.renderProjectMembers()}
                 </aside>
             </div>

@@ -9,6 +9,11 @@ import SingleProject from '../../api/composer/componencts/project/SingleProject'
 import ProjectsPage from '../../api/composer/pages/ProjectsPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import Inbox from '../../ui/pages/InboxPage';
+import LeadsPage from '/imports/ui/pages/LeadsPage';
+import OrdersPage from '/imports/ui/pages/OrdersPage';
+import TicketsPage from '/imports/ui/pages/TicketsPage';
+import ContactsPage from '/imports/ui/pages/ContactsPage';
+import FinancialPage from '/imports/ui/pages/FinancialPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -29,12 +34,12 @@ FlowRouter.route('/', {
     }
 });
 
-FlowRouter.route('/project/:id', {
-    name: 'Project',
+FlowRouter.route('/dashboard', {
+    name: 'Dashboard',
     action(){
         checkAuth();
         mount(App, {
-            content: <SingleProject/>,
+            content: <AdminPage/>,
         })
     }
 });
@@ -49,22 +54,72 @@ FlowRouter.route('/inbox', {
     }
 });
 
-FlowRouter.route('/admin', {
-    name: 'Admin',
+FlowRouter.route('/project/:id', {
+    name: 'Project',
     action(){
         checkAuth();
         mount(App, {
-            content: <AdminPage/>,
+            content: <SingleProject/>,
         })
     }
 });
 
-FlowRouter.route('/account', {
+FlowRouter.route('/leads', {
+    name: 'Leads',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <LeadsPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/orders', {
+    name: 'Orders',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <OrdersPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/tickets', {
+    name: 'Tickets',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <TicketsPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/contacts', {
+    name: 'Contacts',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <ContactsPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/settings', {
     name: 'User',
     action(){
         checkAuth();
         mount(App, {
             content: <UserAccount/>,
+        })
+    }
+});
+
+FlowRouter.route('/financial', {
+    name: 'Financial',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <FinancialPage/>,
         })
     }
 });

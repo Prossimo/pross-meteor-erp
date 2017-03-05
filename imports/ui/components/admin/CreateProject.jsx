@@ -165,16 +165,11 @@ class CreateProject extends React.Component{
             actProductionTime
         };
 
-        //console.log(data)
-
         Meteor.call("addProject", data, (err, res)=>{
-            if(err) {
-                warning(`Problems with creating new project`);
-                return console.log(err)
-            }
+            if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
-            setTimeout(()=>{FlowRouter.go(FlowRouter.path("Project", {id: res}))},1000)
+            setTimeout(()=>{FlowRouter.go(FlowRouter.path("Project", {id: res}))},300)
         });
     }
 

@@ -106,71 +106,51 @@
       z-index 5
       background $white
 
-    .header-control
-      position relative
+    .add-member-form
+      padding 10px 0
+      border-bottom 5px solid $main-color
 
-      .add-user-btn
-        position absolute
-        width 30px
-        height 30px
-        color alpha($main-color, .2)
-        font-size 25px
-        line-height 30px
-        text-align center
-        display block
-        transition .3s
-        top 50%
-        transform translateY(-50%)
-        right 0
-        z-index 5
-
-        &:after
-          content '\f067'
-          font-family FontAwesome
-
-        &:hover
-          cursor pointer
-          color $main-color
-
-      .add-user-form
-        position absolute
-        width 100%
-        padding 25px 0 25px
-        transition .3s
-        bottom 0
-        left 0
-        background $white
-        border-bottom 5px solid $main-color
-
-        &.active
-          transform translateY(100%)
+      &.active
+        transform translateY(100%)
 
       .select-wrap
         padding 0 0 15px
-
-        .members-select
-          margin-bottom 15px
-
-        .label
-          display block
-          margin-bottom 10px
-          font-size 16px
 
 
     .project-members
       padding 10px 0 0
 
-    .user-list
+    .member-list
       padding 10px 0
       transition .3s
 
-      &:hover
-        cursor pointer
-        color $main-color
-
-      .username
+      .memberName
         font-size 16px
         text-transform capitalize
+        display block
+
+        &:hover
+          cursor pointer
+          color $main-color
+
+        &.main:after
+          content 'Main'
+          position relative
+          top 0
+          right 0
+          padding 3px 5px
+          margin-left 5px
+          background green
+          color $white
+          border-radius 3px
+
+      .member-cat
+        display inline-block
+        padding 3px
+        border-radius 2px
+        color $white
+        background alpha(green,.3)
+        font-size 12px
 
       .email
         font-size 12px

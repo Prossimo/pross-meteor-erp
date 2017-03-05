@@ -22,9 +22,9 @@ Projects.schema = new SimpleSchema({
     "members.$": { type: Object },
     "members.$.userId": { type: String },
     "members.$.isMainStakeholder": { type: Boolean },
-    "members.$.destination": { type: String },
-    "members.$.category": { type: Array },
-    "members.$.category.$": { type: String },
+    "members.$.destination": { type: String, optional: true },
+    "members.$.category": { type: Array, optional: true },
+    "members.$.category.$": { type: String, optional: true },
 
     actualDeliveryDate: { type: Date },
     productionStartDate: { type: Date },
@@ -89,5 +89,5 @@ Projects.before.insert(function (userId, doc) {
 
 Projects.before.update(function (userId, doc, fieldNames, modifier, options) {
     // modifier.$set = modifier.$set || {};
-    modifier.$set.modifiedAt = Date.now();
+    doc.modifiedAt = Date.now();
 });
