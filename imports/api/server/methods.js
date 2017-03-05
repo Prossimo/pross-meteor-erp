@@ -200,27 +200,39 @@ Meteor.methods({
         return userId;
     },
 
-    assignUsersToProject(projectId, usersIds){
+    addMemberToProject(projectId, member){
         check(projectId, String);
-        check(usersIds, [String]);
+        check(member, {
+            userId: String,
+            isMainStakeholder: Boolean,
+            destination: Match.OneOf(String, null),
+            category: Match.OneOf([String], [])
+        });
+
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-        Projects.update(projectId, {
-                $set: {members: usersIds}
+
+        Projects.update(projectId, {$push: {members: member}});
+    },
+
+    addUserToSlackChannel(userId, channel){
+        check(userId, String);
+        check(channel, String);
+
+        const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}});
+
+        if(!user) throw new Meteor.Error("User don`t integrate with slack");
+
+        const res = HTTP.post('https://slack.com/api/channels.invite', {
+            params: {
+                token: SLACK_API_KEY,
+                channel,
+                user: user.slack.id
             }
-        );
-
-        const channelId = Projects.findOne(projectId).slackChanel;
-
-        Meteor.users.find({_id: {$in: usersIds}, slack: {$exists: true}})
-            .forEach(user=>{
-                HTTP.post('https://slack.com/api/channels.invite', {
-                    params: {
-                        token: SLACK_API_KEY,
-                        channel: channelId,
-                        user: user.slack.id
-                    }
-                })
-            });
+        });
+        if(!res.data.ok){
+            if(res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
+        }
+        return res;
     },
 
     updateUserInfo(user){
