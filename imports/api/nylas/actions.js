@@ -1,6 +1,7 @@
 import Reflux from 'reflux'
 
 const Actions = Reflux.createActions([
+    'loadContacts',
     'loadFolders',
     'loadLabels',
     'loadThreads',
@@ -16,8 +17,7 @@ const Actions = Reflux.createActions([
     'composeForward',
     'composeNewBlankDraft',
 
-    'openPopover',
-    'closePopover'
+    'sendDraft'
 ]);
 
 module.exports = Actions;

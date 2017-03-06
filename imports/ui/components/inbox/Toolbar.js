@@ -1,5 +1,5 @@
 import React from 'react'
-import ComposeButton from './ComposeButton'
+import ComposeButton from './composer/ComposeButton'
 import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'

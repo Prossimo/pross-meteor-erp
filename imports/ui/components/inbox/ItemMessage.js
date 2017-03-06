@@ -40,7 +40,7 @@ class ItemMessage extends React.Component {
         if (this.props.message.files.length > 0)
             attachmentIcon = <div className="collapsed-attachment"></div>
 
-        displayName = this.props.message.from && this.props.message.from.length ? NylasUtils.displayName(this.props.message.from[0]) : ''
+        displayName = this.props.message.from && this.props.message.from.length ? NylasUtils.contactDisplayName(this.props.message.from[0]) : ''
         return (
             <div className={this.props.className} onClick={this._toggleCollapsed}>
                 <div className="message-item-white-wrap">

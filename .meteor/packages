@@ -41,3 +41,4 @@ aldeed:schema-deny
 dburles:collection-helpers
 
 npm-container
+ostrio:meteor-root

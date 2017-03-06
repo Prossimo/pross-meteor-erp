@@ -108,6 +108,18 @@ Meteor.users.helpers({
             return this.emails[0].address;
         }
         return null;
+    },
+
+    defaultNylasAccount() {
+        if(this.nylas)
+        {
+            return new NylasAccount({
+                id: this.nylas.account_id,
+                email: this.nylas.email_address,
+                name: this.profile && `${this.profile.firstName} ${this.profile.lastName}`
+            })
+        }
+        return null;
     }
 });
 
@@ -158,3 +170,17 @@ if(Meteor.isServer) {
 }
 
 
+export class NylasAccount {
+    constructor(options = {}) {
+        this.id = options.id
+        this.name = options.name
+        this.email = options.email
+    }
+
+    fromForMailing() {
+        return {
+            name: this.name,
+            email: this.email
+        }
+    }
+}

@@ -1,6 +1,6 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
-import Actions from '../../../api/nylas/actions';
+import Actions from '../../../../api/nylas/actions';
+import NylasUtils from '../../../../api/nylas/nylas-utils';
 
 export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
@@ -12,7 +12,7 @@ export default class ComposeButton extends React.Component {
     }
 
     _onNewCompose = () => {
-        Actions.composeNewBlankDraft()
+        Actions.composeNewBlankDraft(NylasUtils.generateTempId())
     }
 
     render() {

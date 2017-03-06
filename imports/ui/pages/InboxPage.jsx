@@ -8,7 +8,7 @@ import ItemFolder from '../components/inbox/ItemFolder';
 import ItemThread from '../components/inbox/ItemThread';
 import MessageList from '../components/inbox/MessageList';
 import Toolbar from '../components/inbox/Toolbar';
-import {Modal, ModalHeader, ModalBody, ModalFooter, Button} from 'elemental';
+import ComposeModal from '../components/inbox/composer/ComposeModal';
 
 class Inbox extends React.Component {
     constructor(props) {
@@ -25,12 +25,15 @@ class Inbox extends React.Component {
             selectedFolder: null,
             selectedThread: null,
 
-            composeModal: false
+            openComposeModal: false,
+            draftForNewCompose: null
         }
 
-        this.toggleModal = this.toggleModal.bind(this)
+        this.closeComposeModal = this.closeComposeModal.bind(this)
         this.onDraftStoreChanged = this.onDraftStoreChanged.bind(this)
+
         if (this.state.hasNylasInfo) {
+            Actions.loadContacts();
             Actions.loadFolders();
         }
     }
@@ -64,7 +67,9 @@ class Inbox extends React.Component {
     }
 
     onDraftStoreChanged() {
-        this.setState({composeModal:DraftStore.composeNewMail})
+        this.setState({
+            draftState: DraftStore.state
+        })
     }
 
     isLoading() {
@@ -72,32 +77,19 @@ class Inbox extends React.Component {
     }
 
     render() {
-        const {hasNylasInfo} = this.state;
+        const {hasNylasInfo, draftState} = this.state;
         return (
             <div className="inbox-page">
                 <Toolbar />
                 {hasNylasInfo && this.renderInbox()}
                 {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
-                {this.renderComposeModal()}
+                <ComposeModal isOpen={draftState && draftState.modal} clientId={draftState && draftState.clientId} onClose={this.closeComposeModal} />
             </div>
         )
     }
 
-    renderComposeModal() {
-        return (
-            <Modal isOpen={this.state.composeModal} onCancel={this.toggleModal} backdropClosesModal>
-                <ModalHeader text="Lots of text to show scroll behavior" showCloseButton onClose={this.toggleModal}/>
-                <ModalBody><div>sample modal</div></ModalBody>
-                <ModalFooter>
-                    <Button type="primary" onClick={this.toggleModal}>Close modal</Button>
-                    <Button type="link-cancel" onClick={this.toggleModal}>Also closes modal</Button>
-                </ModalFooter>
-            </Modal>
-        )
-    }
-
-    toggleModal() {
-        this.setState({composeModal: false})
+    closeComposeModal() {
+        this.setState({draftState: {modal:false}})
     }
 
     renderInbox() {
