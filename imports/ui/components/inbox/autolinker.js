@@ -1,4 +1,4 @@
-import RegExpUtils from '../../utils/regexp-utils';
+import RegExpUtils from '../../../api/nylas/RegExpUtils';
 import DOMUtils from '../../utils/dom-utils';
 
 

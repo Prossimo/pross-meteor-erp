@@ -1,6 +1,7 @@
 import Reflux from 'reflux'
 
 const Actions = Reflux.createActions([
+    'loadContacts',
     'loadFolders',
     'loadLabels',
     'loadThreads',
@@ -13,7 +14,10 @@ const Actions = Reflux.createActions([
     'fetchFile',
 
     'composeReply',
-    'composeForward'
+    'composeForward',
+    'composeNewBlankDraft',
+
+    'sendDraft'
 ]);
 
 module.exports = Actions;

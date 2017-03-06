@@ -15,20 +15,25 @@ module.exports = NylasUtils = {
         return message.from[0] && NylasUtils.isMe(message.from[0].email);
     },
 
-    displayName: (participant) => {
+    contactDisplayName: (participant) => {
         return participant.name && participant.name.length ? participant.name : participant.email;
     },
+
+    contactDisplayFullname: (c) => {
+        return `${c.name || c.email}${c.name && " <" + c.email + ">"}`
+    },
+
     getParticipantsNamesString: (participants, excludeMe = true) => {
         if (excludeMe) {
             const others = participants.filter((participant) => {
                 return !NylasUtils.isMe(participant.email);
             });
             return others.map((participant) => {
-                return NylasUtils.displayName(participant);
+                return NylasUtils.contactDisplayName(participant);
             }).join(', ');
         } else {
             return participants.map((participant) => {
-                return NylasUtils.displayName(participant);
+                return NylasUtils.contactDisplayName(participant);
             }).join(', ');
         }
     },
@@ -39,11 +44,11 @@ module.exports = NylasUtils = {
                 return !NylasUtils.isMe(participant.email);
             });
             return others.map((participant) => {
-                return NylasUtils.displayName(participant);
+                return NylasUtils.contactDisplayName(participant);
             });
         } else {
             return participants.map((participant) => {
-                return NylasUtils.displayName(participant);
+                return NylasUtils.contactDisplayName(participant);
             });
         }
     },
@@ -106,10 +111,17 @@ module.exports = NylasUtils = {
         const {to, cc} = NylasUtils.participantsForReplyAll(message)
         return to.length > 1 || cc.length > 0
     },
+
     generateTempId: () => {
         s4 = ()=>{return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)}
 
         return 'local-' + s4() + s4() + '-' + s4()
+    },
+    canArchiveThreads: () => {
+        return true;
+    },
+    canTrashThreads: () => {
+        return true;
     }
 
 }

@@ -1,3 +1,4 @@
+import '../models/users/users'
 import _ from 'underscore';
 import request from 'request';
 import { APIError, TimeoutError } from './errors';
@@ -88,7 +89,7 @@ class NylasAPI {
     }
 
     accessTokenForCurrentUser () {
-        console.log(Meteor.userId());
+        console.log(Meteor.user());
         const currentUser = Meteor.users.findOne({_id:Meteor.userId()});
 
         console.log("Meteor current user", currentUser);
