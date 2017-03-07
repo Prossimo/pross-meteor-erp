@@ -28,15 +28,18 @@ class MessageStore extends Reflux.Store {
     }
 
     _onLoadMessages(thread) {
+        if(!thread || !thread.account_id) return;
+
         this._loading = true;
         this.trigger();
 
         const query = queryString.stringify({thread_id: thread.id});
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
-            method: 'GET'
+            method: 'GET',
+            accountId: thread.account_id
         }).then((result) => {
-            console.log("Nylas get messages result", result);
+            //console.log("Nylas get messages result", result);
 
             this._messages = result;
 

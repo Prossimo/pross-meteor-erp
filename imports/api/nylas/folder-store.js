@@ -1,37 +1,52 @@
+import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
-
+import AccountStore from './account-store'
 
 class FolderStore extends Reflux.Store {
     constructor() {
         super();
-        this.listenTo(Actions.loadFolders, this.loadData)
+        this.listenTo(Actions.loadFolders, this.onLoadFolders)
 
-        this.data = [];
+        this.folders = {};
         this.selectedFolder = null;
 
         this.loading = false;
     }
 
-    loadData() {
+    onLoadFolders = (accountId) => {
+        const account = AccountStore.accountForAccountId(accountId)
+
+        if(!account) return;
+
+        accountId = account.account_id
         this.loading = true;
         this.trigger();
 
-        const provider = Meteor.user().nylas.provider;
+        if(!this.folders[accountId]) this.folders[accountId] = []
+
         NylasAPI.makeRequest({
-            path: provider=='gmail' ? '/labels' : '/folders',
-            method: 'GET'
+            path: `/${account.organization_unit}s`,
+            method: 'GET',
+            accountId: account.account_id
         }).then((result) => {
             console.log("Nylas get folders result", result);
 
-            if(result) {
-                this.data = result;
+            if(result && result.length) {
+                console.log("FolderStore",this.folders[accountId], accountId, this.folders)
+                result.forEach((item)=>{
+                    if(!_.contains(this.folders[accountId], item)) {
+                        this.folders[accountId].push(item)
+                    }
+                })
 
-                const inbox = _.findWhere(result, {name:'inbox'});
+                if(!this.selectedFolder) {
+                    const inbox = _.findWhere(result, {name:'inbox'});
 
-                if(inbox) {
-                    this.selectFolder(inbox);
+                    if(inbox) {
+                        this.selectFolder(inbox);
+                    }
                 }
             }
             this.loading = false;
@@ -39,8 +54,13 @@ class FolderStore extends Reflux.Store {
         })
     }
 
-    getData() {
-        return this.data;
+    getFolders(accountId) {
+        if(!accountId) {
+            const defaultAccount = AccountStore.defaultAccount()
+
+            if(defaultAccount) accountId = defaultAccount.account_id
+        }
+        return this.folders[accountId];
     }
 
     isLoading() {
@@ -48,7 +68,7 @@ class FolderStore extends Reflux.Store {
     }
 
     selectFolder(folder) {
-        Actions.loadThreads({in:folder.id});
+        Actions.loadThreads(folder);
         this.selectedFolder = folder;
     }
 

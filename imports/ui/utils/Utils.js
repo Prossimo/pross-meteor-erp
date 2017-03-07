@@ -19,23 +19,6 @@ module.exports = Utils = {
         })
     },
 
-    isForwardedMessage: ({body, subject} = {}) => {
-        bodyForwarded = false
-        bodyFwd = false
-        subjectFwd = false
-
-        if (body) {
-            indexForwarded = body.search(/forwarded/i)
-            bodyForwarded = indexForwarded >= 0 && indexForwarded < 250
-            indexFwd = body.search(/fwd/i)
-            bodyFwd = indexFwd >= 0 && indexFwd < 250
-        }
-        if (subject)
-            subjectFwd = subject.slice(0, 3).toLowerCase() == "fwd"
-
-        return bodyForwarded || bodyFwd || subjectFwd
-    },
-
     isEqualReact: (a, b, options = {}) => {
         options.functionsAreEqual = true
         options.ignoreKeys = (options.ignoreKeys || []).push("clientId")

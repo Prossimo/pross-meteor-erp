@@ -1,8 +1,11 @@
 import Reflux from 'reflux'
+import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
+import AccountStore from './account-store'
 import RegExpUtils from './RegExpUtils'
 
+const LIMIT = 100
 
 class ContactStore extends Reflux.Store {
     constructor() {
@@ -11,25 +14,46 @@ class ContactStore extends Reflux.Store {
         this.contacts = [];
         this.loading = false;
 
-        this.listenTo(Actions.loadContacts, this.loadContacts)
+        this.listenTo(Actions.loadContacts, this.onLoadContacts)
     }
 
-    loadContacts() {
+    onLoadContacts(accountId) {
+        account = AccountStore.accountForAccountId(accountId); console.log('onLoadContacts', account)
+
+        if(!account) return;
+
         this.loading = true;
         this.trigger();
 
-        NylasAPI.makeRequest({
-            path: '/contacts',
-            method: 'GET'
-        }).then((result) => {
-            console.log("Nylas get contacts result", result);
 
-            if (result) {
-                this.contacts = result;
-            }
-            this.loading = false;
-            this.trigger();
-        })
+        loadContacts = (page) => {
+            const query = QueryString.stringify({
+                offset: (page-1) * LIMIT,
+                limit: LIMIT
+            })
+            NylasAPI.makeRequest({
+                path: `/contacts?${query}`,
+                method: 'GET',
+                accountId: account.account_id
+            }).then((result) => {
+                //console.log("Nylas get contacts result", result);
+
+                if (result) {
+                    this.contacts = this.contacts.concat(result);
+
+                    if(result.length == LIMIT) {
+                        loadContacts(page+1)
+                    } else {
+                        this.loading = false
+                    }
+
+
+                    this.trigger();
+                }
+            })
+        }
+
+        loadContacts(1)
     }
 
     getAllContacts() {
@@ -104,31 +128,19 @@ class ContactStore extends Reflux.Store {
         limit = Math.max(limit, 0)
 
         search = search.toLowerCase()
-        accountCount = AccountStore.accounts().length
+        //accountCount = AccountStore.accounts().length
 
         if (!search || search.length === 0) {
             return Promise.resolve([]);
         }
 
-        // Search ranked contacts which are stored in order in memory
-        results = []
-        for (contact of this._rankedContacts) {
-            if (contact.email.toLowerCase().indexOf(search) != -1 || contact.name.toLowerCase().indexOf(search) != -1)
-                results.push(contact)
-            if (results.length == limit)
-                return Promise.resolve(results)
-        }
 
-        queryResults = this.contacts.filter((c) => {
+        results = this.contacts.filter((c) => {
             return (c.email && c.email.indexOf(search) > -1) || (c.name && c.name.indexOf(search) > -1)
         })
-        existingEmails = _.pluck(results, 'email')
 
-        // remove query results that were already found in ranked contacts
-        queryResults = _.reject(queryResults, (c) => c.email in existingEmails)
-        queryResults = this._distinctByEmail(queryResults)
+        results = this._distinctByEmail(results)
 
-        results = results.concat(queryResults)
         if (results.length > limit) results.length = limit
 
 

@@ -4,7 +4,10 @@ import request from 'request';
 import { APIError, TimeoutError } from './errors';
 
 const TimeoutErrorCodes = [0, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"];
+const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, "ENOTFOUND", "ECONNREFUSED", "EHOSTDOWN", "EHOSTUNREACH"]
 const CancelledErrorCode = [-123, "ECONNABORTED"];
+
+let AccountStore = null
 
 class NylasAPIRequest {
     constructor(api, options) {
@@ -23,14 +26,14 @@ class NylasAPIRequest {
 
     run() {
         if(!this.options.auth) {
-            /*if(!this.options.accountId) {
+            if(!this.options.accountId) {
                 const err = new APIError({
                     statusCode: 400,
                     body: 'Cannot make Nylas request without specifying `auth` or an `accountId`.'
                 });
                 return Promise.reject(err);
-            }*/
-            const token = this.api.accessTokenForCurrentUser(); console.log('Current user nylas access token', token);
+            }
+            const token = this.api.accessTokenForAccountId(this.options.accountId); //console.log('Current user nylas access token', token);
             if(!token) {
                 const err = new APIError({
                     statusCode: 400,
@@ -46,7 +49,7 @@ class NylasAPIRequest {
             };
         }
 
-        console.log("NylasAPI->run", JSON.stringify(this.options));
+        //console.log("NylasAPI->run", JSON.stringify(this.options));
 
         return new Promise((resolve, reject) => {
             const req = request(this.options, (error, response, body)=>{
@@ -88,12 +91,9 @@ class NylasAPI {
 
     }
 
-    accessTokenForCurrentUser () {
-        console.log(Meteor.user());
-        const currentUser = Meteor.users.findOne({_id:Meteor.userId()});
-
-        console.log("Meteor current user", currentUser);
-        return currentUser.nylas.access_token;
+    accessTokenForAccountId (aid) {
+        AccountStore = AccountStore || require('./account-store')
+        return AccountStore.tokenForAccountId(aid)
     }
 
     makeRequest(options = {}) {
@@ -187,6 +187,20 @@ class NylasAPI {
 
     handleAuthenticationFailure(modelUrl, apiToken, body, errorCode) {
         return Promise.resolve();
+    }
+
+    makeDraftDeletionRequest = (draft) => {
+        if(!draft.id) return
+
+        //this.incrementRemoteChangeLock(Message, draft.serverId)
+        this.makeRequest({
+            path: `/drafts/${draft.id}`,
+            accountId: draft.account_id,
+            method: "DELETE",
+            body: {version: draft.version},
+            returnsModel: false
+        })
+        return
     }
 
 }
