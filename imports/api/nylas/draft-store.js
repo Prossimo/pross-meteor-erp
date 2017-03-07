@@ -45,12 +45,16 @@ class DraftStore extends Reflux.Store {
         return _.findWhere(this._drafts, {clientId})
     }
 
-    changeDraftForClientId(clientId, data={}) {console.log("Data from composer view", data)
+    changeDraftForClientId(clientId, data={}) {
         let draft = this.draftForClientId(clientId)
 
         draft = _.extend(draft, data)
 
         console.log(this._drafts)
+    }
+
+    isSendingDraft(clientId) {
+        return this._draftsSending[clientId] ? true : false
     }
 }
 

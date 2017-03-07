@@ -1,11 +1,11 @@
 import Reflux from 'reflux'
 
 const Actions = Reflux.createActions([
-    'loadContacts',
-    'loadFolders',
-    'loadLabels',
-    'loadThreads',
-    'loadMessages',
+    'loadContacts',         // accountId
+    'loadFolders',          // accountId
+    'loadLabels',           // accountId
+    'loadThreads',          // folder, {page, search}
+    'loadMessages',         // thread
 
     'toggleMessageExpanded',
     'toggleAllMessagesExpanded',

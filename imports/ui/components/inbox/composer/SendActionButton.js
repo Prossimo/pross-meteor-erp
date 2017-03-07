@@ -11,7 +11,7 @@ export default class SendActionButton extends React.Component {
     static displayName = "SendActionButton";
 
     static propTypes = {
-        draft: React.PropTypes.object,
+        clientId: React.PropTypes.string,
         style: React.PropTypes.object,
         isValidDraft: React.PropTypes.func,
         disabled: React.PropTypes.func
@@ -48,7 +48,7 @@ export default class SendActionButton extends React.Component {
         return ({
             title: "Send",
             iconUrl: null,
-            onSend: ({draft}) => Actions.sendDraft(draft.clientId),
+            onSend: (clientId) => Actions.sendDraft(clientId),
             configKey: "send",
         });
     }
@@ -59,8 +59,8 @@ export default class SendActionButton extends React.Component {
         actionConfigs.push({
             title: "Send and archive",
             iconUrl: null,
-            onSend: ({draft}) => {
-                Actions.sendDraft(draft.clientId)
+            onSend: (clientId) => {
+                Actions.sendDraft(clientId)
 
                 // Queue task for archiving
                 //tasks = TaskFactory.tasksForArchiving({threads:threads})
@@ -87,7 +87,7 @@ export default class SendActionButton extends React.Component {
     _onSendWithAction = ({onSend}) => {
         if (this.props.isValidDraft()) {
             try {
-                onSend({draft: this.props.draft});
+                onSend(this.props.clientId);
             } catch (err) {
                 console.error(err)
             }
@@ -103,9 +103,6 @@ export default class SendActionButton extends React.Component {
 
         const preferred = _.findWhere(this.state.actionConfigs, {configKey: preferredKey});
         const rest = _.without(this.state.actionConfigs, preferred);
-
-        console.log("Preferred", preferred)
-        console.log("Rest", rest)
 
         return {preferred, rest};
     }
@@ -155,7 +152,8 @@ export default class SendActionButton extends React.Component {
             />
         );
 
-        if (this.props.disabled)
+        if (this.props.disabled())
+        {
             return (
                 <ButtonDropdown
                     className={"btn-send btn-emphasis btn-text"}
@@ -168,7 +166,9 @@ export default class SendActionButton extends React.Component {
                     disabled
                 />
             );
+        }
         else
+        {
             return (
                 <ButtonDropdown
                     className={"btn-send btn-emphasis btn-text"}
@@ -180,6 +180,7 @@ export default class SendActionButton extends React.Component {
                     menu={menu}
                 />
             );
+        }
 
     }
 

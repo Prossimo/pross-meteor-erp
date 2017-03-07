@@ -53,15 +53,16 @@ class Inbox extends React.Component {
 
     onFolderStoreChanged() {
         this.setState({
-            folders: FolderStore.getData(),
+            folders: FolderStore.getFolders(),
             loading: this.isLoading(),
             selectedFolder: FolderStore.getSelectedFolder()
         })
     }
 
     onThreadStoreChanged() {
+        const selectedFolder = FolderStore.getSelectedFolder()
         this.setState({
-            threads: ThreadStore.getData(),
+            threads: ThreadStore.getThreads(selectedFolder&&selectedFolder.id),
             loading: this.isLoading()
         })
     }
