@@ -209,7 +209,6 @@ export default class Task {
         this.queueState.localError = err;
         this.queueState.status = Task.Status.Failed;
         this.queueState.debugStatus = Task.DebugStatus.UncaughtError;
-        PlanckEnv.reportError(err);
         return Promise.reject(err);
     }
 
@@ -287,7 +286,6 @@ export default class Task {
 
         if (status !== Task.Status.Failed) {
             this.queueState.debugStatus = Task.DebugStatus.UncaughtError;
-            PlanckEnv.reportError(exitError);
         }
 
         this.queueState.status = Task.Status.Failed;

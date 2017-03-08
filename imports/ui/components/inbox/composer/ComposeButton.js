@@ -12,7 +12,7 @@ export default class ComposeButton extends React.Component {
     }
 
     _onNewCompose = () => {
-        Actions.composeNewBlankDraft(NylasUtils.generateTempId())
+        Actions.composeNew(NylasUtils.generateTempId())
     }
 
     render() {

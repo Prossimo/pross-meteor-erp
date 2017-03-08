@@ -13,11 +13,15 @@ const Actions = Reflux.createActions([
 
     'fetchFile',
 
+    'composeNew',
     'composeReply',
     'composeForward',
-    'composeNewBlankDraft',
 
-    'sendDraft'
+    'sendDraft',
+    'sendDraftSuccess',
+    'sendDraftFailed',
+
+    'queueTask'
 ]);
 
 module.exports = Actions;

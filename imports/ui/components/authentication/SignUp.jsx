@@ -3,7 +3,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
 import {warning} from "/imports/api/lib/alerts";
 import request from 'request';
-import config from '/imports/api/config/config.json';
+import config from '/imports/api/config/config';
 
 
 class SignUp extends React.Component {

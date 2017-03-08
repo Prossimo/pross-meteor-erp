@@ -87,7 +87,7 @@ export default class SendActionButton extends React.Component {
     _onSendWithAction = ({onSend}) => {
         if (this.props.isValidDraft()) {
             try {
-                onSend(this.props.clientId);
+                onSend(this.props.draft.clientId);
             } catch (err) {
                 console.error(err)
             }

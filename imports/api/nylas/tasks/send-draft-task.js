@@ -5,9 +5,10 @@ import {APIError} from '../errors'
 import DraftStore from '../draft-store'
 import AccountStore from '../account-store'
 
-export default class SendDraftTask extends task {
+export default class SendDraftTask extends Task {
     constructor(clientId) {
-        super(clientId);
+        super();
+        this.clientId = clientId
         this.uploaded = [];
         this.draft = null;
         this.message = null;
@@ -83,12 +84,38 @@ export default class SendDraftTask extends task {
         Actions.sendDraftSuccess({message: this.message, clientId: this.clientId});
         NylasAPI.makeDraftDeletionRequest(this.draft);
 
-        // Play the sending sound
-        if (PlanckEnv.config.get("core.sending.sounds")) {
-            SoundRegistry.playSound('send');
+        return Promise.resolve(Task.Status.Success);
+    }
+
+    onError = (err) => {
+        let message = err.message;
+
+        if (err instanceof APIError) {
+            if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
+                return Promise.resolve(Task.Status.Retry);
+            }
+
+            message = `Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large.`;
+            if (err.statusCode === 402 && err.body.message) {
+                if (err.body.message.indexOf('at least one recipient') !== -1) {
+                    message = `This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)`;
+                } else {
+                    message = `Sorry, this message could not be sent because it was rejected by your mail provider. (${err.body.message})`;
+                    if (err.body.server_error) {
+                        message += `\n\n${err.body.server_error}`;
+                    }
+                }
+            }
         }
 
-        return Promise.resolve(Task.Status.Success);
+        Actions.sendDraftFailed({
+            threadId: this.draft.thread_id,
+            clientId: this.clientId,
+            errorMessage: message,
+        });
+
+
+        return Promise.resolve([Task.Status.Failed, err]);
     }
 
 }

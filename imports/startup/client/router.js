@@ -134,6 +134,6 @@ FlowRouter.route('/auth/google/callback', {
     name: 'GoogleCallback',
     action() {
         window.close();
-        window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), "http://localhost:3000");
+        window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.settings.public && Meteor.settings.public.env=='development' ? "http://localhost:3000" : "http://crm.prossimo.us");
     }
 })

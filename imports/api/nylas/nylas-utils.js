@@ -155,5 +155,13 @@ module.exports = NylasUtils = {
             subjectFwd = subject.slice(0, 3).toLowerCase() == "fwd"
 
         return bodyForwarded || bodyFwd || subjectFwd
+    },
+
+    isEmptyDraft: (draft) => {
+        return (!draft.subject || draft.subject.length==0) &&
+            (!draft.body || draft.body.length==0) &&
+            (!draft.files || draft.files.length==0) &&
+            (!draft.downloads || draft.downloads.length==0)
+
     }
 }
