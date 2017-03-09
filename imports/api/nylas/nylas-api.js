@@ -84,6 +84,11 @@ class NylasAPIRequest {
 
 class NylasAPI {
 
+    static TimeoutErrorCodes = TimeoutErrorCodes
+    static PermanentErrorCodes = PermanentErrorCodes
+    static CancelledErrorCode = CancelledErrorCode
+
+
     constructor() {
         this.AppID = '4xnb7gd7t7la2kxls35j3k7t3';
         this.AppSecret = '9tbqdscu0b5q16r422t76onnx';

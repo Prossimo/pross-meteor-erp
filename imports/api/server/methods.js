@@ -13,7 +13,7 @@ import {
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
 import NylasAPI from '../nylas/nylas-api';
-import config from '../config/config.json';
+import config from '../config/config';
 import '../lib/extendMatch.js';
 
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";

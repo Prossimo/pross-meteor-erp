@@ -3,6 +3,7 @@ import Reflux from 'reflux'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import DraftFactory from './draft-factory'
+import SendDraftTask from './tasks/send-draft-task'
 
 ComposeType = {
     Creating: 'creating',
@@ -13,32 +14,39 @@ ComposeType = {
 class DraftStore extends Reflux.Store {
     constructor() {
         super();
-        this.listenTo(Actions.composeNewBlankDraft, this.composeNewBlankDraft)
+        this.listenTo(Actions.composeNew, this._onComposeNew)
+        this.listenTo(Actions.sendDraft, this._onSendDraft)
 
         this._drafts = []
         this._draftsSending = {}
+        this._draftsViewState = {}
 
-        this._currentDraft = null
-
-        this.state = {
-            modal: false,
-            composeType: null
-        }
     }
 
-    composeNewBlankDraft(clientId) {
+    _onComposeNew(clientId) {
         DraftFactory.createDraft({clientId}).then((draft)=>{
             this._drafts.push(draft)
 
-            this.state = {
+            this._draftsViewState[clientId] = {
+                clientId: clientId,
                 modal: true,
-                clientId: clientId
+                show: true
             }
-
-            this._currentDraft = draft
 
             this.trigger()
         })
+    }
+
+    _onSendDraft(clientId) {
+        this._draftsSending[clientId] = true
+
+        Actions.queueTask(new SendDraftTask(clientId))
+
+        this._draftsViewState[clientId] = {
+            modal: false,
+            show: false
+        }
+        this.trigger()
     }
 
     draftForClientId(clientId) {
@@ -50,12 +58,37 @@ class DraftStore extends Reflux.Store {
 
         draft = _.extend(draft, data)
 
-        console.log(this._drafts)
+        //console.log(this._drafts)
+    }
+
+    removeDraftForClientId(clientId) {
+        const draft = this.draftForClientId(clientId)
+
+        if(!draft) return
+
+        const index = _.indexOf(this._drafts, draft)
+
+        if(index > -1)
+            this._drafts.splice(index, 1)
+
+        if(this._draftsViewState[clientId]) delete this._draftsViewState[clientId]
+
+        this.trigger()
     }
 
     isSendingDraft(clientId) {
         return this._draftsSending[clientId] ? true : false
     }
+
+    draftViewStateForModal() {
+        states = _.values(this._draftsViewState)
+
+        stateForModal = _.findWhere(states, {modal:true})
+
+        return stateForModal
+    }
+
+
 }
 
 module.exports = new DraftStore()
