@@ -129,7 +129,7 @@ class SignIn extends React.Component{
                         <span className="validation">{validationPassword}</span>
                     </div>
                     {this.renderRepeatPass()}
-                    <button className="btn login-btn" type="submit">Login</button>
+                    <button className="btnn login-btn" type="submit">Login</button>
                     {this.state.authError ? <span className="warn-msg">{this.state.authError}</span> : ''}
                 </form>
                 <footer className="auth-footer">

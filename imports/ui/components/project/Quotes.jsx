@@ -88,7 +88,7 @@ class QuoteItem extends React.Component{
                     <p>Total price {currencyFormatter.format(revision.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 1})}</p>
                     <a href={revision.url}
                        download={revision.fileName}
-                       className="btn primary-btn"><i className="fa fa-download"/> PDF</a>
+                       className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
                 </li>
             )
         })
@@ -107,11 +107,11 @@ class QuoteItem extends React.Component{
                     </div>
                     <div className="control-part">
                         <button onClick={this.addRevision.bind(this, quote)}
-                                className="btn primary-btn">
+                                className="btnn primary-btn">
                             <i className="fa fa-plus"/> REVISION</button>
                         <a href={latest.url}
                            download={latest.fileName}
-                           className="btn primary-btn">
+                           className="btnn primary-btn">
                             <i className="fa fa-download"/> PDF</a>
                     </div>
                 </div>
@@ -212,7 +212,7 @@ class Quotes extends React.Component{
         return(
             <div className="add-quotes">
                 <button onClick={this.showAddQuoteForm.bind(this)}
-                        className="btn primary-btn">Add quote</button>
+                        className="btnn primary-btn">Add quote</button>
             </div>
         )
     }

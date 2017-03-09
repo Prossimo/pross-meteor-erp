@@ -316,7 +316,7 @@ class SignUp extends React.Component {
                                onChange={this.change.bind(this)}
                         />
                     </div>
-                    <button className="btn login-btn" type="submit">Registrate</button>
+                    <button className="btnn login-btn" type="submit">Registrate</button>
                 </form>
                 <footer className="auth-footer">
                     <button onClick={this.toggle.bind(this)}

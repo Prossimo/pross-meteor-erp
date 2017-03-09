@@ -482,6 +482,20 @@ Meteor.methods({
                 }
             })
         }
+    },
+
+    getTwilioToken() {
+        const twilio = require('twilio')
+        const config = require('../config/config')
+
+        let capability = new twilio.Capability(
+            config.twilio.accountSid,
+            config.twilio.authToken
+        );
+        capability.allowClientOutgoing(config.twilio.appSid);
+        let token = capability.generate();
+
+        return token;
     }
 });
 

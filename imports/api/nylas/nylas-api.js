@@ -1,7 +1,9 @@
 import '../models/users/users'
 import _ from 'underscore';
 import request from 'request';
+import config from '../config/config';
 import { APIError, TimeoutError } from './errors';
+
 
 const TimeoutErrorCodes = [0, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"];
 const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, "ENOTFOUND", "ECONNREFUSED", "EHOSTDOWN", "EHOSTUNREACH"]
@@ -90,10 +92,9 @@ class NylasAPI {
 
 
     constructor() {
-        this.AppID = '4xnb7gd7t7la2kxls35j3k7t3';
-        this.AppSecret = '9tbqdscu0b5q16r422t76onnx';
-        this.APIRoot = 'https://api.nylas.com';
-
+        this.AppID = config.nylas.appId;
+        this.AppSecret = config.nylas.appSecret;
+        this.APIRoot = config.nylas.apiRoot;
     }
 
     accessTokenForAccountId (aid) {
