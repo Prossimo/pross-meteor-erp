@@ -36,7 +36,7 @@ Meteor.methods({
         if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
         if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
 
-        if(!_.isEmpty(validation)) {
+        if (!_.isEmpty(validation)) {
             userData.validation = validation;
             return userData;
         }
@@ -49,7 +49,7 @@ Meteor.methods({
             "provider": emailProvider
         };
 
-        if(emailProvider == 'gmail') {
+        if (emailProvider == 'gmail') {
             authenticationData.settings = {
                 google_client_id: config.google.clientId,
                 google_client_secret: config.google.clientSecret,
@@ -63,8 +63,7 @@ Meteor.methods({
         }
         console.log("Nylas authentication data", authenticationData);
 
-        return Promise.await(
-            NylasAPI.makeRequest({
+        return NylasAPI.makeRequest({
                 path: '/connect/authorize',
                 method: 'POST',
                 body: authenticationData,
@@ -77,27 +76,30 @@ Meteor.methods({
                 }
             }).then((result) => {
                 console.log("NylasAPI makeRequest('/connect/authorize') result", result)
-                return Promise.await(
+                return NylasAPI.makeRequest({
+                    path: '/connect/token',
+                    method: 'POST',
+                    timeout: 60000,
+                    body: {
+                        client_id: NylasAPI.AppID,
+                        client_secret: NylasAPI.AppSecret,
+                        code: result.code
+                    },
+                    auth: {
+                        user: '',
+                        pass: '',
+                        sendImmediately: true
+                    },
+                    error: (error) => {
+                        console.error("NylasAPI makeRequest('/connect/token') error", error)
+                    }
+                }).then((result) => {
+                    console.log("NylasAPI makeRequest('/connect/token') result", result)
 
-                    NylasAPI.makeRequest({
-                        path: '/connect/token',
-                        method: 'POST',
-                        timeout: 60000,
-                        body: {
-                            client_id: NylasAPI.AppID,
-                            client_secret: NylasAPI.AppSecret,
-                            code: result.code
-                        },
-                        auth: {
-                            user: '',
-                            pass: '',
-                            sendImmediately: true
-                        },
-                        error: (error) => {
-                            console.error("NylasAPI makeRequest('/connect/token') error", error)
-                        }
-                    }).then((result) => {
-                        console.log("NylasAPI makeRequest('/connect/token') result", result)
+                    const Fiber = require('fibers')
+
+                    Fiber(()=>{
+
                         const userId = Accounts.createUser({
                             username,
                             email,
@@ -112,15 +114,18 @@ Meteor.methods({
                             nylas: result
                         });
                         Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
-                        userData.validation = validation;
 
-                        return userData;
-                    })
-                );
+
+                    }).run()
+
+                    userData.validation = validation;
+
+                    return userData;
+                })
             }).catch((error) => {
                 console.log("NylasAPI makeRequest('/connect/authorize') error", error);
+                throw error
             })
-        );
     },
 
     sendEmail(mailData) {
@@ -134,8 +139,8 @@ Meteor.methods({
         });
         this.unblock();
 
-        if(_.isArray(mailData.attachments) && mailData.attachments.length){
-            mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item=>{
+        if (_.isArray(mailData.attachments) && mailData.attachments.length) {
+            mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item => {
                 return {
                     fileName: item.original.name,
                     filePath: `${Meteor.absoluteUrl(`cfs/files/files/${item._id}/${item.original.name}`)}`
@@ -220,7 +225,7 @@ Meteor.methods({
 
         const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}});
 
-        if(!user) throw new Meteor.Error("User don`t integrate with slack");
+        if (!user) throw new Meteor.Error("User don`t integrate with slack");
 
         const res = HTTP.post('https://slack.com/api/channels.invite', {
             params: {
@@ -229,8 +234,8 @@ Meteor.methods({
                 user: user.slack.id
             }
         });
-        if(!res.data.ok){
-            if(res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
+        if (!res.data.ok) {
+            if (res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
         }
         return res;
     },
@@ -254,7 +259,7 @@ Meteor.methods({
     },
 
     addProject(data){
-        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)){
+        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
             throw new Meteor.Error("Access denied");
         }
         check(data, {
@@ -273,10 +278,10 @@ Meteor.methods({
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
             shippingContactEmail: Match.Maybe(String),
-            shippingAddress:  Match.Maybe(String),
-            shippingNotes:  Match.Maybe(String),
+            shippingAddress: Match.Maybe(String),
+            shippingNotes: Match.Maybe(String),
 
-            billingContactPhone:  Match.Maybe(Match.phone),
+            billingContactPhone: Match.Maybe(Match.phone),
             billingContactName: Match.Maybe(String),
             billingContactEmail: Match.Maybe(String),
             billingAddress: Match.Maybe(String),
@@ -295,8 +300,8 @@ Meteor.methods({
             }
         });
 
-        if(!responseCreateChannel.data.ok) {
-            if(responseCreateChannel.data.error = 'name_taken'){
+        if (!responseCreateChannel.data.ok) {
+            if (responseCreateChannel.data.error = 'name_taken') {
                 throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);
             }
             throw new Meteor.Error(`Some problems with created slack channel! Sorry try later`);
@@ -313,10 +318,10 @@ Meteor.methods({
             }
         });
 
-        if(!responseInviteBot.data.ok) throw new Meteor.Error("Bot cannot add to channel");
+        if (!responseInviteBot.data.ok) throw new Meteor.Error("Bot cannot add to channel");
 
-        Meteor.users.find({_id: {$in: data.members.map(item=>item.userId)}, slack: {$exists: true}})
-            .forEach(user=>{
+        Meteor.users.find({_id: {$in: data.members.map(item => item.userId)}, slack: {$exists: true}})
+            .forEach(user => {
                 HTTP.post('https://slack.com/api/channels.invite', {
                     params: {
                         token: SLACK_API_KEY,
@@ -422,8 +427,8 @@ Meteor.methods({
 
         const quote = Quotes.findOne(data.quoteId);
 
-        const revisions = quote.revisions.map(revision=>{
-            if(revision.revisionNumber === data.revisionNumber){
+        const revisions = quote.revisions.map(revision => {
+            if (revision.revisionNumber === data.revisionNumber) {
                 oldFileId = revision.fileId;
 
                 revision.totalPrice = data.totalPrice;

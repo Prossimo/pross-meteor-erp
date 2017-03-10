@@ -16,6 +16,8 @@ class DraftStore extends Reflux.Store {
         super();
         this.listenTo(Actions.composeNew, this._onComposeNew)
         this.listenTo(Actions.sendDraft, this._onSendDraft)
+        this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess)
+        this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
 
         this._drafts = []
         this._draftsSending = {}
@@ -46,6 +48,16 @@ class DraftStore extends Reflux.Store {
             modal: false,
             show: false
         }
+        this.trigger()
+    }
+
+    _onSendDraftSuccess = ({message, clientId} = {}) =>{
+        this.removeDraftForClientId(clientId)
+        this.trigger()
+    }
+
+    _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) =>{
+        alert(`Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`)
         this.trigger()
     }
 

@@ -103,8 +103,8 @@ class NylasAPI {
     }
 
     makeRequest(options = {}) {
-        //console.log("makeRequest", options);
-        const success = (body) => { //console.log("=======NyalsAPIRequest result", body);
+        console.log("makeRequest", options);
+        const success = (body) => { console.log("=======NyalsAPIRequest result", body);
             if(options.beforeProcessing) {
                 body = options.beforeProcessing(body);
             }
@@ -116,8 +116,8 @@ class NylasAPI {
             return Promise.resolve(body);
         }
 
-        const error = (err) => {//console.log("=========NyalsAPIRequest error", err);
-            handlePromise = Promise.resolve();
+        const error = (err) => {console.log("=========NyalsAPIRequest error", err);
+            /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {
                     handlePromise = this.handleModel404(options.url);
@@ -129,9 +129,10 @@ class NylasAPI {
 
                 }
             }
-            handlePromise.then(()=>{
+            return handlePromise.finally(()=>{
                 return Promise.reject(err);
-            });
+            });*/
+            return Promise.reject(err)
         }
 
         const req = new NylasAPIRequest(this, options);

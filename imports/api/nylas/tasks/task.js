@@ -228,12 +228,12 @@ export default class Task {
         try {
             return this.performRemote()
                 .then((compositeStatus) => {
-                    const [status, err] = this._compositeStatus(compositeStatus);
+                        const [status, err] = this._compositeStatus(compositeStatus);
 
                     if (status === Task.Status.Failed) {
                         // We reject here to end up on the same path as people who may
                         // have manually `reject`ed the promise
-                        return Promise.reject(compositeStatus);
+                        return Promise.reject(err);
                     }
 
                     this.queueState.status = status;

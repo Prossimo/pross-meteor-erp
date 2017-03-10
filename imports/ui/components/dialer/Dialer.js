@@ -2,7 +2,7 @@ import React from 'react'
 import config from '../../../api/config/config'
 
 var NumberInputText = React.createClass({
-    render: function() {
+    render: function () {
         return (
             <div className="input-group input-group-sm">
                 <input type="tel" className="form-control" placeholder="555-666-7777"
@@ -13,10 +13,10 @@ var NumberInputText = React.createClass({
 });
 
 var CountrySelectBox = React.createClass({
-    render: function() {
+    render: function () {
         var self = this;
 
-        var CountryOptions = self.props.countries.map(function(country) {
+        var CountryOptions = self.props.countries.map(function (country) {
             var flagClass = 'flag flag-' + country.code;
 
             return (
@@ -45,9 +45,9 @@ var CountrySelectBox = React.createClass({
 });
 
 var LogBox = React.createClass({
-    render: function() {
+    render: function () {
         return (
-            <div>
+            <div className="status">
                 <div className="log">{this.props.text}</div>
                 <p>{this.props.smallText}</p>
             </div>
@@ -56,21 +56,21 @@ var LogBox = React.createClass({
 });
 
 var CallButton = React.createClass({
-    render: function() {
+    render: function () {
         return (
-            <button className={'btn btn-circle btn-success ' + (this.props.onPhone ? 'btn-danger': 'btn-success')}
+            <button className={'btn btn-circle btn-success ' + (this.props.onPhone ? 'btn-danger' : 'btn-success')}
                     onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-                <i className={'fa fa-fw fa-phone '+ (this.props.onPhone ? 'fa-close': 'fa-phone')}></i>
+                <i className={'fa fa-fw fa-phone ' + (this.props.onPhone ? 'fa-close' : 'fa-phone')}></i>
             </button>
         );
     }
 });
 
 var MuteButton = React.createClass({
-    render: function() {
+    render: function () {
         return (
             <button className="btn btn-circle btn-default" onClick={this.props.handleOnClick}>
-                <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash': 'fa-microphone')}></i>
+                <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash' : 'fa-microphone')}></i>
             </button>
         );
     }
@@ -82,39 +82,23 @@ var DTMFTone = React.createClass({
         Twilio.Device.activeConnection().sendDigits(digit);
     },
 
-    render: function() {
+    render: function () {
         return (
             <div className="keys">
                 <div className="key-row">
                     <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('1')}>1</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('2')}>2
-                        <span>A B C</span>
-                    </button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('3')}>3
-                        <span>D E F</span>
-                    </button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('2')}>2</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('3')}>3</button>
                 </div>
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('4')}>4
-                        <span>G H I</span>
-                    </button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('5')}>5
-                        <span>J K L</span>
-                    </button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('6')}>6
-                        <span>M N O</span>
-                    </button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('4')}>4</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('5')}>5</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('6')}>6</button>
                 </div>
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('7')}>7
-                        <span>P Q R S</span>
-                    </button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('8')}>8
-                        <span>T U V</span>
-                    </button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('9')}>9
-                        <span>W X Y Z</span>
-                    </button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('7')}>7</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('8')}>8</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('9')}>9</button>
                 </div>
                 <div className="key-row">
                     <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('*')}>*</button>
@@ -136,17 +120,17 @@ var Dialer = React.createClass({
             currentNumber: '',
             isValidNumber: false,
             countries: [
-                { name: 'United States', cc: '1', code: 'us' },
-                { name: 'Great Britain', cc: '44', code: 'gb' },
-                { name: 'Colombia', cc: '57', code: 'co' },
-                { name: 'Ecuador', cc: '593', code: 'ec' },
-                { name: 'Estonia', cc: '372', code: 'ee' },
-                { name: 'Germany', cc: '49', code: 'de' },
-                { name: 'Hong Kong', cc: '852', code: 'hk' },
-                { name: 'Ireland', cc: '353', code: 'ie' },
-                { name: 'Singapore', cc: '65', code: 'sg' },
-                { name: 'Spain', cc: '34', code: 'es' },
-                { name: 'Brazil', cc: '55', code: 'br' },
+                {name: 'United States', cc: '1', code: 'us'},
+                {name: 'Great Britain', cc: '44', code: 'gb'},
+                {name: 'Colombia', cc: '57', code: 'co'},
+                {name: 'Ecuador', cc: '593', code: 'ec'},
+                {name: 'Estonia', cc: '372', code: 'ee'},
+                {name: 'Germany', cc: '49', code: 'de'},
+                {name: 'Hong Kong', cc: '852', code: 'hk'},
+                {name: 'Ireland', cc: '353', code: 'ie'},
+                {name: 'Singapore', cc: '65', code: 'sg'},
+                {name: 'Spain', cc: '34', code: 'es'},
+                {name: 'Brazil', cc: '55', code: 'br'},
             ]
         }
     },
@@ -156,24 +140,25 @@ var Dialer = React.createClass({
         var self = this;
 
         // Fetch Twilio capability token from our Node.js server
-        Meteor.call('getTwilioToken',(err, token)=>{
-            if(err) {
+        Meteor.call('getTwilioToken', (err, token) => {
+            if (err) {
                 console.log(err);
                 self.setState({log: 'Could not fetch token, see console.log'});
-            } else {console.log('Twilio Token', token)
+            } else {
+                console.log('Twilio Token', token)
                 Twilio.Device.setup(token);
             }
         })
 
         // Configure event handlers for Twilio Device
-        Twilio.Device.disconnect(function() {
+        Twilio.Device.disconnect(function () {
             self.setState({
                 onPhone: false,
                 log: 'Call ended.'
             });
         });
 
-        Twilio.Device.ready(function() {
+        Twilio.Device.ready(function () {
             self.log = 'Connected';
         });
     },
@@ -187,7 +172,7 @@ var Dialer = React.createClass({
     handleChangeNumber(e) {
         this.setState({
             currentNumber: e.target.value,
-            isValidNumber: /^([0-9]|#|\*)+$/.test(e.target.value.replace(/[-()\s]/g,''))
+            isValidNumber: /^([0-9]|#|\*)+$/.test(e.target.value.replace(/[-()\s]/g, ''))
         });
     },
 
@@ -209,7 +194,7 @@ var Dialer = React.createClass({
             })
             // make outbound call with current number
             var n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
-            Twilio.Device.connect({ number: n });
+            Twilio.Device.connect({number: n});
             this.setState({log: 'Calling ' + n})
         } else {
             // hang up call in progress
@@ -217,7 +202,7 @@ var Dialer = React.createClass({
         }
     },
 
-    render: function() {
+    render: function () {
         var self = this;
 
         return (
@@ -227,19 +212,14 @@ var Dialer = React.createClass({
                     <CountrySelectBox countries={this.state.countries} countryCode={this.state.countryCode}
                                       handleOnChange={this.handleChangeCountryCode}/>
 
-                    <NumberInputText currentNumber={this.state.currentNumber} handleOnChange={this.handleChangeNumber} />
+                    <NumberInputText currentNumber={this.state.currentNumber} handleOnChange={this.handleChangeNumber}/>
 
                 </div>
 
-                <div className="controls">
+                <DTMFTone/>
 
-                    <CallButton handleOnClick={this.handleToggleCall} disabled={!this.state.isValidNumber} onPhone={this.state.onPhone}/>
-
-                    { this.state.onPhone ? <MuteButton handleOnClick={this.handleToggleMute} muted={this.state.muted} /> : null }
-
-                </div>
-
-                { this.state.onPhone ? <DTMFTone/> : null }
+                <CallButton handleOnClick={this.handleToggleCall} disabled={!this.state.isValidNumber}
+                            onPhone={this.state.onPhone}/>
 
                 <LogBox text={this.state.log}/>
 

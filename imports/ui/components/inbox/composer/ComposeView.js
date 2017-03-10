@@ -123,7 +123,7 @@ export default class ComposeView extends React.Component {
         this.setState({draft:this._getDraftFromStore()})
     }
 
-    _onChangeTo = (contacts) => {
+    _onChangeTo = (contacts) => {console.log('_onChangeTo', contacts)
         this._changeDraftStore({to:contacts})
 
         this.setState({draft:this._getDraftFromStore()})
