@@ -168,7 +168,7 @@ class SingleProject extends React.Component{
                             clearable={false}
                         />
                     </div>
-                    <button onClick={this.assignUsers.bind(this)} className="btn primary-btn">Add member</button>
+                    <button onClick={this.assignUsers.bind(this)} className="btnn primary-btn">Add member</button>
                 </div>
             </div>
         )

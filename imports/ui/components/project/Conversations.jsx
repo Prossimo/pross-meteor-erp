@@ -109,7 +109,7 @@ class ConversationBox extends React.Component{
                 </div>
 
                 <button onClick={this.sendMessage.bind(this)}
-                        className="btn primary-btn">Send message</button>
+                        className="btnn primary-btn">Send message</button>
             </div>
         )
     }

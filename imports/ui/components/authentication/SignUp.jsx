@@ -117,16 +117,18 @@ class SignUp extends React.Component {
         userData = this.userRegistrationData;
         console.log("UserRegistration method invoked with data", userData);
         Meteor.call("userRegistration", userData, (err, res) => {console.log("Signup", res);
-            if (!err) {
-                const {validation} = res;
-                if (validation && validation.email || validation.username) {
-                    this.Check(validation);
-                } else {
-                    Meteor.loginWithPassword({email: userData.email}, userData.password, (err) => {
-                        if (err) return warning('Login error, please try again!');
-                        FlowRouter.reload();
-                    });
-                }
+            if(err) {
+                console.log(err)
+                return warning(err.message);
+            }
+            const {validation} = res;
+            if (validation && validation.email || validation.username) {
+                this.Check(validation);
+            } else {
+                Meteor.loginWithPassword({email: userData.email}, userData.password, (err) => {
+                    if (err) return warning('Login error, please try again!');
+                    FlowRouter.reload();
+                });
             }
         })
     }
@@ -316,7 +318,7 @@ class SignUp extends React.Component {
                                onChange={this.change.bind(this)}
                         />
                     </div>
-                    <button className="btn login-btn" type="submit">Registrate</button>
+                    <button className="btnn login-btn" type="submit">Registrate</button>
                 </form>
                 <footer className="auth-footer">
                     <button onClick={this.toggle.bind(this)}

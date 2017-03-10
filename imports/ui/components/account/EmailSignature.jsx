@@ -45,7 +45,7 @@ class EmailSignature extends React.Component{
                           value={text}
                           onChange={this.changeText.bind(this)}/>
                 <button onClick={this.updateSignature.bind(this)}
-                        className="btn primary-btn">Update signature</button>
+                        className="btnn primary-btn">Update signature</button>
             </div>
         )
     }

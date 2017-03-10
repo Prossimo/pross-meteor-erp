@@ -379,7 +379,7 @@ class CreateProject extends React.Component{
                                value={shipper}/>
                     </div>
                     <div className="submit-wrap">
-                        <button className="btn primary-btn">Add project</button>
+                        <button className="btnn primary-btn">Add project</button>
                     </div>
                 </form>
             </div>

@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
-import NylasAPI from './nylas-api'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
 
@@ -16,11 +15,12 @@ class DraftStore extends Reflux.Store {
         super();
         this.listenTo(Actions.composeNew, this._onComposeNew)
         this.listenTo(Actions.sendDraft, this._onSendDraft)
+        this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess)
+        this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
 
         this._drafts = []
         this._draftsSending = {}
         this._draftsViewState = {}
-
     }
 
     _onComposeNew(clientId) {
@@ -46,6 +46,16 @@ class DraftStore extends Reflux.Store {
             modal: false,
             show: false
         }
+        this.trigger()
+    }
+
+    _onSendDraftSuccess = ({message, clientId} = {}) =>{
+        this.removeDraftForClientId(clientId)
+        this.trigger()
+    }
+
+    _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) =>{
+        alert(`Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`)
         this.trigger()
     }
 

@@ -97,7 +97,7 @@ class ContactInfo extends React.Component{
         if(editable)
             return(
                 <button onClick={this.updateUserInfo.bind(this)}
-                        className="btn primary-btn">Update info</button>
+                        className="btnn primary-btn">Update info</button>
             )
     }
 

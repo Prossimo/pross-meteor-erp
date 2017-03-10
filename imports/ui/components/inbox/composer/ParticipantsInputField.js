@@ -42,7 +42,7 @@ export default class ParticipantsInputField extends React.Component {
     _getValuesFromContacts = (contacts) => {
         if(!contacts) return []
 
-        return contacts.map((c)=>{return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name}})
+        return contacts.map((c)=>{return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name ? c.name : ""}})
     }
 
     _getContactsFromValues = (values) => {
