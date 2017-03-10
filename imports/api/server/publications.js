@@ -19,7 +19,7 @@ Meteor.startup(()=>{
 
     Meteor.publish(GET_PROJECTS, function(){
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
-        return Projects.find({members: this.userId})
+        return Projects.find({"members.userId": this.userId})
     });
 
     Meteor.publish(GET_QUOTES, function(projectId){
@@ -32,7 +32,7 @@ Meteor.startup(()=>{
         Match.test(_id, String);
 
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
-        return Projects.find({_id, members: this.userId});
+        return Projects.find({_id, "members.userId": this.userId});
     });
 
     Meteor.publish(GET_ADMIN_CREATE_USERS, function(){

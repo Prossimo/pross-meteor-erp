@@ -1,10 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import Massage from './Massage';
-import Textarea from 'react-textarea-autosize';
 import { getUserName } from '../../../api/lib/filters';
-import { generateEmailHtml } from '/imports/api/lib/functions';
-import Alert from 'react-s-alert';
 
 
 class Activity extends React.Component{
@@ -24,7 +21,7 @@ class Activity extends React.Component{
         const activityList = this.props.messages.map(item=>{
             switch (item.type) {
                 case 'message': {
-                    return <Massage key={item._id}  msg={item}/>
+                    return <Massage key={item._id}  message={item}/>
                 }break;
                 case 'event':{
                     return (
