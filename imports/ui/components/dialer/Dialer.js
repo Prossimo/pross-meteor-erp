@@ -86,24 +86,24 @@ var DTMFTone = React.createClass({
         return (
             <div className="keys">
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('1')}>1</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('2')}>2</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('3')}>3</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('1')}>1</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('2')}>2</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('3')}>3</button>
                 </div>
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('4')}>4</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('5')}>5</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('6')}>6</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('4')}>4</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('5')}>5</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('6')}>6</button>
                 </div>
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('7')}>7</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('8')}>8</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('9')}>9</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('7')}>7</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('8')}>8</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('9')}>9</button>
                 </div>
                 <div className="key-row">
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('*')}>*</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('0')}>0</button>
-                    <button className="btn btn-circle btn-default" onClick={() => this.sendDigit('#')}>#</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('*')}>*</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('0')}>0</button>
+                    <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('#')}>#</button>
                 </div>
             </div>
         );
@@ -202,6 +202,11 @@ var Dialer = React.createClass({
         }
     },
 
+    handleClickNumber(number) { console.log(number)
+        number = this.state.currentNumber + String(number)
+        this.setState({currentNumber: number})
+    },
+
     render: function () {
         var self = this;
 
@@ -216,7 +221,7 @@ var Dialer = React.createClass({
 
                 </div>
 
-                <DTMFTone/>
+                <DTMFTone onClick={this.handleClickNumber}/>
 
                 <CallButton handleOnClick={this.handleToggleCall} disabled={!this.state.isValidNumber}
                             onPhone={this.state.onPhone}/>

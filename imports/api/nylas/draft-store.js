@@ -1,7 +1,6 @@
 import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
-import NylasAPI from './nylas-api'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
 
@@ -22,7 +21,6 @@ class DraftStore extends Reflux.Store {
         this._drafts = []
         this._draftsSending = {}
         this._draftsViewState = {}
-
     }
 
     _onComposeNew(clientId) {
