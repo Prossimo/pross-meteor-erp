@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import '../models/users/users';
 import moment from 'moment-timezone';
+import RegExpUtils from './RegExpUtils'
 
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -14,13 +15,25 @@ module.exports = NylasUtils = {
     isFromMe: (message) => {
         return message.from[0] && NylasUtils.isMe(message.from[0].email);
     },
+    isValidContact: (contact) => {
+        if (!contact.email) return false
+
+        // The email regexp must match the /entire/ email address
+        result = RegExpUtils.emailRegex().exec(contact.email)
+        if (result && result instanceof Array)
+            return result[0] == contact.email
+        else return false
+    },
 
     contactDisplayName: (participant) => {
         return participant.name && participant.name.length ? participant.name : participant.email;
     },
 
     contactDisplayFullname: (c) => {
-        return `${c.name || c.email}${c.name && " <" + c.email + ">"}`
+        if (c.name && c.name.length)
+            return `${c.name} <${c.email}>`
+
+        return c.email
     },
 
     getParticipantsNamesString: (participants, excludeMe = true) => {
@@ -78,7 +91,7 @@ module.exports = NylasUtils = {
     },
 
     fullTimeString: (time/*unixtimestamp*/) => {
-        if(!time) return "";
+        if (!time) return "";
 
         return moment(time * 1000).tz(NylasUtils.timezone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
     },
@@ -113,7 +126,9 @@ module.exports = NylasUtils = {
     },
 
     generateTempId: () => {
-        s4 = ()=>{return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)}
+        s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+        }
 
         return 'local-' + s4() + s4() + '-' + s4()
     },
@@ -122,6 +137,31 @@ module.exports = NylasUtils = {
     },
     canTrashThreads: () => {
         return true;
-    }
+    },
 
+
+    isForwardedMessage: ({body, subject} = {}) => {
+        bodyForwarded = false
+        bodyFwd = false
+        subjectFwd = false
+
+        if (body) {
+            indexForwarded = body.search(/forwarded/i)
+            bodyForwarded = indexForwarded >= 0 && indexForwarded < 250
+            indexFwd = body.search(/fwd/i)
+            bodyFwd = indexFwd >= 0 && indexFwd < 250
+        }
+        if (subject)
+            subjectFwd = subject.slice(0, 3).toLowerCase() == "fwd"
+
+        return bodyForwarded || bodyFwd || subjectFwd
+    },
+
+    isEmptyDraft: (draft) => {
+        return (!draft.subject || draft.subject.length==0) &&
+            (!draft.body || draft.body.length==0) &&
+            (!draft.files || draft.files.length==0) &&
+            (!draft.downloads || draft.downloads.length==0)
+
+    }
 }

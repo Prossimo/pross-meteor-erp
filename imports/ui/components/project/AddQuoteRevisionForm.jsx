@@ -188,7 +188,7 @@ class AddQuoteForm extends React.Component{
                     <label htmlFor="alert-checkbox"
                            className="check-label">Alert stakeholders</label>
                     <div className="submit-wrap">
-                        <button className="btn primary-btn">Add revision</button>
+                        <button className="btnn primary-btn">Add revision</button>
                     </div>
                 </form>
             </div>

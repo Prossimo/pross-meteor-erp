@@ -2,6 +2,9 @@ import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import classNames from 'classnames';
 import { EMPLOYEE_ROLE, ADMIN_ROLE_LIST } from '../../../api/constants/roles';
+import Dialer from '../dialer/Dialer';
+import '../popup/PopoverStore';
+import PopoverActions from '../popup/PopoverActions';
 
 
 class Aside extends React.Component{
@@ -36,7 +39,7 @@ class Aside extends React.Component{
             {
                 label: "Financial",
                 route: "Financial"
-            },
+            }
         ];
 
         if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
@@ -48,6 +51,9 @@ class Aside extends React.Component{
 
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
             this.pages.unshift({
+                label: "Projects",
+                route: "Projects"
+            },{
                 label: "Dashboard",
                 route: "Dashboard"
             })
@@ -81,8 +87,22 @@ class Aside extends React.Component{
         return (
             <aside className={classNames("control-aside",{"active": currentUser})}>
                 {this.renderList()}
+
+                {/*<div className="call-phone" onClick={this.onClickCall}><i className="fa fa-phone"></i> Call</div>*/}
+
+                <div className="call-phone"><Dialer/></div>
             </aside>
         )
+    }
+
+    onClickCall = (evt) => {
+        const clientRect = evt.currentTarget.getBoundingClientRect();
+
+        PopoverActions.openPopover(
+            <Dialer />,
+            {originRect: clientRect, direction: 'up'}
+        )
+
     }
 }
 export default Aside

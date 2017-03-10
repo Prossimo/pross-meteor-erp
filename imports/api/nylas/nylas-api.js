@@ -1,10 +1,15 @@
 import '../models/users/users'
 import _ from 'underscore';
 import request from 'request';
+import config from '../config/config';
 import { APIError, TimeoutError } from './errors';
 
+
 const TimeoutErrorCodes = [0, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"];
+const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, "ENOTFOUND", "ECONNREFUSED", "EHOSTDOWN", "EHOSTUNREACH"]
 const CancelledErrorCode = [-123, "ECONNABORTED"];
+
+let AccountStore = null
 
 class NylasAPIRequest {
     constructor(api, options) {
@@ -23,14 +28,14 @@ class NylasAPIRequest {
 
     run() {
         if(!this.options.auth) {
-            /*if(!this.options.accountId) {
+            if(!this.options.accountId) {
                 const err = new APIError({
                     statusCode: 400,
                     body: 'Cannot make Nylas request without specifying `auth` or an `accountId`.'
                 });
                 return Promise.reject(err);
-            }*/
-            const token = this.api.accessTokenForCurrentUser(); console.log('Current user nylas access token', token);
+            }
+            const token = this.api.accessTokenForAccountId(this.options.accountId); //console.log('Current user nylas access token', token);
             if(!token) {
                 const err = new APIError({
                     statusCode: 400,
@@ -46,7 +51,7 @@ class NylasAPIRequest {
             };
         }
 
-        console.log("NylasAPI->run", JSON.stringify(this.options));
+        //console.log("NylasAPI->run", JSON.stringify(this.options));
 
         return new Promise((resolve, reject) => {
             const req = request(this.options, (error, response, body)=>{
@@ -81,24 +86,25 @@ class NylasAPIRequest {
 
 class NylasAPI {
 
-    constructor() {
-        this.AppID = '4xnb7gd7t7la2kxls35j3k7t3';
-        this.AppSecret = '9tbqdscu0b5q16r422t76onnx';
-        this.APIRoot = 'https://api.nylas.com';
+    static TimeoutErrorCodes = TimeoutErrorCodes
+    static PermanentErrorCodes = PermanentErrorCodes
+    static CancelledErrorCode = CancelledErrorCode
 
+
+    constructor() {
+        this.AppID = config.nylas.appId;
+        this.AppSecret = config.nylas.appSecret;
+        this.APIRoot = config.nylas.apiRoot;
     }
 
-    accessTokenForCurrentUser () {
-        console.log(Meteor.user());
-        const currentUser = Meteor.users.findOne({_id:Meteor.userId()});
-
-        console.log("Meteor current user", currentUser);
-        return currentUser.nylas.access_token;
+    accessTokenForAccountId (aid) {
+        AccountStore = AccountStore || require('./account-store')
+        return AccountStore.tokenForAccountId(aid)
     }
 
     makeRequest(options = {}) {
-        //console.log("makeRequest", options);
-        const success = (body) => { //console.log("=======NyalsAPIRequest result", body);
+        console.log("makeRequest", options);
+        const success = (body) => { console.log("=======NyalsAPIRequest result", body);
             if(options.beforeProcessing) {
                 body = options.beforeProcessing(body);
             }
@@ -110,8 +116,8 @@ class NylasAPI {
             return Promise.resolve(body);
         }
 
-        const error = (err) => {//console.log("=========NyalsAPIRequest error", err);
-            handlePromise = Promise.resolve();
+        const error = (err) => {console.log("=========NyalsAPIRequest error", err);
+            /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {
                     handlePromise = this.handleModel404(options.url);
@@ -123,9 +129,10 @@ class NylasAPI {
 
                 }
             }
-            handlePromise.then(()=>{
+            return handlePromise.finally(()=>{
                 return Promise.reject(err);
-            });
+            });*/
+            return Promise.reject(err)
         }
 
         const req = new NylasAPIRequest(this, options);
@@ -187,6 +194,20 @@ class NylasAPI {
 
     handleAuthenticationFailure(modelUrl, apiToken, body, errorCode) {
         return Promise.resolve();
+    }
+
+    makeDraftDeletionRequest = (draft) => {
+        if(!draft.id) return
+
+        //this.incrementRemoteChangeLock(Message, draft.serverId)
+        this.makeRequest({
+            path: `/drafts/${draft.id}`,
+            accountId: draft.account_id,
+            method: "DELETE",
+            body: {version: draft.version},
+            returnsModel: false
+        })
+        return
     }
 
 }

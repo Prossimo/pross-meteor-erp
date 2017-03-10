@@ -1,6 +1,8 @@
 import React from 'react';
 import Spinner from '../components/utils/spinner';
 import Actions from '../../api/nylas/actions';
+import TaskQueue from '../../api/nylas/tasks/task-queue';
+import NylasUtils from '../../api/nylas/nylas-utils';
 import FolderStore from '../../api/nylas/folder-store';
 import ThreadStore from '../../api/nylas/thread-store';
 import DraftStore from '../../api/nylas/draft-store';
@@ -23,14 +25,9 @@ class Inbox extends React.Component {
             loading: true,
             hasNylasInfo: Meteor.user().nylas != null,
             selectedFolder: null,
-            selectedThread: null,
-
-            openComposeModal: false,
-            draftForNewCompose: null
+            selectedThread: null
         }
 
-        this.closeComposeModal = this.closeComposeModal.bind(this)
-        this.onDraftStoreChanged = this.onDraftStoreChanged.bind(this)
 
         if (this.state.hasNylasInfo) {
             Actions.loadContacts();
@@ -53,22 +50,23 @@ class Inbox extends React.Component {
 
     onFolderStoreChanged() {
         this.setState({
-            folders: FolderStore.getData(),
+            folders: FolderStore.getFolders(),
             loading: this.isLoading(),
             selectedFolder: FolderStore.getSelectedFolder()
         })
     }
 
     onThreadStoreChanged() {
+        const selectedFolder = FolderStore.getSelectedFolder()
         this.setState({
-            threads: ThreadStore.getData(),
+            threads: ThreadStore.getThreads(selectedFolder&&selectedFolder.id),
             loading: this.isLoading()
         })
     }
 
-    onDraftStoreChanged() {
+    onDraftStoreChanged = () => {
         this.setState({
-            draftState: DraftStore.state
+            composeState: DraftStore.draftViewStateForModal()
         })
     }
 
@@ -77,19 +75,28 @@ class Inbox extends React.Component {
     }
 
     render() {
-        const {hasNylasInfo, draftState} = this.state;
+        const {hasNylasInfo, composeState} = this.state;
         return (
             <div className="inbox-page">
                 <Toolbar />
                 {hasNylasInfo && this.renderInbox()}
                 {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
-                <ComposeModal isOpen={draftState && draftState.modal} clientId={draftState && draftState.clientId} onClose={this.closeComposeModal} />
+                <ComposeModal isOpen={composeState && composeState.show} clientId={composeState && composeState.clientId} onClose={this.onCloseComposeModal} />
             </div>
         )
     }
 
-    closeComposeModal() {
-        this.setState({draftState: {modal:false}})
+    onCloseComposeModal = () => {
+        const {composeState} = this.state
+        if(!composeState) return
+
+        const draft = DraftStore.draftForClientId(composeState.clientId)
+
+        if(!NylasUtils.isEmptyDraft(draft) && confirm('Are you sure to discard?')) {
+            DraftStore.removeDraftForClientId(draft.clientId)
+        } else {
+            DraftStore.removeDraftForClientId(draft.clientId)
+        }
     }
 
     renderInbox() {

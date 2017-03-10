@@ -11,8 +11,8 @@ class APIError extends Error {
     constructor({error, response, body, requestOptions, statusCode} = {}) {
         super();
 
-        this.statusCode = statusCode || response.statusCode;
-        this.requestOptions = requestOptions || response.requestOptions;
+        this.statusCode = statusCode || (response && response.statusCode);
+        this.requestOptions = requestOptions || (response && response.requestOptions);
         this.name = 'APIError';
         this.message = body && body.message ? body.message : (error?error.toString():null);
         this.errorTitle = body ? body.error : null;

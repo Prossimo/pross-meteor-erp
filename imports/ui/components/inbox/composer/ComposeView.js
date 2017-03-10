@@ -1,11 +1,12 @@
+import _ from 'underscore'
 import React from 'react'
 import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import DraftStore from '../../../../api/nylas/draft-store'
-import ContactStore from '../../../../api/nylas/contact-store'
-import {FormInput, FormIconField} from 'elemental'
-import {Creatable, Select} from 'react-select'
+
+import {FormControl} from 'react-bootstrap'
+import ParticipantsInputField from './ParticipantsInputField'
 
 
 export default class ComposeView extends React.Component {
@@ -16,16 +17,15 @@ export default class ComposeView extends React.Component {
     constructor(props) {
         super(props)
 
-        this.state = this._getStateFromDraftStore()
-
-        this.state.contacts = this._getContacts()
-        this.state.expandedCc = false
-        this.state.expandedBcc = false
+        this.state = {
+            draft: this._getDraftFromStore(),
+            expandedCc: false,
+            expandedBcc: false
+        }
     }
 
     componentDidMount() {
         this.unsubscribes = [];
-        this.unsubscribes.push(ContactStore.listen(this._onContactStoreChanged));
     }
 
     componentWillUnmount() {
@@ -34,33 +34,14 @@ export default class ComposeView extends React.Component {
         });
     }
 
-    _onContactStoreChanged() {
-        this.setState({contacts: this._getContacts()})
-    }
 
-    _getContacts() {
-        const contacts = ContactStore.getAllContacts()
-
-        return contacts.map((c) => {
-            return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name}
-        })
-    }
-
-    _getStateFromDraftStore() {
+    _getDraftFromStore() {
         let draft = _.clone(DraftStore.draftForClientId(this.props.clientId))
 
-        draft.to = draft.to && draft.to.map((c) => {
-            return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name}
-        })
-        draft.cc = draft.cc && draft.cc.map((c) => {
-            return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name}
-        })
-        draft.bcc = draft.bcc && draft.bcc.map((c) => {
-            return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name}
-        })
 
         return draft
     }
+
 
     _changeDraftStore(data={}) {
         DraftStore.changeDraftForClientId(this.props.clientId, data)
@@ -76,57 +57,34 @@ export default class ComposeView extends React.Component {
     }
 
     _renderHeader() {
-        const {to, cc, bcc, contacts, expandedCc, expandedBcc} = this.state
+        const {draft, expandedCc, expandedBcc} = this.state
 
+        const {to, cc, bcc, subject} = draft
 
         const ccSelector = (
-            <div className="input-wrap">
-                <label className="participant-label">Cc:</label>
-                <Creatable
-                    className="select-wrap"
-                    multi
-                    value={cc}
-                    onChange={this._onChangeCc}
-                    options={contacts}
-                    clearable={false}
-                />
-            </div>
+            <ParticipantsInputField label="Cc" contacts={cc} onChange={this._onChangeCc}/>
         )
 
         const bccSelector = (
-            <div className="input-wrap">
-                <label className="participant-label">Bcc:</label>
-                <Creatable
-                    className="select-wrap"
-                    multi
-                    value={bcc}
-                    onChange={this._onChangeBcc}
-                    options={contacts}
-                    clearable={false}
-                />
-            </div>
+            <ParticipantsInputField label="Bcc" contacts={bcc} onChange={this._onChangeBcc}/>
         )
 
         return (
             <div>
                 <div className="input-wrap">
-                    <label className="participant-label">To:</label>
-                    <Creatable
-                        className="select-wrap"
-                        multi
-                        value={to}
-                        onChange={this._onChangeTo}
-                        options={contacts}
-                        clearable={false}
-                    />
+                    <ParticipantsInputField label="To" contacts={to} onChange={this._onChangeTo}/>
                     <div className="composer-header-actions">
                         {!expandedCc && <div className="action" onClick={this._onClickCc}>Cc</div>}
                         {!expandedBcc && <div className="action" onClick={this._onClickBcc}>Bcc</div>}
                     </div>
                 </div>
+
                 {expandedCc && ccSelector}
                 {expandedBcc && bccSelector}
-                <div className="input-wrap"><FormInput type="text" placeholder="Subject" onChange={this._onChangeSubject}/></div>
+
+                <div className="input-wrap">
+                    <FormControl type="text" value={subject} placeholder="Subject" onChange={this._onChangeSubject}/>
+                </div>
             </div>
         )
     }
@@ -135,7 +93,7 @@ export default class ComposeView extends React.Component {
         return (
             <div>
                 <ReactQuill placeholder="Write here..."
-                            value={this.state.body}
+                            value={this.state.draft?this.state.draft.body:""}
                             theme="snow"
                             onChange={this._onChangeBody}/>
             </div>
@@ -146,7 +104,7 @@ export default class ComposeView extends React.Component {
         return (
             <div className="composer-action-bar-wrap">
                 <div className="composer-action-bar-content">
-                    <SendActionButton/>
+                    <SendActionButton draft={this.state.draft} disabled={this._isUnableToSend} isValidDraft={this._isValidDraft}/>
                 </div>
             </div>
         )
@@ -154,30 +112,33 @@ export default class ComposeView extends React.Component {
 
     _onChangeSubject = (e) => {
         subject = e.target.value
-        this.setState({subject: subject})
+
         this._changeDraftStore({subject: subject})
+
+        this.setState({draft:this._getDraftFromStore()})
     }
     _onChangeBody = (text) => {
-        this.setState({body: text})
         this._changeDraftStore({body: text})
+
+        this.setState({draft:this._getDraftFromStore()})
     }
 
-    _onChangeTo = (items) => {console.log('_onChangeTo', items)
-        this.setState({to: items})
+    _onChangeTo = (contacts) => {console.log('_onChangeTo', contacts)
+        this._changeDraftStore({to:contacts})
 
-        this._changeDraftStore({to:items&&items.map((item)=>{return {email:item.value,name:item.name}})})
+        this.setState({draft:this._getDraftFromStore()})
     }
 
-    _onChangeCc = (items) => {
-        this.setState({cc: items})
+    _onChangeCc = (contacts) => {
+        this._changeDraftStore({cc:contacts})
 
-        this._changeDraftStore({cc:items&&items.map((item)=>{return {email:item.value,name:item.name}})})
+        this.setState({draft:this._getDraftFromStore()})
     }
 
-    _onChangeBcc = (items) => {
-        this.setState({bcc: items})
+    _onChangeBcc = (contacts) => {
+        this._changeDraftStore({bcc:contacts})
 
-        this._changeDraftStore({bcc:items&&items.map((item)=>{return {email:item.value,name:item.name}})})
+        this.setState({draft:this._getDraftFromStore()})
     }
 
     _onClickCc = (e) => {
@@ -187,4 +148,73 @@ export default class ComposeView extends React.Component {
     _onClickBcc = (e) => {
         this.setState({expandedBcc: true})
     }
+
+    _isUnableToSend = () => {
+        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length==0
+    }
+
+
+    _isValidDraft = (options = {}) => {
+        if (DraftStore.isSendingDraft(this.props.clientId)) {
+            return false;
+        }
+
+        if(!this.state.draft) return false
+
+        const {to, cc, bcc, subject, body, files, uploads} = this.state.draft;
+        const allRecipients = [].concat(to, cc, bcc);
+        let dealbreaker = null;
+
+
+        for (const contact of allRecipients) {
+            if (!NylasUtils.isValidContact(contact)) {
+                dealbreaker = `${contact.email} is not a valid email address - please remove or edit it before sending.`
+            }
+        }
+        if (allRecipients.length === 0) {
+            dealbreaker = 'You need to provide one or more recipients before sending the message.';
+        }
+
+        if (dealbreaker) {
+            return alert(dealbreaker);
+        }
+
+        const bodyIsEmpty = !body || body.length==0
+        const forwarded = NylasUtils.isForwardedMessage({subject, body});
+        const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0;
+
+        let warnings = [];
+
+        if (subject.length === 0) {
+            warnings.push('without a subject line');
+        }
+
+        if (this._mentionsAttachment(body) && !hasAttachment) {
+            warnings.push('without an attachment');
+        }
+
+        if (bodyIsEmpty && !forwarded && !hasAttachment) {
+            warnings.push('without a body');
+        }
+
+        if ((warnings.length > 0) && (!options.force)) {
+            if (confirm(`Send ${warnings.join(' and ')}?`)) {
+                return this._isValidDraft({force: true});
+            }
+            return false;
+        }
+
+        return true;
+
+    }
+    _mentionsAttachment = (body) => {
+        /*let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
+        const signatureIndex = cleaned.indexOf('<signature>');
+        if (signatureIndex !== -1) {
+            cleaned = cleaned.substr(0, signatureIndex - 1);
+        }
+        return (cleaned.indexOf("attach") >= 0);*/
+        return false
+    }
+
 }
