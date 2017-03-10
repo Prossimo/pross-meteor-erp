@@ -1,6 +1,6 @@
 Production server:
 
-http://crm.prossimo.us
+https://crm.prossimo.us
 
 
 #### To test the app with generated fixture data
