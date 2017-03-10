@@ -36,7 +36,7 @@ class Aside extends React.Component{
             {
                 label: "Financial",
                 route: "Financial"
-            },
+            }
         ];
 
         if(Roles.userIsInRole(props.currentUser._id, [EMPLOYEE_ROLE,...ADMIN_ROLE_LIST])){
@@ -48,6 +48,9 @@ class Aside extends React.Component{
 
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
             this.pages.unshift({
+                label: "Projects",
+                route: "Projects"
+            },{
                 label: "Dashboard",
                 route: "Dashboard"
             })
