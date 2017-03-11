@@ -6,6 +6,7 @@
     "full-test": "meteor test --settings settings.json --full-app --driver-package tmeasday:acceptance-test-driver"
   },
   "dependencies": {
+    "bcrypt": "^1.0.2",
     "bluebird": "^3.5.0",
     "bootstrap": "^3.3.7",
     "classnames": "^2.2.5",
