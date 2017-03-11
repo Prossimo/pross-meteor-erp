@@ -1,4 +1,3 @@
-import  { SlackMessages } from '/imports/api/lib/collections';
 const SlackBot = Npm.require('slackbots');
 
 
@@ -13,9 +12,7 @@ Meteor.startup(() => {
 
     bot.on('message', Meteor.bindEnvironment(function(data) {
         if(data.type === 'message'){
-
-            data.createAt = new Date();
-            SlackMessages.insert(data)
+            Meteor.call("parseSlackMessage",data)
         }
     }));
 

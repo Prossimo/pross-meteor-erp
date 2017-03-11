@@ -89,7 +89,8 @@ class SingleProject extends React.Component{
         if(!project )return null;
         return (
             <ul className="project-members">
-                {project.members.map(member=>{
+                {_.isArray(project.members) && project.members.map(member=>{
+                    if(!member.user) return null;
                     return(
                         <li key={member.user._id}
                             className="member-list">
@@ -103,7 +104,6 @@ class SingleProject extends React.Component{
                                     return <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>
                                 })}
                             </div>
-
                         </li>
                     )
                 })}

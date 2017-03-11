@@ -8,7 +8,8 @@ import {
     CreatedUsers,
     Projects,
     SlackUsers,
-    Quotes
+    Quotes,
+    SlackMessages
 } from '../lib/collections';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
@@ -36,7 +37,7 @@ Meteor.methods({
         if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
         if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
 
-        if (!_.isEmpty(validation)) {
+        if(!_.isEmpty(validation)) {
             userData.validation = validation;
             return userData;
         }
@@ -49,7 +50,7 @@ Meteor.methods({
             "provider": emailProvider
         };
 
-        if (emailProvider == 'gmail') {
+        if(emailProvider == 'gmail') {
             authenticationData.settings = {
                 google_client_id: config.google.clientId,
                 google_client_secret: config.google.clientSecret,
@@ -259,7 +260,7 @@ Meteor.methods({
     },
 
     addProject(data){
-        if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+        if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
             throw new Meteor.Error("Access denied");
         }
         check(data, {
@@ -342,6 +343,44 @@ Meteor.methods({
                 text: message
             }
         })
+    },
+
+    parseSlackMessage(data){
+        data.createAt = new Date();
+        switch (data.subtype){
+            case 'file_share':
+                Meteor.call("addSlackFileMsg", data);
+                break;
+            default:
+                SlackMessages.insert(data)
+        }
+    },
+
+    addSlackFileMsg(data){
+        if(!data.file && !data.file.id) return;
+
+        data.publicLink = Meteor.call("getPublicPermalink", data.file.id);
+        SlackMessages.insert(data);
+    },
+
+    getPublicPermalink(fileId){
+        check(fileId, String);
+
+        const response = HTTP.get('https://slack.com/api/files.sharedPublicURL', {
+            params: {
+                token: SLACK_API_KEY,
+                file: fileId
+            }
+        });
+
+        if(!response.data.ok) return;
+        console.log(response);
+
+        const file = HTTP.get(response.data.file.url_private_download, {params: {token: SLACK_API_KEY}});
+
+        console.log(file)
+
+        return response.data.file.permalink_public;
     },
 
     getSlackUsers(){

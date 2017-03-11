@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import { Button, Table } from 'react-bootstrap';
 
 import CreateUser from '../components/admin/CreateUser';
 import CreateProject from '../components/admin/CreateProject';
@@ -12,10 +13,6 @@ class AdminPage extends React.Component{
             {
                 label: "Create user",
                 component: <CreateUser/>
-            },
-            {
-                label: 'Add project',
-                component: <CreateProject/>
             }
         ];
 
@@ -53,6 +50,40 @@ class AdminPage extends React.Component{
         return (
             <div className="page-container admin-page">
                 <div className="main-content">
+                    <button className="btnn login-btn" type="submit">Create new user</button>
+                    <Table striped bordered condensed hover>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                            {this.props.createdUsers.map((item, index) =>{
+                                return(
+                                    <tbody key={item._id}>
+                                        <tr>
+                                            <td>{index + 1}</td>
+                                            <td>{item.firstName}</td>
+                                            <td>{item.lastName}</td>
+                                            <td>{item.username}</td>
+                                            <td>{item.email}</td>
+                                            <td>{item.isActive ? "Active" : "Not active yet"}</td>
+                                            <td>{item.role}</td>
+                                            <td>
+                                                <Button bsStyle="primary">Edit</Button>
+                                                <Button bsStyle="danger">Remove</Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                )
+                            })}
+                    </Table>
                     <div className="tab-container">
                         <h2 className="page-title">Admin page</h2>
                         <div className="tab-controls">
@@ -63,19 +94,6 @@ class AdminPage extends React.Component{
                         </div>
                     </div>
                 </div>
-                <aside className="right-sidebar">
-                    <h2 className="title">Created users</h2>
-                    <ol>
-                        {this.props.createdUsers.map(item=>{
-                            return(
-                                <li key={item._id}>
-                                    <h4>{item.email} {item.isActive ? "Active" : "Not active yet"} </h4>
-                                    <h5>{item.role}</h5>
-                                </li>
-                            )
-                        })}
-                    </ol>
-                </aside>
             </div>
         )
     }
