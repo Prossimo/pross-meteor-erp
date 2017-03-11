@@ -32,7 +32,7 @@ $ cd ../path/to/local/project
 ```text
 $ meteor npm install
 ```
-2.1 To check errors locally run command and then look console logs (warning is fine)
+2-1 To check errors locally run command and then look console logs (warning is fine)
 ```text
 $ meteor --production
 ```
