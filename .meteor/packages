@@ -43,4 +43,7 @@ dburles:collection-helpers
 ostrio:meteor-root
 
 
+
 npm-container
+kadira:graphql
+apollo
