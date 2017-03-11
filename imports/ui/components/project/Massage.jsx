@@ -9,6 +9,8 @@ class Massage extends React.Component{
         this.userName = props.message.author ? getUserName(props.message.author, true) : props.user;
     }
 
+    //todo research https://api.slack.com/methods/files.sharedPublicURL
+
     renderFile(){
         const { message } = this.props;
         if(!message.file) return;
@@ -16,7 +18,7 @@ class Massage extends React.Component{
         const url = file.permalink;
 
         if(/^image/.test(file.mimetype) && url){
-            return <img src={url} alt={message.text}/>
+            return <a href={url}>image permalink</a>
         }
     }
 
