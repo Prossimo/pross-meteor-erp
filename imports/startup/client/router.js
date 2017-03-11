@@ -6,7 +6,7 @@ import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
 import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
-import ProjectsPage from '../../api/composer/pages/ProjectsPage';
+import ProjectsPage from '/imports/ui/pages/ProjectsPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import Inbox from '../../ui/pages/InboxPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
@@ -39,7 +39,18 @@ FlowRouter.route('/dashboard', {
     action(){
         checkAuth();
         mount(App, {
-            content: <AdminPage/>,
+            //todo create Dashboard page component
+            content: <UserAccount/>,
+        })
+    }
+});
+
+FlowRouter.route('/account', {
+    name: 'Account',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <UserAccount/>,
         })
     }
 });
@@ -104,12 +115,12 @@ FlowRouter.route('/contacts', {
     }
 });
 
-FlowRouter.route('/settings', {
-    name: 'User',
+FlowRouter.route('/admin', {
+    name: 'Admin',
     action(){
         checkAuth();
         mount(App, {
-            content: <UserAccount/>,
+            content: <AdminPage/>,
         })
     }
 });
@@ -134,6 +145,6 @@ FlowRouter.route('/auth/google/callback', {
     name: 'GoogleCallback',
     action() {
         window.close();
-        window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.settings.public && Meteor.settings.public.env=='development' ? "http://localhost:3000" : "http://crm.prossimo.us");
+        window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.settings.public && Meteor.settings.public.env=='development' ? "http://localhost:3000" : "https://crm.prossimo.us");
     }
 })

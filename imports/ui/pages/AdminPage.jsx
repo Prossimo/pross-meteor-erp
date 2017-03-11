@@ -12,10 +12,6 @@ class AdminPage extends React.Component{
             {
                 label: "Create user",
                 component: <CreateUser/>
-            },
-            {
-                label: 'Add project',
-                component: <CreateProject/>
             }
         ];
 
