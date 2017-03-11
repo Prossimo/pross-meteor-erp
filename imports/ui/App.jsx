@@ -7,15 +7,16 @@ import Alert from 'react-s-alert';
 class App extends React.Component{
     constructor(props){
         super(props);
-
-        console.log('App constructor')
     }
-    renderAside(currentUser){
-        if(currentUser){
-            return (
-                <Aside currentUser={currentUser}/>
-            )
-        }
+
+    renderAside(){
+        const { currentUser } = this.props;
+        if(!currentUser) return null;
+
+        return <Aside key="main-control-aside"
+                      projects={this.props.projects}
+                      currentUser={currentUser}/>
+
     }
 
     render() {
@@ -23,7 +24,7 @@ class App extends React.Component{
         return (
             <div className="app">
                 <Header user={currentUser} />
-                {this.renderAside(currentUser)}
+                {this.renderAside()}
                 <div className="page-content active-aside">
                     {React.cloneElement(this.props.content, {...this.props})}
                 </div>
