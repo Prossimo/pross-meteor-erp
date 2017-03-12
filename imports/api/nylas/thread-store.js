@@ -5,6 +5,8 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import AccountStore from './account-store'
 
+const PAGE_SIZE = 100
+
 class ThreadStore extends Reflux.Store {
     constructor() {
         super();
@@ -14,13 +16,16 @@ class ThreadStore extends Reflux.Store {
         this.selectedThread = null;
 
         this.loading = false;
+        this.fullyLoaded = false;
+        this.currentPage = 1;
     }
 
-    onLoadThreads = (folder, {page, search}={}) => {
+    onLoadThreads = (folder, {page=1, search}={}) => {
         this.loading = true;
         this.trigger();
 
-        const query = QueryString.stringify({in:folder.id});
+
+        const query = QueryString.stringify({in:folder.id, offset:(page-1)*PAGE_SIZE, limit:PAGE_SIZE});
         NylasAPI.makeRequest({
             path: `/threads?${query}`,
             method: 'GET',
@@ -40,8 +45,16 @@ class ThreadStore extends Reflux.Store {
                 })
             }
 
+            if(!result || result.length<PAGE_SIZE) {
+                this.fullyLoaded = true
+            } else {
+                this.fullyLoaded = false
+            }
+        }).finally(()=>{
             this.loading = false;
             this.trigger();
+
+            this.currentPage = page ? page : 1;
         })
     }
 

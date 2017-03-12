@@ -204,7 +204,10 @@ var Dialer = React.createClass({
 
     handleClickNumber(number) { console.log(number)
         number = this.state.currentNumber + String(number)
-        this.setState({currentNumber: number})
+        this.setState({
+            currentNumber: number,
+            isValidNumber: /^([0-9]|#|\*)+$/.test(number.replace(/[-()\s]/g, ''))
+        })
     },
 
     render: function () {
