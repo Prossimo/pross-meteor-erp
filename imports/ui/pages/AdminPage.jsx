@@ -1,9 +1,43 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Button, Table } from 'react-bootstrap';
+import { Button, Table, Modal } from 'react-bootstrap';
 
 import CreateUser from '../components/admin/CreateUser';
 import CreateProject from '../components/admin/CreateProject';
+import RemoveUser  from '../components/admin/RemoveUser'
+
+const Example = React.createClass({
+  getInitialState() {
+    return { showModal: false };
+  },
+  
+  close() {
+    this.setState({ showModal: false });
+  },
+  
+  open() {
+    this.setState({ showModal: true });
+  },
+  
+  render() {
+    return (
+      <div>
+          <button className="btnn login-btn" onClick={this.open}>Create new user</button>
+          <Modal show={this.state.showModal} onHide={this.close}>
+              <Modal.Header closeButton>
+                  <Modal.Title>Modal heading</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                  <CreateUser/>
+              </Modal.Body>
+              <Modal.Footer>
+                  <Button onClick={this.close}>Close</Button>
+              </Modal.Footer>
+          </Modal>
+      </div>
+    );
+  }
+});
 
 class AdminPage extends React.Component{
     constructor(props){
@@ -50,48 +84,42 @@ class AdminPage extends React.Component{
         return (
             <div className="page-container admin-page">
                 <div className="main-content">
-                    <button className="btnn login-btn" type="submit">Create new user</button>
-                    <Table striped bordered condensed hover>
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Status</th>
-                            <th>Role</th>
-                            <th>Actions</th>
-                        </tr>
-                        </thead>
-                            {this.props.createdUsers.map((item, index) =>{
-                                return(
-                                    <tbody key={item._id}>
-                                        <tr>
-                                            <td>{index + 1}</td>
-                                            <td>{item.firstName}</td>
-                                            <td>{item.lastName}</td>
-                                            <td>{item.username}</td>
-                                            <td>{item.email}</td>
-                                            <td>{item.isActive ? "Active" : "Not active yet"}</td>
-                                            <td>{item.role}</td>
-                                            <td>
-                                                <Button bsStyle="primary">Edit</Button>
-                                                <Button bsStyle="danger">Remove</Button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                )
-                            })}
-                    </Table>
                     <div className="tab-container">
                         <h2 className="page-title">Admin page</h2>
-                        <div className="tab-controls">
-                            {this.getTabs()}
-                        </div>
-                        <div className="tab-content">
-                            {this.getContent()}
-                        </div>
+                        <Example />
+                        <Table striped bordered condensed hover>
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+                          {this.props.createdUsers.map((item, index) =>{
+                            return(
+                              <tbody key={item._id}>
+                              <tr>
+                                  <td>{index + 1}</td>
+                                  <td>{item.firstName}</td>
+                                  <td>{item.lastName}</td>
+                                  <td>{item.username}</td>
+                                  <td>{item.email}</td>
+                                  <td>{item.isActive ? "Active" : "Not active yet"}</td>
+                                  <td>{item.role}</td>
+                                  <td>
+                                      <Button bsStyle="primary">Edit</Button>
+                                      <RemoveUser userId={item._id} />
+                                  </td>
+                              </tr>
+                              </tbody>
+                            )
+                          })}
+                        </Table>
                     </div>
                 </div>
             </div>

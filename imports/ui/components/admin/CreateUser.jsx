@@ -125,7 +125,7 @@ class CreateUser extends React.Component{
                         clearable={false}
                     />
 
-                    <button className="btnn login-btn" type="submit">Create new user</button>
+                    <button className="btnn login-btn" type="submit">Save</button>
                 </form>
             </div>
         )

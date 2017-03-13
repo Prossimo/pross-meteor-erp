@@ -181,6 +181,16 @@ Meteor.methods({
         data.isActive = false;
         CreatedUsers.insert(data);
     },
+  
+  adminRemoveUser(userId){
+    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+    if (Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
+      throw new Meteor.Error('validEmail', `Email "${data.email}" is already exist`);
+    if (Accounts.findUserByUsername(data.username) || CreatedUsers.findOne({username: data.username}))
+      throw new Meteor.Error('validUsername', `"${data.username}" is already exist`);
+    
+    CreatedUsers.remove(userId);
+  },
 
     checkCreatedAccount(email){
         return CreatedUsers.find({email}).count();
