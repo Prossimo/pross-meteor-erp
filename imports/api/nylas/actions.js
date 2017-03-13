@@ -2,7 +2,7 @@ import Reflux from 'reflux'
 
 const Actions = Reflux.createActions([
     'loadContacts',         // accountId
-    'loadFolders',          // accountId
+    'loadCategories',          // accountId
     'loadLabels',           // accountId
     'loadThreads',          // folder, {page, search}
     'loadMessages',         // thread
@@ -21,7 +21,8 @@ const Actions = Reflux.createActions([
     'sendDraftSuccess',
     'sendDraftFailed',
 
-    'queueTask'
+    'queueTask',
+    'queueTasks'
 ]);
 
 module.exports = Actions;
