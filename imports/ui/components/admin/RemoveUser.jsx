@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import { info } from '/imports/api/lib/alerts';
 
 class RemoveUser extends React.Component{
     constructor(props){
@@ -9,10 +10,10 @@ class RemoveUser extends React.Component{
     }
     
     handleRemoveUser(e) {
-      console.log('===handleRemoveUser===');
-      console.log(e);
-      console.log(this.props.userId);
-      console.log('======================');
+      Meteor.call('adminRemoveUser', this.props.userId, (err) => {
+        if(err) return this.setState({[err.error]: err.reason});
+        info('User was successfully removed!');
+      });
     }
 
     render() {
