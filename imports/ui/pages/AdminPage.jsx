@@ -39,11 +39,14 @@ class Example extends React.Component{
         <button className="btnn login-btn" onClick={this.open}>Create new user</button>
         <Modal show={this.state.showModal} onHide={this.close}>
           <Modal.Header closeButton>
-            <Modal.Title>Modal heading</Modal.Title>
+            <Modal.Title>Create user</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <CreateUser updateModalState={this.handleModalState}/>
           </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={this.close}>Close</Button>
+          </Modal.Footer>
         </Modal>
       </div>
     );
@@ -53,42 +56,6 @@ class Example extends React.Component{
 class AdminPage extends React.Component{
   constructor(props){
     super(props);
-    
-    this.tabs = [
-      {
-        label: "Create user",
-        component: <CreateUser/>
-      }
-    ];
-    
-    this.state = {
-      activeTab: this.tabs[0]
-    }
-  }
-  
-  toggleTab(activeTab){
-    this.setState({activeTab})
-  }
-  
-  getTabs(){
-    const { activeTab } = this.state;
-    
-    return <ul>
-      {this.tabs.map(item=>{
-        return (
-          <li key={item.label}
-              onClick={this.toggleTab.bind(this, item)}
-              className={classNames({"active": item === activeTab})}
-          >{item.label}</li>
-        )
-      })}
-    </ul>
-  }
-  
-  getContent(){
-    const { activeTab } = this.state;
-    if(!activeTab.component) return null;
-    return React.cloneElement(activeTab.component, this.props)
   }
   
   render() {
