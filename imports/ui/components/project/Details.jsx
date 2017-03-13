@@ -30,10 +30,37 @@ class Details extends React.Component{
     }
 
     saveBilling() {
-
+        const projectId = this.state.project._id;
+        const billing = _.pick(
+            this.state.project,
+            'billingContactName',
+            'billingContactEmail',
+            'billingContactPhone',
+            'billingAddress',
+            'billingNotes',
+        );
+        Meteor.call('updateProjectBilling', projectId, billing, (error, result)=> {
+            if(error) return warning(`Problems with updating project. ${error.error}`);
+            this.toggleEditBilling();
+            return info(`Success update project`);
+        });
     }
 
     saveShipping() {
+        const projectId = this.state.project._id;
+        const shipping = _.pick(
+            this.state.project,
+            'shippingContactName',
+            'shippingContactName',
+            'shippingContactPhone',
+            'shippingAddress',
+            'shippingNotes',
+        );
+        Meteor.call('updateProjectShipping', projectId, shipping, (error, result)=> {
+            if(error) return warning(`Problems with updating project. ${error.error}`);
+            this.toggleEditShipping();
+            return info(`Success update project`);
+        });
     }
 
     saveAttributes() {
@@ -99,13 +126,13 @@ class Details extends React.Component{
                         <td>{label}</td>
                         <td>
                             {
-                                (type === 'Date') ? (
+                                (type === 'date') ? (
                                     <DatePicker
                                         selected={moment(value)}
                                         onChange={((date)=> this.changeState(field, date.toDate()))}
                                     />
                                 ) : (
-                                    ( type === 'Select' ) ? (
+                                    ( type === 'select' ) ? (
                                          <Select
                                             value={value}
                                             onChange={({ value })=> this.changeState(field, value)}
@@ -114,16 +141,17 @@ class Details extends React.Component{
                                             clearable={false}
                                          />
                                     ) :  (
-                                        ( type === 'Email' ) ? (
-                                            <input
-                                                type='email'
+                                        ( type === 'textarea' ) ? (
+                                            <textarea
+                                                rows='2'
                                                 value={value}
                                                 style={{width: '100%'}}
                                                 onChange={(event)=> this.changeState(field, event.target.value)}
                                             />
+
                                         ) : (
                                             <input
-                                                type='text'
+                                                type={type}
                                                 value={value}
                                                 style={{width: '100%'}}
                                                 onChange={(event)=> this.changeState(field, event.target.value)}
@@ -137,7 +165,7 @@ class Details extends React.Component{
                 );
             }
             if (!value) return null;
-            if (type === 'Date') value = moment(value).format('MM DD YYYY');
+            if (type === 'date') value = moment(value).format('MM DD YYYY');
             return (
                 <tr key={field}>
                     <td>{label}</td>
@@ -151,25 +179,25 @@ class Details extends React.Component{
     render() {
         const { project } = this.state;
         const attrRows = [
-            {label: "Shipping mode", field: "shippingMode", type: "Select"},
-            {label: "Actual delivery date", field: "actualDeliveryDate", type: "Date"},
-            {label: "Production start date", field: "productionStartDate", type: "Date"},
-            {label: "Supplier", field: "supplier"},
-            {label: "Shipper", field: "shipper"},
+            {label: "Shipping mode", field: "shippingMode", type: 'select'},
+            {label: "Actual delivery date", field: "actualDeliveryDate", type: 'date'},
+            {label: "Production start date", field: "productionStartDate", type: 'date'},
+            {label: "Supplier", field: "supplier", type: 'text'},
+            {label: "Shipper", field: "shipper", type: 'text'},
         ];
         const shippingRows = [
-            {label: "Contact name", field: "shippingContactName"},
-            {label: "Contact email", field: "shippingContactEmail", type: "Email"},
-            {label: "Contact phone", field: "shippingContactPhone"},
-            {label: "Address", field: "shippingAddress"},
-            {label: "Notes", field: "shippingNotes"},
+            {label: "Contact name", field: "shippingContactName", type: 'text'},
+            {label: "Contact email", field: "shippingContactEmail", type: 'email'},
+            {label: "Contact phone", field: "shippingContactPhone", type: 'text'},
+            {label: "Address", field: "shippingAddress", type: 'text'},
+            {label: "Notes", field: "shippingNotes", type: 'textarea'},
         ];
         const billingRows = [
-            {label: "Contact name", field: "billingContactName"},
-            {label: "Contact email", field: "billingContactEmail", type: "Email"},
-            {label: "Contact phone", field: "billingContactPhone"},
-            {label: "Address", field: "billingAddress"},
-            {label: "Notes", field: "billingNotes"},
+            {label: "Contact name", field: "billingContactName", type: 'text'},
+            {label: "Contact email", field: "billingContactEmail", type: 'email'},
+            {label: "Contact phone", field: "billingContactPhone", type: 'text'},
+            {label: "Address", field: "billingAddress", type: 'text'},
+            {label: "Notes", field: "billingNotes", type: 'textarea'},
         ];
 
         return (
