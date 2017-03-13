@@ -55,6 +55,7 @@ class CreateUser extends React.Component{
             if(err) return this.setState({[err.error]: err.reason});
             info('Successful create user!');
             this.setState(this.defaultState);
+            this.props.updateModalState();
         })
     }
 

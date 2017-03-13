@@ -10,8 +10,13 @@ class RemoveUser extends React.Component{
     
     handleRemoveUser(e) {
       console.log('===handleRemoveUser===');
-      console.log(e);
+      // console.log(e);
       console.log(this.props.userId);
+      Meteor.call('adminRemoveUser', this.props.userId, (err)=>{
+        if(err) return this.setState({[err.error]: err.reason});
+        info('Successful removed user!');
+        this.setState(this.defaultState);
+      });
       console.log('======================');
     }
 
