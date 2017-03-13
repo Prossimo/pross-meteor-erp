@@ -1,33 +1,88 @@
 import React from 'react';
+import DatePicker from 'react-datepicker';
 
 class Details extends React.Component{
-    constructor(props){
+    constructor(props) {
         super(props);
-
-
+        this.state = {
+            isEditingAttributes: false,
+            project: props.project,
+        }
+        this.toggleEditAttributes = this.toggleEditAttributes.bind(this);
+        this.changeState = this.changeState.bind(this);
     }
 
-    renderTableRows(rows, data){
-         return _.map(rows, (row)=>{
-             let value = data[row.field];
-             if(value){
-                if(row.type === "Date"){
-                    value = moment(value).format("MM DD YYYY");
-                }
+    changeState(field, value) {
+        this.state.project[field] = value;
+        this.setState({
+            project: this.state.project,
+        });
+    }
 
-                return (
-                    <tr key={row.field}>
-                        <td>{row.label}</td>
-                        <td>{value}</td>
-                    </tr>
-                )
-             }
+    toggleEditAttributes() {
+        this.setState(({ isEditingAttributes })=> ({
+            isEditingAttributes: !isEditingAttributes
+        }));
+    }
+
+    renderEditAttributesButton() {
+        if (this.state.isEditingAttributes) return (
+            <button className='btn btn-default btn-sm pull-right' onClick={this.toggleEditAttributes}>
+                <i className='fa fa-floppy-o'></i>
+            </button>
+        )
+        return (
+            <button className='btn btn-default btn-sm btn-primary pull-right' onClick={this.toggleEditAttributes}>
+                <i className='fa fa-pencil'></i>
+            </button>
+        );
+    }
+
+    renderTableRows(rows, data, name){
+         return _.map(rows, ({ type, field, label })=>{
+             let value = data[field];
+            switch(name) {
+                case 'attributes':
+                    if (this.state.isEditingAttributes) {
+                        return (
+                            <tr key={field}>
+                                <td>{label}</td>
+                                <td>
+                                    {
+                                        (type === 'Date') ? (
+                                            <DatePicker
+                                                selected={moment(value)}
+                                                onChange={((date)=> this.changeState(field, date))}
+                                            />
+                                        ) : (
+                                            <input
+                                                type='text'
+                                                value={value}
+                                                style={{width: '100%'}}
+                                                onChange={(event)=> this.changeState(field, event.target.value)}
+                                            />
+                                        )
+                                    }
+                                </td>
+                            </tr>
+                        );
+                    }
+                default:
+                    if (!value) return null;
+                    if (type == 'Date') value = moment(value).format('MM DD YYYY');
+                    return (
+                        <tr key={field}>
+                            <td>{label}</td>
+                            <td>{value}</td>
+                        </tr>
+                    );
+            }
              return null;
         })
     }
 
     render() {
-        const { project } = this.props;
+        const { project } = this.state;
         const attrRows = [
             {label: "Shipping mode", field: "shippingMode"},
             {label: "Actual delivery date", field: "actualDeliveryDate", type: "Date"},
@@ -52,24 +107,26 @@ class Details extends React.Component{
 
         return (
             <div className="details-inbox-tab">
-                <h2>Project Attributes</h2>
+                <h2>Project Attributes
+                    { this.renderEditAttributesButton() }
+                </h2>
                 <table className="data-table">
                     <tbody>
-                    {this.renderTableRows(attrRows, project)}
+                    {this.renderTableRows(attrRows, project, 'attributes')}
                     </tbody>
                 </table>
 
                 <h2>Shipping</h2>
                 <table className="data-table">
                     <tbody>
-                    {this.renderTableRows(shippingRows, project)}
+                    {this.renderTableRows(shippingRows, project, 'shipping')}
                     </tbody>
                 </table>
 
                 <h2>Billing</h2>
                 <table className="data-table">
                    <tbody>
-                   {this.renderTableRows(billingRows, project)}
+                   {this.renderTableRows(billingRows, project, 'billing')}
                    </tbody>
                 </table>
             </div>
