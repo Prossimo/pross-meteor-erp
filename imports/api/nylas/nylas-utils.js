@@ -2,6 +2,7 @@ import _ from 'underscore';
 import '../models/users/users';
 import moment from 'moment-timezone';
 import RegExpUtils from './RegExpUtils'
+import AccountStore from './account-store'
 
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -163,5 +164,19 @@ module.exports = NylasUtils = {
             (!draft.files || draft.files.length==0) &&
             (!draft.downloads || draft.downloads.length==0)
 
+    },
+
+    usesFolders: (account) => {
+        return account.organization_unit == 'folder'
+    },
+
+    usesLabels: (account) => {
+        return account.organization_unit == 'label'
+    },
+
+    displayTypeForCategory: (category) => {
+        const account = AccountStore.accountForAccountId(category.account_id)
+
+        return account.organization_unit
     }
 }
