@@ -216,6 +216,81 @@ Meteor.methods({
         return userId;
     },
 
+    updateProjectShipping(projectId, shipping) {
+        check(projectId, String);
+        check(shipping, {
+            shippingContactPhone: Match.Maybe(Match.phone),
+            shippingContactName: Match.Maybe(String),
+            shippingContactEmail: Match.Maybe(String),
+            shippingAddress: Match.Maybe(String),
+            shippingNotes: Match.Maybe(String),
+        });
+        // current user belongs to ADMIN LIST
+        const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+
+        // current user belongs to Projects
+        const project = Projects.findOne(projectId);
+        if (!project) throw new Meteor.Error('Project does not exists');
+        const isMember = !!project.members.find(({userId})=> userId === this.userId);
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
+
+        return Projects.update(projectId, {
+            $set: shipping,
+        });
+    },
+
+    updateProjectBilling(projectId, billing) {
+        check(projectId, String);
+        check(billing, {
+            billingContactPhone: Match.Maybe(Match.phone),
+            billingContactName: Match.Maybe(String),
+            billingContactEmail: Match.Maybe(String),
+            billingAddress: Match.Maybe(String),
+            billingNotes: Match.Maybe(String),
+        });
+        // current user belongs to ADMIN LIST
+        const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+
+        // current user belongs to Projects
+        const project = Projects.findOne(projectId);
+        if (!project) throw new Meteor.Error('Project does not exists');
+        const isMember = !!project.members.find(({userId})=> userId === this.userId);
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
+        return Projects.update(projectId, {
+            $set: billing,
+        });
+    },
+
+    updateProjectAttributes(projectId, attributes) {
+        check(projectId, String);
+        check(attributes, {
+            shippingMode: String,
+            actualDeliveryDate: Date,
+            productionStartDate: Date,
+            supplier: Match.Maybe(String),
+            shipper: Match.Maybe(String),
+        })
+
+        // current user belongs to ADMIN LIST
+        const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+
+        // current user belongs to Projects
+        const project = Projects.findOne(projectId);
+        if (!project) throw new Meteor.Error('Project does not exists');
+        const isMember = !!project.members.find(({userId})=> userId === this.userId);
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
+
+        return Projects.update(projectId, {
+            $set: attributes,
+        });
+    },
+
     addMemberToProject(projectId, member){
         check(projectId, String);
         check(member, {
