@@ -41,13 +41,13 @@ class FolderStore extends Reflux.Store {
                     }
                 })
 
-                if(!this.selectedFolder) {
+                //if(!this.selectedFolder) {
                     const inbox = _.findWhere(result, {name:'inbox'});
 
                     if(inbox) {
                         this.selectFolder(inbox);
                     }
-                }
+                //}
             }
             this.loading = false;
             this.trigger();

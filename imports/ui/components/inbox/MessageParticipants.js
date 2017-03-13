@@ -19,7 +19,6 @@ class MessageParticipants extends React.Component {
     }
 
     shortNames(participants = [], max = MAX_COLLAPSED) {
-        console.log("MessageParticipants", participants);
         let names = NylasUtils.getParticipantsNamesArray(participants, false);
         if (names.length > max) {
             extra = names.length - max;

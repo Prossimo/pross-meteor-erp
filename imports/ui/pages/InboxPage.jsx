@@ -22,7 +22,8 @@ class Inbox extends React.Component {
         this.state = {
             folders: [],
             threads: [],
-            loading: true,
+            loadingFolders: false,
+            loadingThreads: false,
             hasNylasInfo: Meteor.user().nylas != null,
             selectedFolder: null,
             selectedThread: null
@@ -40,18 +41,22 @@ class Inbox extends React.Component {
         this.unsubscribes.push(FolderStore.listen(this.onFolderStoreChanged));
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged));
+
+        //window.addEventListener("scroll", this.onWindowScroll);
     }
 
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
         });
+
+        //window.removeEventListener("scroll", this.onWindowScroll);
     }
 
     onFolderStoreChanged() {
         this.setState({
             folders: FolderStore.getFolders(),
-            loading: this.isLoading(),
+            loadingFolders: FolderStore.loading,
             selectedFolder: FolderStore.getSelectedFolder()
         })
     }
@@ -60,7 +65,7 @@ class Inbox extends React.Component {
         const selectedFolder = FolderStore.getSelectedFolder()
         this.setState({
             threads: ThreadStore.getThreads(selectedFolder&&selectedFolder.id),
-            loading: this.isLoading()
+            loadingThreads: ThreadStore.loading
         })
     }
 
@@ -68,10 +73,6 @@ class Inbox extends React.Component {
         this.setState({
             composeState: DraftStore.draftViewStateForModal()
         })
-    }
-
-    isLoading() {
-        return FolderStore.isLoading() && ThreadStore.isLoading();
     }
 
     render() {
@@ -100,8 +101,8 @@ class Inbox extends React.Component {
     }
 
     renderInbox() {
-        const {loading}  = this.state;
-        if (loading) {
+        const {loadingFolders}  = this.state;
+        if (loadingFolders) {
             return <Spinner visible={true}/>
         } else {
             return (<div className="content-panel">
@@ -112,9 +113,7 @@ class Inbox extends React.Component {
                     borderRight: '1px solid rgba(221,221,221,0.6)',
                     paddingRight: 5
                 }}>
-                    <div className="list-folder">
-                        {this.renderFolders()}
-                    </div>
+                    {this.renderFolders()}
                 </div>
                 <div className="column-panel" style={{
                     order: 2,
@@ -123,10 +122,9 @@ class Inbox extends React.Component {
                     borderRight: '1px solid rgba(221,221,221,0.6)',
                     overflowY: 'auto',
                     height: '100%'
-                }}>
-                    <div className="list-thread">
+                }} onScroll={this.onScrollThreadList}>
+
                         {this.renderThreads()}
-                    </div>
                 </div>
                 <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
                     {this.renderMessages()}
@@ -137,18 +135,35 @@ class Inbox extends React.Component {
 
     renderFolders() {
         const {folders, selectedFolder} = this.state;
-
-        return folders.map((folder) => <ItemFolder key={folder.id} folder={folder} onClick={(evt) => {
-            this.onFolderSelected(folder)
-        }} selected={selectedFolder && folder.id == selectedFolder.id}/>)
+        console.log('Folders', folders)
+        return (
+            <div className="list-folder">
+                {
+                    folders.map((folder) => <ItemFolder
+                        key={folder.id}
+                        folder={folder}
+                        onClick={(evt) => { this.onFolderSelected(folder) }}
+                        selected={selectedFolder && folder.id == selectedFolder.id}
+                    />)
+                }
+            </div>
+        )
     }
 
     renderThreads() {
-        const {threads, selectedThread} = this.state;
+        const {threads, selectedThread, loadingThreads} = this.state;
 
-        return threads.map((thread) => <ItemThread key={thread.id} thread={thread}
-                                                   onClick={(evt) => this.onThreadSelected(thread)}
-                                                   selected={selectedThread && thread.id == selectedThread.id}/>)
+        return (
+            <div className="list-thread">
+                {
+                    threads.map((thread) => <ItemThread key={thread.id} thread={thread}
+                                                        onClick={(evt) => this.onThreadSelected(thread)}
+                                                        selected={selectedThread && thread.id == selectedThread.id}/>)
+
+                }
+                {loadingThreads && <div style={{position:'relative', height:44, width:'100%'}}><Spinner visible={true} /></div>}
+            </div>
+        )
     }
 
     renderMessages() {
@@ -167,6 +182,14 @@ class Inbox extends React.Component {
         this.setState({selectedThread: thread});
 
         ThreadStore.selectThread(thread);
+    }
+
+    onScrollThreadList = (evt) => {
+        const el = evt.target
+
+        if(!this.state.loadingThreads && !ThreadStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
+            Actions.loadThreads(FolderStore.getSelectedFolder(), {page:ThreadStore.currentPage+1})
+        }
     }
 }
 

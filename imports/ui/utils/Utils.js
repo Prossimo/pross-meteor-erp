@@ -108,5 +108,28 @@ module.exports = Utils = {
         aStack.pop()
         bStack.pop()
         return true
+    },
+
+    iconForFolder: (folder) => {
+        const icons = [
+            'inbox',
+            'archive',
+            'drafts',
+            'sent',
+            'junk',
+            'spam',
+            'trash',
+            'snooze',
+            'starred',
+            'tag',
+            'today',
+            'plugins',
+            'important',
+            'folder',
+            'all'
+        ]
+
+
+        return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase())>-1 ? folder.name : "folder"}.png`
     }
 }
