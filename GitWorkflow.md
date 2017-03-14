@@ -50,3 +50,8 @@ We use the Pull Request system of github.
 **More you rebase your branch often, less you get problems. So don't wait ! You should rebase each time a commit is added to the upstream/dev.**
 
 **DISCLAIMER** : Use *`push -f`* only with **Fork and PR project** like here, never on a project were everyone is working on the **same remote**. Your rewrite commits history.
+
+> DON'T MERGE yourself PR, it should be accomplished by Project Manager or Git Manager.
+
+**Do *`Squash and merge`* so that `upstream`'s commits history is not messy.**
+
