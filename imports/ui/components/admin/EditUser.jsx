@@ -20,7 +20,9 @@ class EditUser extends React.Component{
       email: props.user.email,
       validEmail: '',
       validUsername: '',
-      showModal: false
+      showModal: false,
+      newEmail: false,
+      newUsername: false
     };
     
     this.state = this.defaultState;
@@ -28,6 +30,17 @@ class EditUser extends React.Component{
     this.handleModalState = this.handleModalState.bind(this);
     this.close = this.close.bind(this);
     this.open = this.open.bind(this);
+  }
+  
+  componentWillReceiveProps (nextProps) {
+    this.setState({
+      _id: nextProps.user._id,
+      selectedRole: nextProps.user.role,
+      firstName: nextProps.user.firstName,
+      lastName: nextProps.user.lastName,
+      username: nextProps.user.username,
+      email: nextProps.user.email,
+    });
   }
   
   close() {
@@ -62,7 +75,21 @@ class EditUser extends React.Component{
   
   submit(event){
     event.preventDefault();
+    
+    const unicFields = {
+      newUsername: false,
+      newEmail: false,
+    };
+    
     const { _id, firstName, lastName, username, email, selectedRole } = this.state;
+  
+    if (username !== this.props.user.username) {
+      unicFields.newUsername = true;
+    }
+    if (email !== this.props.user.email) {
+      unicFields.newEmail = true;
+    }
+    
     const userData = {
       _id,
       firstName,
@@ -71,10 +98,11 @@ class EditUser extends React.Component{
       email,
       role: selectedRole.value
     };
+    
     if(!username) return this.setState({validUsername: "Username is require"});
     if(!isValidEmail(email)) return this.setState({validEmail: "Email is require"});
     
-    Meteor.call('adminEditUser', userData, (err)=>{
+    Meteor.call('adminEditUser', userData, unicFields, (err)=>{
       if(err) return this.setState({[err.error]: err.reason});
       info('User was successfully edited!');
       this.setState(this.defaultState);
