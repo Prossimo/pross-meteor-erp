@@ -10,58 +10,60 @@ class CategoryStore extends Reflux.Store {
         super();
         this.listenTo(Actions.loadCategories, this.onLoadCategories)
 
-        this.categories = {};
+        this.categories = [];
         this.selectedCategory = null;
 
         this.loading = false;
     }
 
     onLoadCategories = (accountId) => {
-        const account = AccountStore.accountForAccountId(accountId)
+        let accounts = []
+        if(accountId)
+            accounts.push(AccountStore.accountForAccountId(accountId))
+        else
+            accounts = AccountStore.accounts()
 
-        if(!account) return;
 
-        accountId = account.account_id
-        this.loading = true;
-        this.trigger();
+        if(accounts.length == 0) return;
 
-        if(!this.categories[accountId]) this.categories[accountId] = []
+        accounts.forEach((account)=>{
+            accountId = account.accountId
+            this.loading = true;
+            this.trigger();
 
-        NylasAPI.makeRequest({
-            path: `/${account.organization_unit}s`,
-            method: 'GET',
-            accountId: account.account_id
-        }).then((result) => {
-            console.log("Nylas get categories result", result);
+            NylasAPI.makeRequest({
+                path: `/${account.organizationUnit}s`,
+                method: 'GET',
+                accountId: account.accountId
+            }).then((result) => {
+                console.log("Nylas get categories result", result);
 
-            if(result && result.length) {
-                console.log("FolderStore",this.categories[accountId], accountId, this.categories)
-                result.forEach((item)=>{
-                    if(!_.contains(this.categories[accountId], item)) {
-                        this.categories[accountId].push(item)
-                    }
-                })
+                if(result && result.length) {
+                    result.forEach((item)=>{
+                        if(!_.find(this.categories, {id:item.id})) {
+                            this.categories.push(item)
+                        }
+                    })
 
-                //if(!this.selectedCategory) {
-                    const inbox = _.findWhere(result, {name:'inbox'});
+                    //if(!this.selectedCategory) {
+                    /*const inbox = _.findWhere(result, {name:'inbox'});
 
                     if(inbox) {
                         this.selectCategory(inbox);
-                    }
-                //}
-            }
-            this.loading = false;
-            this.trigger();
+                    }*/
+                    //}
+                }
+                this.loading = false;
+                this.trigger();
+            })
         })
     }
 
     getCategories(accountId) {
-        if(!accountId) {
-            const defaultAccount = AccountStore.defaultAccount()
-
-            if(defaultAccount) accountId = defaultAccount.account_id
+        if(accountId) {
+            return _.find(this.categories, {accound_id:accountId})
         }
-        return this.categories[accountId];
+        return this.categories;
     }
 
     isLoading() {
@@ -78,36 +80,26 @@ class CategoryStore extends Reflux.Store {
     }
 
     getInboxCategory(accountId) {
-        const categories = this.getCategories(accountId)
+        const category = _.findWhere(this.categories, {name:'inbox', account_id:accountId})
 
-        const category = _.findWhere(categories, {name:'inbox'})
-        console.log(accountId, category)
         return category
     }
 
     getArchiveCategory(accountId) {
         const account = AccountStore.accountForAccountId(accountId)
 
-        const categories = this.getCategories(accountId)
+        const category = _.findWhere(this.categories, {name:NylasUtils.usesFolders(account) ? 'archive' : 'all', account_id:accountId})
 
-        const category = _.findWhere(categories, {name:NylasUtils.usesFolders(account) ? 'archive' : 'all'})
-        console.log(accountId, category)
         return category
     }
 
     getTrashCategory(accountId) {
-        const categories = this.getCategories(accountId)
-
-        const category = _.findWhere(categories, {name: 'trash'})
-        console.log(accountId, category)
+        const category = _.findWhere(this.categories, {name:'trash', account_id:accountId})
         return category
     }
 
     getSpamCategory(accountId) {
-        const categories = this.getCategories(accountId)
-
-        const category = _.findWhere(categories, {name: 'spam'})
-        console.log(accountId, category)
+        const category = _.findWhere(this.categories, {name:'spam', account_id:accountId})
         return category
     }
 
@@ -119,10 +111,7 @@ class CategoryStore extends Reflux.Store {
         if(!account) return null
         if(!NylasUtils.usesLabels(account)) return null
 
-        const categories = this.getCategories(accountId)
-
-        const category = _.findWhere(categories, {name: 'all'})
-        console.log(accountId, category)
+        const category = _.findWhere(this.categories, {name: 'all', account_id:accountId})
         return category
     }
 }
