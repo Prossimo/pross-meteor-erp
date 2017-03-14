@@ -53,7 +53,7 @@ module.exports = class SyncbackCategoryTask extends Task {
         return NylasAPI.makeRequest({
             path,
             method,
-            account_id,
+            accountId:account_id,
             body: {
                 display_name: displayName,
             },

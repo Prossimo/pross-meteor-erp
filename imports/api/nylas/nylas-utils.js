@@ -67,13 +67,6 @@ module.exports = NylasUtils = {
         }
     },
 
-    useFolder: () => {
-        const currentUser = Meteor.user();
-        if (!currentUser) return false;
-
-        return currentUser.nylas && currentUser.nylas.organization_unit == 'folder';
-    },
-
     shortTimeString: (time/*unixtimestamp*/) => {
         if (!time) return "";
 
@@ -166,17 +159,34 @@ module.exports = NylasUtils = {
 
     },
 
-    usesFolders: (account) => {
-        return account.organization_unit == 'folder'
+    usesFolders: (accountOrId) => {
+        let account;
+        if(accountOrId instanceof Object) {
+            account = accountOrId
+        } else {
+            account = AccountStore.accountForAccountId(accountOrId)
+        }
+        return account.organizationUnit == 'folder'
     },
 
-    usesLabels: (account) => {
-        return account.organization_unit == 'label'
+    usesLabels: (accountOrId) => {
+        let account;
+        if(accountOrId instanceof Object) {
+            account = accountOrId
+        } else {
+            account = AccountStore.accountForAccountId(accountOrId)
+        }
+        return account.organizationUnit == 'label'
     },
 
     displayTypeForCategory: (category) => {
         const account = AccountStore.accountForAccountId(category.account_id)
 
-        return account.organization_unit
+        return account.organizationUnit
+    },
+
+    hasNylasAccounts: () => {
+        const accounts = AccountStore.accounts(); console.log(accounts)
+        return accounts.length>0
     }
 }

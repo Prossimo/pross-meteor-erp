@@ -34,7 +34,7 @@ class ContactStore extends Reflux.Store {
             NylasAPI.makeRequest({
                 path: `/contacts?${query}`,
                 method: 'GET',
-                accountId: account.account_id
+                accountId: account.accountId
             }).then((result) => {
                 //console.log("Nylas get contacts result", result);
 
