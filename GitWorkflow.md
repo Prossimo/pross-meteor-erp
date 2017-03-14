@@ -51,7 +51,7 @@ We use the Pull Request system of github.
 
 **DISCLAIMER** : Use *`push -f`* only with **Fork and PR project** like here, never on a project were everyone is working on the **same remote**. Your rewrite commits history.
 
-> DON'T MERGE yourself PR, it should be accomplished by Project Manager or Git Manager.
+> DON'T MERGE yourself PR, it should be accomplished by Project Manager or Git Manager after review.
 
 **Do *`Squash and merge`* so that `upstream`'s commits history is not messy.**
 
