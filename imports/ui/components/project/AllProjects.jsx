@@ -206,6 +206,7 @@ class AllProjects extends React.Component{
         }
         Meteor.call('updateProjectProperty', _id, { key, value }, (error)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
+            this.handleMouseLeave();
             this.setState({
                 edittingCell: {
                     key: null,

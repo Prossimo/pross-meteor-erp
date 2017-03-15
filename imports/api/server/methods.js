@@ -335,7 +335,6 @@ Meteor.methods({
     },
 
     updateProjectProperty(projectId, property) {
-        console.log(property);
         check(projectId, String);
         check(property, {
             key: String,
