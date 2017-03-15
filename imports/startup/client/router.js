@@ -8,7 +8,7 @@ import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
 import ProjectsPage from '/imports/ui/pages/ProjectsPage';
 import UserAccount from '../../ui/pages/UserAccount';
-import Inbox from '../../ui/pages/InboxPage';
+import InboxPage from '../../api/composer/pages/InboxPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
@@ -60,7 +60,7 @@ FlowRouter.route('/inbox', {
     action(){
         checkAuth();
         mount(App, {
-            content: <Inbox/>,
+            content: <InboxPage/>,
         })
     }
 });

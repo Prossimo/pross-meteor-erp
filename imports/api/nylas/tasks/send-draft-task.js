@@ -42,7 +42,7 @@ export default class SendDraftTask extends Task {
         if (!account) {
             return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."));
         }
-        if (this.draft.account_id !== account.account_id) {
+        if (this.draft.account_id !== account.accountId) {
             return Promise.reject(new Error("The from address has changed since you started sending this draft. Double-check the draft and click 'Send' again."));
         }
         if (this.draft.uploads && (this.draft.uploads.length > 0)) {

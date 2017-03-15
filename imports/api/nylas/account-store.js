@@ -3,7 +3,7 @@ import Reflux from 'reflux'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import RegExpUtils from './RegExpUtils'
-
+import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
 
 class AccountStore extends Reflux.Store {
     constructor() {
@@ -11,15 +11,15 @@ class AccountStore extends Reflux.Store {
 
         this._accounts = [];
 
-
-
+        this.listenTo(Actions.changedAccounts, this.onChangedAccounts)
     }
 
+    onChangedAccounts = () =>{
+        this.trigger()
+        Actions.loadCategories()
+    }
     accounts() {
-        const currentUser = Meteor.user();
-        if (currentUser && currentUser.nylas) {
-            this._accounts = [currentUser.nylas]
-        }
+        this._accounts = NylasAccounts.find({userId:Meteor.userId()}).fetch()
 
         return this._accounts
     }
@@ -34,7 +34,7 @@ class AccountStore extends Reflux.Store {
 
     accountForAccountId(accountId) {
         if(accountId)
-            return _.findWhere(this.accounts(), {account_id: accountId})
+            return _.findWhere(this.accounts(), {accountId: accountId})
 
         return this.defaultAccount()
     }
@@ -42,7 +42,7 @@ class AccountStore extends Reflux.Store {
     tokenForAccountId(accountId) {
         const account = this.accountForAccountId(accountId)
 
-        return account ? account.access_token : null
+        return account ? account.accessToken : null
     }
 }
 
