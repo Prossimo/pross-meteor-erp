@@ -340,7 +340,7 @@ class AllProjects extends React.Component{
     renderProjectList(){
         const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
         return (
-            <Table striped bordered condensed hover>
+            <Table condensed hover>
                 <thead>
                   <tr>
                     {
