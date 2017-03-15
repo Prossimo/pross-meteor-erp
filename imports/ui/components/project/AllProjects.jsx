@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'react-bootstrap';
+import { Table, Glyphicon } from 'react-bootstrap';
 import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
@@ -28,102 +28,119 @@ class AllProjects extends React.Component{
                     label: 'ID',
                     type: 'text',
                     selected: false,
+                    editable: false,
                 }, {
                     key: 'name',
                     label: 'Name',
                     type: 'text',
                     selected: true,
+                    editable: true,
                 },
                 {
                     key: 'actualDeliveryDate',
                     label: 'Delivery Date',
                     selected: true,
                     type: 'date',
+                    editable: true,
                 },
                 {
                     key: 'productionStartDate',
                     label: 'Start Date',
                     selected: false,
                     type: 'date',
+                    editable: true,
                 },
                 {
                     key: 'shippingContactEmail',
                     label: 'Shipping Email',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shippingAddress',
                     label: 'Shipping Address',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shippingContactPhone',
                     label: 'Shipping Phone',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shippingNotes',
                     label: 'Shipping Notes',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'billingContactName',
                     label: 'Billing Contact',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'billingContactEmail',
                     label: 'Billing Email',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'billingAddress',
                     label: 'Billing Address',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'billingContactPhone',
                     label: 'Billing Phone',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     type: 'billingNotes',
                     label: 'Billing Notes',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shippingMode',
                     label: 'Shipping Mode',
                     selected: true,
                     type: 'select',
-                    options: SHIPPING_MODE_LIST.map((value)=> ({label: value, value}))
+                    options: SHIPPING_MODE_LIST.map((value)=> ({label: value, value})),
+                    editable: true,
                 },
                 {
                     key: 'supplier',
                     label: 'Supplier',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shipper',
                     label: 'Shipper',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 },
                 {
                     key: 'shippingContactName',
                     label: 'Shipping Name',
                     selected: false,
                     type: 'text',
+                    editable: true,
                 }
             ]
         }
@@ -147,7 +164,9 @@ class AllProjects extends React.Component{
         })
     }
 
-    handleMouseEnter(key, rowIndex, value) {
+    handleMouseEnter(key, rowIndex, value ) {
+        const {editable} = this.state.possibleColumns.find((column)=> column.key === key);
+        if (!editable) return;
         this.setState({
             hoverCell: {
                 key,
@@ -199,7 +218,8 @@ class AllProjects extends React.Component{
                 value = value.toDate();
                 break;
             case 'select':
-                value = value.value;
+                // When user did not select any new option
+                value = value.value ? value.value : value;
                 break;
             default:
                 break;
@@ -256,6 +276,7 @@ class AllProjects extends React.Component{
                                         <td>
                                             <div>
                                                 <Select
+                                                    style={{width: '60%'}}
                                                     value={this.state.edittingCell.value}
                                                     options={options}
                                                     onChange={this.handleChange}
@@ -378,6 +399,7 @@ class AllProjects extends React.Component{
                     this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
                 }
                 </select>
+                <br/>
                {this.renderProjectList()}
            </div>
           )
