@@ -2,6 +2,7 @@ import _ from 'underscore';
 import '../models/users/users';
 import moment from 'moment-timezone';
 import RegExpUtils from './RegExpUtils'
+import AccountStore from './account-store'
 
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -64,13 +65,6 @@ module.exports = NylasUtils = {
                 return NylasUtils.contactDisplayName(participant);
             });
         }
-    },
-
-    useFolder: () => {
-        const currentUser = Meteor.user();
-        if (!currentUser) return false;
-
-        return currentUser.nylas && currentUser.nylas.organization_unit == 'folder';
     },
 
     shortTimeString: (time/*unixtimestamp*/) => {
@@ -163,5 +157,36 @@ module.exports = NylasUtils = {
             (!draft.files || draft.files.length==0) &&
             (!draft.downloads || draft.downloads.length==0)
 
+    },
+
+    usesFolders: (accountOrId) => {
+        let account;
+        if(accountOrId instanceof Object) {
+            account = accountOrId
+        } else {
+            account = AccountStore.accountForAccountId(accountOrId)
+        }
+        return account.organizationUnit == 'folder'
+    },
+
+    usesLabels: (accountOrId) => {
+        let account;
+        if(accountOrId instanceof Object) {
+            account = accountOrId
+        } else {
+            account = AccountStore.accountForAccountId(accountOrId)
+        }
+        return account.organizationUnit == 'label'
+    },
+
+    displayTypeForCategory: (category) => {
+        const account = AccountStore.accountForAccountId(category.account_id)
+
+        return account.organizationUnit
+    },
+
+    hasNylasAccounts: () => {
+        const accounts = AccountStore.accounts(); console.log(accounts)
+        return accounts.length>0
     }
 }

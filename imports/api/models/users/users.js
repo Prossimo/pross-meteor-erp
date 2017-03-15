@@ -2,6 +2,8 @@ import { Factory } from 'meteor/dburles:factory';
 import SimpleSchema from 'simpl-schema';
 import faker from 'faker';
 import { Accounts } from 'meteor/accounts-base';
+import {NylasAccounts} from '../nylasaccounts/nylas-accounts';
+
 Schema = {};
 
 Schema.User = new SimpleSchema({
@@ -49,25 +51,6 @@ Schema.User = new SimpleSchema({
     'profile.lastName': {
         type: String
     },
-    nylas: {
-        type: Object,
-        optional: true
-    },
-    'nylas.access_token': {
-        type: String
-    },
-    'nylas.account_id': {
-        type: String
-    },
-    'nylas.email_address': {
-        type: String
-    },
-    'nylas.provider': {
-        type: String
-    },
-    'nylas.organization_unit': {
-        type: String
-    },
     slack: {
         type: Object,
         optional: true,
@@ -108,6 +91,11 @@ Meteor.users.helpers({
             return this.emails[0].address;
         }
         return null;
+    },
+
+    nylasAccounts() {
+        console.log('NylasAccounts filter', {userId:this._id})
+        return NylasAccounts.find({userId:this._id}).fetch();
     }
 });
 
@@ -125,32 +113,6 @@ if(Meteor.isServer) {
             if(profile.lastName)
             {
                 user.profile.lastName = profile.lastName;
-            }
-        }
-
-        if(options.nylas) {
-            user.nylas = {};
-            const nylas = options.nylas;
-
-            if(nylas.access_token)
-            {
-                user.nylas.access_token = nylas.access_token;
-            }
-            if(nylas.account_id)
-            {
-                user.nylas.account_id = nylas.account_id;
-            }
-            if(nylas.organization_unit)
-            {
-                user.nylas.organization_unit = nylas.organization_unit;
-            }
-            if(nylas.email_address)
-            {
-                user.nylas.email_address = nylas.email_address;
-            }
-            if(nylas.provider)
-            {
-                user.nylas.provider = nylas.provider;
             }
         }
 

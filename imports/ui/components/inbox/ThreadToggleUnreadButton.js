@@ -6,7 +6,7 @@ export default class ThreadToggleUnreadButton extends React.Component {
     static displayName = 'ThreadToggleUnreadButton';
 
     static propTypes = {
-        thread: React.PropTypes.object.isRequired
+        thread: React.PropTypes.object
     }
 
     constructor(props) {
@@ -20,7 +20,8 @@ export default class ThreadToggleUnreadButton extends React.Component {
             <button className="btn1 btn-toolbar"
                     style={{order: -105}}
                     title={`Mark as ${fragment}`}
-                    onClick={this._onClick}>
+                    onClick={this._onClick}
+                    disabled={!this.props.thread}>
                 <img src={`/icons/inbox/toolbar-markas${fragment}.png`} width="50%"/>
             </button>
         )
