@@ -3,6 +3,7 @@ import { Table } from 'react-bootstrap';
 import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
+import { info, warning  } from '/imports/api/lib/alerts';
 import Select from 'react-select';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
@@ -133,6 +134,7 @@ class AllProjects extends React.Component{
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderSaveButton = this.renderSaveButton.bind(this);
+        this.updateProject = this.updateProject.bind(this);
     }
 
     handleMouseLeave() {
@@ -171,7 +173,6 @@ class AllProjects extends React.Component{
         this.setState({
             edittingCell,
         });
-        // TODO: update value in this place
     }
 
     renderEditButton(key, index, value) {
@@ -188,9 +189,40 @@ class AllProjects extends React.Component{
         }
     }
 
+    updateProject() {
+        // TODO: update project at here
+        const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
+        const { _id } = this.props.projects[this.state.edittingCell.rowIndex];
+        let { key, value } = this.state.edittingCell;
+        switch (type) {
+            case 'date':
+                value = value.toDate();
+                break;
+            case 'select':
+                value = value.value;
+                break;
+            default:
+                break;
+        }
+        Meteor.call('updateProjectProperty', _id, { key, value }, (error)=> {
+            if(error) return warning(`Problems with updating project. ${error.error}`);
+            this.setState({
+                edittingCell: {
+                    key: null,
+                    rowIndex: null,
+                    value: null,
+                }
+            });
+            return info(`Success update project`);
+        });
+    }
+
     renderSaveButton() {
         return (
-            <button className='btn btn-warning btn-sm pull-right'>
+            <button
+                className='btn btn-warning btn-sm pull-right'
+                onClick={ this.updateProject }
+            >
                 <i className='fa fa-save'/> Save
             </button>
         )
