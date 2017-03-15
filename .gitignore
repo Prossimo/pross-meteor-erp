@@ -4,5 +4,3 @@ packages/
 *.log
 settings.json
 packages.json
-
-package.json
