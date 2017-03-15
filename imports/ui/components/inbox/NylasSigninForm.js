@@ -15,10 +15,12 @@ export default class NylasSigninForm extends React.Component {
         super(props)
 
         this.state = {
+            name: '',
             email: '',
             password: '',
             provider: '',
             validation: {
+                name: '',
                 email: '',
                 password: '',
                 provider: ''
@@ -27,7 +29,7 @@ export default class NylasSigninForm extends React.Component {
     }
 
     render() {
-        const {validation, email, password, provider} = this.state
+        const {validation, name, email, password, provider} = this.state
 
         const validationStyle = {
             float: 'right',
@@ -38,8 +40,16 @@ export default class NylasSigninForm extends React.Component {
 
         return (
             <div style={{maxWidth: 500,minWidth: 400}}>
-                <h3 style={{textAlign:'center'}}>Add {this.state.isAddingTeamInbox ? "a Team" : "an Individual"} Inbox</h3><br/>
+                <h3 style={{textAlign:'center'}}>Add {this.props.isAddingTeamInbox ? "a Team" : "an Individual"} Inbox</h3><br/>
                 <Form horizontal onSubmit={this.onSubmitSignIn}>
+                    <FormGroup controlId="formHorizontalEmail">
+                        <Col componentClass={ControlLabel} sm={3}>
+                            Full Name
+                        </Col>
+                        <Col sm={9}>
+                            <FormControl type="text" placeholder="Name" value={name} onChange={(evt)=>this.setState({name:evt.target.value})}/>
+                        </Col><span style={validationStyle}>{validation.name}</span>
+                    </FormGroup>
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={3}>
                             Email
@@ -87,7 +97,12 @@ export default class NylasSigninForm extends React.Component {
 
     onSubmitSignIn = (evt) => {
         evt.preventDefault();
-        const {email, password, provider, validation} = this.state; console.log(email, password, provider, '1')
+        const {name, email, password, provider, validation} = this.state;
+
+        if (name == '') {
+            validation.name = 'Name is required'
+            return this.setState({validation:Object.assign(this.state.validation, validation)});
+        }
 
         if (!isValidEmail(email)) {
             validation.email = 'Please enter valid e-mail address'
@@ -104,6 +119,7 @@ export default class NylasSigninForm extends React.Component {
 
 
         this.signinData = {
+            name,
             email,
             password,
             provider,

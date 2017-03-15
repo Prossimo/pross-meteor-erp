@@ -16,10 +16,9 @@ class AccountStore extends Reflux.Store {
 
     onChangedAccounts = () =>{
         this.trigger()
-        Actions.loadCategories()
     }
     accounts() {
-        this._accounts = NylasAccounts.find({userId:Meteor.userId()}).fetch()
+        this._accounts = Meteor.user().nylasAccounts()
 
         return this._accounts
     }

@@ -38,11 +38,35 @@ NylasAccounts.schema = new SimpleSchema({
     accessToken: {type: String},
     accountId: {type: String},
     organizationUnit: {type: String},
+    name: {type: String, optional: true},
     emailAddress: {type: String},
     provider: {type: String},
 
     isTeamAccount: {type: Boolean, optional: true},
-    userId: {type: String, optional: true}  // if isTeamAccount=true then null
+    userId: {type: String, optional: true},  // if isTeamAccount=true then null
+
+    categories: {type: Array, optional: true},
+    "categories.$": {
+        type: Object
+    },
+    "categories.$.account_id": {
+        type: String
+    },
+    "categories.$.id": {
+        type: String
+    },
+    "categories.$.display_name": {
+        type: String,
+        optional: true
+    },
+    "categories.$.name": {
+        type: String,
+        optional: true
+    },
+    "categories.$.object": {
+        type: String
+    }
+
 });
 
 NylasAccounts.attachSchema(NylasAccounts.schema);
@@ -51,10 +75,12 @@ NylasAccounts.publicFields = {
     accessToken: 1,
     accountId: 1,
     organizationUnit: 1,
+    name: 1,
     emailAddress: 1,
     provider: 1,
     isTeamAccount: 1,
     userId: 1,
+    categories: 1,
     createdAt: 1,
     modifiedAt: 1
 };

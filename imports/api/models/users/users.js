@@ -94,8 +94,13 @@ Meteor.users.helpers({
     },
 
     nylasAccounts() {
-        console.log('NylasAccounts filter', {userId:this._id})
-        return NylasAccounts.find({userId:this._id}).fetch();
+        return NylasAccounts.find({
+            $or:[
+                {userId:this._id},
+                {isTeamAccount:true,userId:null}
+            ]
+
+        }).fetch();
     }
 });
 

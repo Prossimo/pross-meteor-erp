@@ -58,7 +58,8 @@ class ThreadStore extends Reflux.Store {
         })
     }
 
-    getThreads(categoryId) {console.log('ThreadStore getThreads', categoryId)
+    getThreads(category) {
+        const categoryId = category.id
         return this.threads.filter((thread)=>{
             if(thread.folders) {
                 return _.findWhere(thread.folders, {id:categoryId}) != null
