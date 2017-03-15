@@ -27,7 +27,6 @@ class EditUser extends React.Component{
     
     this.state = this.defaultState;
     
-    this.handleModalState = this.handleModalState.bind(this);
     this.close = this.close.bind(this);
     this.open = this.open.bind(this);
   }
@@ -49,12 +48,6 @@ class EditUser extends React.Component{
   
   open() {
     this.setState({ showModal: true });
-  }
-  
-  handleModalState () {
-    this.setState({
-      showModal: false
-    });
   }
   
   changeRole(selectedRole){
@@ -101,6 +94,9 @@ class EditUser extends React.Component{
     
     if(!username) return this.setState({validUsername: "Username is require"});
     if(!isValidEmail(email)) return this.setState({validEmail: "Email is require"});
+  
+    console.log(userData);
+    console.log(unicFields);
     
     Meteor.call('adminEditUser', userData, unicFields, (err)=>{
       if(err) return this.setState({[err.error]: err.reason});
@@ -127,7 +123,7 @@ class EditUser extends React.Component{
         <Button bsStyle="primary" onClick={this.open}>Edit</Button>
         <Modal show={this.state.showModal} onHide={this.close}>
           <Modal.Header closeButton>
-            <Modal.Title>Create user</Modal.Title>
+            <Modal.Title>Edit user</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form onSubmit={this.submit.bind(this)}
