@@ -6,7 +6,7 @@ export default class ThreadTrashButton extends React.Component {
     static displayName = 'ThreadTrashButton';
 
     static propTypes = {
-        thread: React.PropTypes.object
+        thread: React.PropTypes.object.isRequired
     }
 
     constructor(props) {
@@ -22,9 +22,7 @@ export default class ThreadTrashButton extends React.Component {
             <button className="btn1 btn-toolbar"
                     style={{order: -106}}
                     title="Move to Trash"
-                    onClick={this._onRemove}
-                    disabled={!this.props.thread}
-            >
+                    onClick={this._onRemove}>
                 <img src="/icons/inbox/toolbar-trash.png" width="50%"/>
             </button>
         )

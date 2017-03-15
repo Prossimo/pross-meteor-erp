@@ -16,7 +16,7 @@ class DraftFactory {
             cc: [],
             bcc: [],
             date: new Date().getTime() / 1000,
-            account_id: account.accountId
+            account_id: account.account_id
         })
     }
 }

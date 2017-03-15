@@ -1,19 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
 import { Messages, Projects, CreatedUsers, Quotes, Files, Events, SlackMessages } from '../lib/collections';
-import { NylasAccounts } from '../models/nylasaccounts/nylas-accounts'
-import {
-    GET_ACTIVITY,
-    GET_PROJECTS,
-    GET_USERS,
-    GET_PROJECT,
-    GET_SLACK_MSG,
-    GET_PROJECT_EVENTS,
-    GET_ADMIN_CREATE_USERS,
-    GET_QUOTES,
-    GET_PROJECT_FILES,
-    GET_NYLAS_ACCOUNTS
-} from '../constants/collections';
+import { GET_ACTIVITY, GET_PROJECTS, GET_USERS, GET_PROJECT, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_ADMIN_CREATE_USERS, GET_QUOTES, GET_PROJECT_FILES } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
 Meteor.startup(()=>{
@@ -74,10 +62,6 @@ Meteor.startup(()=>{
             return[];
         }
     })
-
-    Meteor.publish(GET_NYLAS_ACCOUNTS, function () {
-        return NylasAccounts.find({});
-    });
 });
 
 

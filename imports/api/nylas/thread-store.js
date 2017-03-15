@@ -20,16 +20,16 @@ class ThreadStore extends Reflux.Store {
         this.currentPage = 1;
     }
 
-    onLoadThreads = (category, {page=1, search}={}) => {
+    onLoadThreads = (folder, {page=1, search}={}) => {
         this.loading = true;
         this.trigger();
 
 
-        const query = QueryString.stringify({in:category.id, offset:(page-1)*PAGE_SIZE, limit:PAGE_SIZE});
+        const query = QueryString.stringify({in:folder.id, offset:(page-1)*PAGE_SIZE, limit:PAGE_SIZE});
         NylasAPI.makeRequest({
             path: `/threads?${query}`,
             method: 'GET',
-            accountId: category.account_id
+            accountId: folder.account_id
         }).then((result) => {
             console.log("Nylas get threads result", result);
 
@@ -58,12 +58,12 @@ class ThreadStore extends Reflux.Store {
         })
     }
 
-    getThreads(categoryId) {console.log('ThreadStore getThreads', categoryId)
+    getThreads(folderId) {console.log('getThreads', folderId, this.threads)
         return this.threads.filter((thread)=>{
             if(thread.folders) {
-                return _.findWhere(thread.folders, {id:categoryId}) != null
+                return _.findWhere(thread.folders, {id:folderId}) != null
             } else if(thread.labels) {
-                return _.findWhere(thread.labels, {id:categoryId}) != null
+                return _.findWhere(thread.labels, {id:folderId}) != null
             } else {
                 return false
             }
@@ -81,17 +81,6 @@ class ThreadStore extends Reflux.Store {
 
     getSelectedThread() {
         return this.selectedThread;
-    }
-
-    changeThreads(threads) {
-        threads.forEach((t)=>{
-            const thread = _.findWhere(this.threads, {id: t.id})
-            if(thread) {
-                const index = _.indexOf(this.threads, thread)
-                this.threads[index] = t
-            }
-        })
-        this.trigger()
     }
 }
 

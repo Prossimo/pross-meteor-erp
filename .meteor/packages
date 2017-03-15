@@ -45,6 +45,5 @@ ostrio:meteor-root
 
 
 npm-container
-nicolaslopezj:apollo-accounts
-orionsoft:apollo
-orionsoft:graphql-compiler
+kadira:graphql
+apollo

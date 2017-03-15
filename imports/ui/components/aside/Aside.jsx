@@ -77,7 +77,7 @@ class Aside extends React.Component{
                 route: "Dashboard"
             },
             {
-                label: "SalesRecords",
+                label: "CRM",
                 topLevel: true,
                 subItems: [
                     {

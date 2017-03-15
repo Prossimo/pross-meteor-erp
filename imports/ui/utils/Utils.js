@@ -110,7 +110,7 @@ module.exports = Utils = {
         return true
     },
 
-    iconForCategory: (folder) => {
+    iconForFolder: (folder) => {
         const icons = [
             'inbox',
             'archive',

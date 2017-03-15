@@ -11,11 +11,6 @@ class TaskQueue extends Reflux.Store {
         this._currentSequentialId = Date.now()
 
         this.listenTo(Actions.queueTask, this.enqueue)
-        this.listenTo(Actions.queueTasks, (tasks)=>{
-            if(!(tasks && tasks.length>0)) return;
-
-            tasks.forEach((t)=>this.enqueue(t))
-        })
     }
 
     queue = () => {

@@ -8,7 +8,6 @@ import MessageTimestamp from './MessageTimestamp';
 import MessageControls from './MessageControls';
 
 
-
 class ItemMessage extends React.Component {
 
     constructor(props) {
@@ -134,7 +133,7 @@ class ItemMessage extends React.Component {
     renderFolder() {
         if (!this.state.detailedHeaders) return [];
 
-        if (!NylasUtils.usesFolders(this.props.message.account_id)) return;
+        if (!NylasUtils.useFolder()) return;
 
         const folder = this.props.message.folder;
 

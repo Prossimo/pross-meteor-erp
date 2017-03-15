@@ -1,50 +1,44 @@
-import _ from 'underscore'
 import React from 'react';
-import {Button} from 'react-bootstrap';
 import Spinner from '../components/utils/spinner';
 import Actions from '../../api/nylas/actions';
 import TaskQueue from '../../api/nylas/tasks/task-queue';
 import NylasUtils from '../../api/nylas/nylas-utils';
-import AccountStore from '../../api/nylas/account-store';
-import CategoryStore from '../../api/nylas/category-store';
+import FolderStore from '../../api/nylas/folder-store';
 import ThreadStore from '../../api/nylas/thread-store';
 import DraftStore from '../../api/nylas/draft-store';
-import ItemCategory from '../components/inbox/ItemCategory';
+import ItemFolder from '../components/inbox/ItemFolder';
 import ItemThread from '../components/inbox/ItemThread';
 import MessageList from '../components/inbox/MessageList';
 import Toolbar from '../components/inbox/Toolbar';
 import ComposeModal from '../components/inbox/composer/ComposeModal';
-import {ADMIN_ROLE_LIST} from '../../api/constants/roles';
-import NylasSigninForm from '../components/inbox/NylasSigninForm';
 
-
-class InboxPage extends React.Component {
+class Inbox extends React.Component {
     constructor(props) {
         super(props);
 
+        this.onFolderStoreChanged = this.onFolderStoreChanged.bind(this);
+        this.onThreadStoreChanged = this.onThreadStoreChanged.bind(this);
+
         this.state = {
-            isAddingInbox: false,
-            isAddingTeamInbox: false,
-            categories: [],
+            folders: [],
             threads: [],
-            loadingCategories: false,
+            loadingFolders: false,
             loadingThreads: false,
-            hasNylasAccounts: NylasUtils.hasNylasAccounts(),
-            selectedCategory: null,
+            hasNylasInfo: Meteor.user().nylas != null,
+            selectedFolder: null,
             selectedThread: null
         }
 
 
-        if (this.state.hasNylasAccounts) {
+        if (this.state.hasNylasInfo) {
             Actions.loadContacts();
-            Actions.loadCategories();
+            Actions.loadFolders();
         }
     }
 
     componentDidMount() {
         this.unsubscribes = [];
-        this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged));
-        this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged));
+        this.unsubscribes.push(FolderStore.listen(this.onFolderStoreChanged));
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged));
 
@@ -59,26 +53,18 @@ class InboxPage extends React.Component {
         //window.removeEventListener("scroll", this.onWindowScroll);
     }
 
-    onAccountStoreChanged = () => {
+    onFolderStoreChanged() {
         this.setState({
-            isAddingInbox: false,
-            isAddingTeamInbox: false,
-            hasNylasAccounts: NylasUtils.hasNylasAccounts()
+            folders: FolderStore.getFolders(),
+            loadingFolders: FolderStore.loading,
+            selectedFolder: FolderStore.getSelectedFolder()
         })
     }
 
-    onCategoryStoreChanged = () => {
+    onThreadStoreChanged() {
+        const selectedFolder = FolderStore.getSelectedFolder()
         this.setState({
-            categories: CategoryStore.getCategories(),
-            loadingCategories: CategoryStore.loading,
-            selectedCategory: CategoryStore.getSelectedCategory()
-        })
-    }
-
-    onThreadStoreChanged = () => {
-        const selectedCategory = CategoryStore.getSelectedCategory()
-        this.setState({
-            threads: ThreadStore.getThreads(selectedCategory && selectedCategory.id),
+            threads: ThreadStore.getThreads(selectedFolder&&selectedFolder.id),
             loadingThreads: ThreadStore.loading
         })
     }
@@ -90,42 +76,24 @@ class InboxPage extends React.Component {
     }
 
     render() {
-        const {hasNylasAccounts, composeState, isAddingInbox, isAddingTeamInbox} = this.state;
-        if (isAddingInbox) {
-            return (
-                <div className="inbox-page">
-                    <NylasSigninForm isAddingTeamInbox={isAddingTeamInbox}
-                                     onCancel={() => this.setState({isAddingInbox: false})}/>
-                </div>
-            )
-        } else {
-            return (
-                <div className="inbox-page">
-                    {hasNylasAccounts && this.renderInbox()}
-                    {!hasNylasAccounts && (
-                        <div style={{textAlign: 'center'}}>
-                            <Button bsStyle="primary" onClick={() => this.setState({isAddingInbox: true})}>Add an individual inbox</Button>
-                            {Roles.userIsInRole(this.props.currentUser._id, [...ADMIN_ROLE_LIST]) &&
-                            <Button bsStyle="default" style={{marginLeft: 10}}
-                                    onClick={() => this.setState({isAddingInbox: true, isAddingTeamInbox: true})}>Add a
-                                team inbox</Button>}
-                        </div>
-                    )}
-                    <ComposeModal isOpen={composeState && composeState.show}
-                                  clientId={composeState && composeState.clientId} onClose={this.onCloseComposeModal}/>
-                </div>
-            )
-        }
-
+        const {hasNylasInfo, composeState} = this.state;
+        return (
+            <div className="inbox-page">
+                <Toolbar />
+                {hasNylasInfo && this.renderInbox()}
+                {!hasNylasInfo && (<div>Could not get inbox data!</div>)}
+                <ComposeModal isOpen={composeState && composeState.show} clientId={composeState && composeState.clientId} onClose={this.onCloseComposeModal} />
+            </div>
+        )
     }
 
     onCloseComposeModal = () => {
         const {composeState} = this.state
-        if (!composeState) return
+        if(!composeState) return
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
 
-        if (!NylasUtils.isEmptyDraft(draft) && confirm('Are you sure to discard?')) {
+        if(!NylasUtils.isEmptyDraft(draft) && confirm('Are you sure to discard?')) {
             DraftStore.removeDraftForClientId(draft.clientId)
         } else {
             DraftStore.removeDraftForClientId(draft.clientId)
@@ -133,74 +101,50 @@ class InboxPage extends React.Component {
     }
 
     renderInbox() {
-        const {loadingCategories} = this.state;
-        if (loadingCategories) {
+        const {loadingFolders}  = this.state;
+        if (loadingFolders) {
             return <Spinner visible={true}/>
         } else {
-            return (
-                <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-                    <Toolbar currentUser={this.props.currentUser} thread={this.state.selectedThread} onSelectAddInbox={(isAddingTeamInbox) => this.setState({isAddingInbox: true, isAddingTeamInbox: isAddingTeamInbox})}/>
-
-                    <div className="content-panel">
-                        <div className="column-panel" style={{
-                            order: 1,
-                            minWidth: 150,
-                            maxWidth: 200,
-                            borderRight: '1px solid rgba(221,221,221,0.6)',
-                            paddingRight: 5,
-                            overflowY: 'auto',
-                            height: '100%'
-                        }}>
-                            {this.renderCategories()}
-                        </div>
-                        <div className="column-panel" style={{
-                            order: 2,
-                            minWidth: 250,
-                            maxWidth: 450,
-                            borderRight: '1px solid rgba(221,221,221,0.6)',
-                            overflowY: 'auto',
-                            height: '100%'
-                        }} onScroll={this.onScrollThreadList}>
-
-                            {this.renderThreads()}
-                        </div>
-                        <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
-                            {this.renderMessages()}
-                        </div>
-                    </div>
+            return (<div className="content-panel">
+                <div className="column-panel" style={{
+                    order: 1,
+                    minWidth: 150,
+                    maxWidth: 200,
+                    borderRight: '1px solid rgba(221,221,221,0.6)',
+                    paddingRight: 5
+                }}>
+                    {this.renderFolders()}
                 </div>
-            )
+                <div className="column-panel" style={{
+                    order: 2,
+                    minWidth: 250,
+                    maxWidth: 450,
+                    borderRight: '1px solid rgba(221,221,221,0.6)',
+                    overflowY: 'auto',
+                    height: '100%'
+                }} onScroll={this.onScrollThreadList}>
+
+                        {this.renderThreads()}
+                </div>
+                <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
+                    {this.renderMessages()}
+                </div>
+            </div>)
         }
     }
 
-
-    renderCategories() {
-        const {categories, selectedCategory} = this.state;
-
-        console.log('Categories', categories)
+    renderFolders() {
+        const {folders, selectedFolder} = this.state;
+        console.log('Folders', folders)
         return (
-            <div className="list-category">
+            <div className="list-folder">
                 {
-                    AccountStore.accounts().map((account) => {
-                        const categoriesForAccount = _.where(categories, {account_id:account.accountId})
-                        console.log('categoriesForAccount', categoriesForAccount)
-                        return (
-                            <div key={account.accountId}>
-                                <div className="account-wrapper">{account.emailAddress}</div>
-                                {
-                                    categoriesForAccount && categoriesForAccount.length>0 && categoriesForAccount.map((category) => <ItemCategory
-                                        key={category.id}
-                                        category={category}
-                                        onClick={(evt) => {
-                                            this.onCategorySelected(category)
-                                        }}
-                                        selected={selectedCategory && category.id == selectedCategory.id}
-                                    />)
-                                }
-                            </div>
-                        )
-
-                    })
+                    folders.map((folder) => <ItemFolder
+                        key={folder.id}
+                        folder={folder}
+                        onClick={(evt) => { this.onFolderSelected(folder) }}
+                        selected={selectedFolder && folder.id == selectedFolder.id}
+                    />)
                 }
             </div>
         )
@@ -217,8 +161,7 @@ class InboxPage extends React.Component {
                                                         selected={selectedThread && thread.id == selectedThread.id}/>)
 
                 }
-                {loadingThreads &&
-                <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
+                {loadingThreads && <div style={{position:'relative', height:44, width:'100%'}}><Spinner visible={true} /></div>}
             </div>
         )
     }
@@ -227,13 +170,15 @@ class InboxPage extends React.Component {
         return <MessageList />
     }
 
-    onCategorySelected(category) {
-        this.setState({selectedCategory: category});
+    onFolderSelected(folder) {
+        console.log("Folder selected", folder);
+        this.setState({selectedFolder: folder});
 
-        CategoryStore.selectCategory(category);
+        FolderStore.selectFolder(folder);
     }
 
     onThreadSelected(thread) {
+        console.log('Thread selected', thread);
         this.setState({selectedThread: thread});
 
         ThreadStore.selectThread(thread);
@@ -242,10 +187,10 @@ class InboxPage extends React.Component {
     onScrollThreadList = (evt) => {
         const el = evt.target
 
-        if (!this.state.loadingThreads && !ThreadStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
-            Actions.loadThreads(CategoryStore.getSelectedCategory(), {page: ThreadStore.currentPage + 1})
+        if(!this.state.loadingThreads && !ThreadStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
+            Actions.loadThreads(FolderStore.getSelectedFolder(), {page:ThreadStore.currentPage+1})
         }
     }
 }
 
-export default InboxPage;
+export default Inbox;

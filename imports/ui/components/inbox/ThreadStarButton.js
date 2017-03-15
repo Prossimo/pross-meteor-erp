@@ -6,7 +6,7 @@ export default class ThreadStarButton extends React.Component {
     static displayName = 'ThreadStarButton';
 
     static propTypes = {
-        thread: React.PropTypes.object
+        thread: React.PropTypes.object.isRequired
     }
 
     constructor(props) {
@@ -21,8 +21,7 @@ export default class ThreadStarButton extends React.Component {
             <button className="btn1 btn-toolbar"
                     style={{order: -104}}
                     title={selected?'Remove star':'Add star'}
-                    onClick={this._onStarToggle}
-                    disabled={!this.props.thread}>
+                    onClick={this._onStarToggle}>
                 <img src={`/icons/inbox/toolbar-star${selected?'-selected':''}.png`} width="50%"/>
             </button>
         )

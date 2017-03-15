@@ -1,13 +1,12 @@
 import React from 'react';
 import Actions from '../../../api/nylas/actions';
 import NylasUtils from '../../../api/nylas/nylas-utils';
-import TaskFactory from '../../../api/nylas/tasks/task-factory';
 
 export default class ThreadArchiveButton extends React.Component {
     static displayName = 'ThreadArchiveButton';
 
     static propTypes = {
-        thread: React.PropTypes.object
+        thread: React.PropTypes.object.isRequired
     }
 
     constructor(props) {
@@ -23,23 +22,19 @@ export default class ThreadArchiveButton extends React.Component {
             <button className="btn1 btn-toolbar btn-archive"
                     style={{order: -107}}
                     title="Archive"
-                    onClick={this._onArchive}
-                    disabled={!this.props.thread}
-            >
+                    onClick={this._onArchive}>
                 <img src="/icons/inbox/toolbar-archive.png" width="50%"/>
             </button>
         )
     }
 
     _onArchive = (e) => {
-        /*return unless DOMUtils.nodeIsVisible(e.currentTarget)*/
-        if(!this.props.thread) return
-
-        tasks = TaskFactory.tasksForArchiving({threads: [this.props.thread]})
-
-        Actions.queueTasks(tasks)
-        //Actions.popSheet()
-        e.stopPropagation()
+        /*return unless DOMUtils.nodeIsVisible(e.currentTarget)
+         tasks = TaskFactory.tasksForArchiving
+         threads: [@props.thread]
+         Actions.queueTasks(tasks)
+         Actions.popSheet()
+         e.stopPropagation()*/
     }
 
 }
