@@ -27,7 +27,7 @@ We use the Pull Request system of github.
 
 ### Creating a PR
 
-> DON'T USE `git clone` command for updating other changes
+> DON'T USE `git pull` command for updating other changes, you can use `git fetch` and `git rebase` to update changes from `upstream`
 
 1. Fetch the upstream 
     ```
@@ -39,13 +39,19 @@ We use the Pull Request system of github.
     $ git rebase upstream/dev
     ```
     
-  If you have conflict , you have to resolve each conflict on each commit , do it manually or add `kdiff3` / `Beyond Compare` or anything that fit you , add these modification and do ```$ git rebase --continue``` until you cleared the conflicts.
+  *If you have conflict , you have to resolve each conflict on each commit , do it manually or add `kdiff3` / `Beyond Compare` or anything that fit you , add these modification and do `$ git rebase --continue` until you cleared the conflicts.*
+  
 3. Do your work, *make commits*, you should create directly a PR and *push your work frequently*.
+
 4. Test your code.
+
 5. You can now push your code.
   * If the branch is new you just run ```$ git push origin myNewBranch``` 
   * If you had rebase you need to force the ```$ git push origin myNewBranch -f```
-6. Create the PR , with a new branch github detect it automatically you should see a yellow bar on main page.
+  
+6. Create the PR from new commits of `origin` into `upstream/dev`.
+
+
 
 **More you rebase your branch often, less you get problems. So don't wait ! You should rebase each time a commit is added to the upstream/dev.**
 
