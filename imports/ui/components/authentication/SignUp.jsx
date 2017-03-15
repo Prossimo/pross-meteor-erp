@@ -2,8 +2,6 @@ import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
 import {warning} from "/imports/api/lib/alerts";
-import request from 'request';
-import config from '/imports/api/config/config';
 
 
 class SignUp extends React.Component {
@@ -18,13 +16,10 @@ class SignUp extends React.Component {
             firstName: '',
             lastName: '',
             email: '',
-            emailProvider: '',
             password: '',
             repeatPassword: '',
             username: ''
         }
-
-        this.receiveMessageFromGoolgeAuthWindow = this.receiveMessageFromGoolgeAuthWindow.bind(this);
     }
 
     toggle() {
@@ -42,15 +37,13 @@ class SignUp extends React.Component {
 
         if (validation.email) {
             return validation.email;
-        } else if (validation.emailProvider) {
-            return validation.emailProvider;
         }
     }
 
     submit(event) {
 
         event.preventDefault();
-        const {username, password, email, emailProvider, repeatPassword, validation, firstName, lastName} = this.state;
+        const {username, password, email, repeatPassword, validation, firstName, lastName} = this.state;
         if (username == '') {
             validation.username = "Field is required";
             return this.Check(validation);
@@ -60,10 +53,6 @@ class SignUp extends React.Component {
         }
         if (!isValidEmail(email)) {
             validation.email = "Please enter valid e-mail address";
-            return this.Check(validation);
-        }
-        if (emailProvider == '') {
-            validation.emailProvider = 'Email provider is required';
             return this.Check(validation);
         }
         if (!isValidPassword(password, 6)) {
@@ -78,44 +67,16 @@ class SignUp extends React.Component {
         this.userRegistrationData = {
                 username,
                 email,
-                emailProvider,
                 password,
                 firstName,
                 lastName
             };
 
-        if(emailProvider == 'gmail') {
-            const url = require('url');
-            googleUrl = url.format({
-                protocol: 'https',
-                host: 'accounts.google.com/o/oauth2/auth',
-                query: {
-                    response_type: 'code',
-                    //state: state,
-                    client_id: config.google.clientId,
-                    redirect_uri: config.google.redirectUri,
-                    access_type: 'offline',
-                    scope: 'https://www.googleapis.com/auth/userinfo.email \
-                            https://www.googleapis.com/auth/userinfo.profile \
-                            https://mail.google.com/ \
-                            https://www.google.com/m8/feeds \
-                            https://www.googleapis.com/auth/calendar',
-                    login_hint: email,
-                    prompt: 'consent'
-                }
-            });
-
-            const myPopup = window.open(googleUrl, "Google authentication", "width=730,height=650");
-
-            window.addEventListener("message", this.receiveMessageFromGoolgeAuthWindow, false);
-        } else {
-            this.userRegistration();
-        }
+        this.userRegistration();
     }
 
     userRegistration() {
         userData = this.userRegistrationData;
-        console.log("UserRegistration method invoked with data", userData);
         Meteor.call("userRegistration", userData, (err, res) => {console.log("Signup", res);
             if(err) {
                 console.log(err)
@@ -133,64 +94,6 @@ class SignUp extends React.Component {
         })
     }
 
-    receiveMessageFromGoolgeAuthWindow(event) {
-        console.log("Event arrived from other window", event);
-
-        try {
-            const json = JSON.parse(event.data);
-            const code = json.googleAuthCode;
-            if(code) {
-                options = {
-                    method: 'POST',
-                    url: 'https://www.googleapis.com/oauth2/v4/token',
-                    form: {
-                        code: code,
-                        grant_type: 'authorization_code',
-                        client_id: config.google.clientId,
-                        client_secret: config.google.clientSecret,
-                        redirect_uri: config.google.redirectUri
-                    },
-                    json: true
-                };
-                request(options, (error, response, body) => {
-                    console.log("GoogleAPIToken result", error, response, body);
-
-                    if(!error && body) {
-
-                        const googleAccessToken = body.access_token;
-                        const googleRefreshToken = body.refresh_token;
-
-                        if(googleAccessToken && googleRefreshToken) {
-                            request({
-                                method: 'GET',
-                                url: `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleAccessToken}`,
-                                json: true
-                            }, (error, response, body)=>{
-                                console.log("GoogleUserInfo api result", error, response, body);
-                                if(!error && body) {
-
-                                    const googleEmail = body.email;
-
-                                    if(googleEmail != this.userRegistrationData.email) {
-                                        return warning('Registraion email is different from Google authentication email!');
-                                    } else {
-                                        this.userRegistrationData.googleRefreshToken = googleRefreshToken;
-
-                                        this.userRegistration();
-                                    }
-                                }
-                            })
-                        }
-                    }
-
-                })
-            }
-        } catch (e) {
-            return false;
-        }
-
-    }
-
     focusInput(event) {
         const {validation} = this.state;
         event.target.parentElement.classList.add('active');
@@ -202,17 +105,13 @@ class SignUp extends React.Component {
     blurInput(event) {
         const value = event.target.value;
         const {validation} = this.state;
-        if (value === '' && event.target.id != 'emailProvider') {
+        if (value === '') {
             event.target.parentElement.classList.remove('active');
         }
         switch (event.target.id) {
             case 'email':
                 if (!isValidEmail(value))
                     this.setState({validation: Object.assign(validation, {email: "Please enter valid e-mail address"})});
-                break;
-            case 'emailProvider':
-                if (value === '')
-                    this.setState({validation: Object.assign(validation, {emailProvider: "Email provider is required"})});
                 break;
             case 'username':
                 if (value === '')
@@ -237,7 +136,7 @@ class SignUp extends React.Component {
     }
 
     render() {
-        const {validation, firstName, lastName, username, email, emailProvider, password, repeatPassword} = this.state;
+        const {validation, firstName, lastName, username, email, password, repeatPassword} = this.state;
         return (
             <div className="sign-up-wrap">
                 <header className="auth-header">
@@ -284,17 +183,6 @@ class SignUp extends React.Component {
                                value={email}
                                onChange={this.change.bind(this)}
                         />
-                        <select id="emailProvider"
-                                onFocus={this.focusInput.bind(this)}
-                                onBlur={this.blurInput.bind(this)}
-                                onChange={this.change.bind(this)}>
-                            <option value="">-----</option>
-                            <option value="gmail">Gmail</option>
-                            <option value="exchange">Exchange</option>
-                            <option value="icloud">iCloud</option>
-                            <option value="outlook">Outlook</option>
-                            <option value="yahoo">Yahoo</option>
-                        </select>
                         <span className="validation">{this.emailValidationError()}</span>
                     </div>
                     <div className="flex-input">

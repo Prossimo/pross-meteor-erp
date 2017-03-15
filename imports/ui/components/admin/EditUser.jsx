@@ -20,9 +20,7 @@ class EditUser extends React.Component{
       email: props.user.email,
       validEmail: '',
       validUsername: '',
-      showModal: false,
-      newEmail: false,
-      newUsername: false
+      showModal: false
     };
     
     this.state = this.defaultState;
@@ -91,12 +89,8 @@ class EditUser extends React.Component{
       email,
       role: selectedRole.value
     };
-    
     if(!username) return this.setState({validUsername: "Username is require"});
     if(!isValidEmail(email)) return this.setState({validEmail: "Email is require"});
-  
-    console.log(userData);
-    console.log(unicFields);
     
     Meteor.call('adminEditUser', userData, unicFields, (err)=>{
       if(err) return this.setState({[err.error]: err.reason});
