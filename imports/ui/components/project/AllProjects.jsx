@@ -132,6 +132,7 @@ class AllProjects extends React.Component{
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
         this.renderEditButton = this.renderEditButton.bind(this);
+        this.renderSaveButton = this.renderSaveButton.bind(this);
     }
 
     handleMouseLeave() {
@@ -174,6 +175,7 @@ class AllProjects extends React.Component{
     }
 
     renderEditButton(key, index, value) {
+        if (this.state.edittingCell.key) return;
         if (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) {
             return (
                 <button
@@ -184,6 +186,15 @@ class AllProjects extends React.Component{
                 </button>
             );
         }
+    }
+
+    renderSaveButton() {
+        return (
+            <button className='btn btn-warning btn-sm pull-right'>
+                <i className='fa fa-save'/> Save
+            </button>
+        )
+
     }
 
     renderRows() {
@@ -198,30 +209,39 @@ class AllProjects extends React.Component{
                                 case 'date':
                                     return (
                                         <td>
-                                            <DatePicker
-                                                selected={this.state.edittingCell.value}
-                                                onChange={this.handleChange}
-                                            />
+                                            <div>
+                                                <DatePicker
+                                                    selected={this.state.edittingCell.value}
+                                                    onChange={this.handleChange}
+                                                />
+                                                { this.renderSaveButton() }
+                                            </div>
                                         </td>
                                     )
                                 case 'select':
                                     return (
                                         <td>
-                                            <Select
-                                                value={this.state.edittingCell.value}
-                                                options={options}
-                                                onChange={this.handleChange}
-                                            />
+                                            <div>
+                                                <Select
+                                                    value={this.state.edittingCell.value}
+                                                    options={options}
+                                                    onChange={this.handleChange}
+                                                />
+                                                { this.renderSaveButton() }
+                                            </div>
                                         </td>
                                     );
                                 default:
                                     return (
                                         <td>
-                                            <input
-                                                type='text'
-                                                value={this.state.edittingCell.value}
-                                                onChange={(event) => this.handleChange(event.target.value)}
-                                            />
+                                            <div>
+                                                <input
+                                                    type='text'
+                                                    value={this.state.edittingCell.value}
+                                                    onChange={(event) => this.handleChange(event.target.value)}
+                                                />
+                                                { this.renderSaveButton() }
+                                            </div>
                                         </td>
                                     )
                                     break;
