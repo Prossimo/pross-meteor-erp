@@ -77,7 +77,7 @@ class Aside extends React.Component{
                 route: "Dashboard"
             },
             {
-                label: "SalesRecords",
+                label: "CRM",
                 topLevel: true,
                 subItems: [
                     {
@@ -95,6 +95,10 @@ class Aside extends React.Component{
                     {
                         label: "Tickets",
                         route: "Tickets"
+                    },
+                    {
+                        label: "SalesRecord",
+                        route: "SalesRecord"
                     },
                 ]
             },
