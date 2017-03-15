@@ -37,16 +37,16 @@ class AllProjects extends React.Component{
                     editable: true,
                 },
                 {
-                    key: 'actualDeliveryDate',
-                    label: 'Delivery Date',
+                    key: 'productionStartDate',
+                    label: 'Start Date',
                     selected: true,
                     type: 'date',
                     editable: true,
                 },
                 {
-                    key: 'productionStartDate',
-                    label: 'Start Date',
-                    selected: false,
+                    key: 'actualDeliveryDate',
+                    label: 'Delivery Date',
+                    selected: true,
                     type: 'date',
                     editable: true,
                 },
@@ -380,14 +380,25 @@ class AllProjects extends React.Component{
 
         $('.selectpicker').on('changed.bs.select', function() {
             const selectedKeys = $(this).val();
-            console.log(selectedKeys);
             const possibleColumns = _this.state.possibleColumns;
             possibleColumns.forEach((column)=> {
                 if (selectedKeys.includes(column.key))
                     return column.selected = true;
                 return column.selected = false;
             });
-            _this.setState({ possibleColumns })
+            _this.setState({
+                hoverCell: {
+                    key: null,
+                    rowIndex: null,
+                    value: null,
+                },
+                edittingCell: {
+                    key: null,
+                    rowIndex: null,
+                    value: null,
+                },
+                possibleColumns
+            })
         })
     }
 
