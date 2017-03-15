@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Glyphicon } from 'react-bootstrap';
+import { Table, Glyphicon, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
@@ -332,6 +332,7 @@ class AllProjects extends React.Component{
                         }
                     })
                 }
+                <td><Button onClick={()=> this.goToProject(project)} bsSize='xsmall'><i className='fa fa-link'/> </Button></td>
                 </tr>
             )
         })
@@ -350,6 +351,7 @@ class AllProjects extends React.Component{
                             )
                         })
                     }
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody>
