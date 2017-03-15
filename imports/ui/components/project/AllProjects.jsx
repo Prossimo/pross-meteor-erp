@@ -131,6 +131,7 @@ class AllProjects extends React.Component{
         this.handleChange = this.handleChange.bind(this);
         this.handleMouseEnter = this.handleMouseEnter.bind(this);
         this.handleMouseLeave = this.handleMouseLeave.bind(this);
+        this.renderEditButton = this.renderEditButton.bind(this);
     }
 
     handleMouseLeave() {
@@ -170,6 +171,19 @@ class AllProjects extends React.Component{
             edittingCell,
         });
         // TODO: update value in this place
+    }
+
+    renderEditButton(key, index, value) {
+        if (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) {
+            return (
+                <button
+                    className='btn btn-sm pull-right btn-primary'
+                    onClick={()=> this.allowEdit(key, index, value)}
+                >
+                    <i className='fa fa-pencil'/>
+                </button>
+            );
+        }
     }
 
     renderRows() {
@@ -224,16 +238,7 @@ class AllProjects extends React.Component{
                                         >
                                             <div>
                                                 { date }
-                                                {
-                                                    (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) ? (
-                                                        <button
-                                                            className='btn btn-sm pull-right btn-primary'
-                                                            onClick={()=> this.allowEdit(key, index, moment(project[key]))}
-                                                        >
-                                                            <i className='fa fa-pencil'/>
-                                                        </button>
-                                                    ): ''
-                                                }
+                                                { this.renderEditButton(key, index, moment(project[key])) }
                                             </div>
                                         </td>
                                     );
@@ -246,16 +251,7 @@ class AllProjects extends React.Component{
                                         >
                                             <div>
                                                 { project[key] }
-                                                {
-                                                    (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) ? (
-                                                        <button
-                                                            className='btn btn-sm pull-right btn-primary'
-                                                            onClick={()=> this.allowEdit(key, index, project[key])}
-                                                        >
-                                                            <i className='fa fa-pencil'/>
-                                                        </button>
-                                                    ): ''
-                                                }
+                                                { this.renderEditButton(key, index, project[key]) }
                                             </div>
                                         </td>)
                             }
