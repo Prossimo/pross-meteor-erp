@@ -2,6 +2,8 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
+import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
+import Select from 'react-select';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 
@@ -9,6 +11,11 @@ class AllProjects extends React.Component{
     constructor(props){
         super(props);
         this.state = {
+            hoverCell: {
+                key: null,
+                rowIndex: null,
+                value: null,
+            },
             edittingCell: {
                 key: null,
                 rowIndex: null,
@@ -95,8 +102,9 @@ class AllProjects extends React.Component{
                 {
                     key: 'shippingMode',
                     label: 'Shipping Mode',
-                    selected: false,
-                    type: 'text',
+                    selected: true,
+                    type: 'select',
+                    options: SHIPPING_MODE_LIST.map((value)=> ({label: value, value}))
                 },
                 {
                     key: 'supplier',
@@ -119,11 +127,33 @@ class AllProjects extends React.Component{
             ]
         }
         this.renderRows = this.renderRows.bind(this);
-        this.handleDoubleClick = this.handleDoubleClick.bind(this);
+        this.allowEdit = this.allowEdit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleMouseEnter = this.handleMouseEnter.bind(this);
+        this.handleMouseLeave = this.handleMouseLeave.bind(this);
     }
 
-    handleDoubleClick(key, rowIndex, value) {
+    handleMouseLeave() {
+        this.setState({
+            hoverCell: {
+                key: null,
+                rowIndex: null,
+                value: null,
+            }
+        })
+    }
+
+    handleMouseEnter(key, rowIndex, value) {
+        this.setState({
+            hoverCell: {
+                key,
+                rowIndex,
+                value
+            }
+        });
+    }
+
+    allowEdit(key, rowIndex, value) {
         this.setState({
             edittingCell: {
                 key,
@@ -148,19 +178,36 @@ class AllProjects extends React.Component{
             return (
                 <tr key={project._id}>
                 {
-                    selectedColumns.map(({ key, type })=> {
+                    selectedColumns.map(({ key, type, options })=> {
                         if (key === this.state.edittingCell.key && index === this.state.edittingCell.rowIndex) {
                             switch(type) {
                                 case 'date':
                                     return (
                                         <td>
-                                            <DatePicker selected={this.state.edittingCell.value} onChange={this.handleChange} />
+                                            <DatePicker
+                                                selected={this.state.edittingCell.value}
+                                                onChange={this.handleChange}
+                                            />
                                         </td>
                                     )
+                                case 'select':
+                                    return (
+                                        <td>
+                                            <Select
+                                                value={this.state.edittingCell.value}
+                                                options={options}
+                                                onChange={this.handleChange}
+                                            />
+                                        </td>
+                                    );
                                 default:
                                     return (
                                         <td>
-                                            <input type='text' value={this.state.edittingCell.value} onChange={(event) => this.handleChange(event.target.value)}/>
+                                            <input
+                                                type='text'
+                                                value={this.state.edittingCell.value}
+                                                onChange={(event) => this.handleChange(event.target.value)}
+                                            />
                                         </td>
                                     )
                                     break;
@@ -169,10 +216,48 @@ class AllProjects extends React.Component{
                             switch(type) {
                                 case 'date':
                                     const date = moment(project[key]).format('MM/DD/YYYY');
-                                    return (<td key={key} onDoubleClick={()=> this.handleDoubleClick(key, index, moment(project[key]))}>{ date }</td>)
-                                    break;
+                                    return (
+                                        <td
+                                            key={key}
+                                            onMouseLeave={this.handleMouseLeave}
+                                            onMouseEnter={()=> this.handleMouseEnter(key, index, moment(project[key]))}
+                                        >
+                                            <div>
+                                                { date }
+                                                {
+                                                    (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) ? (
+                                                        <button
+                                                            className='btn btn-sm pull-right btn-primary'
+                                                            onClick={()=> this.allowEdit(key, index, moment(project[key]))}
+                                                        >
+                                                            <i className='fa fa-pencil'/>
+                                                        </button>
+                                                    ): ''
+                                                }
+                                            </div>
+                                        </td>
+                                    );
                                 default:
-                                    return (<td key={key} onDoubleClick={()=> this.handleDoubleClick(key, index, project[key])}>{ project[key] }</td>)
+                                    return (
+                                        <td
+                                            key={key}
+                                            onMouseLeave={this.handleMouseLeave}
+                                            onMouseEnter={()=> this.handleMouseEnter(key, index, project[key])}
+                                        >
+                                            <div>
+                                                { project[key] }
+                                                {
+                                                    (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) ? (
+                                                        <button
+                                                            className='btn btn-sm pull-right btn-primary'
+                                                            onClick={()=> this.allowEdit(key, index, project[key])}
+                                                        >
+                                                            <i className='fa fa-pencil'/>
+                                                        </button>
+                                                    ): ''
+                                                }
+                                            </div>
+                                        </td>)
                             }
                         }
                     })
