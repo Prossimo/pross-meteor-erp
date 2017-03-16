@@ -180,6 +180,8 @@ Meteor.methods({
             console.log("NylasAPI makeRequest('/connect/authorize') error", error);
             throw error
         })
+      })
+     })
     },
 
     sendEmail(mailData) {
@@ -489,20 +491,15 @@ Meteor.methods({
         return Projects.insert(data);
     },
 
-    postSlackMessage(channel, message){
-        HTTP.post('https://slack.com/api/chat.postMessage', {
-            params: {
-                token: SLACK_API_KEY,
-                channel: channel,
-                text: message
-            }
-        })
+   postSlackMessage(channel, message){
+      HTTP.post('https://slack.com/api/chat.postMessage', {
+          params: {
+              token: SLACK_API_KEY,
+              channel: channel,
+              text: message
+          }
       })
-    }).catch((error) => {
-      console.log("NylasAPI makeRequest('/connect/authorize') error", error);
-      throw error
-    })
-  },
+   },
 
   sendEmail(mailData) {
     Match.test(mailData, {
