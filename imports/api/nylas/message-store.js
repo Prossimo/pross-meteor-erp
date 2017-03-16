@@ -3,6 +3,7 @@ import Reflux from 'reflux'
 import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
+import ChangeUnreadTask from './tasks/change-unread-task'
 
 class MessageStore extends Reflux.Store {
     constructor() {
@@ -43,11 +44,23 @@ class MessageStore extends Reflux.Store {
 
             this._messages = result;
 
-            this._messages.sort((m1, m2)=>{return m1.date-m2.date})
+            this._messages.sort((m1, m2)=>m1.date-m2.date)
 
             this._loading = false;
 
             this._expandMessagesToDefault();
+
+
+            if(this._currentThread.unread) {
+                markAsReadId = this._currentThread.id
+                setTimeout(()=>{
+                    if(markAsReadId!=this._currentThread.id || !this._currentThread.unread) return
+
+                    t = new ChangeUnreadTask({thread:this._currentThread, unread:false})
+                    Actions.queueTask(t)
+                }, 2000)
+            }
+
 
             this.trigger();
         })

@@ -11,6 +11,7 @@ class ThreadStore extends Reflux.Store {
     constructor() {
         super();
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
+        this.listenTo(Actions.changedThreads, this.trigger)
 
         this.threads = [];
         this.selectedThread = null;

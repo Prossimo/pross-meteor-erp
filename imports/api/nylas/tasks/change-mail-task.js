@@ -2,6 +2,7 @@
 import _ from 'underscore';
 import Task from './task';
 import NylasAPI from '../nylas-api';
+import Actions from '../actions';
 import {APIError} from '../errors';
 import ThreadStore from '../thread-store';
 
@@ -43,7 +44,7 @@ const mapLimit = (input, numberInParallel, fn) => {
             });
         };
 
-        for (let i = 0; i < Math.min(numberInParallel, input.length); i ++) {
+        for (let i = 0; i < Math.min(numberInParallel, input.length); i++) {
             startNext();
         }
     });
@@ -212,10 +213,12 @@ export default class ChangeMailTask extends Task {
     }
 
     performRemote() {
-        return this._performRequests(this.objectClass(), this.objectArray()).then(() => {
-            this._ensureLocksRemoved();
-            return Promise.resolve(Task.Status.Success);
-        })
+        return this._performRequests(this.objectClass(), this.objectArray())
+            .then(() => {
+                this._ensureLocksRemoved();
+                Actions.changedThreads();
+                return Promise.resolve(Task.Status.Success);
+            })
             .catch(APIError, (err) => {
                 if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
                     return Promise.resolve(Task.Status.Retry);
@@ -327,33 +330,33 @@ export default class ChangeMailTask extends Task {
 
     _lockAll() {
         /*const klass = this.objectClass();
-        this._locked = this._locked || {};
-        for (const item of this.objectArray()) {
-            this._locked[item.id] = this._locked[item.id] || 0;
-            this._locked[item.id] += 1;
-            NylasAPI.incrementRemoteChangeLock(klass, item.id);
-        }*/
+         this._locked = this._locked || {};
+         for (const item of this.objectArray()) {
+         this._locked[item.id] = this._locked[item.id] || 0;
+         this._locked[item.id] += 1;
+         NylasAPI.incrementRemoteChangeLock(klass, item.id);
+         }*/
     }
 
     _removeLock(item) {
         /*const klass = this.objectClass();
-        NylasAPI.decrementRemoteChangeLock(klass, item.id);
-        this._locked[item.id] -= 1;*/
+         NylasAPI.decrementRemoteChangeLock(klass, item.id);
+         this._locked[item.id] -= 1;*/
     }
 
     _ensureLocksRemoved() {
         /*const klass = this.objectClass()
-        if (!this._locked) {
-            return;
-        }
+         if (!this._locked) {
+         return;
+         }
 
-        for (const id of Object.keys(this._locked)) {
-            let count = this._locked[id];
-            while (count > 0) {
-                NylasAPI.decrementRemoteChangeLock(klass, id);
-                count -= 1;
-            }
-        }
-        this._locked = null;*/
+         for (const id of Object.keys(this._locked)) {
+         let count = this._locked[id];
+         while (count > 0) {
+         NylasAPI.decrementRemoteChangeLock(klass, id);
+         count -= 1;
+         }
+         }
+         this._locked = null;*/
     }
 }
