@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import faker from 'faker';
 import { Accounts } from 'meteor/accounts-base';
 import {NylasAccounts} from '../nylasaccounts/nylas-accounts';
+import {ADMIN_ROLE_LIST} from '../../constants/roles';
 
 Schema = {};
 
@@ -101,6 +102,10 @@ Meteor.users.helpers({
             ]
 
         }).fetch();
+    },
+
+    isAdmin() {
+        return Roles.userIsInRole(this._id, [...ADMIN_ROLE_LIST])
     }
 });
 

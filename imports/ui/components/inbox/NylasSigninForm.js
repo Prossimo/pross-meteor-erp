@@ -4,7 +4,6 @@ import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js"
 import config from '../../../api/config/config'
 import {warning} from "/imports/api/lib/alerts";
 import Actions from '../../../api/nylas/actions'
-import {NylasAccounts} from '../../../api/models/nylasaccounts/nylas-accounts'
 
 export default class NylasSigninForm extends React.Component {
     static propTypes = {

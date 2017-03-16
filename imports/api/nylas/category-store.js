@@ -18,7 +18,7 @@ class CategoryStore extends Reflux.Store {
         return account? account.categories : [];
     }
 
-    selectCategory(category) {
+    selectCategory(category) {console.log('Select Category', category)
         this.selectedCategory = category;
         this.trigger();
         Actions.loadThreads(category);

@@ -1,9 +1,7 @@
 import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
-import NylasAPI from './nylas-api'
-import RegExpUtils from './RegExpUtils'
-import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
+import CategoryStore from './category-store'
 
 class AccountStore extends Reflux.Store {
     constructor() {
@@ -14,8 +12,25 @@ class AccountStore extends Reflux.Store {
         this.listenTo(Actions.changedAccounts, this.onChangedAccounts)
     }
 
-    onChangedAccounts = () =>{
+    onChangedAccounts = () => {
         this.trigger()
+
+        const accounts = this.accounts()
+
+        if(!accounts || accounts.length==0) return
+
+        const selectedCategory = CategoryStore.getSelectedCategory()
+        let allCategories = []
+
+        accounts.forEach((account)=>{
+            allCategories = allCategories.concat(account.categories)
+        })
+
+        console.log('All Categories', allCategories)
+
+        if(!selectedCategory || !_.contains(allCategories, selectedCategory)) {
+            CategoryStore.selectCategory(allCategories[0])
+        }
     }
     accounts() {
         this._accounts = Meteor.user().nylasAccounts()
