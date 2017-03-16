@@ -151,7 +151,7 @@ class Aside extends React.Component{
             });
             if(_.isArray(subItems) && !subItems.length){
                 subItems.push({
-                    label: "No salesRecords yet",
+                    label: "No projects yet",
                     route: "Root"
                 })
             }
