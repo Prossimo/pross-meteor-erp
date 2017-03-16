@@ -51,8 +51,7 @@ Meteor.methods({
                 role: [
                     {role: EMPLOYEE_ROLE}
                 ]
-            },
-            nylas: result
+            }
         });
         Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
 
