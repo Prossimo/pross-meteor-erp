@@ -13,7 +13,7 @@ class ProjectsPage extends React.Component{
                 component: <AllProjects/>
             },
             {
-                label: "Add salesRecord",
+                label: "Add Project",
                 component: <CreateProject/>
             }
         ];

@@ -66,7 +66,7 @@ FlowRouter.route('/inbox', {
     }
 });
 
-FlowRouter.route('/salesRecord/:id', {
+FlowRouter.route('/project/:id', {
     name: 'Project',
     action(){
         checkAuth();

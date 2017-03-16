@@ -157,7 +157,7 @@ class Aside extends React.Component{
             }
 
             this.pages.unshift({
-                label: "SalesRecords",
+                label: "Projects",
                 topLevel: true,
                 subItems
             });
