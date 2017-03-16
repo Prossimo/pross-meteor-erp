@@ -1,9 +1,7 @@
 import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
-import NylasAPI from './nylas-api'
-import RegExpUtils from './RegExpUtils'
-import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
+import CategoryStore from './category-store'
 
 class AccountStore extends Reflux.Store {
     constructor() {
@@ -14,8 +12,23 @@ class AccountStore extends Reflux.Store {
         this.listenTo(Actions.changedAccounts, this.onChangedAccounts)
     }
 
-    onChangedAccounts = () =>{
+    onChangedAccounts = () => {
         this.trigger()
+
+        const accounts = this.accounts()
+
+        if(!accounts || accounts.length==0) return
+
+        const selectedCategory = CategoryStore.getSelectedCategory()
+        let allCategories = []
+
+        accounts.forEach((account)=>{
+            allCategories = allCategories.concat(account.categories)
+        })
+
+        if(!selectedCategory || !_.contains(allCategories, selectedCategory)) {
+            CategoryStore.selectCategory(allCategories[0])
+        }
     }
     accounts() {
         this._accounts = Meteor.user().nylasAccounts()
@@ -28,7 +41,7 @@ class AccountStore extends Reflux.Store {
     }
 
     accountForEmail(email) {
-        return _.findWhere(this.accounts(), {email_address:email})
+        return _.findWhere(this.accounts(), {emailAddress:email})
     }
 
     accountForAccountId(accountId) {
@@ -42,6 +55,16 @@ class AccountStore extends Reflux.Store {
         const account = this.accountForAccountId(accountId)
 
         return account ? account.accessToken : null
+    }
+
+    getSelectedAccount() {
+        const selectedCategory = CategoryStore.getSelectedCategory()
+
+        if(selectedCategory) {
+            return this.accountForAccountId(selectedCategory.account_id)
+        }
+
+        return this.defaultAccount()
     }
 }
 

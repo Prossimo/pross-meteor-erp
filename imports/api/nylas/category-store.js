@@ -18,7 +18,7 @@ class CategoryStore extends Reflux.Store {
         return account? account.categories : [];
     }
 
-    selectCategory(category) {
+    selectCategory(category) {console.log('Select Category', category)
         this.selectedCategory = category;
         this.trigger();
         Actions.loadThreads(category);
@@ -33,7 +33,7 @@ class CategoryStore extends Reflux.Store {
     }
 
     getArchiveCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(account) ? 'archive' : 'all'})
+        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'all'})
     }
 
     getTrashCategory(accountId) {

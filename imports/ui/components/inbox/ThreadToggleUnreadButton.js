@@ -1,6 +1,7 @@
 import React from 'react';
 import Actions from '../../../api/nylas/actions';
 import NylasUtils from '../../../api/nylas/nylas-utils';
+import ChangeUnreadTask from '../../../api/nylas/tasks/change-unread-task'
 
 export default class ThreadToggleUnreadButton extends React.Component {
     static displayName = 'ThreadToggleUnreadButton';
@@ -14,6 +15,7 @@ export default class ThreadToggleUnreadButton extends React.Component {
 
         this._onClick = this._onClick.bind(this)
     }
+
     render() {
         fragment = this.props.thread && this.props.thread.unread ? 'read' : 'unread'
         return (
@@ -28,13 +30,13 @@ export default class ThreadToggleUnreadButton extends React.Component {
     }
 
     _onClick = (e) => {
-        /*
-         task = new ChangeUnreadTask
-         thread: @props.thread
-         unread: !@props.thread.unread
+         task = new ChangeUnreadTask({
+             thread: this.props.thread,
+             unread: !this.props.thread.unread
+         })
          Actions.queueTask(task)
-         Actions.popSheet()
-         e.stopPropagation()*/
+
+         e.stopPropagation()
     }
 
 }

@@ -1,5 +1,6 @@
 import React from 'react'
-import config from '../../../api/config/config'
+import '../popup/PopoverStore';
+import PopoverActions from '../popup/PopoverActions';
 
 var NumberInputText = React.createClass({
     render: function () {
@@ -131,6 +132,7 @@ var Dialer = React.createClass({
                 {name: 'Singapore', cc: '65', code: 'sg'},
                 {name: 'Spain', cc: '34', code: 'es'},
                 {name: 'Brazil', cc: '55', code: 'br'},
+                {name: 'China', cc: '86', code: 'cn'},
             ]
         }
     },
@@ -215,7 +217,8 @@ var Dialer = React.createClass({
 
         return (
             <div id="dialer">
-                <div id="dial-form" className="input-group input-group-sm">
+                <div className="div-close"><i className="fa fa-close" onClick={()=>PopoverActions.closePopover()}></i></div>
+                <div id="dial-form" className="input-group input-group-sm" style={{padding:'0 5px'}}>
 
                     <CountrySelectBox countries={this.state.countries} countryCode={this.state.countryCode}
                                       handleOnChange={this.handleChangeCountryCode}/>

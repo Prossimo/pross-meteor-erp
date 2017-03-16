@@ -119,7 +119,7 @@ class FixedPopover extends Component {
 
     onBlur = (event) => {
         const target = event.relatedTarget;
-        console.log("FixedPopover->onBlur", target, event);
+        //console.log("FixedPopover->onBlur", target, event);
         if (target && (!findDOMNode(this).contains(target))) {
             PopoverActions.closePopover();
         }

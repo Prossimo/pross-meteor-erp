@@ -59,7 +59,7 @@ export default class ComposeView extends React.Component {
     _renderHeader() {
         const {draft, expandedCc, expandedBcc} = this.state
 
-        const {to, cc, bcc, subject} = draft
+        const {from, to, cc, bcc, subject} = draft
 
         const ccSelector = (
             <ParticipantsInputField label="Cc" contacts={cc} onChange={this._onChangeCc}/>
@@ -71,6 +71,7 @@ export default class ComposeView extends React.Component {
 
         return (
             <div>
+                <div><span>From:&nbsp;&nbsp;</span><span>{from[0].email}</span></div>
                 <div className="input-wrap">
                     <ParticipantsInputField label="To" contacts={to} onChange={this._onChangeTo}/>
                     <div className="composer-header-actions">
