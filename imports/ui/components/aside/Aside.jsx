@@ -181,9 +181,8 @@ class Aside extends React.Component{
             <aside className={classNames("control-aside",{"active": currentUser})}>
                 {this.renderList()}
 
-                {/*<div className="call-phone" onClick={this.onClickCall}><i className="fa fa-phone"></i> Call</div>*/}
+                <div className="call-phone" onClick={this.onClickCall}><i className="fa fa-phone"></i></div>
 
-                <div className="call-phone"><Dialer/></div>
             </aside>
         )
     }
