@@ -4,6 +4,7 @@ import { Button, Table, Modal } from 'react-bootstrap';
 
 import CreateUser from '../components/admin/CreateUser';
 import CreateProject from '../components/admin/CreateProject';
+import EditableUsersTable from '../components/admin/EditableUsersTable';
 import EditUser  from '../components/admin/EditUser'
 import RemoveUser  from '../components/admin/RemoveUser'
 
@@ -60,11 +61,13 @@ class AdminPage extends React.Component{
   }
   
   render() {
+    
     return (
       <div className="page-container admin-page">
         <div className="main-content">
           <div className="tab-container">
             <h2 className="page-title">Admin page</h2>
+            <EditableUsersTable createdUsers={this.props.createdUsers} />
             <CreateUserModal />
             <Table striped bordered condensed hover>
               <thead>
