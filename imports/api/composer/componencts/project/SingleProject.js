@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
-import { Projects, Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
+import { SalesRecords, Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
 import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS } from '/imports/api/constants/collections';
 import SingleProject from '/imports/ui/components/project/SingleProject';
 
@@ -28,8 +28,8 @@ const reactiveMapper = (props, onData)=> {
             return item;
         });
 
-        let project = Projects.findOne(projectId);
-        project.members = project.members.map(member=>{
+        let salesRecord = SalesRecords.findOne(projectId);
+        salesRecord.members = salesRecord.members.map(member=>{
             member.user = props.usersArr[member.userId];
             return member;
         });
@@ -49,7 +49,7 @@ const reactiveMapper = (props, onData)=> {
         });
         const messages = msg.concat(events).sort((a,b)=>{return a.createAt > b.createAt ? -1 : 1});
 
-        onData(null, { messages, project, quotes})
+        onData(null, { messages, salesRecord, quotes})
     }
 };
 

@@ -11,7 +11,7 @@ class Details extends React.Component{
             isEditingAttributes: false,
             isEditingShipping: false,
             isEditingBilling: false,
-            project: props.project,
+            salesRecord: props.salesRecord,
         }
         this.toggleEditAttributes = this.toggleEditAttributes.bind(this);
         this.toggleEditShipping = this.toggleEditShipping.bind(this);
@@ -23,23 +23,23 @@ class Details extends React.Component{
     }
 
     changeState(field, value) {
-        this.state.project[field] = value;
+        this.state.salesRecord[field] = value;
         this.setState({
-            project: this.state.project,
+            salesRecord: this.state.salesRecord,
         });
     }
 
     saveBilling() {
-        const projectId = this.state.project._id;
+        const salesRecordId = this.state.salesRecord._id;
         const billing = _.pick(
-            this.state.project,
+            this.state.salesRecord,
             'billingContactName',
             'billingContactEmail',
             'billingContactPhone',
             'billingAddress',
             'billingNotes',
         );
-        Meteor.call('updateProjectBilling', projectId, billing, (error, result)=> {
+        Meteor.call('updateProjectBilling', salesRecordId, billing, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditBilling();
             return info(`Success update project`);
@@ -47,16 +47,16 @@ class Details extends React.Component{
     }
 
     saveShipping() {
-        const projectId = this.state.project._id;
+        const salesRecordId = this.state.salesRecord._id;
         const shipping = _.pick(
-            this.state.project,
+            this.state.salesRecord,
             'shippingContactName',
             'shippingContactName',
             'shippingContactPhone',
             'shippingAddress',
             'shippingNotes',
         );
-        Meteor.call('updateProjectShipping', projectId, shipping, (error, result)=> {
+        Meteor.call('updateProjectShipping', salesRecordId, shipping, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditShipping();
             return info(`Success update project`);
@@ -64,16 +64,16 @@ class Details extends React.Component{
     }
 
     saveAttributes() {
-        const projectId = this.state.project._id;
+        const salesRecordId = this.state.salesRecord._id;
         const attributes = _.pick(
-            this.state.project,
+            this.state.salesRecord,
             'shippingMode',
             'actualDeliveryDate',
             'productionStartDate',
             'supplier',
             'shipper',
         );
-        Meteor.call('updateProjectAttributes', projectId, attributes, (error, result)=> {
+        Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditAttributes();
             return info(`Success update project`);
@@ -177,7 +177,7 @@ class Details extends React.Component{
     }
 
     render() {
-        const { project } = this.state;
+        const { salesRecord } = this.state;
         const attrRows = [
             {label: "Shipping mode", field: "shippingMode", type: 'select'},
             {label: "Actual delivery date", field: "actualDeliveryDate", type: 'date'},
@@ -207,7 +207,7 @@ class Details extends React.Component{
                 </h2>
                 <table className="data-table">
                     <tbody>
-                    {this.renderTableRows(attrRows, project, 'attributes')}
+                    {this.renderTableRows(attrRows, salesRecord, 'attributes')}
                     </tbody>
                 </table>
 
@@ -216,7 +216,7 @@ class Details extends React.Component{
                 </h2>
                 <table className="data-table">
                     <tbody>
-                    {this.renderTableRows(shippingRows, project, 'shipping')}
+                    {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
                     </tbody>
                 </table>
 
@@ -225,7 +225,7 @@ class Details extends React.Component{
                 </h2>
                 <table className="data-table">
                    <tbody>
-                   {this.renderTableRows(billingRows, project , 'billing')}
+                   {this.renderTableRows(billingRows, salesRecord , 'billing')}
                    </tbody>
                 </table>
             </div>

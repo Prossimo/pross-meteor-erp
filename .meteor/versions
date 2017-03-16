@@ -58,9 +58,12 @@ jquery@1.11.10
 kadira:dochead@1.5.0
 kadira:flow-router@2.12.1
 launch-screen@1.0.12
+less@2.5.7
 livedata@1.0.18
 localstorage@1.0.12
 logging@1.1.16
+matb33:bootstrap-base@10.0.0
+matb33:bootstrap-glyphicons@10.0.0
 matb33:collection-hooks@0.8.4
 meteor@1.6.0
 meteor-base@1.0.4

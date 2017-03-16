@@ -140,7 +140,7 @@ class Aside extends React.Component{
         }
         //admin & super admin allow
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
-            const subItems = props.projects.map(project=>{
+            const subItems = props.salesRecords.map(project=>{
                 return {
                     label: project.name,
                     route: {
@@ -151,7 +151,7 @@ class Aside extends React.Component{
             });
             if(_.isArray(subItems) && !subItems.length){
                 subItems.push({
-                    label: "No projects yet",
+                    label: "No salesRecords yet",
                     route: "Root"
                 })
             }

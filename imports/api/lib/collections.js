@@ -1,12 +1,13 @@
 import { Mongo } from  'meteor/mongo';
 
 export const Messages = new Mongo.Collection("Messages");
-export const Projects = new Mongo.Collection("Projects");
+export const SalesRecords = new Mongo.Collection("SalesRecords");
 export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
 export const Events = new Mongo.Collection("Events");
 export const SlackMessages = new Mongo.Collection("SlackMessages");
 export const SlackUsers = new Mongo.Collection("SlackUsers");
+export const Settings = new Mongo.Collection('Settings');
 
 const fileStore = new FS.Store.FileSystem("files");
 

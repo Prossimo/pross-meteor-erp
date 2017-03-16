@@ -2,7 +2,7 @@
 import { Factory } from 'meteor/dburles:factory';
 import _ from 'underscore';
 import {SUPER_ADMIN_ROLE, EMPLOYEE_ROLE} from '../../api/constants/roles'
-import {Projects, Quotes} from '../../api/lib/collections';
+import {SalesRecords, Quotes} from '../../api/lib/collections';
 
 import '../../api/models'
 
@@ -36,13 +36,13 @@ function createBaseData() {
 
     console.log("=========== Created user data ===========");
 
-    // 2. Generate project data
+    // 2. Generate salesRecord data
 
     _.times(10, ()=>{
-        Factory.create('project');
+        Factory.create('salesRecord');
     })
 
-    console.log("=========== Created project data ===========");
+    console.log("=========== Created salesRecord data ===========");
 
     const quoteList = [
         {
