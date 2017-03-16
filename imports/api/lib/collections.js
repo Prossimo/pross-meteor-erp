@@ -1,7 +1,7 @@
 import { Mongo } from  'meteor/mongo';
 
 export const Messages = new Mongo.Collection("Messages");
-export const Projects = new Mongo.Collection("Projects");
+export const SalesRecords = new Mongo.Collection("SalesRecords");
 export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
 export const Events = new Mongo.Collection("Events");

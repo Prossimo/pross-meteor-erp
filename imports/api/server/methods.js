@@ -6,7 +6,7 @@ import {
   Messages,
   Files,
   CreatedUsers,
-  Projects,
+  SalesRecords,
   SlackUsers,
   Quotes,
   SlackMessages,
@@ -262,8 +262,8 @@ Meteor.methods({
         return userId;
     },
 
-    updateProjectShipping(projectId, shipping) {
-        check(projectId, String);
+    updateProjectShipping(salesRecordId, shipping) {
+        check(salesRecordId, String);
         check(shipping, {
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
@@ -274,21 +274,21 @@ Meteor.methods({
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-        // current user belongs to Projects
-        const project = Projects.findOne(projectId);
-        if (!project) throw new Meteor.Error('Project does not exists');
-        const isMember = !!project.members.find(({userId}) => userId === this.userId);
+        // current user belongs to salesRecords
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if (!salesRecord) throw new Meteor.Error('Project does not exists');
+        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
 
-        return Projects.update(projectId, {
+        return SalesRecords.update(salesRecordId, {
             $set: shipping,
         });
     },
 
-    updateProjectBilling(projectId, billing) {
-        check(projectId, String);
+    updateProjectBilling(salesRecordId, billing) {
+        check(salesRecordId, String);
         check(billing, {
             billingContactPhone: Match.Maybe(Match.phone),
             billingContactName: Match.Maybe(String),
@@ -299,20 +299,20 @@ Meteor.methods({
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-        // current user belongs to Projects
-        const project = Projects.findOne(projectId);
-        if (!project) throw new Meteor.Error('Project does not exists');
-        const isMember = !!project.members.find(({userId}) => userId === this.userId);
+        // current user belongs to salesRecords
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if (!salesRecord) throw new Meteor.Error('Project does not exists');
+        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-        return Projects.update(projectId, {
+        return SalesRecords.update(salesRecordId, {
             $set: billing,
         });
     },
 
-    updateProjectAttributes(projectId, attributes) {
-        check(projectId, String);
+    updateProjectAttributes(salesRecordId, attributes) {
+        check(salesRecordId, String);
         check(attributes, {
             shippingMode: String,
             actualDeliveryDate: Date,
@@ -324,24 +324,24 @@ Meteor.methods({
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-        // current user belongs to Projects
-        const project = Projects.findOne(projectId);
-        if (!project) throw new Meteor.Error('Project does not exists');
-        const isMember = !!project.members.find(({userId}) => userId === this.userId);
+        // current user belongs to salesRecords
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if (!salesRecord) throw new Meteor.Error('Project does not exists');
+        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
 
-        return Projects.update(projectId, {
+        return SalesRecords.update(salesRecordId, {
             $set: attributes,
         });
     },
 
     initVisiableProjectFields() {
-        const setting = Settings.findOne({ key: 'project' });
+        const setting = Settings.findOne({ key: 'salesRecord' });
         if (!setting) {
             Settings.insert({
-                key: 'project',
+                key: 'salesRecord',
                 show: [
                     'name',
                     'productionStartDate',
@@ -353,22 +353,22 @@ Meteor.methods({
     },
 
     getVisibleProjectFields() {
-        const { show }  = Settings.findOne({ key: 'project' });
+        const { show }  = Settings.findOne({ key: 'salesRecord' });
         return show;
     },
 
     updateVisibleProjectFields(visibleFields) {
         if (!this.userId) return;
         check(visibleFields, [String]);
-        Settings.update({ key: 'project' }, {
+        Settings.update({ key: 'salesRecord' }, {
             $set: {
                 show: visibleFields,
             }
         });
     },
 
-    updateProjectProperty(projectId, property) {
-        check(projectId, String);
+    updateProjectProperty(salesRecordId, property) {
+        check(salesRecordId, String);
         check(property, {
             key: String,
             value: Match.OneOf(String, Date)
@@ -378,23 +378,23 @@ Meteor.methods({
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-        // current user belongs to Projects
-        const project = Projects.findOne(projectId);
-        if (!project) throw new Meteor.Error('Project does not exists');
-        const isMember = !!project.members.find(({userId})=> userId === this.userId);
+        // current user belongs to salesRecords
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if (!salesRecord) throw new Meteor.Error('Project does not exists');
+        const isMember = !!salesRecord.members.find(({userId})=> userId === this.userId);
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
 
-        return Projects.update(projectId, {
+        return SalesRecords.update(salesRecordId, {
             $set: {
                 [key]: value,
             }
         });
     },
 
-    addMemberToProject(projectId, member){
-        check(projectId, String);
+    addMemberToProject(salesRecordId, member){
+        check(salesRecordId, String);
         check(member, {
             userId: String,
             isMainStakeholder: Boolean,
@@ -404,7 +404,7 @@ Meteor.methods({
 
         if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
 
-        Projects.update(projectId, {$push: {members: member}});
+        SalesRecords.update(salesRecordId, {$push: {members: member}});
     },
 
     addUserToSlackChannel(userId, channel){
@@ -519,7 +519,7 @@ Meteor.methods({
                 })
             });
 
-        return Projects.insert(data);
+        return SalesRecords.insert(data);
     },
 
    postSlackMessage(channel, message){
@@ -631,8 +631,8 @@ Meteor.methods({
     return userId;
   },
 
-  updateProjectShipping(projectId, shipping) {
-    check(projectId, String);
+  updateProjectShipping(salesRecordId, shipping) {
+    check(salesRecordId, String);
     check(shipping, {
       shippingContactPhone: Match.Maybe(Match.phone),
       shippingContactName: Match.Maybe(String),
@@ -643,21 +643,21 @@ Meteor.methods({
     // current user belongs to ADMIN LIST
     const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-    // current user belongs to Projects
-    const project = Projects.findOne(projectId);
-    if (!project) throw new Meteor.Error('Project does not exists');
-    const isMember = !!project.members.find(({userId}) => userId === this.userId);
+    // current user belongs to salesRecords
+    const salesRecord = SalesRecords.findOne(salesRecordId);
+    if (!salesRecord) throw new Meteor.Error('Project does not exists');
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
 
-    return Projects.update(projectId, {
+    return SalesRecords.update(salesRecordId, {
       $set: shipping,
     });
   },
 
-  updateProjectBilling(projectId, billing) {
-    check(projectId, String);
+  updateProjectBilling(salesRecordId, billing) {
+    check(salesRecordId, String);
     check(billing, {
       billingContactPhone: Match.Maybe(Match.phone),
       billingContactName: Match.Maybe(String),
@@ -668,20 +668,20 @@ Meteor.methods({
     // current user belongs to ADMIN LIST
     const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-    // current user belongs to Projects
-    const project = Projects.findOne(projectId);
-    if (!project) throw new Meteor.Error('Project does not exists');
-    const isMember = !!project.members.find(({userId}) => userId === this.userId);
+    // current user belongs to salesRecords
+    const salesRecord = SalesRecords.findOne(salesRecordId);
+    if (!salesRecord) throw new Meteor.Error('Project does not exists');
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-    return Projects.update(projectId, {
+    return SalesRecords.update(salesRecordId, {
       $set: billing,
     });
   },
 
-  updateProjectAttributes(projectId, attributes) {
-    check(projectId, String);
+  updateProjectAttributes(salesRecordId, attributes) {
+    check(salesRecordId, String);
     check(attributes, {
       shippingMode: String,
       actualDeliveryDate: Date,
@@ -693,21 +693,21 @@ Meteor.methods({
     // current user belongs to ADMIN LIST
     const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
 
-    // current user belongs to Projects
-    const project = Projects.findOne(projectId);
-    if (!project) throw new Meteor.Error('Project does not exists');
-    const isMember = !!project.members.find(({userId}) => userId === this.userId);
+    // current user belongs to salesRecords
+    const salesRecord = SalesRecords.findOne(salesRecordId);
+    if (!salesRecord) throw new Meteor.Error('Project does not exists');
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
 
-    return Projects.update(projectId, {
+    return SalesRecords.update(salesRecordId, {
       $set: attributes,
     });
   },
 
-  addMemberToProject(projectId, member){
-    check(projectId, String);
+  addMemberToProject(salesRecordId, member){
+    check(salesRecordId, String);
     check(member, {
       userId: String,
       isMainStakeholder: Boolean,
@@ -717,7 +717,7 @@ Meteor.methods({
 
     if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
 
-    Projects.update(projectId, {$push: {members: member}});
+    SalesRecords.update(salesRecordId, {$push: {members: member}});
   },
 
   addUserToSlackChannel(userId, channel){
@@ -832,7 +832,7 @@ Meteor.methods({
         })
       });
 
-    return Projects.insert(data);
+    return SalesRecords.insert(data);
   },
 
   postSlackMessage(channel, message){

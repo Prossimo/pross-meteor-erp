@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, Projects, CreatedUsers, Quotes, Files, Events, SlackMessages } from '../lib/collections';
+import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages } from '../lib/collections';
 import { NylasAccounts } from '../models/nylasaccounts/nylas-accounts'
 import {
     GET_ACTIVITY,
@@ -30,8 +30,8 @@ Meteor.startup(()=>{
     });
 
     Meteor.publish(GET_PROJECTS, function(){
-        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
-        return Projects.find({"members.userId": this.userId})
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find();
+        return SalesRecords.find({"members.userId": this.userId})
     });
 
     Meteor.publish(GET_QUOTES, function(projectId){
@@ -43,8 +43,8 @@ Meteor.startup(()=>{
     Meteor.publish(GET_PROJECT, function(_id){
         Match.test(_id, String);
 
-        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
-        return Projects.find({_id, "members.userId": this.userId});
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find({_id});
+        return SalesRecords.find({_id, "members.userId": this.userId});
     });
 
     Meteor.publish(GET_ADMIN_CREATE_USERS, function(){
@@ -64,12 +64,12 @@ Meteor.startup(()=>{
         return Events.find({projectId});
     });
 
-    Meteor.publish(GET_SLACK_MSG, function (projectId) {
-        Match.test(projectId, String);
+    Meteor.publish(GET_SLACK_MSG, function (salesRecordId) {
+        Match.test(salesRecordId, String);
 
-        const project = Projects.findOne(projectId);
-        if(project.slackChanel){
-            return SlackMessages.find({channel: project.slackChanel, subtype: {$ne: "bot_message"}})
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if(salesRecord.slackChanel){
+            return SlackMessages.find({channel: salesRecord.slackChanel, subtype: {$ne: "bot_message"}})
         }else{
             return[];
         }

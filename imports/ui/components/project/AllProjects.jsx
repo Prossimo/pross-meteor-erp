@@ -209,9 +209,9 @@ class AllProjects extends React.Component{
     }
 
     updateProject() {
-        // TODO: update project at here
+        // TODO: update salesRecord at here
         const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
-        const { _id } = this.props.projects[this.state.edittingCell.rowIndex];
+        const { _id } = this.props.salesRecords[this.state.edittingCell.rowIndex];
         let { key, value } = this.state.edittingCell;
         switch (type) {
             case 'date':
@@ -252,7 +252,7 @@ class AllProjects extends React.Component{
 
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
-        return this.props.projects.map((project, index)=> {
+        return this.props.salesRecords.map((project, index)=> {
             return (
                 <tr key={project._id}>
                 {

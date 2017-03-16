@@ -1,6 +1,6 @@
 //collections
 export const MESSAGES = 'Messages';
-export const PROJECTS = 'Projects';
+export const PROJECTS = 'SalesRecords';
 export const FILES = 'Files';
 
 //publications

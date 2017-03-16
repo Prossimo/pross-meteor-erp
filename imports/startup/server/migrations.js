@@ -6,7 +6,7 @@ import {
     EMPLOYEE_ROLE,
     SHIPPER_ROLE
 } from '../../api/constants/roles';
-import {Projects, Quotes } from '../../api/lib/collections';
+import {SalesRecords, Quotes } from '../../api/lib/collections';
 
 Migrations.add({
     version: 1,

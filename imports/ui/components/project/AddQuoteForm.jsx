@@ -48,7 +48,7 @@ class AddQuoteForm extends React.Component{
         event.preventDefault();
 
         const { currentFile, quoteName, totalCost, alertsActive } = this.state;
-        const { project, usersArr, currentUser } = this.props;
+        const { salesRecord, usersArr, currentUser } = this.props;
 
         if(!currentFile)return warning(`You must add PDF file`);
         if(quoteName === '')return warning(`Empty quote name`);

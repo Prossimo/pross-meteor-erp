@@ -95,11 +95,11 @@ class SingleProject extends React.Component{
   }
   //todo change style
   renderProjectMembers(){
-    const { project } = this.props;
-    if(!project )return null;
+    const { salesRecord } = this.props;
+    if(!salesRecord )return null;
     return (
       <ul className="project-members">
-        {_.isArray(project.members) && project.members.map(member=>{
+        {_.isArray(salesRecord.members) && salesRecord.members.map(member=>{
           if(!member.user) return null;
           return(
             <li key={member.user._id}
@@ -130,11 +130,11 @@ class SingleProject extends React.Component{
   }
   
   renderAddUserForm(){
-    const { project, users } = this.props;
+    const { salesRecord, users } = this.props;
     const { selectUser, selectedCategory, selectedDesignation} = this.state;
     const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
     const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
-    const membersIds = project.members.map(i=>i.userId);
+    const membersIds = salesRecord.members.map(i=>i.userId);
     const selectOptions = users
       .filter(user=>membersIds.indexOf(user._id)<0)
       .map(user=>{
@@ -190,7 +190,7 @@ class SingleProject extends React.Component{
   
   assignUsers(){
     const { selectUser, selectedDesignation, selectedCategory } = this.state;
-    const { project } = this.props;
+    const { salesRecord } = this.props;
     if(_.isNull(selectUser)) return warning("Choose user");
     
     const member = {
@@ -200,16 +200,16 @@ class SingleProject extends React.Component{
       category: selectedCategory.map(i=>i.value)
     };
     
-    Meteor.call("addMemberToProject", project._id, member, err=>{
+    Meteor.call("addMemberToProject", salesRecord._id, member, err=>{
       if(err) return warning(err.reason? err.reason : "Add member failed!");
       this.setState({
         selectUser: null,
         selectedDesignation: null,
         selectedCategory: []
       });
-      info("Add member to project success!");
+      info("Add member to salesRecord success!");
     });
-    Meteor.call("addUserToSlackChannel", member.userId, project.slackChanel, err=>{
+    Meteor.call("addUserToSlackChannel", member.userId, salesRecord.slackChanel, err=>{
       if(err) return warning(err.error);
       info("User success add to slack channel!");
     })
@@ -236,9 +236,9 @@ class SingleProject extends React.Component{
   }
   
   render() {
-    const { project } = this.props;
+    const { salesRecord } = this.props;
     const sidebarTitle = "Project members";
-    const projectName = project.name;
+    const projectName = salesRecord.name;
     return (
       <div className="page-container single-project">
         {this.renderPopup()}
