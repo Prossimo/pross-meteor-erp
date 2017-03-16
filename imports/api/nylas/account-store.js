@@ -26,8 +26,6 @@ class AccountStore extends Reflux.Store {
             allCategories = allCategories.concat(account.categories)
         })
 
-        console.log('All Categories', allCategories)
-
         if(!selectedCategory || !_.contains(allCategories, selectedCategory)) {
             CategoryStore.selectCategory(allCategories[0])
         }
@@ -43,7 +41,7 @@ class AccountStore extends Reflux.Store {
     }
 
     accountForEmail(email) {
-        return _.findWhere(this.accounts(), {email_address:email})
+        return _.findWhere(this.accounts(), {emailAddress:email})
     }
 
     accountForAccountId(accountId) {
@@ -57,6 +55,16 @@ class AccountStore extends Reflux.Store {
         const account = this.accountForAccountId(accountId)
 
         return account ? account.accessToken : null
+    }
+
+    getSelectedAccount() {
+        const selectedCategory = CategoryStore.getSelectedCategory()
+
+        if(selectedCategory) {
+            return this.accountForAccountId(selectedCategory.account_id)
+        }
+
+        return this.defaultAccount()
     }
 }
 

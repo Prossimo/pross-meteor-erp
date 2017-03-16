@@ -136,7 +136,9 @@ export default class ChangeLabelsTask extends ChangeMailTask {
 
         let labels = _.reject(model.labels, ({id}) => labelsToRemoveIds.includes(id));
         labels = labels.concat(this.labelsToAdd);
-        labels = _.uniq(labels, false, label => label.id);
+
+        console.log('changesToModel', labels, this.labelsToAdd, this.labelsToRemove)
+        labels = _.uniq(labels, false, (label) => label.id);
         return {labels};
     }
 

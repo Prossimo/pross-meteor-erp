@@ -33,7 +33,7 @@ class CategoryStore extends Reflux.Store {
     }
 
     getArchiveCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(account) ? 'archive' : 'all'})
+        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'all'})
     }
 
     getTrashCategory(accountId) {
