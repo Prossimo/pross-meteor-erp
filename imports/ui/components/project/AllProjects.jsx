@@ -33,7 +33,7 @@ class AllProjects extends React.Component{
                     key: 'name',
                     label: 'Name',
                     type: 'text',
-                    selected: true,
+                    selected: false,
                     editable: true,
                 },
                 {
@@ -404,7 +404,10 @@ class AllProjects extends React.Component{
                             value: null,
                         },
                         possibleColumns
-                    })
+                    });
+                    Meteor.call('updateVisibleProjectFields', selectedKeys, (error)=> {
+
+                    });
                 })
             }
         });

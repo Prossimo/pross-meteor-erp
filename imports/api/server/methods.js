@@ -9,7 +9,8 @@ import {
   Projects,
   SlackUsers,
   Quotes,
-  SlackMessages
+  SlackMessages,
+  Settings,
 } from '../lib/collections';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
@@ -336,17 +337,34 @@ Meteor.methods({
         });
     },
 
-    getVisibleProjectFields() {
-        return [
-            'name',
-            'productionStartDate',
-            'actualDeliveryDate',
-            'shippingMode',
-        ]
+    initVisiableProjectFields() {
+        const setting = Settings.findOne({ key: 'project' });
+        if (!setting) {
+            Settings.insert({
+                key: 'project',
+                show: [
+                    'name',
+                    'productionStartDate',
+                    'actualDeliveryDate',
+                    'shippingMode',
+                ]
+            })
+        }
     },
 
-    updateVisibleProjectFields() {
+    getVisibleProjectFields() {
+        const { show }  = Settings.findOne({ key: 'project' });
+        return show;
+    },
 
+    updateVisibleProjectFields(visibleFields) {
+        if (!this.userId) return;
+        check(visibleFields, [String]);
+        Settings.update({ key: 'project' }, {
+            $set: {
+                show: visibleFields,
+            }
+        });
     },
 
     updateProjectProperty(projectId, property) {

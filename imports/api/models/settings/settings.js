@@ -5,8 +5,15 @@ Settings.schema = new SimpleSchema({
     _id: {
         type: String,
     },
-    'project.show': {
-        type: [String],
+    key: {
+        type: String,
+        allowedValues: ['project']
+    },
+    show: {
+        type: Array,
+    },
+    'show.$': {
+        type: String,
     }
 });
 
