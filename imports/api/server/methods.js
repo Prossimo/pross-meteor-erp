@@ -336,6 +336,19 @@ Meteor.methods({
         });
     },
 
+    getVisibleProjectFields() {
+        return [
+            'name',
+            'productionStartDate',
+            'actualDeliveryDate',
+            'shippingMode',
+        ]
+    },
+
+    updateVisibleProjectFields() {
+
+    },
+
     updateProjectProperty(projectId, property) {
         check(projectId, String);
         check(property, {

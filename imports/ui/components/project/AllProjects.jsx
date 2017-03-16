@@ -39,14 +39,14 @@ class AllProjects extends React.Component{
                 {
                     key: 'productionStartDate',
                     label: 'Start Date',
-                    selected: true,
+                    selected: false,
                     type: 'date',
                     editable: true,
                 },
                 {
                     key: 'actualDeliveryDate',
                     label: 'Delivery Date',
-                    selected: true,
+                    selected: false,
                     type: 'date',
                     editable: true,
                 },
@@ -116,7 +116,7 @@ class AllProjects extends React.Component{
                 {
                     key: 'shippingMode',
                     label: 'Shipping Mode',
-                    selected: true,
+                    selected: false,
                     type: 'select',
                     options: SHIPPING_MODE_LIST.map((value)=> ({label: value, value})),
                     editable: true,
@@ -367,41 +367,47 @@ class AllProjects extends React.Component{
 
     componentDidMount() {
         const _this = this;
-        const selectedFields = _this
-            .state
-            .possibleColumns
-            .filter(({ selected })=> selected)
-            .map(({ key })=> key)
+        Meteor.call('getVisibleProjectFields', (error, selectedFields)=> {
+            if (!error) {
+                const possibleColumns = _this.state.possibleColumns;
+                possibleColumns.forEach((column)=> {
+                    if (selectedFields.includes(column.key)) {
+                        column.selected = true;
+                    }
+                });
+                _this.setState({possibleColumns});
 
-        $('.selectpicker').selectpicker({
-            style: 'btn-default',
-            size: 4
+                $('.selectpicker').selectpicker({
+                    style: 'btn-default',
+                    size: 4
+                });
+
+                $('.selectpicker').selectpicker('val', selectedFields);
+
+                $('.selectpicker').on('changed.bs.select', function() {
+                    const selectedKeys = $(this).val();
+                    const possibleColumns = _this.state.possibleColumns;
+                    possibleColumns.forEach((column)=> {
+                        if (selectedKeys.includes(column.key))
+                            return column.selected = true;
+                        return column.selected = false;
+                    });
+                    _this.setState({
+                        hoverCell: {
+                            key: null,
+                            rowIndex: null,
+                            value: null,
+                        },
+                        edittingCell: {
+                            key: null,
+                            rowIndex: null,
+                            value: null,
+                        },
+                        possibleColumns
+                    })
+                })
+            }
         });
-
-        $('.selectpicker').selectpicker('val', selectedFields);
-
-        $('.selectpicker').on('changed.bs.select', function() {
-            const selectedKeys = $(this).val();
-            const possibleColumns = _this.state.possibleColumns;
-            possibleColumns.forEach((column)=> {
-                if (selectedKeys.includes(column.key))
-                    return column.selected = true;
-                return column.selected = false;
-            });
-            _this.setState({
-                hoverCell: {
-                    key: null,
-                    rowIndex: null,
-                    value: null,
-                },
-                edittingCell: {
-                    key: null,
-                    rowIndex: null,
-                    value: null,
-                },
-                possibleColumns
-            })
-        })
     }
 
     render() {
