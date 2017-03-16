@@ -156,7 +156,7 @@ export default class NylasSigninForm extends React.Component {
 
     signin() {
         signinData = this.signinData;
-        Meteor.call("nylasSignin", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
+        Meteor.call("addNylasAccount", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
             if(err) {
                 console.log(err)
                 return warning(err.message);
