@@ -2,6 +2,7 @@ import _ from 'underscore'
 import React from 'react';
 import {Button} from 'react-bootstrap';
 import Spinner from '../components/utils/spinner';
+import {warning} from "/imports/api/lib/alerts";
 import Actions from '../../api/nylas/actions';
 import TaskQueue from '../../api/nylas/tasks/task-queue';
 import NylasUtils from '../../api/nylas/nylas-utils';
@@ -99,7 +100,7 @@ class InboxPage extends React.Component {
                         <div style={{textAlign: 'center'}}>
                             <Button bsStyle="primary" onClick={() => this.setState({isAddingInbox: true})}>Add an
                                 individual inbox</Button>
-                            {Roles.userIsInRole(this.props.currentUser._id, [...ADMIN_ROLE_LIST]) &&
+                            {Meteor.user().isAdmin() &&
                             <Button bsStyle="default" style={{marginLeft: 10}}
                                     onClick={() => this.setState({isAddingInbox: true, isAddingTeamInbox: true})}>Add a
                                 team inbox</Button>}
@@ -176,13 +177,17 @@ class InboxPage extends React.Component {
                     AccountStore.accounts().map((account) => {
                         const categoriesForAccount = CategoryStore.getCategories(account.accountId)
                         console.log('categoriesForAccount', categoriesForAccount)
+
+                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ? <i className="fa fa-minus" onClick={()=>this.onClickRemoveAccount(account)}></i> : ''
                         return (
-                            <ul key={account.accountId}>
+                            <div key={account.accountId}>
                                 <div className="account-wrapper">
                                     <span><img
                                         src={account.isTeamAccount ? "/icons/inbox/ic-team.png" : "/icons/inbox/ic-individual.png"}
                                         width="16px"/></span>&nbsp;
                                     <span>{account.emailAddress}</span>
+                                    <span style={{flex:1}}></span>
+                                    <span className="action">{actionEl}</span>
                                 </div>
                                 {
                                     categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category) =>
@@ -195,7 +200,7 @@ class InboxPage extends React.Component {
                                             selected={selectedCategory && category.id == selectedCategory.id}
                                         />)
                                 }
-                            </ul>
+                            </div>
                         )
 
                     })
@@ -204,6 +209,18 @@ class InboxPage extends React.Component {
         )
     }
 
+    onClickRemoveAccount = (account) => {
+        if(confirm(`Are you sure to remove ${account.emailAddress}?`)) {
+            Meteor.call('removeNylasAccount', account, (err,res)=>{
+                if(err) {
+                    console.log(err)
+                    return warning(err.message);
+                }
+
+                Actions.changedAccounts()
+            })
+        }
+    }
     renderThreads() {
         const {threads, selectedThread, loadingThreads} = this.state;
 

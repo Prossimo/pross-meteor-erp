@@ -4,14 +4,14 @@ import Utils from './nylas-utils'
 
 class DraftFactory {
     createDraft = (fields = {}) => {
-        account = AccountStore.defaultAccount()
+        account = AccountStore.getSelectedAccount()
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
         return Promise.resolve({
             body: fields.body || '',
             subject: fields.subject || '',
             clientId: fields.clientId || Utils.generateTempId(),
-            from: [{name:'', email:account.email_address}],
+            from: [{name:'', email:account.emailAddress}],
             to: [],
             cc: [],
             bcc: [],

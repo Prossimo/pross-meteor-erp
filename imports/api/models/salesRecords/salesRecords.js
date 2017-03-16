@@ -2,16 +2,16 @@ import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import _ from 'underscore';
-import {Projects} from '../../lib/collections';
+import {SalesRecords} from '../../lib/collections';
 
 // Deny all client-side updates since we will be using methods to manage this collection
-/*Projects.deny({
+/*salesRecords.deny({
     insert() { return true; },
     update() { return true; },
     remove() { return true; }
 });*/
 
-Projects.schema = new SimpleSchema({
+SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true },
@@ -50,9 +50,9 @@ Projects.schema = new SimpleSchema({
     actProductionTime: { type: Number, optional: true },
 });
 
-Projects.attachSchema(Projects.schema);
+SalesRecords.attachSchema(SalesRecords.schema);
 
-Projects.publicFields = {
+SalesRecords.publicFields = {
     name: 1,
     members: 1,
     slackChanel: 1,
@@ -78,16 +78,16 @@ Projects.publicFields = {
     actProductionTime: 1,
 };
 
-Factory.define('project', Projects, {
+Factory.define('salesRecord', SalesRecords, {
     name: () => faker.name.jobTitle()
 });
 
 
-Projects.before.insert(function (userId, doc) {
+SalesRecords.before.insert(function (userId, doc) {
     doc.createdAt = new Date()
 });
 
-Projects.before.update(function (userId, doc, fieldNames, modifier, options) {
+SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options) {
     // modifier.$set = modifier.$set || {};
     doc.modifiedAt = Date.now();
 });

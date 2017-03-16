@@ -77,7 +77,7 @@ class Aside extends React.Component{
                 route: "Dashboard"
             },
             {
-                label: "SalesRecords",
+                label: "CRM",
                 topLevel: true,
                 subItems: [
                     {
@@ -95,6 +95,10 @@ class Aside extends React.Component{
                     {
                         label: "Tickets",
                         route: "Tickets"
+                    },
+                    {
+                        label: "SalesRecord",
+                        route: "SalesRecord"
                     },
                 ]
             },
@@ -136,7 +140,7 @@ class Aside extends React.Component{
         }
         //admin & super admin allow
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
-            const subItems = props.projects.map(project=>{
+            const subItems = props.salesRecords.map(project=>{
                 return {
                     label: project.name,
                     route: {
@@ -147,7 +151,7 @@ class Aside extends React.Component{
             });
             if(_.isArray(subItems) && !subItems.length){
                 subItems.push({
-                    label: "No projects yet",
+                    label: "No salesRecords yet",
                     route: "Root"
                 })
             }
@@ -177,9 +181,8 @@ class Aside extends React.Component{
             <aside className={classNames("control-aside",{"active": currentUser})}>
                 {this.renderList()}
 
-                {/*<div className="call-phone" onClick={this.onClickCall}><i className="fa fa-phone"></i> Call</div>*/}
+                <div className="call-phone" onClick={this.onClickCall}><i className="fa fa-phone"></i></div>
 
-                <div className="call-phone"><Dialer/></div>
             </aside>
         )
     }

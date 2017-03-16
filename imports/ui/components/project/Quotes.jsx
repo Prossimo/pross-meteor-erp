@@ -160,7 +160,7 @@ class Quotes extends React.Component{
     }
 
     showAddQuoteForm(){
-        const { project, usersArr, currentUser, quotes } = this.props;
+        const { salesRecord, usersArr, currentUser, quotes } = this.props;
         this.setState({
             showPopup: true,
             popupTitle: 'Add new quote',
@@ -181,7 +181,7 @@ class Quotes extends React.Component{
     }
 
     addRevision(quote){
-        const { project, usersArr, currentUser } = this.props;
+        const { salesRecord, usersArr, currentUser } = this.props;
         this.setState({
             showPopup: true,
             popupTitle: `Add revision to ${quote.name}`,

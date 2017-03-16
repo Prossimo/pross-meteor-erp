@@ -4,7 +4,6 @@ import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js"
 import config from '../../../api/config/config'
 import {warning} from "/imports/api/lib/alerts";
 import Actions from '../../../api/nylas/actions'
-import {NylasAccounts} from '../../../api/models/nylasaccounts/nylas-accounts'
 
 export default class NylasSigninForm extends React.Component {
     static propTypes = {
@@ -157,7 +156,7 @@ export default class NylasSigninForm extends React.Component {
 
     signin() {
         signinData = this.signinData;
-        Meteor.call("nylasSignin", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
+        Meteor.call("addNylasAccount", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
             if(err) {
                 console.log(err)
                 return warning(err.message);

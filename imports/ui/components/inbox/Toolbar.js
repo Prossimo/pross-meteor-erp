@@ -38,7 +38,7 @@ export default class Toolbar extends React.Component {
     }
 
     renderAddInboxButton() {
-        if (Roles.userIsInRole(this.props.currentUser._id, [...ADMIN_ROLE_LIST])) {
+        if (Meteor.user().isAdmin()) {
             return (
                 <div style={{marginTop:12, float:'right'}}>
                     <DropdownButton bsStyle="primary" bsSize="small" title="Add inbox" id="dropdown-add-inbox">

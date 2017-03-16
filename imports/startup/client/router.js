@@ -10,6 +10,7 @@ import ProjectsPage from '/imports/ui/pages/ProjectsPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import InboxPage from '../../api/composer/pages/InboxPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
+import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
 import ContactsPage from '/imports/ui/pages/ContactsPage';
@@ -81,6 +82,16 @@ FlowRouter.route('/leads', {
         checkAuth();
         mount(App, {
             content: <LeadsPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/salesrecord', {
+    name: 'SalesRecord',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <SalesRecordPage/>,
         })
     }
 });
