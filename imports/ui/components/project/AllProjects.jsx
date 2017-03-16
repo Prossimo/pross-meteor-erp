@@ -107,7 +107,7 @@ class AllProjects extends React.Component{
                     editable: true,
                 },
                 {
-                    type: 'billingNotes',
+                    key: 'billingNotes',
                     label: 'Billing Notes',
                     selected: false,
                     type: 'text',
