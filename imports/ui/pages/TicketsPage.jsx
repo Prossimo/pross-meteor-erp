@@ -45,8 +45,9 @@ class TicketsPage extends React.Component{
     getContent(){
         const { activeTab } = this.state;
         if(!activeTab.component) return null;
-        const salesRecords = this.props.salesRecords.filter(({ stage })=> stage === 'ticket');
-        return React.cloneElement(<AllProjects/>, { salesRecords });
+        const props = _.clone(this.props);
+        props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'ticket');
+        return React.cloneElement(activeTab.component, props);
     }
 
     render() {
