@@ -15,6 +15,7 @@ import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
 import ContactsPage from '/imports/ui/pages/ContactsPage';
 import FinancialPage from '/imports/ui/pages/FinancialPage';
+import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -85,6 +86,16 @@ FlowRouter.route('/leads', {
         })
     }
 });
+
+FlowRouter.route('/Opportunities', {
+    name: 'Opportunities',
+    action() {
+        checkAuth();
+        mount(App, {
+            content: <OpportunitiesPage/>
+        })
+    }
+})
 
 FlowRouter.route('/salesrecord', {
     name: 'SalesRecord',

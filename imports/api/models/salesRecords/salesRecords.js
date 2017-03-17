@@ -48,6 +48,7 @@ SalesRecords.schema = new SimpleSchema({
     shipper: { type: String, optional: true },
     estProductionTime: { type: Number, optional: true },
     actProductionTime: { type: Number, optional: true },
+    stage: { type: String, allowedValues: ['lead', 'opportunity', 'order', 'ticket'] }
 });
 
 SalesRecords.attachSchema(SalesRecords.schema);
@@ -76,6 +77,7 @@ SalesRecords.publicFields = {
     shipper: 1,
     estProductionTime: 1,
     actProductionTime: 1,
+    stage: 1,
 };
 
 Factory.define('salesRecord', SalesRecords, {

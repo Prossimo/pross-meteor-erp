@@ -86,7 +86,7 @@ class Aside extends React.Component{
                     },
                     {
                         label: "Opportunities",
-                        route: "Root"
+                        route: "Opportunities"
                     },
                     {
                         label: "Orders",
@@ -95,10 +95,6 @@ class Aside extends React.Component{
                     {
                         label: "Tickets",
                         route: "Tickets"
-                    },
-                    {
-                        label: "SalesRecord",
-                        route: "SalesRecord"
                     },
                 ]
             },
