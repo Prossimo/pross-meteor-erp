@@ -47,6 +47,7 @@ class OrdersPage extends React.Component{
         if(!activeTab.component) return null;
         const props = _.clone(this.props);
         props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'order');
+        props.stage = 'order';
         return React.cloneElement(activeTab.component, props);
     }
 

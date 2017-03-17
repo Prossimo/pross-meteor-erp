@@ -161,13 +161,12 @@ class CreateProject extends React.Component{
             billingNotes,
 
             shippingMode: selectedShippingMode.value,
-            stage: selectedStage.value,
+            stage: this.props.stage ? this.props.stage : selectedStage.value,
             supplier,
             shipper,
             estProductionTime,
             actProductionTime
         };
-
         Meteor.call("addProject", data, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
@@ -381,18 +380,24 @@ class CreateProject extends React.Component{
                                onChange={this.changeState('shipper')}
                                value={shipper}/>
                     </div>
-                    <div className="select-wrap">
-                        <span className="label">Stage</span>
-                        <Select
-                            value={selectedStage}
-                            onChange={this.changeState('selectedStage')}
-                            options={stages}
-                            className={"select-role"}
-                            clearable={false}
-                        />
-                    </div>
-                    <div className="selected-wrap">
-                    </div>
+                    {
+                        (!this.props.stage) ? (
+                            <div>
+                                <div className="select-wrap">
+                                    <span className="label">Stage</span>
+                                    <Select
+                                        value={selectedStage}
+                                        onChange={this.changeState('selectedStage')}
+                                        options={stages}
+                                        className={"select-role"}
+                                        clearable={false}
+                                    />
+                                </div>
+                                <div className="selected-wrap">
+                                </div>
+                            </div>
+                        ) : ''
+                    }
                     <div className="submit-wrap">
                         <button className="btnn primary-btn">Add project</button>
                     </div>

@@ -47,6 +47,7 @@ class TicketsPage extends React.Component{
         if(!activeTab.component) return null;
         const props = _.clone(this.props);
         props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'ticket');
+        props.stage = 'ticket';
         return React.cloneElement(activeTab.component, props);
     }
 

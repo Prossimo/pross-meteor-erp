@@ -47,6 +47,7 @@ class LeadsPage extends React.Component{
         if(!activeTab.component) return null;
         const props = _.clone(this.props);
         props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'lead');
+        props.stage = 'lead';
         return React.cloneElement(activeTab.component, props);
     }
 
