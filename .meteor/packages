@@ -50,3 +50,4 @@ orionsoft:apollo
 orionsoft:graphql-compiler
 nimble:restivus
 matb33:bootstrap-glyphicons
+force-ssl
