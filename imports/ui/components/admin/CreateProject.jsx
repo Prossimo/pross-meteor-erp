@@ -3,7 +3,7 @@ import { getUserName } from '/imports/api/lib/filters';
 import Select from 'react-select';
 import Textarea from 'react-textarea-autosize';
 import { info, warning } from '/imports/api/lib/alerts';
-import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST } from '/imports/api/constants/project';
+import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST, STAGES } from '/imports/api/constants/project';
 import Switch from 'rc-switch';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
@@ -17,7 +17,7 @@ class ProjectMemberConfig extends React.Component{
 
         this.state = {
             selectedDesignation: this.designationOptions[0],
-            selectedCategory: [this.categoryOptions[0]]
+            selectedCategory: [this.categoryOptions[0]],
         }
     }
 
@@ -89,6 +89,7 @@ class CreateProject extends React.Component{
     constructor(props){
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
+        this.stages = STAGES.map(item =>({ label: item.charAt(0).toUpperCase() + item.slice(1), value: item }));
 
         this.state = {
             projectName: '',
@@ -116,6 +117,7 @@ class CreateProject extends React.Component{
             billingNotes: '',
 
             selectedShippingMode: this.shippingMode[0],
+            selectedStage: this.stages[0],
             supplier: '',
             shipper: '',
             estProductionTime: 0,
@@ -129,7 +131,7 @@ class CreateProject extends React.Component{
         const { projectName,  selectUsers, shipper, supplier,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress,  shippingContactEmail,  shippingNotes,
-            billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes } = this.state;
+            billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes , selectedStage } = this.state;
 
         const data = {
             name: projectName,
@@ -159,6 +161,7 @@ class CreateProject extends React.Component{
             billingNotes,
 
             shippingMode: selectedShippingMode.value,
+            stage: selectedStage.value,
             supplier,
             shipper,
             estProductionTime,
@@ -186,13 +189,13 @@ class CreateProject extends React.Component{
 
         this.setState({selectUsers})
     }
-    
+
     changeState(key) {
-    	  return e => {
-    	 		if(e) {
-    	 			 this.setState({[key]: e.target ? e.target.value : e});
-    	 		}
-    	  }
+          return e => {
+                if(e) {
+                     this.setState({[key]: e.target ? e.target.value : e});
+                }
+          }
     }
     renderMembersConfig(){
         const { selectUsers } = this.state;
@@ -225,8 +228,8 @@ class CreateProject extends React.Component{
         const { projectName, selectedShippingMode, selectUsers, supplier, shipper, memberOptions,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
-            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes } = this.state;
-        const { shippingMode } = this;
+            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
+        const { shippingMode, stages } = this;
 
         return (
             <div className="create-project">
@@ -355,14 +358,14 @@ class CreateProject extends React.Component{
                     <div className="select-wrap">
                         <span className="label">Actual Delivery Date</span>
                         <DatePicker
-        							selected={actualDeliveryDate}
-        							onChange={this.changeState('actualDeliveryDate')} />
+                                    selected={actualDeliveryDate}
+                                    onChange={this.changeState('actualDeliveryDate')} />
                     </div>
                     <div className="select-wrap">
                         <span className="label">Production Start Date</span>
                         <DatePicker
-        							selected={productionStartDate}
-        							onChange={this.changeState('productionStartDate')} />
+                                    selected={productionStartDate}
+                                    onChange={this.changeState('productionStartDate')} />
                     </div>
                     <div className="field-wrap">
                         <span className="label">Estimate Production Time (weeks)</span>
@@ -377,6 +380,18 @@ class CreateProject extends React.Component{
                         <input type="text"
                                onChange={this.changeState('shipper')}
                                value={shipper}/>
+                    </div>
+                    <div className="select-wrap">
+                        <span className="label">Stage</span>
+                        <Select
+                            value={selectedStage}
+                            onChange={this.changeState('selectedStage')}
+                            options={stages}
+                            className={"select-role"}
+                            clearable={false}
+                        />
+                    </div>
+                    <div className="selected-wrap">
                     </div>
                     <div className="submit-wrap">
                         <button className="btnn primary-btn">Add project</button>

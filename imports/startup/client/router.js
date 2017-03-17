@@ -87,7 +87,7 @@ FlowRouter.route('/leads', {
     }
 });
 
-FlowRouter.route('/Opportunities', {
+FlowRouter.route('/opportunities', {
     name: 'Opportunities',
     action() {
         checkAuth();
