@@ -17,10 +17,11 @@ export default class ComposeView extends React.Component {
     constructor(props) {
         super(props)
 
+        draft = this._getDraftFromStore()
         this.state = {
-            draft: this._getDraftFromStore(),
-            expandedCc: false,
-            expandedBcc: false
+            draft: draft,
+            expandedCc: draft.cc&&draft.cc.length ? true : false,
+            expandedBcc: draft.bcc&&draft.bcc.length ? true : false
         }
     }
 
@@ -91,12 +92,31 @@ export default class ComposeView extends React.Component {
     }
 
     _renderEditor() {
+        const modules = {
+            toolbar: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline','strike', 'blockquote'],
+                [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+                ['link', 'image'],
+                ['clean']
+            ],
+        }
+
+        const formats = [
+            'header',
+            'bold', 'italic', 'underline', 'strike', 'blockquote',
+            'list', 'bullet', 'indent',
+            'link', 'image'
+        ]
         return (
             <div>
                 <ReactQuill placeholder="Write here..."
                             value={this.state.draft?this.state.draft.body:""}
                             theme="snow"
-                            onChange={this._onChangeBody}/>
+                            modules = {modules}
+                            formats = {formats}
+                            onChange={this._onChangeBody}>
+                </ReactQuill>
             </div>
         )
     }
