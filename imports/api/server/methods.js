@@ -838,9 +838,9 @@ Meteor.methods({
   },
 
   getTwilioToken() {
-    const twilio = require('twilio')
-    const config = require('../config/config')
-
+    const twilio = require('twilio');
+    const config = require('../config/config');
+    
     let capability = new twilio.Capability(
       config.twilio.accountSid,
       config.twilio.authToken
