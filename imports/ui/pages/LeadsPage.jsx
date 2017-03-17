@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import AllProjects from '../components/project/AllProjects';
 
-
 class LeadsPage extends React.Component{
     constructor(props){
         super(props);
