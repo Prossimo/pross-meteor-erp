@@ -60,166 +60,7 @@ Meteor.methods({
     return userData;
   },
 
-  sendEmail(mailData) {
-    Match.test(mailData, {
-      to: Match.OneOf(String, [String]),
-      from: String,
-      replyTo: String,
-      subject: String,
-      attachments: Match.Maybe([String]),
-      html: String,
-    });
-    this.unblock();
-
-    if (_.isArray(mailData.attachments) && mailData.attachments.length) {
-      mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item => {
-        return {
-          fileName: item.original.name,
-          filePath: `${Meteor.absoluteUrl(`cfs/files/files/${item._id}/${item.original.name}`)}`
-        }
-      });
-    }
-
-    Email.send(mailData);
-    return "Message is sending";
-  },
-
-  createMassage(msgData, files){
-    //todo refactor add checking args
-    const author = Meteor.users.findOne({_id: this.userId}, {fields: {services: 0}});
-    msgData.author = author;
-    Messages.insert(msgData, (err, messageId) => {
-      if (err) throw new Meteor.Error(err);
-
-      if (files && files.length) {
-        files.forEach(item => {
-          item.messageId = messageId;
-          Files.insert(item);
-        });
-      }
-    });
-  },
-
-  adminCreateUser(data){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-    data.createBy = this.userId;
-    data.createAt = new Date();
-    data.isActive = false;
-    CreatedUsers.insert(data);
-  },
-
-  adminEditUser(updatedUserInfo){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-    CreatedUsers.update({_id: updatedUserInfo._id}, {$set: updatedUserInfo}, (err) => {
-      if (err) {
-        throw new Meteor.Error(err)
-      }   });
-  },
-
-  adminRemoveUser(userId){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
-      throw new Meteor.Error("Access denied");
-    CreatedUsers.remove(userId);
-  },
-
-  checkCreatedAccount(email){
-    return CreatedUsers.find({email}).count();
-  },
-
-  initCreatedUser(email, password){
-    const createdUser = CreatedUsers.findOne({email, isActive: false});
-
-    const userId = Accounts.createUser({
-      username: createdUser.username,
-      email,
-      password,
-      profile: {
-        firstName: createdUser.firstName,
-        lastName: createdUser.lastName,
-        role: [
-          {role: 'user'}
-        ]
-      }
-    });
-    Roles.addUsersToRoles(userId, [createdUser.role]);
-    CreatedUsers.update({_id: createdUser._id}, {$set: {isActive: true}});
-    return userId;
-  },
-
-  updateProjectShipping(salesRecordId, shipping) {
-    check(salesRecordId, String);
-    check(shipping, {
-      shippingContactPhone: Match.Maybe(Match.phone),
-      shippingContactName: Match.Maybe(String),
-      shippingContactEmail: Match.Maybe(String),
-      shippingAddress: Match.Maybe(String),
-      shippingNotes: Match.Maybe(String),
-    });
-    // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
-
-    // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
-
-    // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-
-    return SalesRecords.update(salesRecordId, {
-      $set: shipping,
-    });
-  },
-
-  updateProjectBilling(salesRecordId, billing) {
-    check(salesRecordId, String);
-    check(billing, {
-      billingContactPhone: Match.Maybe(Match.phone),
-      billingContactName: Match.Maybe(String),
-      billingContactEmail: Match.Maybe(String),
-      billingAddress: Match.Maybe(String),
-      billingNotes: Match.Maybe(String),
-    });
-    // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
-
-    // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
-
-    // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-    return SalesRecords.update(salesRecordId, {
-      $set: billing,
-    });
-  },
-
-  updateProjectAttributes(salesRecordId, attributes) {
-    check(salesRecordId, String);
-    check(attributes, {
-      shippingMode: String,
-      actualDeliveryDate: Date,
-      productionStartDate: Date,
-      supplier: Match.Maybe(String),
-      shipper: Match.Maybe(String),
-    })
-
-    // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
-
-    // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
-
-    // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-
-    return SalesRecords.update(salesRecordId, {
-      $set: attributes,
-    });
-  },
+  
 
   initVisiableProjectFields() {
     const setting = Settings.findOne({key: 'salesRecord'});
@@ -277,19 +118,6 @@ Meteor.methods({
     });
   },
 
-  addMemberToProject(salesRecordId, member){
-    check(salesRecordId, String);
-    check(member, {
-      userId: String,
-      isMainStakeholder: Boolean,
-      destination: Match.OneOf(String, null),
-      category: Match.OneOf([String], [])
-    });
-
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-
-    SalesRecords.update(salesRecordId, {$push: {members: member}});
-  },
 
   addUserToSlackChannel(userId, channel){
     check(userId, String);
@@ -312,33 +140,7 @@ Meteor.methods({
     return res;
   },
 
-  updateUserInfo(user){
-    if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
-      throw new Meteor.Error("Access denied");
 
-    Meteor.users.update({_id: user.userId}, {
-      $set: {
-        username: user.username,
-        "profile.firstName": user.firstName,
-        "profile.lastName": user.lastName,
-        "profile.twitter": user.twitter,
-        "profile.facebook": user.facebook,
-        "profile.linkedIn": user.linkedIn,
-        "profile.companyName": user.companyName,
-        "profile.companyPosition": user.companyPosition
-      }
-    })
-  },
-
-  postSlackMessage(channel, message){
-    HTTP.post('https://slack.com/api/chat.postMessage', {
-      params: {
-        token: SLACK_API_KEY,
-        channel: channel,
-        text: message
-      }
-    })
-  },
 
   sendEmail(mailData) {
     Match.test(mailData, {
@@ -528,26 +330,6 @@ Meteor.methods({
     SalesRecords.update(salesRecordId, {$push: {members: member}});
   },
 
-  addUserToSlackChannel(userId, channel){
-    check(userId, String);
-    check(channel, String);
-
-    const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}});
-
-    if (!user) throw new Meteor.Error("User don`t integrate with slack");
-
-    const res = HTTP.post('https://slack.com/api/channels.invite', {
-      params: {
-        token: SLACK_API_KEY,
-        channel,
-        user: user.slack.id
-      }
-    });
-    if (!res.data.ok) {
-      if (res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
-    }
-    return res;
-  },
 
   updateUserInfo(user){
     if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
