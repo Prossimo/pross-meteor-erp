@@ -3,16 +3,16 @@ import classNames from 'classnames';
 import AllProjects from '../components/project/AllProjects';
 import CreateProject from '/imports/ui/components/admin/CreateProject';
 
-class OrdersPage extends React.Component{
+class OpportunitiesPage extends React.Component{
     constructor(props){
         super(props);
         this.tabs = [
             {
-                label: 'All Orders',
+                label: 'All Opportunities',
                 component: <AllProjects/>
             },
             {
-                label: 'Add Order',
+                label: 'Add Opportunity',
                 component: <CreateProject/>
             }
         ];
@@ -46,14 +46,14 @@ class OrdersPage extends React.Component{
         const { activeTab } = this.state;
         if(!activeTab.component) return null;
         const props = _.clone(this.props);
-        props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'order');
-        props.stage = 'order';
+        props.salesRecords = props.salesRecords.filter(({ stage })=> stage === 'opportunity');
+        props.stage = 'opportunity';
         return React.cloneElement(activeTab.component, props);
     }
 
     render() {
         return (
-            <div className='orders-page'>
+            <div className='opportunities-page'>
                 <div className='tab-container'>
                     <div className='tab-controls'>
                         {this.getTabs()}
@@ -66,4 +66,4 @@ class OrdersPage extends React.Component{
         )
     }
 }
-export default OrdersPage;
+export default OpportunitiesPage;

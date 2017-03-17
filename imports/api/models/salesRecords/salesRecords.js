@@ -3,6 +3,7 @@ import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import _ from 'underscore';
 import {SalesRecords} from '../../lib/collections';
+import { STAGES } from '../../constants/project';
 
 // Deny all client-side updates since we will be using methods to manage this collection
 /*salesRecords.deny({
@@ -48,6 +49,7 @@ SalesRecords.schema = new SimpleSchema({
     shipper: { type: String, optional: true },
     estProductionTime: { type: Number, optional: true },
     actProductionTime: { type: Number, optional: true },
+    stage: { type: String, allowedValues: STAGES },
 });
 
 SalesRecords.attachSchema(SalesRecords.schema);
@@ -76,6 +78,7 @@ SalesRecords.publicFields = {
     shipper: 1,
     estProductionTime: 1,
     actProductionTime: 1,
+    stage: 1,
 };
 
 Factory.define('salesRecord', SalesRecords, {

@@ -13,3 +13,10 @@ export const STAKEHOLDER_CATEGORY = [
   'Sales',
   'Manager',
 ];
+
+export const STAGES = [
+  'lead',
+  'opportunity',
+  'order',
+  'ticket'
+]
