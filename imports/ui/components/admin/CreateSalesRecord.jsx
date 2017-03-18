@@ -230,7 +230,7 @@ class CreateProject extends React.Component{
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
         const { shippingMode, stages } = this;
-        let submitBtnName = 'Add project';
+        let submitBtnName = 'Add salesRecord';
         switch(this.props.stage) {
             case 'lead':
                 submitBtnName = 'Add lead';

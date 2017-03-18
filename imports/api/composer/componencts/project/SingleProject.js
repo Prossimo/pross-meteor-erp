@@ -4,7 +4,7 @@ import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
 import { SalesRecords, Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
 import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS } from '/imports/api/constants/collections';
-import SingleProject from '/imports/ui/components/project/SingleProject';
+import SingleProject from '/imports/ui/components/salesRecord/SingleSalesRecord';
 
 const options = {
     loadingHandler: () => (<p className="page-loader"/>)
