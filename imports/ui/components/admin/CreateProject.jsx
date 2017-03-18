@@ -4,6 +4,14 @@ import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
 export default class CreateProject extends Component {
     constructor(props) {
         super(props);
+        this.phoneNumberRegex = /^1(-\d{3}){3}$/;
+        this.phoneExtensionRegex = /^(\d)+$/;
+        SimpleSchema.messages({
+            regEx: [
+                { exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' },
+                { exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)' },
+            ]
+        })
     }
 
     componentDidMount() {
@@ -18,26 +26,112 @@ export default class CreateProject extends Component {
             onSuccess() {
                 return this.resetForm();
             },
-            onError(name, errors) {
-                //if (errors) {
-                    //errors.validationErrors.forEach(({ name, type, value })=> {
-                        //this.addStickyValidationError(name, type, value);
-                    //})
-                //}
-            }
         }, true);
     }
 
     render() {
+        const allowedEmailTypes = ['Main', 'Office', 'Personal'];
+        const allowedPhonetypes = ['Office', 'Mobile', 'Home'];
         const newProjectSchema = {
             name: {
                 type: String,
                 label: 'Name',
+                max: 250,
             },
             email: {
                 type: String,
                 regEx: SimpleSchema.RegEx.Email,
-                label: 'Email Address'
+                label: 'Email Address',
+                autoform: {
+                    type: 'email',
+                }
+            },
+            twitter: {
+                type: String,
+                regEx: SimpleSchema.RegEx.Url,
+                label: 'Twitter',
+                optional: true,
+            },
+            facebook: {
+                type: String,
+                regEx: SimpleSchema.RegEx.Url,
+                label: 'Facebook',
+                optional: true,
+            },
+            linkedIn: {
+                type: String,
+                regEx: SimpleSchema.RegEx.Url,
+                label: 'LinkedIn',
+                optional: true,
+            },
+            emails: {
+                type: [ Object ],
+            },
+            'emails.$.email': {
+                type: String,
+                regEx: SimpleSchema.RegEx.Email,
+                label: 'Email Address',
+                autoform: {
+                    type: 'email',
+                }
+            },
+            'emails.$.type': {
+                type: String,
+                allowedValues: allowedEmailTypes,
+                label: 'Email Type',
+                autoform: {
+                    options: allowedEmailTypes.map((item)=> ({ label: item, value: item })),
+                }
+            },
+            'emails.$.isDefault': {
+                type: Boolean,
+                label: 'Is Default',
+                autoform: {
+                    afFieldInput: {
+                        type: 'boolean-checkbox',
+                    }
+                }
+            },
+            phoneNumbers: {
+                type: [ Object ],
+            },
+            'phoneNumbers.$.number': {
+                type: String,
+                label: 'Phone Number',
+                regEx: this.phoneNumberRegex,
+            },
+            'phoneNumbers.$.extension': {
+                type: String,
+                label: 'Phone Extension',
+                regEx: this.phoneExtensionRegex,
+            },
+            'phoneNumbers.$.type': {
+                type: String,
+                label: 'Phone Type',
+                allowedValues: allowedPhonetypes,
+                autoform: {
+                    options: allowedPhonetypes.map((item)=> ({label: item, value: item})),
+                }
+            },
+            'phoneNumbers.$.isDefault': {
+                type: Boolean,
+                label: 'Is Default',
+                autoform: {
+                    afFieldInput: {
+                        type: 'boolean-checkbox',
+                    }
+                }
+            },
+            company: {
+                type: Object,
+            },
+            'company.name': {
+                type: String,
+                label: 'Company Name',
+            },
+            'company.position': {
+                type: String,
+                label: 'Company Position',
             }
         }
         return (
@@ -50,31 +144,3 @@ export default class CreateProject extends Component {
         );
     }
 }
-     //Basic Contact Information
-    //name: { type: String },
-    //email: { type: String, regEx: SimpleSchema.RegEx.Email },
-    //twitter: { type: String, optional: true },
-    //facebook: { type: String, optional: true },
-    //linkedIn: { type: String, optional: true },
-
-     //Application Specific Info
-    //roles: { type: Array , optional: true },
-    //'roles.$': { type: String, allowedValues: ALL_ROLES },
-
-     //Emails
-    //emails: { type: Array },
-    //'emails.$.email': { type: String, regEx: SimpleSchema.RegEx.Email },
-    //'emails.$.type': { type: String, allowedValues: ['Main', 'Office', 'Personal'] },
-    //'emails.$.isDefault': { type: Boolean },
-
-     //Phone Number
-    //phoneNumbers: { type: Array },
-    //'phoneNumbers.$.number': { type: String },  TODO: add regex
-    //'phoneNumbers.$.extension': { type: String },  TODO: add regex
-    //'phoneNumbers.$.type': { type: String, allowedValues: ['Office', 'Mobile', 'Home'] },
-    //'phoneNumbers.$.isDefault': { type: Boolean },
-
-     //Company
-    //company: { type: Object },
-    //'company.name': { type: String },
-    //'company.position': { type: String },
