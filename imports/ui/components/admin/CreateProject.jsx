@@ -51,6 +51,7 @@ class ProjectMemberConfig extends React.Component{
     render(){
         const { member, isMainStakeholder } = this.props;
         const { selectedDesignation, selectedCategory } = this.state;
+
         return(
             <tr>
                 <td>{member.label}</td>
@@ -229,6 +230,21 @@ class CreateProject extends React.Component{
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
         const { shippingMode, stages } = this;
+        let submitBtnName = 'Add project';
+        switch(this.props.stage) {
+            case 'lead':
+                submitBtnName = 'Add lead';
+                break;
+            case 'opportunity':
+                submitBtnName = 'Add opportunity';
+                break;
+            case 'order':
+                submitBtnName = 'Add order';
+                break;
+            case 'ticket':
+                submitBtnName = 'Add ticket';
+                break;
+        }
 
         return (
             <div className="create-project">
@@ -399,7 +415,7 @@ class CreateProject extends React.Component{
                         ) : ''
                     }
                     <div className="submit-wrap">
-                        <button className="btnn primary-btn">Add project</button>
+                        <button className="btnn primary-btn">{ submitBtnName }</button>
                     </div>
                 </form>
             </div>
