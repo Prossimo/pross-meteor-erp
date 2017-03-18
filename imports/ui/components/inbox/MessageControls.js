@@ -13,16 +13,8 @@ class MessageControls extends React.Component {
 
     constructor(props) {
         super(props);
-
-        this.bindMethods();
     }
 
-    bindMethods() {
-        this._onShowActionsMenu = this._onShowActionsMenu.bind(this);
-        this._onReply = this._onReply.bind(this);
-        this._onReplyAll = this._onReplyAll.bind(this);
-        this._onForward = this._onForward.bind(this);
-    }
 
     render() {
         items = this._items()
@@ -96,18 +88,19 @@ class MessageControls extends React.Component {
     }
 
 
-    _onReply() {
+    _onReply = () => {
         const {thread, message} = this.props
-        Actions.composeReply({thread, message, type: 'reply', behavior: 'prefer-existing-if-pristine'})
+        Actions.composeReply({thread, message, type: 'reply', modal: true})
     }
 
-    _onReplyAll() {
+    _onReplyAll = () => {
         const {thread, message} = this.props
-        Actions.composeReply({thread, message, type: 'reply-all', behavior: 'prefer-existing-if-pristine'})
+        Actions.composeReply({thread, message, type: 'reply-all', modal: true})
     }
 
-    _onForward() {
-        Actions.composeForward({thread: this.props.thread, message: this.props.message})
+    _onForward = () => {
+        const {thread, message} = this.props
+        Actions.composeForward({thread, message, modal: true})
     }
 
     _onShowActionsMenu() {

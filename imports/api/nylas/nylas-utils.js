@@ -30,7 +30,7 @@ module.exports = NylasUtils = {
         return participant.name && participant.name.length ? participant.name : participant.email;
     },
 
-    contactDisplayFullname: (c) => {
+    contactDisplayFullname: (c) => { console.log(c)
         if (c.name && c.name.length)
             return `${c.name} <${c.email}>`
 
@@ -90,6 +90,21 @@ module.exports = NylasUtils = {
         return moment(time * 1000).tz(NylasUtils.timezone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
     },
 
+    participantsForReply: (message) => {
+        to = []
+        cc = []
+        if(NylasUtils.isFromMe(message)) {
+            to = message.to
+        } else if(message.reply_to.length) {
+            to = this.reply_to
+        } else {
+            to = message.from
+        }
+
+        to = _.uniq(to, (p)=>p.email)
+
+        return {to, cc}
+    },
 
     participantsForReplyAll: (message) => {
         excludedFroms = message.from.map((c) => c.email)
@@ -188,5 +203,27 @@ module.exports = NylasUtils = {
     hasNylasAccounts: () => {
         const accounts = AccountStore.accounts(); console.log(accounts)
         return accounts.length>0
+    },
+
+    subjectWithPrefix: (subject, prefix) => {
+        if(subject.search(/fwd:/i) == 0)
+            return subject.replace(/fwd:/i, prefix)
+        else if(subject.search(/re:/i) == 0)
+            return subject.replace(/re:/i, prefix)
+        else
+            return `${prefix} ${subject}`
+    },
+
+    defaultMe: (account) => {
+        return {name:account.name || '', email:account.emailAddress}
+    },
+
+    replyAttributionLine: (message) => {
+        return `On ${NylasUtils.formattedDateForMessage(message)}, ${message.from && message.from.length ? NylasUtils.contactDisplayFullname( message.from[0]) : ""} wrote:`
+    },
+
+    formattedDateForMessage: (message) => {
+        return moment(message.date*1000).format("MMM D YYYY, [at] h:mm a")
     }
+
 }

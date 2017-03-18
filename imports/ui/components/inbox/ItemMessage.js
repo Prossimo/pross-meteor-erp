@@ -177,7 +177,9 @@ class ItemMessage extends React.Component {
     }
 
     renderAttachments() {
-        return;
+        return (
+            <div></div>
+        );
     }
 
     _onClickParticipants(e) {

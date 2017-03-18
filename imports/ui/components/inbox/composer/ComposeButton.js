@@ -1,6 +1,5 @@
 import React from 'react';
 import Actions from '../../../../api/nylas/actions';
-import NylasUtils from '../../../../api/nylas/nylas-utils';
 
 export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
@@ -12,7 +11,7 @@ export default class ComposeButton extends React.Component {
     }
 
     _onNewCompose = () => {
-        Actions.composeNew(NylasUtils.generateTempId())
+        Actions.composeNew()
     }
 
     render() {
