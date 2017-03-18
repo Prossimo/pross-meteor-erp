@@ -8,7 +8,7 @@ import Select from 'react-select';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 
-class AllProjects extends React.Component{
+class AllSalesRecords extends React.Component{
     constructor(props){
         super(props);
         this.state = {
@@ -428,4 +428,4 @@ class AllProjects extends React.Component{
     }
 }
 
-export default  AllProjects;
+export default  AllSalesRecords;

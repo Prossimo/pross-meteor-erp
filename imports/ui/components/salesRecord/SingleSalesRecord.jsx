@@ -16,7 +16,7 @@ import Invoices from './Invoices';
 import Documents from './Documents';
 import Conversations from './Conversations';
 
-class SingleProject extends React.Component{
+class SingleSalesRecord extends React.Component{
   constructor(props){
     super(props);
     
@@ -264,4 +264,4 @@ class SingleProject extends React.Component{
     )
   }
 }
-export default SingleProject;
+export default SingleSalesRecord;

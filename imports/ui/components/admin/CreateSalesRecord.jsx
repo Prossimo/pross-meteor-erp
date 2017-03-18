@@ -86,7 +86,7 @@ class ProjectMemberConfig extends React.Component{
     }
 }
 
-class CreateProject extends React.Component{
+class CreateSalesRecord extends React.Component{
     constructor(props){
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
@@ -423,4 +423,4 @@ class CreateProject extends React.Component{
     }
 }
 
-export default  CreateProject;
+export default  CreateSalesRecord;
