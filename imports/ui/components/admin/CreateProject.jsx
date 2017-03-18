@@ -7,6 +7,7 @@ export default class CreateProject extends Component {
         this.phoneNumberRegex = /^1(-\d{3}){3}$/;
         this.phoneExtensionRegex = /^(\d)+$/;
         SimpleSchema.messages({
+            contactName: '[label] must be a valid name (First and Last name)',
             regEx: [
                 { exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' },
                 { exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)' },
@@ -16,7 +17,7 @@ export default class CreateProject extends Component {
 
     componentDidMount() {
         AutoForm.addHooks('new-project', {
-            onSubmit(error) {
+            onSubmit(project) {
                 this.event.preventDefault();
                 if (error) {
                     return this.done(error);
@@ -37,6 +38,11 @@ export default class CreateProject extends Component {
                 type: String,
                 label: 'Name',
                 max: 250,
+                custom() {
+                    if (this.value) {
+                        if(this.value.split(' ').length < 2) return 'contactName';
+                    }
+                }
             },
             email: {
                 type: String,

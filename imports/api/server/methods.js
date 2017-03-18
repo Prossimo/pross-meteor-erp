@@ -348,7 +348,7 @@ Meteor.methods({
       }
     })
   },
-
+  // NOTICE: it must be saleRecord
   addProject(data){
     if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
       throw new Meteor.Error("Access denied");
@@ -632,5 +632,9 @@ Meteor.methods({
     let token = capability.generate();
 
     return token;
-  }
+  },
+
+  createNewProject(project) {
+    return project;
+  },
 });

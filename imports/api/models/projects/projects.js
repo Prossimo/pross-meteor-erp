@@ -2,19 +2,28 @@ import SimpleSchema from 'simpl-schema';
 import { Projects } from '../../lib/collections';
 import { ALL_ROLES } from '../../constants/roles';
 
+const phoneNumberRegex = /^1(-\d{3}){3}$/;
+const phoneExtensionRegex = /^(\d)+$/;
+
 Projects.schema = new SimpleSchema({
     _id: { type: String },
 
     // Basic Contact Information
-    name: { type: String },
+    name: {
+        type: String,
+        custom() {
+            if (this.value) {
+                if (this.value.split(' ').length < 2) return 'contactName';
+            }
+        }
+    },
     email: { type: String, regEx: SimpleSchema.RegEx.Email },
-    twitter: { type: String, optional: true },
-    facebook: { type: String, optional: true },
-    linkedIn: { type: String, optional: true },
+    twitter: { type: String },
+    facebook: { type: String },
+    linkedIn: { type: String },
 
     // Application Specific Info
-    roles: { type: Array , optional: true },
-    'roles.$': { type: String, allowedValues: ALL_ROLES },
+    role: { type: String, allowedValues: ALL_ROLES },
 
     // Emails
     emails: { type: Array },
@@ -24,8 +33,8 @@ Projects.schema = new SimpleSchema({
 
     // Phone Number
     phoneNumbers: { type: Array },
-    'phoneNumbers.$.number': { type: String }, // TODO: add regex
-    'phoneNumbers.$.extension': { type: String }, // TODO: add regex
+    'phoneNumbers.$.number': { type: String , regEx: phoneNumberRegex},
+    'phoneNumbers.$.extension': { type: String, regEx: phoneExtensionRegex},
     'phoneNumbers.$.type': { type: String, allowedValues: ['Office', 'Mobile', 'Home'] },
     'phoneNumbers.$.isDefault': { type: Boolean },
 
