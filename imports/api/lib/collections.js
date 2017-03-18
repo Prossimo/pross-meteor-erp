@@ -8,6 +8,7 @@ export const Events = new Mongo.Collection("Events");
 export const SlackMessages = new Mongo.Collection("SlackMessages");
 export const SlackUsers = new Mongo.Collection("SlackUsers");
 export const Settings = new Mongo.Collection('Settings');
+export const Projects = new Mongo.Collection('Projects');
 
 // const fileStore = new FS.Store.FileSystem("files");
 //
