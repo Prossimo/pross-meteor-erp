@@ -52,7 +52,6 @@ matb33:bootstrap-glyphicons
 force-ssl
 
 npm-container
-cfs:s3
 aldeed:autoform
 jeremy:selectize
 jamiecollinson:selectize-bootstrap

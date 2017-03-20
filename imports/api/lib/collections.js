@@ -10,22 +10,22 @@ export const SlackUsers = new Mongo.Collection("SlackUsers");
 export const Settings = new Mongo.Collection('Settings');
 export const Projects = new Mongo.Collection('Projects');
 
-// const fileStore = new FS.Store.FileSystem("files");
-//
-// export const Files = new FS.Collection("files", {
-//     stores: [fileStore]
-// });
-
-const fileStore = new FS.Store.S3("files", {
-    accessKeyId: "AKIAJ3ONO2DPIHGYMGLA", //required
-    secretAccessKey: "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", //required
-    bucket: "pross-meteor-erp", //required
-    folder: "quotes", //optional
-});
+const fileStore = new FS.Store.FileSystem("files");
 
 export const Files = new FS.Collection("files", {
     stores: [fileStore]
 });
+
+// const fileStore = new FS.Store.S3("files", {
+//     accessKeyId: "AKIAJ3ONO2DPIHGYMGLA", //required
+//     secretAccessKey: "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", //required
+//     bucket: "pross-meteor-erp", //required
+//     folder: "quotes", //optional
+// });
+//
+// export const Files = new FS.Collection("files", {
+//     stores: [fileStore]
+// });
 
 //todo add security
 Files.allow({
