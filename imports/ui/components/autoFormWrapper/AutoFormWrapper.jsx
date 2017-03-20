@@ -4,8 +4,8 @@ import { Template } from 'meteor/templating';
 import { Blaze } from 'meteor/blaze';
 
 export default class AutoFormWrapper extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.renderWithData = (view, props, container) => {
             const { schema, id, type  } = props;
             if (view) Blaze.remove(view);
@@ -19,6 +19,7 @@ export default class AutoFormWrapper extends Component {
 
     componentWillUnmount() {
         Blaze.remove(this.view);
+        Template.quickForm._callbacks.rendered = [];
     }
 
     componentDidUpdate() {
@@ -26,6 +27,10 @@ export default class AutoFormWrapper extends Component {
     }
 
     componentDidMount() {
+        const _this = this;
+        Template.quickForm.onRendered(function() {
+            _this.props.onRendered && _this.props.onRendered.bind(this)();
+        });
         this.view = this.renderWithData(this.view, this.props, this.refs.container);
     }
 

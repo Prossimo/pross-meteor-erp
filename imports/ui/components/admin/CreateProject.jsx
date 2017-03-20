@@ -24,6 +24,10 @@ export default class CreateProject extends Component {
         }, true);
     }
 
+    onRendered() {
+        $('input[name="estDeliveryRange"').daterangepicker();
+    }
+
     render() {
         const phoneNumberRegex = /^(\d)+$/;
         const memberOptions = this.props.users.map(({ profile: { firstName, lastName } })=> {
@@ -51,6 +55,9 @@ export default class CreateProject extends Component {
                 type: Boolean,
                 defaultValue: false,
                 label: 'Main Stakeholder',
+                autoform: {
+                    type: 'boolean-checkbox',
+                }
             },
             'members.$.designation': {
                 type: String,
@@ -80,48 +87,65 @@ export default class CreateProject extends Component {
                     multiple: true,
                 }
             },
-            shippingAddress: {
-                type: String,
-                label: 'Shipping Address',
+            shipping: {
+                type: Object,
             },
-            shippingContactName: {
+            'shipping.address': {
                 type: String,
-                label: 'Shipping Contact Name',
+                label: ' Address',
             },
-            shippingContactPhone: {
+            'shipping.contactName': {
+                type: String,
+                label: 'Contact Name',
+            },
+            'shipping.contactPhone': {
                 type: String,
                 regEx: phoneNumberRegex,
-                label: 'Shipping Contact Phone',
+                label: 'Contact Phone',
             },
-            shippingContactEmail: {
+            'shipping.contactEmail': {
                 type: String,
                 regEx: SimpleSchema.RegEx.Email,
-                label: 'Shipping Contact Email',
+                label: 'Contact Email',
             },
-            shippingNotes: {
+            'shipping.notes': {
                 type: String,
-                label: 'Shipping Notes',
+                label: 'Notes',
+                autoform: {
+                    afFieldInput: {
+                        type: 'textarea',
+                        rows: 3,
+                    }
+                }
             },
-            billingContactName: {
+            billing: {
+                type: Object,
+            },
+            'billing.contactName': {
                 type: String,
-                label: 'Billing Contact Name',
+                label: 'Contact Name',
             },
-            billingContactPhone: {
+            'billing.contactPhone': {
                 type: String,
                 regEx: phoneNumberRegex,
-                label: 'Billing Contact Phone',
+                label: 'Contact Phone',
             },
-            billingContactEmail: {
+            'billing.contactEmail': {
                 type: String,
                 regEx: SimpleSchema.RegEx.Email,
-                label: 'Billing Contact Email',
+                label: 'Contact Email',
             },
-            billingAddress: {
+            'billing.address': {
                 type: String,
+                label: 'Address',
             },
-            billingNotes: {
+            'billing.notes': {
                 type: String,
-                label: 'Billing Address',
+                label: 'Notes',
+                autoform: {
+                    type: 'textarea',
+                    rows: 3,
+                }
             },
             supplier: {
                 type: String,
@@ -136,21 +160,33 @@ export default class CreateProject extends Component {
                     'Courrier'
                 ],
                 label: 'Shipping Mode',
+                autoform: {
+                    type: 'selectize',
+                }
             },
             estDeliveryRange: {
-                type: Array,
-            },
-            'estDeliveryRange.$': {
-                type: Date,
-                label: 'Est Delivery Range'
+                type: String,
+                label: 'Est Delivery Range',
             },
             actualDeliveryDate: {
                 type: Date,
                 label: 'Actual Delivery Date',
+                autoform: {
+                    type: 'bootstrap-datepicker',
+                    datePickerOptions: {
+                        autoclose: true
+                    }
+                }
             },
             productionStartDate: {
                 type: Date,
                 label: 'Actual Start Date',
+                autoform: {
+                    type: 'bootstrap-datepicker',
+                    datePickerOptions: {
+                        autoclose: true
+                    }
+                }
             },
             shipper: {
                 type: String,
@@ -162,6 +198,7 @@ export default class CreateProject extends Component {
                 <AutoFormWrapper
                     schema={new SimpleSchema(newProjectSchema)}
                     id='new-project'
+                    onRendered={this.onRendered}
                 />
             </div>
         );
