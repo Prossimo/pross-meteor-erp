@@ -4,5 +4,6 @@ packages/
 *.log
 settings.json
 packages.json
+package.json
 
 .DS_Store
