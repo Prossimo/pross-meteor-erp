@@ -61,7 +61,7 @@ Meteor.methods({
     return userData;
   },
 
-  
+
 
   initVisiableProjectFields() {
     const setting = Settings.findOne({key: 'salesRecord'});
@@ -624,7 +624,7 @@ Meteor.methods({
   getTwilioToken() {
     const twilio = require('twilio');
     const config = require('../config/config');
-    
+
     let capability = new twilio.Capability(
       config.twilio.accountSid,
       config.twilio.authToken
@@ -634,10 +634,38 @@ Meteor.methods({
 
     return token;
   },
-
   createNewProject(project) {
-    check(project, Projects.schema);
-    cosole.log(project);
+    check(project, {
+      name: String,
+      shippingMode: String,
+      members: [{
+        userId: String,
+        isMainStakeholder: Boolean,
+        destination: String,
+        category: [String]
+      }],
+      actualDeliveryDate: Date,
+      productionStartDate: Date,
+      estDeliveryRange: [Date],
+
+      shippingContactPhone: Match.Maybe(Match.phone),
+      shippingContactName: Match.Maybe(String),
+      shippingContactEmail: Match.Maybe(String),
+      shippingAddress: Match.Maybe(String),
+      shippingNotes: Match.Maybe(String),
+
+      billingContactPhone: Match.Maybe(Match.phone),
+      billingContactName: Match.Maybe(String),
+      billingContactEmail: Match.Maybe(String),
+      billingAddress: Match.Maybe(String),
+      billingNotes: Match.Maybe(String),
+
+      estProductionTime: Match.Maybe(Number),
+      actProductionTime: Match.Maybe(Number),
+      supplier: Match.Maybe(String),
+      shipper: Match.Maybe(String),
+      stage: Match.Maybe(String),
+    });
     return project;
   },
 });

@@ -9,7 +9,7 @@ Projects.schema = new SimpleSchema({
     members: {
         type: Array,
     },
-    'members.$.name': {
+    name: {
         type: String,
     },
     'members.$.userId': {

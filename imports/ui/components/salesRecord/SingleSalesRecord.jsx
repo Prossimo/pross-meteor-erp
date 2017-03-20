@@ -26,14 +26,6 @@ class SingleSalesRecord extends React.Component{
         component: <Activity/>
       },
       {
-        label: "Tasks",
-        component: <Tasks/>
-      },
-      {
-        label: "Files",
-        component: <Files/>
-      },
-      {
         label: "Quotes",
         component: <Quotes/>
       },

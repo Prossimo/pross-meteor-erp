@@ -4,18 +4,43 @@ import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
 export default class CreateProject extends Component {
     constructor(props) {
         super(props);
+        this.onRendered = this.onRendered.bind(this);
+        this.estDeliveryRange = [];
     }
 
     componentDidMount() {
+        const _this = this;
         AutoForm.addHooks('new-project', {
-            onSubmit(project) {
-                _this = this;
+            onSubmit(rawProject) {
+                this.event.preventDefault();
+                let project = _.pick(rawProject,
+                    'actualDeliveryDate',
+                    'members',
+                    'productionStartDate',
+                    'shipper',
+                    'shippingMode',
+                    'supplier',
+                )
+                const { shipping, billing } = rawProject;
+                _.extend(project, {
+                    shippingAddress: shipping.address,
+                    shippingContactName: shipping.contactName,
+                    shippingContactPhone: shipping.contactPhone,
+                    shippingContactEmail: shipping.contactEmail,
+                    shippingNotes: shipping.notes,
+                    billingAddress: billing.address,
+                    billingContactName: billing.contactName,
+                    billingContactPhone: billing.contactPhone,
+                    billingContactEmail: billing.contactEmail,
+                    billingNotes: billing.notes,
+                    estDeliveryRange: _this.estDeliveryRange,
+                });
+                console.log(project);
                 Meteor.call('createNewProject', project, (error)=> {
-                    _this.event.preventDefault();
                     if (error) {
-                        return _this.done(error);
+                        return this.done(error);
                     }
-                    return _this.done();
+                    return this.done();
                 })
             },
             onSuccess() {
@@ -25,23 +50,32 @@ export default class CreateProject extends Component {
     }
 
     onRendered() {
-        $('input[name="estDeliveryRange"').daterangepicker();
+        $('input[name="estDeliveryRange"]').daterangepicker();
+        $('input[name="estDeliveryRange"]').on('apply.daterangepicker', (ev, picker)=> {
+            const startDate = picker.startDate.toDate();
+            const endDate = picker.endDate.toDate();
+            this.estDeliveryRange = [startDate, endDate];
+        })
     }
 
     render() {
         const phoneNumberRegex = /^(\d)+$/;
-        const memberOptions = this.props.users.map(({ profile: { firstName, lastName } })=> {
+        const memberOptions = this.props.users.map(({ profile: { firstName, lastName }, _id })=> {
             const name = `${firstName} ${lastName}`;
             return {
                 label: name,
-                value: name,
+                value: _id,
             }
         })
         const newProjectSchema = {
+            name: {
+                type: String,
+                label: 'Project Name',
+            },
             members: {
                 type: [Object],
             },
-            'members.$.name': {
+            'members.$.userId': {
                 type: String,
                 label: 'Name',
                 autoform: {
