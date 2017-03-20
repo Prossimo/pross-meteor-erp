@@ -11,6 +11,7 @@ import {
   Quotes,
   SlackMessages,
   Settings,
+  Projects,
 } from '../lib/collections';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
@@ -635,6 +636,8 @@ Meteor.methods({
   },
 
   createNewProject(project) {
+    check(project, Projects.schema);
+    cosole.log(project);
     return project;
   },
 });

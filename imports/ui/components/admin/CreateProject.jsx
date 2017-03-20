@@ -6,23 +6,23 @@ export default class CreateProject extends Component {
         super(props);
         this.phoneNumberRegex = /^1(-\d{3}){3}$/;
         this.phoneExtensionRegex = /^(\d)+$/;
-        SimpleSchema.messages({
-            contactName: '[label] must be a valid name (First and Last name)',
-            regEx: [
-                { exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' },
-                { exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)' },
-            ]
-        })
+        const messages = SimpleSchema._globalMessages;
+        messages.contactName = '[label] must be a valid name (First and Last name)';
+        messages.regEx.push({ exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' });
+        messages.regEx.push({ exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)'});
     }
 
     componentDidMount() {
         AutoForm.addHooks('new-project', {
             onSubmit(project) {
-                this.event.preventDefault();
-                if (error) {
-                    return this.done(error);
-                }
-                return this.done();
+                _this = this;
+                Meteor.call('createNewProject', project, (error)=> {
+                    _this.event.preventDefault();
+                    if (error) {
+                        return _this.done(error);
+                    }
+                    return _this.done();
+                })
             },
             onSuccess() {
                 return this.resetForm();
@@ -56,19 +56,16 @@ export default class CreateProject extends Component {
                 type: String,
                 regEx: SimpleSchema.RegEx.Url,
                 label: 'Twitter',
-                optional: true,
             },
             facebook: {
                 type: String,
                 regEx: SimpleSchema.RegEx.Url,
                 label: 'Facebook',
-                optional: true,
             },
             linkedIn: {
                 type: String,
                 regEx: SimpleSchema.RegEx.Url,
                 label: 'LinkedIn',
-                optional: true,
             },
             emails: {
                 type: [ Object ],
@@ -105,6 +102,11 @@ export default class CreateProject extends Component {
                 type: String,
                 label: 'Phone Number',
                 regEx: this.phoneNumberRegex,
+                autoform: {
+                    afFieldInput: {
+                        type: 'tel',
+                    }
+                }
             },
             'phoneNumbers.$.extension': {
                 type: String,
