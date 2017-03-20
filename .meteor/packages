@@ -44,10 +44,13 @@ ostrio:meteor-root
 
 
 
-npm-container
 nicolaslopezj:apollo-accounts
 orionsoft:apollo
 orionsoft:graphql-compiler
 nimble:restivus
 matb33:bootstrap-glyphicons
 force-ssl
+
+
+npm-container
+cfs:s3
