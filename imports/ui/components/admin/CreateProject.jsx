@@ -4,12 +4,10 @@ import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
 export default class CreateProject extends Component {
     constructor(props) {
         super(props);
-        this.phoneNumberRegex = /^1(-\d{3}){3}$/;
-        this.phoneExtensionRegex = /^(\d)+$/;
-        const messages = SimpleSchema._globalMessages;
-        messages.contactName = '[label] must be a valid name (First and Last name)';
-        messages.regEx.push({ exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' });
-        messages.regEx.push({ exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)'});
+        //const messages = SimpleSchema._globalMessages;
+        //messages.contactName = '[label] must be a valid name (First and Last name)';
+        //messages.regEx.push({ exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' });
+        //messages.regEx.push({ exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)'});
     }
 
     componentDidMount() {
@@ -31,115 +29,119 @@ export default class CreateProject extends Component {
     }
 
     render() {
-        const allowedEmailTypes = ['Main', 'Office', 'Personal'];
-        const allowedPhonetypes = ['Office', 'Mobile', 'Home'];
+        const phoneNumberRegex = /^(\d)+$/;
         const newProjectSchema = {
-            name: {
+            members: {
+                type: [Object],
+            },
+            'members.$.name': {
                 type: String,
                 label: 'Name',
-                max: 250,
-                custom() {
-                    if (this.value) {
-                        if(this.value.split(' ').length < 2) return 'contactName';
-                    }
-                }
             },
-            email: {
+            'members.$.isMainStakeholder': {
+                type: Boolean,
+                defaultValue: false,
+                label: 'Main Stakeholder',
+            },
+            'members.$.designation': {
+                type: String,
+                allowedValues: [
+                    'Standard',
+                    'Guest'
+                ],
+                label: 'Designation',
+            },
+            'members.$.categories': {
+                type: [String],
+            },
+            'members.$.categories.$': {
+                type: String,
+                allowedValues: [
+                    'Architect',
+                    'Developers',
+                    'GC',
+                    'Contractor',
+                    'Installer',
+                    'Owner',
+                    'Consultant'
+                ],
+                label: 'Categories',
+            },
+            shippingAddress: {
+                type: String,
+                label: 'Shipping Address',
+            },
+            shippingContactName: {
+                type: String,
+                label: 'Shipping Contact Name',
+            },
+            shippingContactPhone: {
+                type: String,
+                regEx: phoneNumberRegex,
+                label: 'Shipping Contact Phone',
+            },
+            shippingContactEmail: {
                 type: String,
                 regEx: SimpleSchema.RegEx.Email,
-                label: 'Email Address',
-                autoform: {
-                    type: 'email',
-                }
+                label: 'Shipping Contact Email',
             },
-            twitter: {
+            shippingNotes: {
                 type: String,
-                regEx: SimpleSchema.RegEx.Url,
-                label: 'Twitter',
+                label: 'Shipping Notes',
             },
-            facebook: {
+            billingContactName: {
                 type: String,
-                regEx: SimpleSchema.RegEx.Url,
-                label: 'Facebook',
+                label: 'Billing Contact Name',
             },
-            linkedIn: {
+            billingContactPhone: {
                 type: String,
-                regEx: SimpleSchema.RegEx.Url,
-                label: 'LinkedIn',
+                regEx: phoneNumberRegex,
+                label: 'Billing Contact Phone',
             },
-            emails: {
-                type: [ Object ],
-            },
-            'emails.$.email': {
+            billingContactEmail: {
                 type: String,
                 regEx: SimpleSchema.RegEx.Email,
-                label: 'Email Address',
-                autoform: {
-                    type: 'email',
-                }
+                label: 'Billing Contact Email',
             },
-            'emails.$.type': {
+            billingAddress: {
                 type: String,
-                allowedValues: allowedEmailTypes,
-                label: 'Email Type',
-                autoform: {
-                    options: allowedEmailTypes.map((item)=> ({ label: item, value: item })),
-                }
             },
-            'emails.$.isDefault': {
-                type: Boolean,
-                label: 'Is Default',
-                autoform: {
-                    afFieldInput: {
-                        type: 'boolean-checkbox',
-                    }
-                }
-            },
-            phoneNumbers: {
-                type: [ Object ],
-            },
-            'phoneNumbers.$.number': {
+            billingNotes: {
                 type: String,
-                label: 'Phone Number',
-                regEx: this.phoneNumberRegex,
-                autoform: {
-                    afFieldInput: {
-                        type: 'tel',
-                    }
-                }
+                label: 'Billing Address',
             },
-            'phoneNumbers.$.extension': {
+            supplier: {
                 type: String,
-                label: 'Phone Extension',
-                regEx: this.phoneExtensionRegex,
+                label: 'Supplier',
             },
-            'phoneNumbers.$.type': {
+            shippingMode: {
                 type: String,
-                label: 'Phone Type',
-                allowedValues: allowedPhonetypes,
-                autoform: {
-                    options: allowedPhonetypes.map((item)=> ({label: item, value: item})),
-                }
+                allowedValues: [
+                    'LCL',
+                    'FCL',
+                    'FCL Pallets',
+                    'Courrier'
+                ],
+                label: 'Shipping Mode',
             },
-            'phoneNumbers.$.isDefault': {
-                type: Boolean,
-                label: 'Is Default',
-                autoform: {
-                    afFieldInput: {
-                        type: 'boolean-checkbox',
-                    }
-                }
+            estDeliveryRange: {
+                type: Array,
             },
-            company: {
-                type: Object,
+            'estDeliveryRange.$': {
+                type: Date,
+                label: 'Est Delivery Range'
             },
-            'company.name': {
+            actualDeliveryDate: {
+                type: Date,
+                label: 'Actual Delivery Date',
+            },
+            productionStartDate: {
+                type: Date,
+                label: 'Actual Start Date',
+            },
+            shipper: {
                 type: String,
-                label: 'Company Name',
-            },
-            'company.position': {
-                type: String,
-                label: 'Company Position',
+                label: 'Shipper',
             }
         }
         return (
