@@ -6,16 +6,16 @@ import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
 import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleProject from '../../api/composer/componencts/project/SingleProject';
-import ProjectsPage from '/imports/ui/pages/ProjectsPage';
+import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import InboxPage from '../../api/composer/pages/InboxPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
-import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
 import ContactsPage from '/imports/ui/pages/ContactsPage';
 import FinancialPage from '/imports/ui/pages/FinancialPage';
 import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
+import ProjectsPage from '/imports/ui/pages/ProjectsPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -67,8 +67,18 @@ FlowRouter.route('/inbox', {
     }
 });
 
-FlowRouter.route('/project/:id', {
-    name: 'Project',
+FlowRouter.route('/projects', {
+    name: 'Projects',
+    action() {
+        checkAuth();
+        mount(App, {
+            content: <ProjectsPage/>
+        })
+    }
+})
+
+FlowRouter.route('/salesrecord/:id', {
+    name: 'SalesRecord',
     action(){
         checkAuth();
         mount(App, {
@@ -96,16 +106,6 @@ FlowRouter.route('/opportunities', {
         })
     }
 })
-
-FlowRouter.route('/salesrecord', {
-    name: 'SalesRecord',
-    action(){
-        checkAuth();
-        mount(App, {
-            content: <SalesRecordPage/>,
-        })
-    }
-});
 
 FlowRouter.route('/orders', {
     name: 'Orders',

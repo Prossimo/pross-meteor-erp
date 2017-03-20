@@ -11,6 +11,7 @@ import {
   Quotes,
   SlackMessages,
   Settings,
+  Projects,
 } from '../lib/collections';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
@@ -60,7 +61,7 @@ Meteor.methods({
     return userData;
   },
 
-  
+
 
   initVisiableProjectFields() {
     const setting = Settings.findOne({key: 'salesRecord'});
@@ -348,7 +349,7 @@ Meteor.methods({
       }
     })
   },
-
+  // NOTICE: it must be saleRecord
   addProject(data){
     if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
       throw new Meteor.Error("Access denied");
@@ -623,7 +624,7 @@ Meteor.methods({
   getTwilioToken() {
     const twilio = require('twilio');
     const config = require('../config/config');
-    
+
     let capability = new twilio.Capability(
       config.twilio.accountSid,
       config.twilio.authToken
@@ -632,5 +633,42 @@ Meteor.methods({
     let token = capability.generate();
 
     return token;
-  }
+  },
+  createNewProject(project) {
+    if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
+      throw new Meteor.Error('Access denied');
+    }
+    check(project, {
+      name: String,
+      shippingMode: String,
+      members: [{
+        userId: String,
+        isMainStakeholder: Boolean,
+        designation: String,
+        categories: [String]
+      }],
+      actualDeliveryDate: Date,
+      productionStartDate: Date,
+      estDeliveryRange: [Date],
+
+      shippingContactPhone: Match.Maybe(Match.phone),
+      shippingContactName: Match.Maybe(String),
+      shippingContactEmail: Match.Maybe(String),
+      shippingAddress: Match.Maybe(String),
+      shippingNotes: Match.Maybe(String),
+
+      billingContactPhone: Match.Maybe(Match.phone),
+      billingContactName: Match.Maybe(String),
+      billingContactEmail: Match.Maybe(String),
+      billingAddress: Match.Maybe(String),
+      billingNotes: Match.Maybe(String),
+
+      estProductionTime: Match.Maybe(Number),
+      actProductionTime: Match.Maybe(Number),
+      supplier: Match.Maybe(String),
+      shipper: Match.Maybe(String),
+      stage: Match.Maybe(String),
+    });
+    Projects.insert(project);
+  },
 });

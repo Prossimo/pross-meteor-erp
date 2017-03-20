@@ -136,26 +136,10 @@ class Aside extends React.Component{
         }
         //admin & super admin allow
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
-            const subItems = props.salesRecords.map(project=>{
-                return {
-                    label: project.name,
-                    route: {
-                        name: "Project",
-                        params: {id: project._id}
-                    }
-                }
-            });
-            if(_.isArray(subItems) && !subItems.length){
-                subItems.push({
-                    label: "No projects yet",
-                    route: "Root"
-                })
-            }
-
             this.pages.unshift({
                 label: "Projects",
                 topLevel: true,
-                subItems
+                subItems: [],
             });
         }
     }

@@ -16,22 +16,14 @@ import Invoices from './Invoices';
 import Documents from './Documents';
 import Conversations from './Conversations';
 
-class SingleProject extends React.Component{
+class SingleSalesRecord extends React.Component{
   constructor(props){
     super(props);
-    
+
     this.tabs = [
       {
         label: "Activity",
         component: <Activity/>
-      },
-      {
-        label: "Tasks",
-        component: <Tasks/>
-      },
-      {
-        label: "Files",
-        component: <Files/>
       },
       {
         label: "Quotes",
@@ -54,7 +46,7 @@ class SingleProject extends React.Component{
         component: <Documents/>
       }
     ];
-    
+
     this.state = {
       activeTab: this.tabs.find(tab=>tab.label === "Activity"),
       showPopup: false,
@@ -64,15 +56,15 @@ class SingleProject extends React.Component{
       selectedDesignation: null,
     }
   }
-  
-  
+
+
   toggleTab(activeTab){
     this.setState({activeTab})
   }
-  
+
   getTabs(){
     const { activeTab } = this.state;
-    
+
     return <ul>
       {this.tabs.map(item=>{
         return (
@@ -84,7 +76,7 @@ class SingleProject extends React.Component{
       })}
     </ul>
   }
-  
+
   getContent(){
     const { activeTab } = this.state;
     if(activeTab.component){
@@ -120,15 +112,15 @@ class SingleProject extends React.Component{
       </ul>
     )
   }
-  
+
   changeDesignation(selectedDesignation){
     this.setState({selectedDesignation});
   }
-  
+
   changeCategory(selectedCategory){
     this.setState({selectedCategory});
   }
-  
+
   renderAddUserForm(){
     const { salesRecord, users } = this.props;
     const { selectUser, selectedCategory, selectedDesignation} = this.state;
@@ -183,23 +175,23 @@ class SingleProject extends React.Component{
         </div>
       )
   }
-  
+
   changeSelectUser(selectUser){
     this.setState({selectUser})
   }
-  
+
   assignUsers(){
     const { selectUser, selectedDesignation, selectedCategory } = this.state;
     const { salesRecord } = this.props;
     if(_.isNull(selectUser)) return warning("Choose user");
-    
+
     const member = {
       userId: selectUser.value,
       isMainStakeholder: false,
       destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
       category: selectedCategory.map(i=>i.value)
     };
-    
+
     Meteor.call("addMemberToProject", salesRecord._id, member, err=>{
       if(err) return warning(err.reason? err.reason : "Add member failed!");
       this.setState({
@@ -214,11 +206,11 @@ class SingleProject extends React.Component{
       info("User success add to slack channel!");
     })
   }
-  
+
   hidePopup(){
     this.setState({showPopup: false, popupData: null})
   }
-  
+
   showUserInfo(user){
     this.setState({
       showPopup: true,
@@ -226,7 +218,7 @@ class SingleProject extends React.Component{
                               hide={this.hidePopup.bind(this)}
                               editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
   }
-  
+
   renderPopup(){
     const { popupData, showPopup } = this.state;
     return <Popup active={showPopup}
@@ -234,10 +226,10 @@ class SingleProject extends React.Component{
                   hide={this.hidePopup.bind(this)}
                   content={popupData}/>
   }
-  
+
   render() {
     const { salesRecord } = this.props;
-    const sidebarTitle = "Project members";
+    const sidebarTitle = "SalesRecord members";
     const projectName = salesRecord.name;
     return (
       <div className="page-container single-project">
@@ -264,4 +256,4 @@ class SingleProject extends React.Component{
     )
   }
 }
-export default SingleProject;
+export default SingleSalesRecord;
