@@ -1,9 +1,9 @@
-import _ from 'underscore'
 import React from 'react';
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap';
 import Spinner from '../components/utils/spinner';
 import {warning} from "/imports/api/lib/alerts";
 import Actions from '../../api/nylas/actions';
+import '../../api/nylas/tasks/task-queue';
 import NylasUtils from '../../api/nylas/nylas-utils';
 import AccountStore from '../../api/nylas/account-store';
 import CategoryStore from '../../api/nylas/category-store';
@@ -117,8 +117,9 @@ class InboxPage extends React.Component {
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
 
-        if (!NylasUtils.isEmptyDraft(draft) && confirm('Are you sure to discard?')) {
-            DraftStore.removeDraftForClientId(draft.clientId)
+        if (!NylasUtils.isEmptyDraft(draft)) {
+            if(confirm('Are you sure to discard?'))
+                DraftStore.removeDraftForClientId(draft.clientId)
         } else {
             DraftStore.removeDraftForClientId(draft.clientId)
         }
