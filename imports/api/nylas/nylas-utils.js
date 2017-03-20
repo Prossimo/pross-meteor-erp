@@ -4,6 +4,10 @@ import moment from 'moment-timezone';
 import RegExpUtils from './RegExpUtils'
 import AccountStore from './account-store'
 
+import filesize from 'filesize'
+import path from 'path'
+import fs from 'fs'
+
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     isMe: (email) => {
@@ -30,7 +34,8 @@ module.exports = NylasUtils = {
         return participant.name && participant.name.length ? participant.name : participant.email;
     },
 
-    contactDisplayFullname: (c) => { console.log(c)
+    contactDisplayFullname: (c) => {
+        console.log(c)
         if (c.name && c.name.length)
             return `${c.name} <${c.email}>`
 
@@ -93,15 +98,15 @@ module.exports = NylasUtils = {
     participantsForReply: (message) => {
         to = []
         cc = []
-        if(NylasUtils.isFromMe(message)) {
+        if (NylasUtils.isFromMe(message)) {
             to = message.to
-        } else if(message.reply_to.length) {
+        } else if (message.reply_to.length) {
             to = this.reply_to
         } else {
             to = message.from
         }
 
-        to = _.uniq(to, (p)=>p.email)
+        to = _.uniq(to, (p) => p.email)
 
         return {to, cc}
     },
@@ -167,16 +172,16 @@ module.exports = NylasUtils = {
     },
 
     isEmptyDraft: (draft) => {
-        return (!draft.subject || draft.subject.length==0) &&
-            (!draft.body || draft.body.length==0) &&
-            (!draft.files || draft.files.length==0) &&
-            (!draft.downloads || draft.downloads.length==0)
+        return (!draft.subject || draft.subject.length == 0) &&
+            (!draft.body || draft.body.length == 0) &&
+            (!draft.files || draft.files.length == 0) &&
+            (!draft.downloads || draft.downloads.length == 0)
 
     },
 
     usesFolders: (accountOrId) => {
         let account;
-        if(accountOrId instanceof Object) {
+        if (accountOrId instanceof Object) {
             account = accountOrId
         } else {
             account = AccountStore.accountForAccountId(accountOrId)
@@ -186,7 +191,7 @@ module.exports = NylasUtils = {
 
     usesLabels: (accountOrId) => {
         let account;
-        if(accountOrId instanceof Object) {
+        if (accountOrId instanceof Object) {
             account = accountOrId
         } else {
             account = AccountStore.accountForAccountId(accountOrId)
@@ -201,29 +206,65 @@ module.exports = NylasUtils = {
     },
 
     hasNylasAccounts: () => {
-        const accounts = AccountStore.accounts(); console.log(accounts)
-        return accounts.length>0
+        const accounts = AccountStore.accounts();
+        console.log(accounts)
+        return accounts.length > 0
     },
 
     subjectWithPrefix: (subject, prefix) => {
-        if(subject.search(/fwd:/i) == 0)
+        if (subject.search(/fwd:/i) == 0)
             return subject.replace(/fwd:/i, prefix)
-        else if(subject.search(/re:/i) == 0)
+        else if (subject.search(/re:/i) == 0)
             return subject.replace(/re:/i, prefix)
         else
             return `${prefix} ${subject}`
     },
 
     defaultMe: (account) => {
-        return {name:account.name || '', email:account.emailAddress}
+        return {name: account.name || '', email: account.emailAddress}
     },
 
     replyAttributionLine: (message) => {
-        return `On ${NylasUtils.formattedDateForMessage(message)}, ${message.from && message.from.length ? NylasUtils.contactDisplayFullname( message.from[0]) : ""} wrote:`
+        return `On ${NylasUtils.formattedDateForMessage(message)}, ${message.from && message.from.length ? NylasUtils.contactDisplayFullname(message.from[0]) : ""} wrote:`
     },
 
     formattedDateForMessage: (message) => {
-        return moment(message.date*1000).format("MMM D YYYY, [at] h:mm a")
+        return moment(message.date * 1000).format("MMM D YYYY, [at] h:mm a")
+    },
+
+    displayNameForFile: (file) => {
+        if (!file) return null
+
+        const defaultNames = {
+            'text/calendar': "Event.ics",
+            'image/png': 'Unnamed Image.png',
+            'image/jpg': 'Unnamed Image.jpg',
+            'image/jpeg': 'Unnamed Image.jpg'
+        }
+        if (file.filename && file.filename.length)
+            return file.filename
+        else if (file.content_type && defaultNames[file.content_type])
+            return defaultNames[file.content_type]
+        else
+            return "Unnamed Attachment"
+    },
+
+    displayExtensionForFile: (file) => {
+        return path.extname(NylasUtils.displayNameForFile(file).toLowerCase()).slice(1);
+    },
+
+    displayFileSize: (file) => {
+        return filesize(file.size)
+    },
+
+    shouldDisplayAsImage: (file = {}) => {
+        const name = file.filename || file.fileName || file.name || ""
+        const size = file.size || file.fileSize || 0
+        const ext = path.extname(name).toLowerCase()
+        const extensions = ['.jpg', '.bmp', '.gif', '.png', '.jpeg']
+
+        return ext in extensions && size > 512 && size < 1024 * 1024 * 5
     }
+
 
 }
