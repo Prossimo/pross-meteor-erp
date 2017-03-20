@@ -20,6 +20,7 @@ export default class CreateProject extends Component {
                     'shipper',
                     'shippingMode',
                     'supplier',
+                    'name',
                 )
                 const { shipping, billing } = rawProject;
                 _.extend(project, {

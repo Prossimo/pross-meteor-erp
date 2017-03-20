@@ -635,14 +635,17 @@ Meteor.methods({
     return token;
   },
   createNewProject(project) {
+    if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
+      throw new Meteor.Error('Access denied');
+    }
     check(project, {
       name: String,
       shippingMode: String,
       members: [{
         userId: String,
         isMainStakeholder: Boolean,
-        destination: String,
-        category: [String]
+        designation: String,
+        categories: [String]
       }],
       actualDeliveryDate: Date,
       productionStartDate: Date,
@@ -666,6 +669,6 @@ Meteor.methods({
       shipper: Match.Maybe(String),
       stage: Match.Maybe(String),
     });
-    return project;
+    Projects.insert(project);
   },
 });
