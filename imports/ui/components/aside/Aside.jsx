@@ -136,7 +136,7 @@ class Aside extends React.Component{
         }
         //admin & super admin allow
         if(Roles.userIsInRole( props.currentUser._id, [...ADMIN_ROLE_LIST] )){
-            this.pages.unshift({
+            this.pages.splice(4,0,{
                 label: "Projects",
                 topLevel: true,
                 subItems: [],
