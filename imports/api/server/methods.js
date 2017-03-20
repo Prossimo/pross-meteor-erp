@@ -392,6 +392,7 @@ Meteor.methods({
       }
     });
 
+    console.log("Create slack channel response", responseCreateChannel)
     if (!responseCreateChannel.data.ok) {
       if (responseCreateChannel.data.error = 'name_taken') {
         throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);

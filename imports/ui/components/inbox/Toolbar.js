@@ -4,14 +4,13 @@ import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
-import {Button, DropdownButton, MenuItem} from 'react-bootstrap'
+import {DropdownButton, MenuItem} from 'react-bootstrap'
 
-import {ADMIN_ROLE_LIST} from '../../../api/constants/roles';
 
 export default class Toolbar extends React.Component {
     static propTypes = {
         thread: React.PropTypes.object,
-        onSelectAddInbox: React.PropTypes.func
+        onSelectMenuSalesRecord: React.PropTypes.func
     }
 
     constructor(props) {
@@ -31,28 +30,20 @@ export default class Toolbar extends React.Component {
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
-                    {this.renderAddInboxButton()}
+                    {this.renderSalesRecordMenu()}
                 </div>
             </div>
         )
     }
 
-    renderAddInboxButton() {
-        if (Meteor.user().isAdmin()) {
-            return (
-                <div style={{marginTop:12, float:'right'}}>
-                    <DropdownButton bsStyle="primary" bsSize="small" title="Add inbox" id="dropdown-add-inbox">
-                        <MenuItem onSelect={() => this.props.onSelectAddInbox(false)}>Individual</MenuItem>
-                        <MenuItem onSelect={() => this.props.onSelectAddInbox(true)}>Team</MenuItem>
-                    </DropdownButton>
-                </div>
-            )
-        } else {
-            return (
-                <div style={{marginTop:12, float:'right'}}>
-                    <Button bsStyle="primary" bsSize="small" onClick={() => this.props.onSelectAddInbox(false)}>Add inbox</Button>
-                </div>
-            )
-        }
+    renderSalesRecordMenu() {
+        return (
+            <div style={{marginTop:12, float:'right'}}>
+                <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record">
+                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new SalesRecord from this thread</MenuItem>
+                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('bind')}>Bind this thread to existing SalesRecord</MenuItem>
+                </DropdownButton>
+            </div>
+        )
     }
 }

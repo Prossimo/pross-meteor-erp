@@ -23,12 +23,13 @@ export default class NylasSigninForm extends React.Component {
                 email: '',
                 password: '',
                 provider: ''
-            }
+            },
+            isProcessing: false
         }
     }
 
     render() {
-        const {validation, name, email, password, provider} = this.state
+        const {validation, name, email, password, provider, isProcessing} = this.state
 
         const validationStyle = {
             float: 'right',
@@ -46,7 +47,7 @@ export default class NylasSigninForm extends React.Component {
                             Full Name
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="text" placeholder="Name" value={name} onChange={(evt)=>this.setState({name:evt.target.value})}/>
+                            <FormControl type="text" placeholder="Name" value={name} onChange={(evt)=>this.setState({name:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.name}</span>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalEmail">
@@ -54,7 +55,7 @@ export default class NylasSigninForm extends React.Component {
                             Email
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="email" placeholder="Email" value={email} onChange={(evt)=>this.setState({email:evt.target.value})}/>
+                            <FormControl type="email" placeholder="Email" value={email} onChange={(evt)=>this.setState({email:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.email}</span>
                     </FormGroup>
 
@@ -63,7 +64,7 @@ export default class NylasSigninForm extends React.Component {
                             Password
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="password" placeholder="Password" value={password} onChange={(evt)=>this.setState({password:evt.target.value})}/>
+                            <FormControl type="password" placeholder="Password" value={password} onChange={(evt)=>this.setState({password:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.password}</span>
                     </FormGroup>
 
@@ -72,7 +73,7 @@ export default class NylasSigninForm extends React.Component {
                             Provider
                         </Col>
                         <Col sm={9}>
-                            <FormControl componentClass="select" value={provider} onChange={(evt)=>this.setState({provider:evt.target.value})}>
+                            <FormControl componentClass="select" value={provider} onChange={(evt)=>this.setState({provider:evt.target.value})} disabled={isProcessing}>
                                 <option value="">-----</option>
                                 <option value="gmail">Gmail</option>
                                 <option value="exchange">Exchange</option>
@@ -85,8 +86,8 @@ export default class NylasSigninForm extends React.Component {
 
                     <FormGroup>
                         <Col smOffset={3} sm={10}>
-                            <Button bsStyle="default" onClick={this.props.onCancel}>Cancel</Button>&nbsp;
-                            <Button type="submit" bsStyle="primary">Sign in</Button>
+                            <Button bsStyle="default" onClick={this.props.onCancel} disabled={isProcessing}>Cancel</Button>&nbsp;
+                            <Button type="submit" bsStyle="primary" disabled={isProcessing}>{isProcessing && <i className="fa fa-refresh fa-spin"></i>}&nbsp;Sign in</Button>
                         </Col>
                     </FormGroup>
                 </Form>
@@ -154,15 +155,18 @@ export default class NylasSigninForm extends React.Component {
         }
     }
 
-    signin() {
+    signin = () => {
+        this.setState({isProcessing: true})
         signinData = this.signinData;
         Meteor.call("addNylasAccount", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
             if(err) {
                 console.log(err)
+                this.setState({isProcessing: true})
                 return warning(err.message);
             }
 
             setTimeout(()=>{
+                this.setState({isProcessing: true})
                 Actions.changedAccounts()
             }, 6000)
         })
