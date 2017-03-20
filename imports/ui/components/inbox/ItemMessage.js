@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import React from 'react';
 import classNames from 'classnames';
 import Actions from '../../../api/nylas/actions';
@@ -6,26 +7,28 @@ import ItemMessageBody from './ItemMessageBody';
 import MessageParticipants from './MessageParticipants';
 import MessageTimestamp from './MessageTimestamp';
 import MessageControls from './MessageControls';
-
-
+import AttachmentComponent from '../attachment/attachment-component'
+import ImageAttachmentComponent from '../attachment/image-attachment-component'
+import FileDownloadStore from '../../../api/nylas/file-download-store'
 
 class ItemMessage extends React.Component {
 
     constructor(props) {
         super(props);
 
-        this.bindMethods();
-
         this.state = {
-            detailedHeaders: false
+            detailedHeaders: false,
+            downloads: FileDownloadStore.downloadDataForFiles(_.pluck(props.message.files, 'id'))
         }
 
     }
 
-    bindMethods() {
-        this._onClickParticipants = this._onClickParticipants.bind(this);
-        this._onClickHeader = this._onClickHeader.bind(this);
-        this._toggleCollapsed = this._toggleCollapsed.bind(this);
+    componentDidMount() {
+        this._unlisten = FileDownloadStore.listen(this._onDownloadStoreChanged)
+    }
+
+    componentWillUnmount() {
+        if(this._unlisten) this._unlisten()
     }
 
     render() {
@@ -177,13 +180,84 @@ class ItemMessage extends React.Component {
     }
 
     renderAttachments() {
-        return (
-            <div></div>
-        );
+        const attachments = this._attachmentComponents()
+
+        if(attachments.length>0) {
+            return (
+                <div>
+                    {(attachments.length>1) && this._renderDownloadAllButton()}
+                    <div className="attachments-area">{attachments}</div>
+                </div>
+            )
+        } else {
+            return <div/>
+        }
     }
 
-    _onClickParticipants(e) {
-        console.log('_onClickParticipants');
+    _attachmentComponents() {
+        let imageAttachments = []
+        let otherAttachments = []
+
+        for(let file of this.props.message.files||[]) {
+            if(!this._isRealFile(file)) continue
+
+            if(NylasUtils.shouldDisplayAsImage(file))
+                imageAttachments.push(file)
+            else
+                otherAttachments.push(file)
+        }
+
+        otherAttachments = otherAttachments.map((file)=>(
+            <AttachmentComponent
+                key={file.id}
+                className="file-wrap"
+                file={file}
+                download={this.state.downloads[file.id]}
+            />
+        ))
+
+        imageAttachments = imageAttachments.map((file)=>(
+            <ImageAttachmentComponent
+                key={file.id}
+                className="file-wrap file-image-wrap"
+                file={file}
+                download={this.state.downloads[file.id]}
+                targetPath={FileDownloadStore.pathForFile(file)}
+            />
+        ))
+
+        return otherAttachments.concat(imageAttachments)
+    }
+
+    _isRealFile(file) {
+        return !(file.content_id && this.props.message.body && this.props.message.body.indexOf(file.content_id) > 0)
+    }
+
+    _renderDownloadAllButton = () => {
+        return (
+            <div className="download-all">
+                <div className="attachment-number">
+                    <img
+                        src="/icons/attachments/ic-attachments-all-clippy.png"
+                    />
+                    <span>{this.props.message.files.length} attachments</span>
+                </div>
+                <div className="separator">-</div>
+                <div className="download-all-action" onClick={this._onDownloadAll}>
+                    <img
+                        src="/icons/attachments/ic-attachments-download-all.png"
+                    />
+                    <span>Download all</span>
+                </div>
+            </div>
+        )
+    }
+
+    _onDownloadAll = () => {
+        Actions.fetchAndSaveAllFiles(this.props.message.files)
+    }
+
+    _onClickParticipants = (e) => {
         el = e.target
         while (el != e.currentTarget) {
             if (el.classList.contains("collapsed-participants")) {
@@ -197,7 +271,7 @@ class ItemMessage extends React.Component {
         return;
     }
 
-    _onClickHeader(e) {
+    _onClickHeader = (e) => {
         console.log('_onClickHeader');
 
         if (this.state.detailedHeaders) return;
@@ -216,12 +290,17 @@ class ItemMessage extends React.Component {
         this._toggleCollapsed();
     }
 
-    _toggleCollapsed() {
+    _toggleCollapsed = () => {
         console.log("asdfasf", this.props.isLastMsg)
         if (this.props.isLastMsg) return;
         Actions.toggleMessageExpanded(this.props.message.id)
     }
 
+
+    _onDownloadStoreChanged = () => {
+        this.setState({downloads: FileDownloadStore.downloadDataForFiles(_.pluck(this.props.message.files, 'id'))})
+
+    }
 }
 
 export default ItemMessage;

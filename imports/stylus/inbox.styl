@@ -4,13 +4,13 @@
   height 100%
   background-color white
   padding 10px
-  border-left 1px solid rgba(221,221,221,0.6)
+  border-left 1px solid rgba(221, 221, 221, 0.6)
   display flex
   flex-direction column
-  //align-items  center
+//align-items  center
 
   .focused
-    background: rgba(91,139,255,0.3);
+    background: rgba(91, 139, 255, 0.3);
 
   .header-panel
     order 0
@@ -48,7 +48,7 @@
 
     .list-category {
       cursor: default;
-      
+
       .account-wrapper {
         display: flex;
         border-bottom: 1px solid rgba(91, 139, 255, 0.44);
@@ -81,7 +81,7 @@
         clear: both;
 
         &:hover {
-          background: rgba(91,139,255,0.1);
+          background: rgba(91, 139, 255, 0.1);
         }
       }
     }
@@ -90,35 +90,35 @@
       cursor: default;
 
       .thread-icon {
-        width:25px;
-        height:24px;
-        flex-shrink:0;
+        width: 25px;
+        height: 24px;
+        flex-shrink: 0;
         background-size: 15px;
-        display:inline-block;
+        display: inline-block;
         background-repeat: no-repeat;
-        background-position:center;
+        background-position: center;
 
         &.thread-icon-attachment {
-          background-image:url(icons/inbox/icon-attachment.png);
-          margin-right:0;
-          margin-left:0;
+          background-image: url(icons/inbox/icon-attachment.png);
+          margin-right: 0;
+          margin-left: 0;
         }
         &.thread-icon-unread {
-          background-image:url(icons/inbox/icon-unread.png);
+          background-image: url(icons/inbox/icon-unread.png);
         }
         &.thread-icon-replied {
-          background-image:url(icons/inbox/icon-replied.png);
+          background-image: url(icons/inbox/icon-replied.png);
         }
         &.thread-icon-forwarded {
-          background-image:url(icons/inbox/icon-forwarded.png);
+          background-image: url(icons/inbox/icon-forwarded.png);
         }
         &.thread-icon-star {
           background-size: 16px;
-          background-image:url(icons/inbox/icon-star.png);
+          background-image: url(icons/inbox/icon-star.png);
         }
         &.thread-icon-pencil {
           background-size: 16px;
-          background-image:url(icons/inbox/icon-pencil.png);
+          background-image: url(icons/inbox/icon-pencil.png);
         }
       }
 
@@ -137,11 +137,11 @@
         height: 85px;
 
         &:hover {
-          background: rgba(91,139,255,0.1);
+          background: rgba(91, 139, 255, 0.1);
         }
 
         .thread-info-column {
-          flex:1;
+          flex: 1;
           overflow: hidden;
 
           .unread-true {
@@ -199,9 +199,8 @@
     }
 
     .list-message {
-      $message-max-width  = 800px;
-      $message-spacing    = 6px;
-
+      $message-max-width = 800px;
+      $message-spacing = 6px;
 
       display: flex;
       flex-direction: column;
@@ -217,7 +216,7 @@
       search-match, .search-match {
         background: $text-color-search-match;
         border-radius: $border-radius-base;
-        box-shadow: 0 0.5px 0.5px rgba(0,0,0,0.25);
+        box-shadow: 0 0.5px 0.5px rgba(0, 0, 0, 0.25);
         &.current-match {
           background: $text-color-search-current-match;
         }
@@ -231,7 +230,9 @@
         margin-bottom: $padding-large-vertical;
         cursor: default;
         padding: $padding-base-vertical $padding-base-horizontal;
-        a { float: right; }
+        a {
+          float: right;
+        }
       }
 
       .message-body-error {
@@ -241,7 +242,9 @@
         margin-top: $padding-large-vertical;
         cursor: default;
         padding: $padding-base-vertical $padding-base-horizontal;
-        a { float: right; }
+        a {
+          float: right;
+        }
       }
 
       .message-body-loading {
@@ -261,8 +264,8 @@
         padding: 0 $padding-base-horizontal;
       }
       .mail-important-icon {
-        margin-right:$spacing-half;
-        margin-bottom:1px;
+        margin-right: $spacing-half;
+        margin-bottom: 1px;
         flex-shrink: 0;
       }
       .message-subject {
@@ -292,22 +295,22 @@
         margin: 0 auto;
         width: 100%;
         max-width: $message-max-width;
-        display:block;
+        display: block;
 
         .participants {
           .contact-chip {
-            display:inline-block;
+            display: inline-block;
           }
         }
       }
 
       .messages-wrap {
         flex: 1;
-        opacity:0;
+        opacity: 0;
         transition: opacity 0s;
 
         &.ready {
-          opacity:1;
+          opacity: 1;
           transition: opacity .1s linear;
         }
 
@@ -335,7 +338,9 @@
         }
 
         padding-bottom: $message-spacing * 2;
-        &.before-reply-area { padding-bottom: 0; }
+        &.before-reply-area {
+          padding-bottom: 0;
+        }
 
         &.collapsed {
           .message-item-white-wrap {
@@ -345,7 +350,7 @@
             margin-bottom: 0;
           }
 
-          &+.minified-bundle {
+          & + .minified-bundle {
             margin-top: -$message-spacing
           }
         }
@@ -366,14 +371,14 @@
           }
 
           .collapsed-attachment {
-            width:15px;
-            height:15px;
+            width: 15px;
+            height: 15px;
             background-size: 15px;
             background-repeat: no-repeat;
-            background-position:center;
-            padding:12px;
+            background-position: center;
+            padding: 12px;
             margin-left: 0.5em;
-            background-image:url(../static/images/message-list/icon-attachment-@2x.png);
+            background-image: url(../static/images/message-list/icon-attachment-@2x.png);
             position: relative;
             top: -2px;
           }
@@ -393,9 +398,8 @@
 
       }
 
-
       .message-item-divider {
-        border:0; // remove default hr border left, right
+        border: 0; // remove default hr border left, right
         border-top: 2px solid $border-color-secondary;
         height: 3px;
         background: $background-secondary;
@@ -439,7 +443,7 @@
           position: relative;
           border-top: 1px solid $border-color-divider;
           background-color: darken($background-primary, 2%);
-          box-shadow: 0 0.5px 0 rgba(0,0,0,0.1), 0 -0.5px 0 rgba(0,0,0,0.1), 0.5px 0 0 rgba(0,0,0,0.1), -0.5px 0 0 rgba(0,0,0,0.1);
+          box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.1), 0 -0.5px 0 rgba(0, 0, 0, 0.1), 0.5px 0 0 rgba(0, 0, 0, 0.1), -0.5px 0 0 rgba(0, 0, 0, 0.1);
         }
       }
 
@@ -517,15 +521,20 @@
             line-height: 10px;
             border-radius: 0;
             border-right: 1px solid lighten($border-color-divider, 6%);
-            &:last-child { border-right: 0; }
+            &:last-child {
+              border-right: 0;
+            }
             margin: 0;
-            &:active {background: transparent;}
+            &:active {
+              background: transparent;
+            }
           }
         }
 
         .message-time {
           padding-top: 4px;
-          z-index: 2; position: relative;
+          z-index: 2;
+          position: relative;
           display: inline-block;
           min-width: 125px;
           cursor: default;
@@ -578,15 +587,21 @@
       }
 
       .header-toggle-control {
-        &.inactive { display: none; }
+        &.inactive {
+          display: none;
+        }
         z-index: 3;
         position: absolute;
         top: 0;
         left: -1 * 13px;
-        img { background: $text-color-very-subtle; }
+        img {
+          background: $text-color-very-subtle;
+        }
       }
       .message-item-wrap:hover {
-        .header-toggle-control.inactive { display: block; }
+        .header-toggle-control.inactive {
+          display: block;
+        }
       }
 
       .footer-reply-area-wrap {
@@ -606,7 +621,9 @@
         background: $background-primary;
 
         color: $text-color-very-subtle;
-        img.content-mask { background-color:$text-color-very-subtle; }
+        img.content-mask {
+          background-color: $text-color-very-subtle;
+        }
 
         &:hover {
           cursor: default;
@@ -625,6 +642,12 @@
         }
       }
 
+      .attachments-area {
+        padding-top: $spacing-half + 2;
+        margin-left: -($spacing-standard);
+        margin-right: -($spacing-standard);
+        cursor: default;
+      }
     }
 
   .message-participants {
@@ -634,7 +657,9 @@
     transition: padding-left 150ms;
     transition-timing-function: ease-in-out;
 
-    &.collapsed:hover {cursor: default;}
+    &.collapsed:hover {
+      cursor: default;
+    }
 
     .from-contact {
       font-weight: $headings-font-weight;
@@ -680,7 +705,9 @@
 
       .participant-type {
         margin-top: 0.5em;
-        &:first-child {margin-top: 0;}
+        &:first-child {
+          margin-top: 0;
+        }
       }
 
       .from-label, .to-label, .cc-label, .bcc-label {
@@ -696,17 +723,21 @@
       }
 
     // .from-label { margin-right: 1em; }
-      .to-label, .cc-label { margin-right: 0.5em; }
-      .bcc-label { margin-right: 0; }
+      .to-label, .cc-label {
+        margin-right: 0.5em;
+      }
+      .bcc-label {
+        margin-right: 0;
+      }
 
       .participant-primary {
         color: $text-color-very-subtle;
         margin-right: 0.15em;
-        display:inline-block;
+        display: inline-block;
       }
       .participant-secondary {
         color: $text-color-very-subtle;
-        display:inline-block;
+        display: inline-block;
       }
 
       .from-contact {
@@ -719,3 +750,42 @@
       }
     }
   }
+
+.download-all {
+  $download-btn-color = tint(#929292, 20%);
+  $download-hover-color = tint($component-active-color, 20%);
+
+  display: flex;
+  align-items: center;
+  color: $download-btn-color;
+  font-size: 0.9em;
+  cursor: default;
+  margin-top: $spacing-three-quarters;
+
+  .separator {
+    margin: 0 5px;
+  }
+
+  .attachment-number {
+    display: flex;
+    align-items: center;
+  }
+
+  img {
+    vertical-align: middle;
+    margin-right: $spacing-half;
+  //background-color: $download-btn-color;
+  }
+
+  .download-all-action {
+    cursor: pointer;
+    &:hover {
+
+      color: $download-hover-color;
+      img {
+      //background-color: $download-hover-color;
+      }
+    }
+  }
+}
+

@@ -12,6 +12,11 @@ const Actions = Reflux.createActions([
     'toggleHiddenMessages',
 
     'fetchFile',
+    'fetchAndOpenFile',
+    'fetchAndSaveFile',
+    'fetchAndSaveAllFiles',
+    'abortFetchFile',
+    'removeFile',
 
     'composeNew',
     'composeReply',
