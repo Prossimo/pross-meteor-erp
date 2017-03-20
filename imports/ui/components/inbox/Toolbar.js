@@ -39,7 +39,7 @@ export default class Toolbar extends React.Component {
     renderSalesRecordMenu() {
         return (
             <div style={{marginTop:12, float:'right'}}>
-                <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record">
+                <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record" disabled>
                     <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new SalesRecord from this thread</MenuItem>
                     <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('bind')}>Bind this thread to existing SalesRecord</MenuItem>
                 </DropdownButton>

@@ -11,10 +11,7 @@ import fs from 'fs'
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     isMe: (email) => {
-        const currentUser = Meteor.user();
-        if (!currentUser) return false;
-
-        return currentUser.email() == email;
+        return AccountStore.accountForEmail(email)!=null
     },
 
     isFromMe: (message) => {
@@ -108,6 +105,7 @@ module.exports = NylasUtils = {
 
         to = _.uniq(to, (p) => p.email)
 
+        console.log('participantsForReply', message, to, cc)
         return {to, cc}
     },
 
