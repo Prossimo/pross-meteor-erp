@@ -16,6 +16,7 @@ import ContactsPage from '/imports/ui/pages/ContactsPage';
 import FinancialPage from '/imports/ui/pages/FinancialPage';
 import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
 import ProjectsPage from '/imports/ui/pages/ProjectsPage';
+import DashboardPage from '/imports/ui/pages/DashboardPage';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -42,7 +43,7 @@ FlowRouter.route('/dashboard', {
         checkAuth();
         mount(App, {
             //todo create Dashboard page component
-            content: <UserAccount/>,
+            content: <DashboardPage/>,
         })
     }
 });
