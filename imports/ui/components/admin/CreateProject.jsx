@@ -4,10 +4,6 @@ import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
 export default class CreateProject extends Component {
     constructor(props) {
         super(props);
-        //const messages = SimpleSchema._globalMessages;
-        //messages.contactName = '[label] must be a valid name (First and Last name)';
-        //messages.regEx.push({ exp: this.phoneNumberRegex, msg: '[label] must be a valid phone number (1-xxx-xxx-xxx)' });
-        //messages.regEx.push({ exp: this.phoneExtensionRegex, msg: '[label] must be a valid phone number extension (only digit)'});
     }
 
     componentDidMount() {
@@ -30,6 +26,13 @@ export default class CreateProject extends Component {
 
     render() {
         const phoneNumberRegex = /^(\d)+$/;
+        const memberOptions = this.props.users.map(({ profile: { firstName, lastName } })=> {
+            const name = `${firstName} ${lastName}`;
+            return {
+                label: name,
+                value: name,
+            }
+        })
         const newProjectSchema = {
             members: {
                 type: [Object],
@@ -37,6 +40,12 @@ export default class CreateProject extends Component {
             'members.$.name': {
                 type: String,
                 label: 'Name',
+                autoform: {
+                    type: 'selectize',
+                    afFieldInput: {
+                        options: memberOptions,
+                    }
+                }
             },
             'members.$.isMainStakeholder': {
                 type: Boolean,
@@ -50,12 +59,12 @@ export default class CreateProject extends Component {
                     'Guest'
                 ],
                 label: 'Designation',
+                autoform: {
+                    type: 'selectize',
+                }
             },
             'members.$.categories': {
                 type: [String],
-            },
-            'members.$.categories.$': {
-                type: String,
                 allowedValues: [
                     'Architect',
                     'Developers',
@@ -66,6 +75,10 @@ export default class CreateProject extends Component {
                     'Consultant'
                 ],
                 label: 'Categories',
+                autoform: {
+                    type: 'selectize',
+                    multiple: true,
+                }
             },
             shippingAddress: {
                 type: String,
