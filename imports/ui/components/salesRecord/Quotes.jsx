@@ -168,7 +168,7 @@ class Quotes extends React.Component{
                                      currentUser={currentUser}
                                      usersArr={usersArr}
                                      quotes={quotes}
-                                     project={salesRecord}/>
+                                     salesRecord={salesRecord}/>
         })
     }
 
