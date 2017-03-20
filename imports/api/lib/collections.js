@@ -16,10 +16,10 @@ export const Settings = new Mongo.Collection('Settings');
 // });
 
 const fileStore = new FS.Store.S3("files", {
-    accessKeyId: "AKIAJ3ONO2DPIHGYMGLA", //required if environment variables are not set
-    secretAccessKey: "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", //required if environment variables are not set
+    accessKeyId: "AKIAJ3ONO2DPIHGYMGLA", //required
+    secretAccessKey: "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", //required
     bucket: "pross-meteor-erp", //required
-    folder: "quotes", //optional, which folder (key prefix) in the bucket to use
+    folder: "quotes", //optional
 });
 
 export const Files = new FS.Collection("files", {
