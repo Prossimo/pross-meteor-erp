@@ -1,10 +1,9 @@
 import _ from 'underscore'
 import React from 'react';
-import {Button} from 'react-bootstrap';
+import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap';
 import Spinner from '../components/utils/spinner';
 import {warning} from "/imports/api/lib/alerts";
 import Actions from '../../api/nylas/actions';
-import TaskQueue from '../../api/nylas/tasks/task-queue';
 import NylasUtils from '../../api/nylas/nylas-utils';
 import AccountStore from '../../api/nylas/account-store';
 import CategoryStore from '../../api/nylas/category-store';
@@ -15,8 +14,8 @@ import ItemThread from '../components/inbox/ItemThread';
 import MessageList from '../components/inbox/MessageList';
 import Toolbar from '../components/inbox/Toolbar';
 import ComposeModal from '../components/inbox/composer/ComposeModal';
-import {ADMIN_ROLE_LIST} from '../../api/constants/roles';
 import NylasSigninForm from '../components/inbox/NylasSigninForm';
+import CreateProject from '../components/admin/CreateProject';
 
 
 class InboxPage extends React.Component {
@@ -24,8 +23,10 @@ class InboxPage extends React.Component {
         super(props);
 
         this.state = {
-            isAddingInbox: false,
-            isAddingTeamInbox: false,
+            addingInbox: false,
+            addingTeamInbox: false,
+            salesRecordModal: false,
+            bindingSalesRecord: false,
             threads: [],
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
@@ -57,8 +58,8 @@ class InboxPage extends React.Component {
 
     onAccountStoreChanged = () => {
         this.setState({
-            isAddingInbox: false,
-            isAddingTeamInbox: false,
+            addingInbox: false,
+            addingTeamInbox: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts()
         })
     }
@@ -84,36 +85,32 @@ class InboxPage extends React.Component {
     }
 
     render() {
-        const {hasNylasAccounts, composeState, isAddingInbox, isAddingTeamInbox} = this.state;
-        if (isAddingInbox) {
-            return (
-                <div className="inbox-page">
-                    <NylasSigninForm isAddingTeamInbox={isAddingTeamInbox}
-                                     onCancel={() => this.setState({isAddingInbox: false})}/>
-                </div>
-            )
-        } else {
-            return (
-                <div className="inbox-page">
-                    {hasNylasAccounts && this.renderInbox()}
-                    {!hasNylasAccounts && (
-                        <div style={{textAlign: 'center'}}>
-                            <Button bsStyle="primary" onClick={() => this.setState({isAddingInbox: true})}>Add an
-                                individual inbox</Button>
-                            {Meteor.user().isAdmin() &&
-                            <Button bsStyle="default" style={{marginLeft: 10}}
-                                    onClick={() => this.setState({isAddingInbox: true, isAddingTeamInbox: true})}>Add a
-                                team inbox</Button>}
-                        </div>
-                    )}
-                    <ComposeModal isOpen={composeState && composeState.show}
-                                  clientId={composeState && composeState.clientId} onClose={this.onCloseComposeModal}/>
-                </div>
-            )
-        }
-
+        return (
+            <div className="inbox-page">
+                {this.renderContents()}
+            </div>
+        )
     }
 
+    renderContents() {
+        const {hasNylasAccounts, composeState, addingInbox, addingTeamInbox} = this.state;
+
+        if (addingInbox) {
+            return <NylasSigninForm isAddingTeamInbox={addingTeamInbox} onCancel={() => this.setState({addingInbox: false})}/>
+        } else {
+            if(hasNylasAccounts) {
+                return (
+                    <div style={{height:'100%'}}>
+                        {this.renderInbox()}
+                        {this.renderSalesRecordModal()}
+                        <ComposeModal isOpen={composeState && composeState.show} clientId={composeState && composeState.clientId} onClose={this.onCloseComposeModal}/>
+                    </div>
+                )
+            } else {
+                return this.renderAddInboxButtons()
+            }
+        }
+    }
     onCloseComposeModal = () => {
         const {composeState} = this.state
         if (!composeState) return
@@ -130,11 +127,7 @@ class InboxPage extends React.Component {
     renderInbox() {
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-                <Toolbar currentUser={this.props.currentUser} thread={this.state.selectedThread}
-                         onSelectAddInbox={(isAddingTeamInbox) => this.setState({
-                             isAddingInbox: true,
-                             isAddingTeamInbox: isAddingTeamInbox
-                         })}/>
+                <Toolbar currentUser={this.props.currentUser} thread={this.state.selectedThread} onSelectMenuSalesRecord={this.onSelectMenuSalesRecord}/>
 
                 <div className="content-panel">
                     <div className="column-panel" style={{
@@ -167,52 +160,112 @@ class InboxPage extends React.Component {
         )
     }
 
+    onSelectMenuSalesRecord = (option) => {
+        this.setState({
+            salesRecordModal: true,
+            bindingSalesRecord: option=='bind'
+        })
+    }
 
+    renderSalesRecordModal() {
+        const {salesRecordModal, bindingSalesRecord} = this.state
+
+        const title = bindingSalesRecord ? 'Bind this thread to existing SalesRecord' : 'Create new SalesRecord from this thread'
+        return (
+            <Modal show={salesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
+                <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
+                <Modal.Body><CreateProject {...this.props}/></Modal.Body>
+            </Modal>
+        )
+    }
+
+    onCloseSalesRecordModal = () => {
+        this.setState({
+            salesRecordModal: false,
+            bindingSalesRecord: false
+        })
+    }
     renderCategories() {
         const {selectedCategory} = this.state;
 
         return (
             <div className="list-category">
+                {this.renderAddInboxButtons(true)}
                 {
                     AccountStore.accounts().map((account) => {
-                        const categoriesForAccount = CategoryStore.getCategories(account.accountId)
-                        console.log('categoriesForAccount', categoriesForAccount)
+                    const categoriesForAccount = CategoryStore.getCategories(account.accountId)
+                    console.log('categoriesForAccount', categoriesForAccount)
 
-                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ? <i className="fa fa-minus" onClick={()=>this.onClickRemoveAccount(account)}></i> : ''
-                        return (
-                            <div key={account.accountId}>
-                                <div className="account-wrapper">
-                                    <span><img
-                                        src={account.isTeamAccount ? "/icons/inbox/ic-team.png" : "/icons/inbox/ic-individual.png"}
-                                        width="16px"/></span>&nbsp;
-                                    <span>{account.emailAddress}</span>
-                                    <span style={{flex:1}}></span>
-                                    <span className="action">{actionEl}</span>
-                                </div>
-                                {
-                                    categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category) =>
-                                        <ItemCategory
-                                            key={category.id}
-                                            category={category}
-                                            onClick={(evt) => {
-                                                this.onCategorySelected(category)
-                                            }}
-                                            selected={selectedCategory && category.id == selectedCategory.id}
-                                        />)
-                                }
-                            </div>
-                        )
+                    const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
+                    <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
+                    return (
+                    <div key={account.accountId}>
+                    <div className="account-wrapper">
+                    <span><img
+                    src={account.isTeamAccount ? "/icons/inbox/ic-team.png" : "/icons/inbox/ic-individual.png"}
+                    width="16px"/></span>&nbsp;
+                    <span>{account.emailAddress}</span>
+                    <span style={{flex: 1}}></span>
+                    <span className="action">{actionEl}</span>
+                    </div>
+                    {
+                        categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category) => {
+                            if (category) {
+                                return <ItemCategory
+                                    key={category.id}
+                                    category={category}
+                                    onClick={(evt) => {
+                                        this.onCategorySelected(category)
+                                    }}
+                                    selected={selectedCategory && category.id == selectedCategory.id}
+                                />
+                            } else {
+                                return <div></div>
+                            }
+                        })
+                    }
+                    </div>
+                    )
 
-                    })
+                })
                 }
             </div>
         )
     }
 
+    renderAddInboxButtons(isSmall) {
+        if(isSmall) {
+            if (Meteor.user().isAdmin()) {
+                return (
+                    <div>
+                        <DropdownButton bsStyle="primary" bsSize="small" title="Add inbox" id="dropdown-add-inbox">
+                            <MenuItem onSelect={() => this.setState({addingInbox: true, addingTeamInbox: false})}>Individual</MenuItem>
+                            <MenuItem onSelect={() => this.setState({addingInbox: true, addingTeamInbox: true})}>Team</MenuItem>
+                        </DropdownButton>
+                    </div>
+                )
+            } else {
+                return (
+                    <div>
+                        <Button bsStyle="primary" bsSize="small" onClick={() => this.setState({addingInbox: true, addingTeamInbox: false})}>Add inbox</Button>
+                    </div>
+                )
+            }
+        } else {
+            return (
+                <div style={{textAlign: 'center'}}>
+                    <Button bsStyle="primary" onClick={() => this.setState({addingInbox: true})}>Add an individual inbox</Button>
+                    {Meteor.user().isAdmin() &&
+                    <Button bsStyle="default" style={{marginLeft: 10}} onClick={() => this.setState({addingInbox: true, addingTeamInbox: true})}>Add a team inbox</Button>}
+                </div>
+            )
+        }
+    }
+
     onClickRemoveAccount = (account) => {
-        if(confirm(`Are you sure to remove ${account.emailAddress}?`)) {
-            Meteor.call('removeNylasAccount', account, (err,res)=>{
-                if(err) {
+        if (confirm(`Are you sure to remove ${account.emailAddress}?`)) {
+            Meteor.call('removeNylasAccount', account, (err, res) => {
+                if (err) {
                     console.log(err)
                     return warning(err.message);
                 }
@@ -221,6 +274,7 @@ class InboxPage extends React.Component {
             })
         }
     }
+
     renderThreads() {
         const {threads, selectedThread, loadingThreads} = this.state;
 

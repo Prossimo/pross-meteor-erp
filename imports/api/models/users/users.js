@@ -52,6 +52,10 @@ Schema.User = new SimpleSchema({
     'profile.lastName': {
         type: String
     },
+    'profile.conversationGroups': {
+        type: Object,
+        optional: true
+    },
     slack: {
         type: Object,
         optional: true,
