@@ -81,8 +81,8 @@ Meteor.startup(()=>{
     });
 
     Meteor.publish(GET_NEW_PROJECTS, function() {
-        if (!this.userId) return this.ready();
-        return Projects.find({});
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
+        return Projects.find({'members.userId': this.userId})
     });
 });
 
