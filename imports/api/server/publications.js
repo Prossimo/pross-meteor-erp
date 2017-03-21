@@ -14,6 +14,7 @@ import {
     GET_PROJECT_FILES,
     GET_NYLAS_ACCOUNTS,
     GET_NEW_PROJECTS,
+    GET_NEW_PROJECT,
 } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
@@ -83,6 +84,13 @@ Meteor.startup(()=>{
     Meteor.publish(GET_NEW_PROJECTS, function() {
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
         return Projects.find({'members.userId': this.userId})
+    });
+
+    Meteor.publish(GET_NEW_PROJECT, function(_id){
+        Match.test(_id, String);
+
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
+        return Projects.find({_id, 'members.userId': this.userId});
     });
 });
 
