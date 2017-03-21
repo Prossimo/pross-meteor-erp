@@ -3,6 +3,9 @@ import { createContainer  } from 'meteor/react-meteor-data';
 import classNames from 'classnames';
 import { Projects } from '/imports/api/lib/collections';
 import { GET_NEW_PROJECT } from '/imports/api/constants/collections';
+import Activities from './Activities';
+import Tasks from './Tasks';
+import Files from './Files';
 
 class SingleProject extends Component {
   constructor(props){
@@ -11,15 +14,15 @@ class SingleProject extends Component {
     this.tabs = [
       {
         label: 'Activity',
-        //component: <Activity/>
+        component: <Activities/>
       },
       {
         label: 'Tasks',
-        //component: <Quotes/>
+        component: <Tasks/>
       },
       {
         label: 'Files',
-        //component: <Conversations/>
+        component: <Files/>
       },
     ];
 
