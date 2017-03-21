@@ -4,6 +4,7 @@ import config from '../../config/config';
 import {NylasAccounts} from './nylas-accounts';
 import {ADMIN_ROLE_LIST} from '../../constants/roles';
 
+
 Meteor.methods({
     addNylasAccount(data)
     {
