@@ -147,10 +147,10 @@ var Dialer = React.createClass({
                 console.log(err);
                 self.setState({log: 'Could not fetch token, see console.log'});
             } else {
-                console.log('Twilio Token', token)
+                console.log('Twilio Token', token);
                 Twilio.Device.setup(token);
             }
-        })
+        });
 
         // Configure event handlers for Twilio Device
         Twilio.Device.disconnect(function () {

@@ -16,8 +16,12 @@ import {
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
 import '../lib/extendMatch.js';
+import google from 'googleapis';
+import config from '../config/config';
 import '../models/nylasaccounts/methods';
 
+const OAuth2Client = google.auth.OAuth2;
+let oauth2Client = new OAuth2Client(config.google.clientId, config.google.clientSecret, config.google.redirectUri);
 const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
 const SLACK_BOT_ID = "U477F4M6Y";
 
@@ -59,9 +63,7 @@ Meteor.methods({
     userData.validation = validation;
     return userData;
   },
-
-
-
+    
   initVisiableProjectFields() {
     const setting = Settings.findOne({key: 'salesRecord'});
     if (!setting) {
@@ -117,8 +119,7 @@ Meteor.methods({
       }
     });
   },
-
-
+    
   addUserToSlackChannel(userId, channel){
     check(userId, String);
     check(channel, String);
@@ -139,9 +140,7 @@ Meteor.methods({
     }
     return res;
   },
-
-
-
+    
   sendEmail(mailData) {
     Match.test(mailData, {
       to: Match.OneOf(String, [String]),
@@ -329,8 +328,7 @@ Meteor.methods({
 
     SalesRecords.update(salesRecordId, {$push: {members: member}});
   },
-
-
+    
   updateUserInfo(user){
     if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
       throw new Meteor.Error("Access denied");
@@ -633,6 +631,7 @@ Meteor.methods({
 
     return token;
   },
+    
   createNewProject(project) {
     if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
       throw new Meteor.Error('Access denied');
@@ -670,4 +669,44 @@ Meteor.methods({
     });
     Projects.insert(project);
   },
+  
+  googleApiAuthUrl(){
+      // generate a url that asks permissions for Google+ and Google Calendar scopes
+      const scopes = [
+          'https://www.googleapis.com/auth/plus.me',
+          'https://www.googleapis.com/auth/calendar'
+      ];
+    
+      // generate consent page url
+      return oauth2Client.generateAuthUrl({
+          access_type: 'offline', // will return a refresh token
+          scope: scopes // can be a space-delimited string or an array of scopes
+      });
+  },
+    
+  googleApiAutToken(code) {
+      function getAccessToken (oauth2Client, callback) {
+          oauth2Client.getToken(code, function (err, tokens) {
+              if (err) {
+                  return callback(err);
+              }
+              // set tokens to the client
+              // TODO: tokens should be set by OAuth2 client.
+              oauth2Client.setCredentials(tokens);
+              callback();
+          });
+      }
+      //retrieve an access token
+      getAccessToken(oauth2Client, function () {
+          const plus = google.plus('v1');
+          // retrieve user profile
+          plus.people.get({ userId: 'me', auth: oauth2Client }, function (err, profile) {
+              if (err) {
+                  return console.log('An error occured', err);
+              }
+              console.log(profile.displayName, ':', profile.tagline);
+              return profile;
+          });
+      });
+  }
 });

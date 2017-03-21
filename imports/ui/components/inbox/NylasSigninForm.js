@@ -146,7 +146,7 @@ export default class NylasSigninForm extends React.Component {
                     prompt: 'consent'
                 }
             });
-
+            
             window.open(googleUrl, "Google authentication", "width=730,height=650");
 
             window.addEventListener("message", this.receiveMessageFromGoolgeAuthWindow, false);
