@@ -261,7 +261,7 @@ class AllSalesRecords extends React.Component{
                             switch(type) {
                                 case 'date':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <DatePicker
                                                     selected={this.state.edittingCell.value}
@@ -273,7 +273,7 @@ class AllSalesRecords extends React.Component{
                                     )
                                 case 'select':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <Select
                                                     style={{width: '60%'}}
@@ -287,7 +287,7 @@ class AllSalesRecords extends React.Component{
                                     );
                                 default:
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <input
                                                     type='text'

@@ -268,7 +268,7 @@ class AllProjects extends Component {
                             switch(type) {
                                 case 'date':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <DatePicker
                                                     selected={this.state.edittingCell.value}
@@ -280,7 +280,7 @@ class AllProjects extends Component {
                                     )
                                 case 'select':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <Select
                                                     style={{width: '60%'}}
@@ -294,7 +294,7 @@ class AllProjects extends Component {
                                     );
                                 default:
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <input
                                                     type='text'
