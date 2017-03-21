@@ -57,6 +57,5 @@ comerc:autoform-selectize
 rajit:bootstrap3-datepicker
 aldeed:autoform-bs-datepicker
 gilbertwat:bootstrap3-daterangepicker
-
-
 npm-container
+react-meteor-data
