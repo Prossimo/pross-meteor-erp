@@ -216,9 +216,8 @@ class AllProjects extends Component {
     }
 
     updateProject() {
-        // TODO: update salesRecord at here
         const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
-        const { _id } = this.props.salesRecords[this.state.edittingCell.rowIndex];
+        const { _id } = this.props.projects[this.state.edittingCell.rowIndex];
         let { key, value } = this.state.edittingCell;
         switch (type) {
             case 'date':
@@ -231,7 +230,7 @@ class AllProjects extends Component {
             default:
                 break;
         }
-        Meteor.call('updateProjectProperty', _id, { key, value }, (error)=> {
+        Meteor.call('updateNewProjectProperty', _id, { key, value }, (error)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.handleMouseLeave();
             this.setState({
