@@ -12,6 +12,12 @@ Projects.schema = new SimpleSchema({
     name: {
         type: String,
     },
+    members: {
+        type: Array,
+    },
+    'members.$': {
+        type: Object,
+    },
     'members.$.userId': {
         type: String,
     },
