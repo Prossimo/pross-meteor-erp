@@ -5,7 +5,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
 import AdminPage from '../../api/composer/pages/AdminPage';
-import SingleProject from '../../api/composer/componencts/project/SingleProject';
+import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
 import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import InboxPage from '../../api/composer/pages/InboxPage';
@@ -17,6 +17,7 @@ import FinancialPage from '/imports/ui/pages/FinancialPage';
 import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
 import ProjectsPage from '/imports/ui/pages/ProjectsPage';
 import DashboardPage from '/imports/ui/pages/DashboardPage';
+import SingleProjectPage from '/imports/ui/components/project/SingleProject';
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -78,12 +79,22 @@ FlowRouter.route('/projects', {
     }
 })
 
+FlowRouter.route('/project/:id', {
+    name: 'Project',
+    action() {
+        checkAuth();
+        mount(App, {
+            content: <SingleProjectPage/>
+        });
+    }
+})
+
 FlowRouter.route('/salesrecord/:id', {
     name: 'SalesRecord',
     action(){
         checkAuth();
         mount(App, {
-            content: <SingleProject/>,
+            content: <SingleSalesRecord/>,
         })
     }
 });

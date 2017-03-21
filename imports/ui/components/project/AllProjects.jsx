@@ -368,7 +368,7 @@ class AllProjects extends Component {
     }
 
     goToProject(project){
-        FlowRouter.go('SalesRecord', {id: project._id})
+        FlowRouter.go('Project', {id: project._id})
     }
 
     componentDidMount() {
