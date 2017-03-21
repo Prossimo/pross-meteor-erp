@@ -374,7 +374,7 @@ class AllProjects extends Component {
 
     componentDidMount() {
         const _this = this;
-        Meteor.call('getVisibleProjectFields', (error, selectedFields)=> {
+        Meteor.call('getVisibleFields', 'newProject', (error, selectedFields)=> {
             if (!error) {
                 const possibleColumns = _this.state.possibleColumns;
                 possibleColumns.forEach((column)=> {
@@ -412,7 +412,7 @@ class AllProjects extends Component {
                         },
                         possibleColumns
                     });
-                    Meteor.call('updateVisibleProjectFields', selectedKeys, (error)=> {
+                    Meteor.call('updateVisibleFields', 'newProject', selectedKeys, (error)=> {
 
                     });
                 })

@@ -11,6 +11,6 @@ Meteor.startup(() => {
     });
 
     Meteor.call('getSlackUsers');
-    Meteor.call('initVisiableProjectFields');
+    Meteor.call('initVisiableFields');
 });
 

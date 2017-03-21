@@ -63,10 +63,11 @@ Meteor.methods({
     userData.validation = validation;
     return userData;
   },
-    
-  initVisiableProjectFields() {
-    const setting = Settings.findOne({key: 'salesRecord'});
-    if (!setting) {
+
+  initVisiableFields() {
+    const salesRecord = Settings.findOne({key: 'salesRecord'});
+    const newProject = Settings.findOne({key: 'newProject'});
+    if (!salesRecord) {
       Settings.insert({
         key: 'salesRecord',
         show: [
@@ -77,17 +78,30 @@ Meteor.methods({
         ]
       })
     }
+    if (!newProject) {
+      Settings.insert({
+        key: 'newProject',
+        show: [
+          'name',
+          'productionStartDate',
+          'actualDeliveryDate',
+          'shippingMode',
+        ]
+      })
+    }
   },
 
-  getVisibleProjectFields() {
-    const {show}  = Settings.findOne({key: 'salesRecord'});
+  getVisibleFields(key) {
+    check(key, String);
+    const {show}  = Settings.findOne({ key });
     return show;
   },
 
-  updateVisibleProjectFields(visibleFields) {
+  updateVisibleFields(key, visibleFields) {
     if (!this.userId) return;
     check(visibleFields, [String]);
-    Settings.update({key: 'salesRecord'}, {
+    check(key, String);
+    Settings.update({ key }, {
       $set: {
         show: visibleFields,
       }
@@ -119,7 +133,7 @@ Meteor.methods({
       }
     });
   },
-    
+
   addUserToSlackChannel(userId, channel){
     check(userId, String);
     check(channel, String);
@@ -140,7 +154,7 @@ Meteor.methods({
     }
     return res;
   },
-    
+
   sendEmail(mailData) {
     Match.test(mailData, {
       to: Match.OneOf(String, [String]),
@@ -328,7 +342,7 @@ Meteor.methods({
 
     SalesRecords.update(salesRecordId, {$push: {members: member}});
   },
-    
+
   updateUserInfo(user){
     if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
       throw new Meteor.Error("Access denied");
@@ -631,7 +645,7 @@ Meteor.methods({
 
     return token;
   },
-    
+
   createNewProject(project) {
     if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
       throw new Meteor.Error('Access denied');
@@ -669,21 +683,21 @@ Meteor.methods({
     });
     Projects.insert(project);
   },
-  
+
   googleApiAuthUrl(){
       // generate a url that asks permissions for Google+ and Google Calendar scopes
       const scopes = [
           'https://www.googleapis.com/auth/plus.me',
           'https://www.googleapis.com/auth/calendar'
       ];
-    
+
       // generate consent page url
       return oauth2Client.generateAuthUrl({
           access_type: 'offline', // will return a refresh token
           scope: scopes // can be a space-delimited string or an array of scopes
       });
   },
-    
+
   googleApiAutToken(code) {
       function getAccessToken (oauth2Client, callback) {
           oauth2Client.getToken(code, function (err, tokens) {

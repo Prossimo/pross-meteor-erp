@@ -367,7 +367,7 @@ class AllSalesRecords extends React.Component{
 
     componentDidMount() {
         const _this = this;
-        Meteor.call('getVisibleProjectFields', (error, selectedFields)=> {
+        Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields)=> {
             if (!error) {
                 const possibleColumns = _this.state.possibleColumns;
                 possibleColumns.forEach((column)=> {
@@ -405,7 +405,7 @@ class AllSalesRecords extends React.Component{
                         },
                         possibleColumns
                     });
-                    Meteor.call('updateVisibleProjectFields', selectedKeys, (error)=> {
+                    Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (error)=> {
 
                     });
                 })
