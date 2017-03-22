@@ -710,74 +710,50 @@ Meteor.methods({
     Projects.insert(project);
   },
     
-  googleServerApiAutToken(scope) {
-    
-      const TokenCache = require('google-oauth-jwt').TokenCache,
-          tokens = new TokenCache();
-      
-      tokens.get({
-          // use the email address of the service account, as seen in the API console
-          email: '977294428736-compute@developer.gserviceaccount.com',
-          // use the PEM file we generated from the downloaded key
-          keyFile: `${Meteor.absolutePath}/prossimo-us.pem`,
-          // specify the scopes you wish to access
-          scopes: scope
-      }, function (err, token) {
-          console.log('===googleServerApiAutToken===');
-          console.log(err);
-          console.log(token);
-          console.log('=============================');
-          return token
-      });
-  },
-  
-  getDriveFileList() {
-    
+  async getDriveFileList() {
+      const drive = google.drive('v3');
       const driveScopes = [
           'https://www.googleapis.com/auth/drive',
           'https://www.googleapis.com/auth/drive.file',
           'https://www.googleapis.com/auth/drive.appdata',
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
-    
-      //googleServerApiAutToken is async but we need token to make req to google drive api
-      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
-      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
-    
       const OAuth2Client = google.auth.OAuth2;
-    
-      let oauth2Client = new OAuth2Client(
+      
+      const oauth2Client = new OAuth2Client(
           config.google.clientDriveId,
           config.google.clientDriveSecret,
           config.google.redirectUri);
     
-      const drive = google.drive('v3');
-    
+      //googleServerApiAutToken is async but we need token to make req to google drive api
+      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
+      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+      
       oauth2Client.setCredentials({
           access_token: googleToken
       });
     
-      drive.files.list({
-          auth: oauth2Client,
-          pageSize: 10,
-          fields: "nextPageToken, files(id, name)"
-      }, function(err, response) {
-          if (err) {
-              console.log('The API returned an error: ' + err);
-              return;
-          }
-          let files = response.files;
-          if (files.length == 0) {
-              console.log('No files found.');
-          } else {
-              console.log('Files:');
-              for (let i = 0; i < files.length; i++) {
-                  let file = files[i];
-                  console.log('%s (%s)', file.name, file.id);
-                  return files;
+      // Create the promise so we can use await later.
+      const driveFileListPromise = new Promise((resolve, reject) => {
+          drive.files.list({
+              auth: oauth2Client,
+              pageSize: 10,
+              fields: "nextPageToken, files(id, name)"
+          }, (err, response) => {
+              if (err) {
+                  return reject(err);
               }
-          }
+              resolve(response);
+          });
       });
+    
+      // return promise result to React method
+      try {
+          return await driveFileListPromise;
+      } catch (err) {
+          console.log(`ERROR: ${err.message}`);
+          throw err;
+      }
   }
   
   
