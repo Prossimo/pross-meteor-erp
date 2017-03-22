@@ -20,6 +20,8 @@ import google from 'googleapis';
 import config from '../config/config';
 import '../models/nylasaccounts/methods';
 
+import { googleServerApiAutToken } from '../../api/server/functions';
+
 const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
@@ -737,46 +739,46 @@ Meteor.methods({
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
     
-      Meteor.call('googleServerApiAutToken', driveScopes, (err, googleToken) => {
-          console.log('===getDriveFileList===');
-          console.log(err);
-          console.log(googleToken);
-          console.log('======================');
+      let syncGoogleServerApiAutToken = Async.wrap(googleServerApiAutToken);
+      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+    
+      console.log('===token===');
+      console.log(googleToken);
+      console.log('======================');
+    
+      console.log('===main logic===');
+    
+      const OAuth2Client = google.auth.OAuth2;
+    
+      let oauth2Client = new OAuth2Client(
+          config.google.clientDriveId,
+          config.google.clientDriveSecret,
+          config.google.redirectUri);
+    
+      const drive = google.drive('v3');
+    
+      oauth2Client.setCredentials({
+          access_token: googleToken
+      });
+      drive.files.list({
+          auth: oauth2Client,
+          pageSize: 10,
+          fields: "nextPageToken, files(id, name)"
+      }, function(err, response) {
           if (err) {
-              console.log(err);
+              console.log('The API returned an error: ' + err);
+              return;
           }
-          const OAuth2Client = google.auth.OAuth2;
-    
-          let oauth2Client = new OAuth2Client(
-              config.google.clientDriveId,
-              config.google.clientDriveSecret,
-              config.google.redirectUri);
-    
-          const drive = google.drive('v3');
-    
-          oauth2Client.setCredentials({
-              access_token: googleToken
-          });
-          drive.files.list({
-              auth: oauth2Client,
-              pageSize: 10,
-              fields: "nextPageToken, files(id, name)"
-          }, function(err, response) {
-              if (err) {
-                  console.log('The API returned an error: ' + err);
-                  return;
+          var files = response.files;
+          if (files.length == 0) {
+              console.log('No files found.');
+          } else {
+              console.log('Files:');
+              for (var i = 0; i < files.length; i++) {
+                  var file = files[i];
+                  console.log('%s (%s)', file.name, file.id);
               }
-              var files = response.files;
-              if (files.length == 0) {
-                  console.log('No files found.');
-              } else {
-                  console.log('Files:');
-                  for (var i = 0; i < files.length; i++) {
-                      var file = files[i];
-                      console.log('%s (%s)', file.name, file.id);
-                  }
-              }
-          });
+          }
       });
   }
 });
