@@ -219,7 +219,7 @@ class Quotes extends React.Component{
     
     getDriveFileList(e) {
         e.preventDefault();
-        Meteor.call('getDriveFileList', (err, filesList) => {
+        Meteor.call('getDriveFileList', (err) => {
             if (err) {
                 console.log(err);
                 return warning(err.message);
