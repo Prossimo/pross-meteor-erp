@@ -1,11 +1,26 @@
 import React, { Component } from 'react';
+import { info, warning } from '/imports/api/lib/alerts';
 import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
 
 export default class CreateProject extends Component {
     constructor(props) {
         super(props);
-        this.onRendered = this.onRendered.bind(this);
+        this.memberOptions = this.props.users.map(({ profile: { firstName, lastName }, _id })=> {
+            const name = `${firstName} ${lastName}`;
+            return {
+                label: name,
+                value: _id,
+            }
+        })
         this.estDeliveryRange = [];
+        this.onRendered = ()=> {
+            $('input[name="estDeliveryRange"]').daterangepicker();
+            $('input[name="estDeliveryRange"]').on('apply.daterangepicker', (ev, picker)=> {
+                const startDate = picker.startDate.toDate();
+                const endDate = picker.endDate.toDate();
+                this.estDeliveryRange = [startDate, endDate];
+            });
+        }
     }
 
     componentDidMount() {
@@ -36,12 +51,15 @@ export default class CreateProject extends Component {
                     billingNotes: billing.notes,
                     estDeliveryRange: _this.estDeliveryRange,
                 });
-                console.log(project);
                 Meteor.call('createNewProject', project, (error)=> {
+                    //info(`Success add new project & integration with Slack`);
                     if (error) {
+                        warning(`Problems with creating new project. ${error.error}`);
                         return this.done(error);
+                    } else {
+                        info(`Success add new project`);
+                        return this.done();
                     }
-                    return this.done();
                 })
             },
             onSuccess() {
@@ -50,24 +68,9 @@ export default class CreateProject extends Component {
         }, true);
     }
 
-    onRendered() {
-        $('input[name="estDeliveryRange"]').daterangepicker();
-        $('input[name="estDeliveryRange"]').on('apply.daterangepicker', (ev, picker)=> {
-            const startDate = picker.startDate.toDate();
-            const endDate = picker.endDate.toDate();
-            this.estDeliveryRange = [startDate, endDate];
-        })
-    }
-
     render() {
+        const _this = this;
         const phoneNumberRegex = /^(\d)+$/;
-        const memberOptions = this.props.users.map(({ profile: { firstName, lastName }, _id })=> {
-            const name = `${firstName} ${lastName}`;
-            return {
-                label: name,
-                value: _id,
-            }
-        })
         const newProjectSchema = {
             name: {
                 type: String,
@@ -82,7 +85,7 @@ export default class CreateProject extends Component {
                 autoform: {
                     type: 'selectize',
                     afFieldInput: {
-                        options: memberOptions,
+                        options: _this.memberOptions,
                     }
                 }
             },

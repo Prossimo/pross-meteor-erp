@@ -261,7 +261,7 @@ class AllSalesRecords extends React.Component{
                             switch(type) {
                                 case 'date':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <DatePicker
                                                     selected={this.state.edittingCell.value}
@@ -273,7 +273,7 @@ class AllSalesRecords extends React.Component{
                                     )
                                 case 'select':
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <Select
                                                     style={{width: '60%'}}
@@ -287,7 +287,7 @@ class AllSalesRecords extends React.Component{
                                     );
                                 default:
                                     return (
-                                        <td>
+                                        <td key={key}>
                                             <div>
                                                 <input
                                                     type='text'
@@ -367,7 +367,7 @@ class AllSalesRecords extends React.Component{
 
     componentDidMount() {
         const _this = this;
-        Meteor.call('getVisibleProjectFields', (error, selectedFields)=> {
+        Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields)=> {
             if (!error) {
                 const possibleColumns = _this.state.possibleColumns;
                 possibleColumns.forEach((column)=> {
@@ -405,7 +405,7 @@ class AllSalesRecords extends React.Component{
                         },
                         possibleColumns
                     });
-                    Meteor.call('updateVisibleProjectFields', selectedKeys, (error)=> {
+                    Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (error)=> {
 
                     });
                 })

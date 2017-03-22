@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages } from '../lib/collections';
+import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages, Projects } from '../lib/collections';
 import { NylasAccounts } from '../models/nylasaccounts/nylas-accounts'
 import {
     GET_ACTIVITY,
@@ -12,7 +12,9 @@ import {
     GET_ADMIN_CREATE_USERS,
     GET_QUOTES,
     GET_PROJECT_FILES,
-    GET_NYLAS_ACCOUNTS
+    GET_NYLAS_ACCOUNTS,
+    GET_NEW_PROJECTS,
+    GET_NEW_PROJECT,
 } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
@@ -77,6 +79,18 @@ Meteor.startup(()=>{
 
     Meteor.publish(GET_NYLAS_ACCOUNTS, function () {
         return NylasAccounts.find({});
+    });
+
+    Meteor.publish(GET_NEW_PROJECTS, function() {
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
+        return Projects.find({'members.userId': this.userId})
+    });
+
+    Meteor.publish(GET_NEW_PROJECT, function(_id){
+        Match.test(_id, String);
+
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
+        return Projects.find({_id, 'members.userId': this.userId});
     });
 });
 

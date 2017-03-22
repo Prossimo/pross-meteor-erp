@@ -14,3 +14,5 @@ export const GET_PROJECT_EVENTS = "getProjectEvents";
 export const GET_ADMIN_CREATE_USERS = "getAdminCreateUsers";
 export const GET_SLACK_MSG = "getSlackMsg";
 export const GET_NYLAS_ACCOUNTS = "getNylasAccounts";
+export const GET_NEW_PROJECTS = 'getNewProjects';
+export const GET_NEW_PROJECT = 'getNewProject';
