@@ -172,7 +172,7 @@ class CreateSalesRecord extends React.Component{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
-            setTimeout(()=>{FlowRouter.go(FlowRouter.path("Project", {id: res}))},300)
+            setTimeout(()=>{FlowRouter.go(FlowRouter.path("SalesRecord", {id: res}))},300)
         });
     }
 

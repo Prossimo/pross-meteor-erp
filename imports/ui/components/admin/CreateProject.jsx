@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { info, warning } from '/imports/api/lib/alerts';
 import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
+import {
+    DESIGNATION_LIST,
+    STAKEHOLDER_CATEGORY
+} from '/imports/api/constants/project';
 
 export default class CreateProject extends Component {
     constructor(props) {
@@ -64,10 +68,7 @@ export default class CreateProject extends Component {
             },
             'members.$.designation': {
                 type: String,
-                allowedValues: [
-                    'Standard',
-                    'Guest'
-                ],
+                allowedValues: DESIGNATION_LIST,
                 label: 'Designation',
                 autoform: {
                     type: 'selectize',
@@ -75,15 +76,7 @@ export default class CreateProject extends Component {
             },
             'members.$.categories': {
                 type: [String],
-                allowedValues: [
-                    'Architect',
-                    'Developers',
-                    'GC',
-                    'Contractor',
-                    'Installer',
-                    'Owner',
-                    'Consultant'
-                ],
+                allowedValues: STAKEHOLDER_CATEGORY,
                 label: 'Categories',
                 autoform: {
                     type: 'selectize',

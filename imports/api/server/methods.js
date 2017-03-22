@@ -460,7 +460,24 @@ Meteor.methods({
         })
       });
 
-    return SalesRecords.insert(data);
+
+    const salesRecordId = SalesRecords.insert(data);
+
+    // Add new project for this salesRecord
+    Projects.insert({
+      name: data.name,
+      members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
+          return {
+            userId,
+            isMainStakeholder,
+            categories: category,
+            designation: destination,
+          }
+      }),
+      salesRecordId,
+    });
+
+    return salesRecordId;
   },
 
   postSlackMessage(channel, message){

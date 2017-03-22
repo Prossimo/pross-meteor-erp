@@ -1,6 +1,10 @@
 import SimpleSchema from 'simpl-schema';
 import { Projects } from '../../lib/collections';
 import { ALL_ROLES } from '../../constants/roles';
+import {
+    DESIGNATION_LIST,
+    STAKEHOLDER_CATEGORY
+} from '/imports/api/constants/project';
 
 Projects.schema = new SimpleSchema({
     _id: { type: String },
@@ -25,22 +29,18 @@ Projects.schema = new SimpleSchema({
     },
     'members.$.designation': {
         type: String,
-        allowedValues: ['Standard', 'Guest']
+        allowedValues: DESIGNATION_LIST,
     },
     'members.$.categories': {
         type: Array,
     },
     'members.$.categories.$': {
         type: String,
-        allowedValues: [
-            'Architect',
-            'Developers',
-            'GC',
-            'Contractor',
-            'Installer',
-            'Owner',
-            'Consultant'
-        ]
+        allowedValues: STAKEHOLDER_CATEGORY,
+    },
+    salesRecordId: {
+        type: String,
+        optional: true,
     }
 });
 
