@@ -19,6 +19,11 @@ export const createAdminUser = ()=>{
     }
 };
 
+/**
+ * Get google auth token
+ * @param scope - Array of google scopes
+ * @param callback
+ */
 export const googleServerApiAutToken = (scope, callback) => {
     const TokenCache = require('google-oauth-jwt').TokenCache,
         tokens = new TokenCache();
