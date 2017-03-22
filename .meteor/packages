@@ -49,9 +49,7 @@ orionsoft:apollo
 orionsoft:graphql-compiler
 nimble:restivus
 matb33:bootstrap-glyphicons
-force-ssl
 
-npm-container
 aldeed:autoform
 jeremy:selectize
 jamiecollinson:selectize-bootstrap
@@ -59,3 +57,6 @@ comerc:autoform-selectize
 rajit:bootstrap3-datepicker
 aldeed:autoform-bs-datepicker
 gilbertwat:bootstrap3-daterangepicker
+
+
+npm-container
