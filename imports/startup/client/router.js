@@ -181,4 +181,5 @@ FlowRouter.route('/auth/google/callback', {
         window.close();
         window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.absoluteUrl());
     }
-})
+});
+

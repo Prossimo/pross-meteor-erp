@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { info, warning } from '/imports/api/lib/alerts';
 import AutoFormWrapper from '../autoFormWrapper/AutoFormWrapper';
+import {
+    DESIGNATION_LIST,
+    STAKEHOLDER_CATEGORY
+} from '/imports/api/constants/project';
 
 export default class CreateProject extends Component {
     constructor(props) {
@@ -11,46 +15,13 @@ export default class CreateProject extends Component {
                 label: name,
                 value: _id,
             }
-        })
-        this.estDeliveryRange = [];
-        this.onRendered = ()=> {
-            $('input[name="estDeliveryRange"]').daterangepicker();
-            $('input[name="estDeliveryRange"]').on('apply.daterangepicker', (ev, picker)=> {
-                const startDate = picker.startDate.toDate();
-                const endDate = picker.endDate.toDate();
-                this.estDeliveryRange = [startDate, endDate];
-            });
-        }
+        });
     }
 
     componentDidMount() {
-        const _this = this;
         AutoForm.addHooks('new-project', {
-            onSubmit(rawProject) {
+            onSubmit(project) {
                 this.event.preventDefault();
-                let project = _.pick(rawProject,
-                    'actualDeliveryDate',
-                    'members',
-                    'productionStartDate',
-                    'shipper',
-                    'shippingMode',
-                    'supplier',
-                    'name',
-                )
-                const { shipping, billing } = rawProject;
-                _.extend(project, {
-                    shippingAddress: shipping.address,
-                    shippingContactName: shipping.contactName,
-                    shippingContactPhone: shipping.contactPhone,
-                    shippingContactEmail: shipping.contactEmail,
-                    shippingNotes: shipping.notes,
-                    billingAddress: billing.address,
-                    billingContactName: billing.contactName,
-                    billingContactPhone: billing.contactPhone,
-                    billingContactEmail: billing.contactEmail,
-                    billingNotes: billing.notes,
-                    estDeliveryRange: _this.estDeliveryRange,
-                });
                 Meteor.call('createNewProject', project, (error)=> {
                     //info(`Success add new project & integration with Slack`);
                     if (error) {
@@ -69,8 +40,6 @@ export default class CreateProject extends Component {
     }
 
     render() {
-        const _this = this;
-        const phoneNumberRegex = /^(\d)+$/;
         const newProjectSchema = {
             name: {
                 type: String,
@@ -85,7 +54,7 @@ export default class CreateProject extends Component {
                 autoform: {
                     type: 'selectize',
                     afFieldInput: {
-                        options: _this.memberOptions,
+                        options: this.memberOptions,
                     }
                 }
             },
@@ -99,10 +68,7 @@ export default class CreateProject extends Component {
             },
             'members.$.designation': {
                 type: String,
-                allowedValues: [
-                    'Standard',
-                    'Guest'
-                ],
+                allowedValues: DESIGNATION_LIST,
                 label: 'Designation',
                 autoform: {
                     type: 'selectize',
@@ -110,133 +76,19 @@ export default class CreateProject extends Component {
             },
             'members.$.categories': {
                 type: [String],
-                allowedValues: [
-                    'Architect',
-                    'Developers',
-                    'GC',
-                    'Contractor',
-                    'Installer',
-                    'Owner',
-                    'Consultant'
-                ],
+                allowedValues: STAKEHOLDER_CATEGORY,
                 label: 'Categories',
                 autoform: {
                     type: 'selectize',
                     multiple: true,
                 }
             },
-            shipping: {
-                type: Object,
-            },
-            'shipping.address': {
-                type: String,
-                label: ' Address',
-            },
-            'shipping.contactName': {
-                type: String,
-                label: 'Contact Name',
-            },
-            'shipping.contactPhone': {
-                type: String,
-                regEx: phoneNumberRegex,
-                label: 'Contact Phone',
-            },
-            'shipping.contactEmail': {
-                type: String,
-                regEx: SimpleSchema.RegEx.Email,
-                label: 'Contact Email',
-            },
-            'shipping.notes': {
-                type: String,
-                label: 'Notes',
-                autoform: {
-                    afFieldInput: {
-                        type: 'textarea',
-                        rows: 3,
-                    }
-                }
-            },
-            billing: {
-                type: Object,
-            },
-            'billing.contactName': {
-                type: String,
-                label: 'Contact Name',
-            },
-            'billing.contactPhone': {
-                type: String,
-                regEx: phoneNumberRegex,
-                label: 'Contact Phone',
-            },
-            'billing.contactEmail': {
-                type: String,
-                regEx: SimpleSchema.RegEx.Email,
-                label: 'Contact Email',
-            },
-            'billing.address': {
-                type: String,
-                label: 'Address',
-            },
-            'billing.notes': {
-                type: String,
-                label: 'Notes',
-                autoform: {
-                    type: 'textarea',
-                    rows: 3,
-                }
-            },
-            supplier: {
-                type: String,
-                label: 'Supplier',
-            },
-            shippingMode: {
-                type: String,
-                allowedValues: [
-                    'LCL',
-                    'FCL',
-                    'FCL Pallets',
-                    'Courrier'
-                ],
-                label: 'Shipping Mode',
-                autoform: {
-                    type: 'selectize',
-                }
-            },
-            estDeliveryRange: {
-                type: String,
-                label: 'Est Delivery Range',
-            },
-            actualDeliveryDate: {
-                type: Date,
-                label: 'Actual Delivery Date',
-                autoform: {
-                    type: 'bootstrap-datepicker',
-                    datePickerOptions: {
-                        autoclose: true
-                    }
-                }
-            },
-            productionStartDate: {
-                type: Date,
-                label: 'Actual Start Date',
-                autoform: {
-                    type: 'bootstrap-datepicker',
-                    datePickerOptions: {
-                        autoclose: true
-                    }
-                }
-            },
-            shipper: {
-                type: String,
-                label: 'Shipper',
-            }
         }
         return (
             <div>
                 <AutoFormWrapper
                     schema={new SimpleSchema(newProjectSchema)}
                     id='new-project'
-                    onRendered={this.onRendered}
                 />
             </div>
         );

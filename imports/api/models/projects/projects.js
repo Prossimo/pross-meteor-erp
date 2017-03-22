@@ -1,8 +1,10 @@
 import SimpleSchema from 'simpl-schema';
 import { Projects } from '../../lib/collections';
 import { ALL_ROLES } from '../../constants/roles';
-
-const phoneNumberRegex = /^(\d)+$/;
+import {
+    DESIGNATION_LIST,
+    STAKEHOLDER_CATEGORY
+} from '/imports/api/constants/project';
 
 Projects.schema = new SimpleSchema({
     _id: { type: String },
@@ -27,83 +29,18 @@ Projects.schema = new SimpleSchema({
     },
     'members.$.designation': {
         type: String,
-        allowedValues: ['Standard', 'Guest']
+        allowedValues: DESIGNATION_LIST,
     },
     'members.$.categories': {
         type: Array,
     },
     'members.$.categories.$': {
         type: String,
-        allowedValues: [
-            'Architect',
-            'Developers',
-            'GC',
-            'Contractor',
-            'Installer',
-            'Owner',
-            'Consultant'
-        ]
+        allowedValues: STAKEHOLDER_CATEGORY,
     },
-    shippingAddress: {
+    salesRecordId: {
         type: String,
-    },
-    shippingContactName: {
-        type: String,
-    },
-    shippingContactPhone: {
-        type: String,
-        regEx: phoneNumberRegex,
-    },
-    shippingContactEmail: {
-        type: String,
-        regEx: SimpleSchema.RegEx.Email,
-    },
-    shippingNotes: {
-        type: String,
-    },
-    billingContactName: {
-        type: String,
-    },
-    billingContactPhone: {
-        type: String,
-        regEx: phoneNumberRegex,
-    },
-    billingContactEmail: {
-        type: String,
-        regEx: SimpleSchema.RegEx.Email,
-    },
-    billingAddress: {
-        type: String,
-    },
-    billingNotes: {
-        type: String,
-    },
-    supplier: {
-        type: String,
-    },
-    shippingMode: {
-        type: String,
-        allowedValues: [
-            'LCL',
-            'FCL',
-            'FCL Pallets',
-            'Courrier'
-        ]
-    },
-    estDeliveryRange: {
-        type: Array,
-    },
-    'estDeliveryRange.$': {
-        type: Date,
-    },
-    actualDeliveryDate: {
-        type: Date,
-    },
-    productionStartDate: {
-        type: Date,
-    },
-    shipper: {
-        type: String,
+        optional: true,
     }
 });
 

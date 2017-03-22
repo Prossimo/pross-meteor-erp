@@ -82,10 +82,8 @@ Meteor.methods({
       Settings.insert({
         key: 'newProject',
         show: [
+          '_id',
           'name',
-          'productionStartDate',
-          'actualDeliveryDate',
-          'shippingMode',
         ]
       })
     }
@@ -462,7 +460,24 @@ Meteor.methods({
         })
       });
 
-    return SalesRecords.insert(data);
+
+    const salesRecordId = SalesRecords.insert(data);
+
+    // Add new project for this salesRecord
+    Projects.insert({
+      name: data.name,
+      members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
+          return {
+            userId,
+            isMainStakeholder,
+            categories: category,
+            designation: destination,
+          }
+      }),
+      salesRecordId,
+    });
+
+    return salesRecordId;
   },
 
   postSlackMessage(channel, message){
@@ -678,34 +693,12 @@ Meteor.methods({
     }
     check(project, {
       name: String,
-      shippingMode: String,
       members: [{
         userId: String,
         isMainStakeholder: Boolean,
         designation: String,
         categories: [String]
       }],
-      actualDeliveryDate: Date,
-      productionStartDate: Date,
-      estDeliveryRange: [Date],
-
-      shippingContactPhone: Match.Maybe(Match.phone),
-      shippingContactName: Match.Maybe(String),
-      shippingContactEmail: Match.Maybe(String),
-      shippingAddress: Match.Maybe(String),
-      shippingNotes: Match.Maybe(String),
-
-      billingContactPhone: Match.Maybe(Match.phone),
-      billingContactName: Match.Maybe(String),
-      billingContactEmail: Match.Maybe(String),
-      billingAddress: Match.Maybe(String),
-      billingNotes: Match.Maybe(String),
-
-      estProductionTime: Match.Maybe(Number),
-      actProductionTime: Match.Maybe(Number),
-      supplier: Match.Maybe(String),
-      shipper: Match.Maybe(String),
-      stage: Match.Maybe(String),
     });
     Projects.insert(project);
   },
