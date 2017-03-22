@@ -19,11 +19,10 @@ import '../lib/extendMatch.js';
 import google from 'googleapis';
 import config from '../config/config';
 import '../models/nylasaccounts/methods';
+import { googleServerApiAutToken } from '../../api/server/functions';
 
-const OAuth2Client = google.auth.OAuth2;
-let oauth2Client = new OAuth2Client(config.google.clientId, config.google.clientSecret, config.google.redirectUri);
-const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
-const SLACK_BOT_ID = "U477F4M6Y";
+const SLACK_API_KEY = config.slack.SLACK_API_KEY;
+const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
   userRegistration(userData){
@@ -702,44 +701,50 @@ Meteor.methods({
     });
     Projects.insert(project);
   },
-
-  googleApiAuthUrl(){
-      // generate a url that asks permissions for Google+ and Google Calendar scopes
-      const scopes = [
-          'https://www.googleapis.com/auth/plus.me',
-          'https://www.googleapis.com/auth/calendar'
+    
+  async getDriveFileList() {
+      const drive = google.drive('v3');
+      const driveScopes = [
+          'https://www.googleapis.com/auth/drive',
+          'https://www.googleapis.com/auth/drive.file',
+          'https://www.googleapis.com/auth/drive.appdata',
+          'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
 
-      // generate consent page url
-      return oauth2Client.generateAuthUrl({
-          access_type: 'offline', // will return a refresh token
-          scope: scopes // can be a space-delimited string or an array of scopes
+      const OAuth2Client = google.auth.OAuth2;
+      const oauth2Client = new OAuth2Client(
+          config.google.clientDriveId,
+          config.google.clientDriveSecret,
+          config.google.redirectUri);
+    
+      //googleServerApiAutToken is async but we need token to make req to google drive api
+      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
+      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+      
+      oauth2Client.setCredentials({
+          access_token: googleToken
       });
-  },
-
-  googleApiAutToken(code) {
-      function getAccessToken (oauth2Client, callback) {
-          oauth2Client.getToken(code, function (err, tokens) {
+    
+      // Create the promise so we can use await later.
+      const driveFileListPromise = new Promise((resolve, reject) => {
+          drive.files.list({
+              auth: oauth2Client,
+              pageSize: 10,
+              fields: "nextPageToken, files(id, name)"
+          }, (err, response) => {
               if (err) {
-                  return callback(err);
+                  return reject(err);
               }
-              // set tokens to the client
-              // TODO: tokens should be set by OAuth2 client.
-              oauth2Client.setCredentials(tokens);
-              callback();
+              resolve(response);
           });
+      });
+    
+      // return promise result to React method
+      try {
+          return await driveFileListPromise;
+      } catch (err) {
+          console.log(`ERROR: ${err.message}`);
+          throw err;
       }
-      //retrieve an access token
-      getAccessToken(oauth2Client, function () {
-          const plus = google.plus('v1');
-          // retrieve user profile
-          plus.people.get({ userId: 'me', auth: oauth2Client }, function (err, profile) {
-              if (err) {
-                  return console.log('An error occured', err);
-              }
-              console.log(profile.displayName, ':', profile.tagline);
-              return profile;
-          });
-      });
   }
 });

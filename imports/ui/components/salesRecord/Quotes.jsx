@@ -217,28 +217,17 @@ class Quotes extends React.Component{
         )
     }
     
-    receiveMessageFromGoolgeAuthWindow = (event) => {
-        const json = JSON.parse(event.data);
-        const code = json.googleAuthCode;
-        if(code) {
-            Meteor.call('googleApiAutToken', code, (err, profile) => {
-                console.log(profile);
-            });
-        }
-    }
-    
-    getGoogleAuthUrl(e) {
+    getDriveFileList(e) {
         e.preventDefault();
-        Meteor.call('googleApiAuthUrl', (err, authUrl) => {
+        Meteor.call('getDriveFileList', (err, filesList) => {
             if (err) {
                 console.log(err);
                 return warning(err.message);
             }
-            window.open(authUrl, "Google authentication", "width=730,height=650");
-            window.addEventListener("message", this.receiveMessageFromGoolgeAuthWindow, false);
+            console.log('===get files list from google drive===');
+            console.log(filesList);
+            console.log('======================================');
         });
-        
-        
     }
     
     renderGoogleSignIn(){
@@ -246,8 +235,8 @@ class Quotes extends React.Component{
         
         return(
             <div className="add-quotes">
-                <button onClick={this.getGoogleAuthUrl.bind(this)}
-                        className="btnn primary-btn">SignIn Google</button>
+                <button onClick={this.getDriveFileList.bind(this)}
+                        className="btnn primary-btn">Get google drive list of files</button>
             </div>
         )
     }
