@@ -1,4 +1,9 @@
-const env = Meteor.settings.public ? Meteor.settings.public.env : null;
+
+const twilioAppSid = {
+    'http://localhost:3000/': 'APcbc5a71582dd8c085ef5580496229d18',
+    'http://crm.prossimo.us/': 'AP5516d514602651aab27c3d87370fe12f',
+    'https://crm.prossimo.us/': 'APcce106e0cf8236a9d9009b69f0cc5b00'
+}
 
 module.exports = {
     nylas: {
@@ -18,7 +23,7 @@ module.exports = {
     twilio: {
         accountSid: 'AC3c2ae50d8872dbe6b907b157deb5483c',
         authToken: 'afdae10c9f35c595678a5af23301d022',
-        appSid: env == 'development' ? 'APcbc5a71582dd8c085ef5580496229d18' : 'APcce106e0cf8236a9d9009b69f0cc5b00',
+        appSid: twilioAppSid[Meteor.absoluteUrl()],
         phoneNumber: '+19142905527'
     },
     slack: {

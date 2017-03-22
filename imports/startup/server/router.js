@@ -6,7 +6,7 @@ Picker.middleware(bodyParser.urlencoded({extended: false}));
 Picker.filter((req, res) => {
     return req.method == 'POST'
 }).route('/api/voice', (params, req, res, next) => {
-    console.log(params, req.body, req.params, req.method, req.formData)
+
     const twilio = require('twilio');
     const config = require('../../api/config/config');
 
@@ -27,7 +27,6 @@ Picker.filter((req, res) => {
     return req.method == 'GET'
 }).route('/api/download', function (params, req, res, next) {
     const query = params.query
-    console.log('/download', query)
 
 
 
@@ -40,9 +39,6 @@ Picker.filter((req, res) => {
         }
     })
         .on('response', function (response) {
-            console.log(response.statusCode) // 200
-            console.log(response.headers) // 'image/png'
-
             if(response.statusCode == 200) {
                 const clean = require('../../api/lib/validate-http-headers')
                 let headers = {
@@ -51,7 +47,7 @@ Picker.filter((req, res) => {
                     "Content-Length": response.headers['content-length']
                 }
                 headers = clean(headers)
-                console.log(headers)
+
                 res.writeHead(200, headers)
             } else {
                 res.write('Can not download file')
