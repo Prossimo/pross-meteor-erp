@@ -11,11 +11,10 @@ export default class CreateProject extends Component {
                 label: name,
                 value: _id,
             }
-        })
+        });
     }
 
     componentDidMount() {
-        const _this = this;
         AutoForm.addHooks('new-project', {
             onSubmit(project) {
                 this.event.preventDefault();
