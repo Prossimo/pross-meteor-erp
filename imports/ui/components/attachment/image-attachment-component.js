@@ -21,7 +21,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
 
     _imgOrLoader() {
         const {download, targetPath} = this.props
-        if (download && download.percent <= 5) {
+        if (!download || download.percent <= 5) {
             return (
                 <div style={{width: "100%", height: "100px"}}>
                     <Spinner visible/>

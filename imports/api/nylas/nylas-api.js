@@ -104,7 +104,7 @@ class NylasAPI {
 
     makeRequest(options = {}) {
         console.log("makeRequest", options);
-        const success = (body) => { console.log("=======NyalsAPIRequest result", body);
+        const success = (body) => { console.log("========NyalsAPIRequest result", body);
             if(options.beforeProcessing) {
                 body = options.beforeProcessing(body);
             }

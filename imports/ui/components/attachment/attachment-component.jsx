@@ -62,7 +62,7 @@ class AttachmentComponent extends Component {
 
     _onClickView = () => {
         if (this._canClickToView()) {
-            Actions.fetchAndOpenFile(this.props.file)
+            Actions.downloadFile(this.props.file)
         }
     };
 
@@ -75,12 +75,12 @@ class AttachmentComponent extends Component {
     };
 
     _onClickDownload = (event) => {
-        Actions.fetchAndSaveFile(this.props.file)
+        Actions.downloadFile(this.props.file)
         event.stopPropagation() // Prevent 'onClickView'
     };
 
     _onClickAbort = (event) => {
-        Actions.abortFetchFile(this.props.file)
+        Actions.abortDownloadFile(this.props.file)
         event.stopPropagation() // Prevent 'onClickView'
     };
 
@@ -138,7 +138,7 @@ class AttachmentComponent extends Component {
                         <div className="file-info-wrap">
                             <img
                                 className="file-icon"
-                                src={`/icons/attachments/file-${NylasUtils.displayExtensionForFile(file)}.png`}
+                                src={`/icons/attachments/${NylasUtils.fileIcon(file)}`}
                             />
                             <span className="file-name">{NylasUtils.displayNameForFile(file)}</span>
                             <span className="file-size">{NylasUtils.displayFileSize(file)}</span>

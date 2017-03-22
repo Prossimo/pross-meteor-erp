@@ -259,9 +259,21 @@ module.exports = NylasUtils = {
         const name = file.filename || file.fileName || file.name || ""
         const size = file.size || file.fileSize || 0
         const ext = path.extname(name).toLowerCase()
+
         const extensions = ['.jpg', '.bmp', '.gif', '.png', '.jpeg']
 
-        return ext in extensions && size > 512 && size < 1024 * 1024 * 5
+        return _.contains(extensions, ext) && size > 512 && size < 1024 * 1024 * 5
+    },
+
+    fileIcon: (file) => {
+        const name = file.filename || file.fileName || file.name || ""
+        const ext = path.extname(name).toLowerCase().slice(1)
+        const extensions = ['doc', 'docx', 'ics', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx', 'zip']
+
+        if(_.contains(extensions, ext))
+            return `file-${ext}.png`
+        else
+            return 'file-fallback.png'
     }
 
 

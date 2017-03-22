@@ -747,4 +747,5 @@ Meteor.methods({
           throw err;
       }
   }
+  }
 });

@@ -1,22 +1,20 @@
 import Reflux from 'reflux'
 import _ from 'underscore'
-import fs from 'fs'
-import path from 'path'
 import Actions from './actions'
+import AccountStore from './account-store'
+import Download from './downloads/download'
+import EmailFileDownload from './downloads/email-file-download'
+import NylasUtils from './nylas-utils'
 
 class FileDownloadStore extends Reflux.Store {
     constructor() {
         super()
 
-        this.listenTo(Actions.fetchFile, this._fetch)
-        this.listenTo(Actions.fetchAndOpenFile, this._fetchAndOpen)
-        this.listenTo(Actions.fetchAndSaveFile, this._fetchAndSave)
-        this.listenTo(Actions.fetchAndSaveAllFiles, this._fetchAndSaveAll)
-        this.listenTo(Actions.abortFetchFile, this._abortFetchFile)
+        this.listenTo(Actions.downloadFile, this.onDownloadFile)
+        this.listenTo(Actions.downloadFiles, this.onDownloadFiles)
+        this.listenTo(Actions.abortDownloadFile, this.onAbortDownloadFile)
 
         this._downloads = {}
-
-        this._downloadDirectory = path.join()
     }
 
     pathForFile = (file) => {
@@ -36,6 +34,64 @@ class FileDownloadStore extends Reflux.Store {
         ])
 
         return downloadData
+    }
+
+    onDownloadFile = (file, provider='email') => {
+
+        /*if(NylasUtils.shouldDisplayAsImage(file)) {
+            console.log('call _runDownload', file)
+            this._runDownload(file)
+        } else {*/
+            const token = AccountStore.tokenForAccountId(file.account_id)
+            const QueryString = require('query-string')
+            const query = QueryString.stringify({
+                access_token: token,
+                file_id: file.id
+            })
+            window.open(`/api/download?${query}`)
+        //}
+    }
+
+    onDownloadFiles = (files) => { console.log(files);
+        files.forEach((file)=>{
+            this.onDownloadFile(file)
+        })
+    }
+
+    onAbortDownloadFile = (file) => {
+
+    }
+
+    _runDownload = (file) => {
+        console.log('FileDownloadStore->_runDownload', file)
+        try {
+            if(this._downloads[file.id]) {
+                this.trigger()
+                return Promise.resolve(this._downloads[file.id])
+            } else {
+                let download = new EmailFileDownload({
+                    fileId: file.id,
+                    filename: file.name || file.filename,
+                    filesize: file.size,
+                    progressCallback: ()=>this.trigger(),
+                    accountId: file.account_id
+                })
+
+                this._downloads[file.id] = download
+                this.trigger()
+
+                return download.run().finally(()=>{
+                    download.ensureClosed()
+                    if(download.state == Download.State.Failed)
+                        delete this._downloads[file.id]
+                    this.trigger()
+                })
+            }
+
+        } catch(err) {
+            console.error('FileDownloadError', err)
+            return Promise.reject(err)
+        }
     }
 }
 

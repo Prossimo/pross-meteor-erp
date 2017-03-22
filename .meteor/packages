@@ -47,7 +47,6 @@ ostrio:meteor-root
 nicolaslopezj:apollo-accounts
 orionsoft:apollo
 orionsoft:graphql-compiler
-nimble:restivus
 matb33:bootstrap-glyphicons
 
 aldeed:autoform
@@ -57,5 +56,6 @@ comerc:autoform-selectize
 rajit:bootstrap3-datepicker
 aldeed:autoform-bs-datepicker
 gilbertwat:bootstrap3-daterangepicker
+meteorhacks:picker
 npm-container
 react-meteor-data
