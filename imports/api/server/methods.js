@@ -20,14 +20,6 @@ import google from 'googleapis';
 import config from '../config/config';
 import '../models/nylasaccounts/methods';
 
-const OAuth2Client = google.auth.OAuth2;
-
-//TODO: replace credentials
-let oauth2Client = new OAuth2Client(
-    config.google.clientDriveId,
-    config.google.clientDriveSecret,
-    config.google.redirectUri);
-
 const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
@@ -715,14 +707,30 @@ Meteor.methods({
     });
     Projects.insert(project);
   },
-
-  googleApiAuthUrl(){
-      // generate a url that asks permissions for Google+ and Google Calendar scopes
-      const plusScopes = [
-          'https://www.googleapis.com/auth/plus.me',
-          'https://www.googleapis.com/auth/calendar'
-      ];
-
+    
+  googleServerApiAutToken(scope) {
+    
+      const TokenCache = require('google-oauth-jwt').TokenCache,
+          tokens = new TokenCache();
+      
+      tokens.get({
+          // use the email address of the service account, as seen in the API console
+          email: '977294428736-compute@developer.gserviceaccount.com',
+          // use the PEM file we generated from the downloaded key
+          keyFile: `${Meteor.absolutePath}/prossimo-us.pem`,
+          // specify the scopes you wish to access
+          scopes: scope
+      }, function (err, token) {
+          console.log('===googleServerApiAutToken===');
+          console.log(err);
+          console.log(token);
+          console.log('=============================');
+          return token
+      });
+  },
+  
+  getDriveFileList() {
+    
       const driveScopes = [
           'https://www.googleapis.com/auth/drive',
           'https://www.googleapis.com/auth/drive.file',
@@ -730,36 +738,45 @@ Meteor.methods({
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
     
-      // generate consent page url
-      return oauth2Client.generateAuthUrl({
-          access_type: 'offline', // will return a refresh token
-          scope: driveScopes // can be a space-delimited string or an array of scopes
-      });
-  },
-
-  googleApiAutToken(code) {
-      function getAccessToken (oauth2Client, callback) {
-          oauth2Client.getToken(code, function (err, tokens) {
-              if (err) {
-                  return callback(err);
-              }
-              // set tokens to the client
-              // TODO: tokens should be set by OAuth2 client.
-              oauth2Client.setCredentials(tokens);
-              callback();
+      Meteor.call('googleServerApiAutToken', driveScopes, (err, googleToken) => {
+          console.log('===getDriveFileList===');
+          console.log(err);
+          console.log(googleToken);
+          console.log('======================');
+          if (err) {
+              console.log(err);
+          }
+          const OAuth2Client = google.auth.OAuth2;
+    
+          let oauth2Client = new OAuth2Client(
+              config.google.clientDriveId,
+              config.google.clientDriveSecret,
+              config.google.redirectUri);
+    
+          const drive = google.drive('v3');
+    
+          oauth2Client.setCredentials({
+              access_token: googleToken
           });
-      }
-      //retrieve an access token
-      getAccessToken(oauth2Client, function () {
-          const plus = google.plus('v1');
-          const drive = google.drive('v2');
-          // retrieve user profile
-          drive.about.get({ userId: 'me', auth: oauth2Client }, function (err, googleDriveData) {
+          drive.files.list({
+              auth: oauth2Client,
+              pageSize: 10,
+              fields: "nextPageToken, files(id, name)"
+          }, function(err, response) {
               if (err) {
-                  return console.log('An error occured', err);
+                  console.log('The API returned an error: ' + err);
+                  return;
               }
-              console.log(googleDriveData);
-              return googleDriveData;
+              var files = response.files;
+              if (files.length == 0) {
+                  console.log('No files found.');
+              } else {
+                  console.log('Files:');
+                  for (var i = 0; i < files.length; i++) {
+                      var file = files[i];
+                      console.log('%s (%s)', file.name, file.id);
+                  }
+              }
           });
       });
   }
