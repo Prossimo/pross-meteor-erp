@@ -21,117 +21,19 @@ class AllProjects extends Component {
                 selected: false,
                 editable: true,
             },
-            {
-                key: 'productionStartDate',
-                label: 'Start Date',
-                selected: false,
-                type: 'date',
-                editable: true,
-            },
-            {
-                key: 'actualDeliveryDate',
-                label: 'Delivery Date',
-                selected: false,
-                type: 'date',
-                editable: true,
-            },
-            {
-                key: 'shippingContactEmail',
-                label: 'Shipping Email',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shippingAddress',
-                label: 'Shipping Address',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shippingContactPhone',
-                label: 'Shipping Phone',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shippingNotes',
-                label: 'Shipping Notes',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'billingContactName',
-                label: 'Billing Contact',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'billingContactEmail',
-                label: 'Billing Email',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'billingAddress',
-                label: 'Billing Address',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'billingContactPhone',
-                label: 'Billing Phone',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'billingNotes',
-                label: 'Billing Notes',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shippingMode',
-                label: 'Shipping Mode',
-                selected: false,
-                type: 'select',
-                options: [
-                    'LCL',
-                    'FCL',
-                    'FCL Pallets',
-                    'Courrier'
-                ].map((value)=> ({label: value, value})),
-                editable: true,
-            },
-            {
-                key: 'supplier',
-                label: 'Supplier',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shipper',
-                label: 'Shipper',
-                selected: false,
-                type: 'text',
-                editable: true,
-            },
-            {
-                key: 'shippingContactName',
-                label: 'Shipping Name',
-                selected: false,
-                type: 'text',
-                editable: true,
-            }
+            //{
+                //key: 'shippingMode',
+                //label: 'Shipping Mode',
+                //selected: false,
+                //type: 'select',
+                //options: [
+                    //'LCL',
+                    //'FCL',
+                    //'FCL Pallets',
+                    //'Courrier'
+                //].map((value)=> ({label: value, value})),
+                //editable: true,
+            //},
         ];
         this.saveProjectProperty = this.saveProjectProperty.bind(this);
     }
@@ -151,6 +53,10 @@ class AllProjects extends Component {
         });
     }
 
+    goTo(project) {
+        FlowRouter.go('Project', {id: project._id})
+    }
+
     render() {
         return (
             <div>
@@ -163,6 +69,7 @@ class AllProjects extends Component {
                         columns={this.possibleColumns}
                         onSave={this.saveProjectProperty}
                         settingKey={'newProject'}
+                        goTo={this.goTo}
                     />
                 )
             }

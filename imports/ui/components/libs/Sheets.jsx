@@ -37,6 +37,7 @@ class Sheets extends Component {
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderSaveButton = this.renderSaveButton.bind(this);
         this.saveCell = this.saveCell.bind(this);
+        this.goTo = this.goTo.bind(this);
     }
 
     // remove save button when mouse leaves
@@ -224,7 +225,7 @@ class Sheets extends Component {
                         }
                     })
                 }
-                <td><Button onClick={()=> this.goToProject(project)} bsSize='xsmall'><i className='fa fa-link'/> </Button></td>
+                <td><Button onClick={()=> this.goTo(project)} bsSize='xsmall'><i className='fa fa-link'/> </Button></td>
                 </tr>
             )
         })
@@ -253,8 +254,8 @@ class Sheets extends Component {
         )
     }
 
-    goToProject(project){
-        FlowRouter.go('Project', {id: project._id})
+    goTo(project) {
+        this.props.goTo(project);
     }
 
     componentDidMount() {
@@ -331,6 +332,7 @@ Sheets.propTypes = {
     rows: PropTypes.array.isRequired,
     onSave: PropTypes.func.isRequired,
     settingKey: PropTypes.string.isRequired,
+    goTo: PropTypes.func.isRequired,
 }
 
 export default Sheets;
