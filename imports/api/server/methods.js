@@ -21,9 +21,15 @@ import config from '../config/config';
 import '../models/nylasaccounts/methods';
 
 const OAuth2Client = google.auth.OAuth2;
-let oauth2Client = new OAuth2Client(config.google.clientId, config.google.clientSecret, config.google.redirectUri);
-const SLACK_API_KEY = "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666";
-const SLACK_BOT_ID = "U477F4M6Y";
+
+//TODO: replace credentials
+let oauth2Client = new OAuth2Client(
+    config.google.clientDriveId,
+    config.google.clientDriveSecret,
+    config.google.redirectUri);
+
+const SLACK_API_KEY = config.slack.SLACK_API_KEY;
+const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
   userRegistration(userData){
@@ -672,15 +678,22 @@ Meteor.methods({
   
   googleApiAuthUrl(){
       // generate a url that asks permissions for Google+ and Google Calendar scopes
-      const scopes = [
+      const plusScopes = [
           'https://www.googleapis.com/auth/plus.me',
           'https://www.googleapis.com/auth/calendar'
+      ];
+    
+      const driveScopes = [
+          'https://www.googleapis.com/auth/drive',
+          'https://www.googleapis.com/auth/drive.file',
+          'https://www.googleapis.com/auth/drive.appdata',
+          'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
     
       // generate consent page url
       return oauth2Client.generateAuthUrl({
           access_type: 'offline', // will return a refresh token
-          scope: scopes // can be a space-delimited string or an array of scopes
+          scope: driveScopes // can be a space-delimited string or an array of scopes
       });
   },
     
@@ -699,14 +712,17 @@ Meteor.methods({
       //retrieve an access token
       getAccessToken(oauth2Client, function () {
           const plus = google.plus('v1');
+          const drive = google.drive('v2');
           // retrieve user profile
-          plus.people.get({ userId: 'me', auth: oauth2Client }, function (err, profile) {
+          drive.about.get({ userId: 'me', auth: oauth2Client }, function (err, googleDriveData) {
               if (err) {
                   return console.log('An error occured', err);
               }
-              console.log(profile.displayName, ':', profile.tagline);
-              return profile;
+              console.log(googleDriveData);
+              return googleDriveData;
           });
       });
   }
+  
+  
 });
