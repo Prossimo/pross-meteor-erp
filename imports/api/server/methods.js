@@ -719,7 +719,6 @@ Meteor.methods({
       ];
 
       const OAuth2Client = google.auth.OAuth2;
-      
       const oauth2Client = new OAuth2Client(
           config.google.clientDriveId,
           config.google.clientDriveSecret,
