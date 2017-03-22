@@ -717,6 +717,11 @@ Meteor.methods({
           'https://www.googleapis.com/auth/drive.appdata',
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
+    
+      //googleServerApiAutToken is async but we need token to make req to google drive api
+      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
+      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+    
       const OAuth2Client = google.auth.OAuth2;
       
       const oauth2Client = new OAuth2Client(
