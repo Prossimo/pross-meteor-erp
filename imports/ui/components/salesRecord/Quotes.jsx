@@ -219,14 +219,21 @@ class Quotes extends React.Component{
     
     getDriveFileList(e) {
         e.preventDefault();
+<<<<<<< HEAD
         Meteor.call('getDriveFileList', (err, filesList) => {
+=======
+        Meteor.call('getDriveFileList', (err) => {
+>>>>>>> set up google implementation server-to-server
             if (err) {
                 console.log(err);
                 return warning(err.message);
             }
+<<<<<<< HEAD
             console.log('===get files list from google drive===');
             console.log(filesList);
             console.log('======================================');
+=======
+>>>>>>> set up google implementation server-to-server
         });
     }
     
@@ -236,7 +243,11 @@ class Quotes extends React.Component{
         return(
             <div className="add-quotes">
                 <button onClick={this.getDriveFileList.bind(this)}
+<<<<<<< HEAD
                         className="btnn primary-btn">Get google drive list of files</button>
+=======
+                        className="btnn primary-btn">SignIn Google</button>
+>>>>>>> set up google implementation server-to-server
             </div>
         )
     }
