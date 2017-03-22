@@ -753,6 +753,4 @@ Meteor.methods({
           throw err;
       }
   }
-  
-  
 });
