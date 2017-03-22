@@ -18,3 +18,19 @@ export const createAdminUser = ()=>{
         Roles.addUsersToRoles( superAdminId, [ SUPER_ADMIN_ROLE ] );
     }
 };
+
+export const googleServerApiAutToken = (scope, callback) => {
+    const TokenCache = require('google-oauth-jwt').TokenCache,
+        tokens = new TokenCache();
+    
+    tokens.get({
+        // use the email address of the service account, as seen in the API console
+        email: '977294428736-compute@developer.gserviceaccount.com',
+        // use the PEM file we generated from the downloaded key
+        keyFile: `${Meteor.absolutePath}/prossimo-us.pem`,
+        // specify the scopes you wish to access
+        scopes: scope
+    }, function (err, token) {
+        callback(null, token);
+    });
+};
