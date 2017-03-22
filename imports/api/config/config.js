@@ -11,7 +11,9 @@ module.exports = {
         clientSecret: "E_Iahm05NOj9RxgHhelxRo9S",
         clientDriveId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',
         clientDriveSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
-        redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`
+        redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
+        serviceAccountEmail: '977294428736-compute@developer.gserviceaccount.com',
+        serviceAccountPemCertPath: `${Meteor.absolutePath}/prossimo-us.pem`
     },
     twilio: {
         accountSid: 'AC3c2ae50d8872dbe6b907b157deb5483c',

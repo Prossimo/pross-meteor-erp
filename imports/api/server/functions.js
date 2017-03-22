@@ -1,4 +1,5 @@
 import { SUPER_ADMIN_ROLE } from '../constants/roles';
+import config from '../config/config';
 
 export const createAdminUser = ()=>{
     if(!Meteor.users.findOne()){
@@ -30,12 +31,12 @@ export const googleServerApiAutToken = (scope, callback) => {
     
     tokens.get({
         // use the email address of the service account, as seen in the API console
-        email: '977294428736-compute@developer.gserviceaccount.com',
+        email: config.google.serviceAccountEmail,
         // use the PEM file we generated from the downloaded key
-        keyFile: `${Meteor.absolutePath}/prossimo-us.pem`,
+        keyFile: config.google.serviceAccountPemCertPath,
         // specify the scopes you wish to access
         scopes: scope
-    }, function (err, token) {
+    }, (err, token) => {
         callback(null, token);
     });
 };
