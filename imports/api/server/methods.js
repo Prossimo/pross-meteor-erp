@@ -740,14 +740,9 @@ Meteor.methods({
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
     
-      let syncGoogleServerApiAutToken = Async.wrap(googleServerApiAutToken);
+      //googleServerApiAutToken is async but we need token to make req to google drive api
+      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
       let googleToken =  syncGoogleServerApiAutToken(driveScopes);
-    
-      console.log('===token===');
-      console.log(googleToken);
-      console.log('======================');
-    
-      console.log('===main logic===');
     
       const OAuth2Client = google.auth.OAuth2;
     
@@ -761,6 +756,7 @@ Meteor.methods({
       oauth2Client.setCredentials({
           access_token: googleToken
       });
+    
       drive.files.list({
           auth: oauth2Client,
           pageSize: 10,
@@ -770,14 +766,15 @@ Meteor.methods({
               console.log('The API returned an error: ' + err);
               return;
           }
-          var files = response.files;
+          let files = response.files;
           if (files.length == 0) {
               console.log('No files found.');
           } else {
               console.log('Files:');
-              for (var i = 0; i < files.length; i++) {
-                  var file = files[i];
+              for (let i = 0; i < files.length; i++) {
+                  let file = files[i];
                   console.log('%s (%s)', file.name, file.id);
+                  return files;
               }
           }
       });
