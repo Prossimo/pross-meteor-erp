@@ -718,7 +718,6 @@ Meteor.methods({
           'https://www.googleapis.com/auth/drive.apps.readonly'
       ];
       const OAuth2Client = google.auth.OAuth2;
-      
       const oauth2Client = new OAuth2Client(
           config.google.clientDriveId,
           config.google.clientDriveSecret,
