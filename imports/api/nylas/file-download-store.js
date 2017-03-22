@@ -53,9 +53,9 @@ class FileDownloadStore extends Reflux.Store {
     }
 
     onDownloadFiles = (files) => { console.log(files);
-        files.forEach((file)=>{
+        /*files.forEach((file)=>{
             this.onDownloadFile(file)
-        })
+        })*/
     }
 
     onAbortDownloadFile = (file) => {
