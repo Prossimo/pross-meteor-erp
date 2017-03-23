@@ -1,13 +1,17 @@
+import uuidV1 from 'uuid/v1';
+
 export default class TodoistProjects {
     constructor() {
-        this.commands = [];
+        this._commands = [];
     }
 
     // add a project
     add(name) {
         check(name, String);
-        this.commands.push({
+        this._commands.push({
             type: 'project_add',
+            uuid: uuidV1(),
+            temp_id: uuidV1(),
             args: { name },
         });
     }
@@ -19,8 +23,10 @@ export default class TodoistProjects {
     // remove a project
     remove(ids) {
         check(ids, [String]);
-        this.commands.push({
+        this._commands.push({
             type: 'project_delete',
+            uuid: uuidV1(),
+            temp_id: uuidV1(),
             args: { ids }
         });
     }

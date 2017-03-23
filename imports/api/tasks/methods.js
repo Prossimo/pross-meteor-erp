@@ -5,7 +5,7 @@ const api = todoist.TodoistAPI(TODOIST_API_TOKEN);
 
 Meteor.methods({
     // sync local project with server projects
-    syncProjects() {
+    'task.syncProjects'() {
         const { projects } = api.sync(['projects']);
         projects.forEach((project)=> {
             const task = Tasks.findOne({ 'project.id': project.id });
@@ -17,7 +17,7 @@ Meteor.methods({
         });
     },
     // sync local items with server item
-    syncItems() {
+    'task.syncItems'() {
         const { items } = api.sync(['items']);
         items.forEach((item)=> {
             const task = Tasks.findOne({ 'project.id': item.project_id, items: { $elemMatch: { id: item.id } }});
@@ -27,5 +27,13 @@ Meteor.methods({
                 Tasks.update({ 'project.id': item.project_id }, { $push: { items: item }});
             }
         })
+    },
+    // add new project
+    'task.newProject'(name) {
+        check(name, String)
+        api.projects.add(name);
+        const project = api.commit();
+        console.log(project);
+        console.log(JSON.stringify(project));
     }
 })
