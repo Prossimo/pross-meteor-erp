@@ -52,7 +52,6 @@ class DraftFactory {
         if (message.to.length > 0) fields.push(`To: ${contactsAsHtml(message.to)}`)
         if (message.cc.length > 0) fields.push(`Cc: ${contactsAsHtml(message.cc)}`)
 
-        console.log('Fields:', fields)
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Fwd:'),
             files: [].concat(message.files),

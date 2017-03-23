@@ -115,7 +115,6 @@ Meteor.users.helpers({
 
 if(Meteor.isServer) {
     Accounts.onCreateUser(function(options, user) {
-        console.log("Accounts.onCreateUser", options);
         user.profile = {};
         if(options.profile) {
             const profile = options.profile;

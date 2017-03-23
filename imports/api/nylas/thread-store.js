@@ -32,7 +32,6 @@ class ThreadStore extends Reflux.Store {
             method: 'GET',
             accountId: category.account_id
         }).then((result) => {
-            console.log("Nylas get threads result", result);
 
             if (result && result.length) {
                 result.forEach((item) => {

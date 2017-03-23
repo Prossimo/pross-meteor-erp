@@ -48,7 +48,6 @@ Meteor.methods({
                 password: password
             }
         }
-        console.log("Nylas authentication data", authData);
 
         // Call Nylas authorization API
         return NylasAPI.makeRequest({
@@ -63,7 +62,6 @@ Meteor.methods({
                 sendImmediately: true
             }
         }).then((result) => {
-            console.log("NylasAPI makeRequest('/connect/authorize') result", result)
 
             // Call API for getting token
             return NylasAPI.makeRequest({
@@ -84,7 +82,6 @@ Meteor.methods({
                     console.error("NylasAPI makeRequest('/connect/token') error", error)
                 }
             }).then((account) => {
-                console.log("NylasAPI makeRequest('/connect/token') result", account)
 
                 // Folders or labels list
 
@@ -97,7 +94,6 @@ Meteor.methods({
                         sendImmediately: true
                     }
                 }).then((categories) => {
-                    console.log("Nylas get categories result", categories);
 
                     const inbox = _.findWhere(categories, {name: 'inbox'})
                     const drafts = _.findWhere(categories, {name: 'drafts'})
@@ -127,7 +123,7 @@ Meteor.methods({
 
             })
         }).catch((error) => {
-            console.log("NylasAPI makeRequest('/connect/authorize') error", error);
+            console.error("NylasAPI makeRequest('/connect/authorize') error", error);
             throw error
         })
     },
@@ -144,7 +140,6 @@ Meteor.methods({
 
     nylasAccountForAccountId(accountId) {
         const accounts = Meteor.user().nylasAccounts()
-        console.log('NylasAccounts', accounts)
 
         if(!accounts || accounts.length == 0) return null
 

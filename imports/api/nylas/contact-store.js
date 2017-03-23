@@ -16,7 +16,7 @@ class ContactStore extends Reflux.Store {
 
         this.listenTo(Actions.loadContacts, this.onLoadContacts)
 
-        console.log('======== ContactStore contact data ========', this.contacts)
+
     }
 
     onLoadContacts() {
@@ -36,8 +36,6 @@ class ContactStore extends Reflux.Store {
                 method: 'GET',
                 accountId: accountId
             }).then((result) => {
-                //console.log("Nylas get contacts result", result);
-
                 if (result && result.length) {
                     this.contacts = this.contacts.concat(result);
 
@@ -137,7 +135,6 @@ class ContactStore extends Reflux.Store {
         const filter = {$regex: search, $options: 'i'}
 
         result = Contacts.find({$or: [{email: filter}, {name: filter}]}).fetch()
-        console.log('=======COntacts search result', result, JSON.stringify({$or: [{email: filter}, {name: filter}]}))
 
         result = this._distinctByEmail(result)
 
