@@ -131,6 +131,7 @@ Meteor.methods({
             throw error
         })
     },
+
     removeNylasAccount(account)
     {
         if (!account.userId && !Roles.userIsInRole(Meteor.userId(), [...ADMIN_ROLE_LIST]))
@@ -139,5 +140,14 @@ Meteor.methods({
             throw new Meteor.Error('You can not remove account of other')
 
         NylasAccounts.remove({_id: account._id})
+    },
+
+    nylasAccountForAccountId(accountId) {
+        const accounts = Meteor.user().nylasAccounts()
+        console.log('NylasAccounts', accounts)
+
+        if(!accounts || accounts.length == 0) return null
+
+        return _.find(accounts, {accountId:accountId})
     }
 });

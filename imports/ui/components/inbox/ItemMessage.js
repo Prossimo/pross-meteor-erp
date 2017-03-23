@@ -201,9 +201,9 @@ class ItemMessage extends React.Component {
         for(let file of this.props.message.files||[]) {
             if(!this._isRealFile(file)) continue
 
-            if(NylasUtils.shouldDisplayAsImage(file))
+            /*if(NylasUtils.shouldDisplayAsImage(file))
                 imageAttachments.push(file)
-            else
+            else*/
                 otherAttachments.push(file)
         }
 
@@ -211,7 +211,7 @@ class ItemMessage extends React.Component {
             <AttachmentComponent
                 key={file.id}
                 className="file-wrap"
-                file={file}
+                file={_.extend(file, {account_id:this.props.message.account_id})}
                 download={this.state.downloads[file.id]}
             />
         ))
@@ -220,11 +220,12 @@ class ItemMessage extends React.Component {
             <ImageAttachmentComponent
                 key={file.id}
                 className="file-wrap file-image-wrap"
-                file={file}
+                file={_.extend(file, {account_id:this.props.message.account_id})}
                 download={this.state.downloads[file.id]}
                 targetPath={FileDownloadStore.pathForFile(file)}
             />
         ))
+
 
         return otherAttachments.concat(imageAttachments)
     }
@@ -242,19 +243,12 @@ class ItemMessage extends React.Component {
                     />
                     <span>{this.props.message.files.length} attachments</span>
                 </div>
-                <div className="separator">-</div>
-                <div className="download-all-action" onClick={this._onDownloadAll}>
-                    <img
-                        src="/icons/attachments/ic-attachments-download-all.png"
-                    />
-                    <span>Download all</span>
-                </div>
             </div>
         )
     }
 
     _onDownloadAll = () => {
-        Actions.fetchAndSaveAllFiles(this.props.message.files)
+        Actions.downloadFiles(this.props.message.files)
     }
 
     _onClickParticipants = (e) => {
