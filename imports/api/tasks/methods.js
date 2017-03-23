@@ -35,7 +35,7 @@ Meteor.methods({
         api.projects.add(name);
         api.commit();
         const projects = Meteor.call('task.syncProjects');
-        return _.first(projects);
+        return _.last(projects);
     },
     // add new items
     'task.newItem'(content, projectId) {
@@ -44,6 +44,6 @@ Meteor.methods({
         api.items.add(content, projectId);
         api.commit();
         const items = Meteor.call('task.syncItems');
-        return _.first(items);
+        return _.last(items);
     }
 })

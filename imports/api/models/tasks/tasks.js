@@ -3,7 +3,7 @@ import { Tasks } from '../../lib/collections';
 
 Tasks.schema = new SimpleSchema({
     _id: { type: String },
-
+    // project at todoist server
     project: { type: Object },
     'project.name': { type: String, optional: true },
     'project.color': { type: Number, optional: true },
@@ -17,7 +17,7 @@ Tasks.schema = new SimpleSchema({
     'project.shared': { type: Boolean, optional: true },
     'project.is_archived': { type: Number, optional: true },
     'project.team_inbox': { type: Boolean, optional: true },
-
+    // items at todoist server
     items: { type: Array, optional: true },
     'items.$': { type:  Object, optional: true },
     'items.$.id': { type: String, optional: true },
@@ -42,6 +42,8 @@ Tasks.schema = new SimpleSchema({
     'items.$.is_archived': { type: Number, optional: true },
     'items.$.sync_id': { type: Number, optional: true },
     'items.$.date_added': { type: String, optional: true },
+    // local project id link to project
+    localProjectId: { type: String, optional: true },
 });
 
 Tasks.attachSchema(Tasks.schema);
