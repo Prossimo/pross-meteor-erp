@@ -487,23 +487,23 @@ Meteor.methods({
     const salesRecordId = SalesRecords.insert(data);
 
     // Add new project for this salesRecord
-    const projectId = Meteor.call('createNewProject', {
-      name: data.name,
-      members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
-          return {
-            userId,
-            isMainStakeholder,
-            categories: category,
-            designation: destination,
-          }
-      }),
-    });
+    //const projectId = Meteor.call('createNewProject', {
+      //name: data.name,
+      //members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
+          //return {
+            //userId,
+            //isMainStakeholder,
+            //categories: category,
+            //designation: destination,
+          //}
+      //}),
+    //});
 
-    Projects.update(projectId, {
-        $set: {
-            salesRecordId,
-        }
-    });
+    //Projects.update(projectId, {
+        //$set: {
+            //salesRecordId,
+        //}
+    //});
 
     return salesRecordId;
   },
