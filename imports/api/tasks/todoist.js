@@ -11,7 +11,18 @@ class TodoistAPI {
     }
 
     commit() {
-
+        const commands = this.projects._commands;
+        const { response: { statusCode }, body } = request.postSync(TODOIST_API_ENDPOINT, {
+            form: {
+                token: this._token,
+                commands: JSON.stringify(commands),
+            }
+        });
+        if (statusCode === 200) {
+            return JSON.parse(body);
+        } else {
+            throw new Meteor.Error('commit data to todoist with error: ' + body);
+        }
     }
 
     sync(types) {
@@ -27,7 +38,7 @@ class TodoistAPI {
         if (statusCode === 200) {
             return JSON.parse(body);
         } else {
-            throw new Meteor.Err('Fetch data from todoist with error: ' + body);
+            throw new Meteor.Error('Fetch data from todoist with error: ' + body);
         }
     }
 }
