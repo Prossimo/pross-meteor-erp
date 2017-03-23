@@ -13,6 +13,7 @@ import {
   Settings,
   Projects,
 } from '../lib/collections';
+import { createTodoistProject } from '../tasks';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
 
 import '../lib/extendMatch.js';
@@ -464,7 +465,7 @@ Meteor.methods({
     const salesRecordId = SalesRecords.insert(data);
 
     // Add new project for this salesRecord
-    Projects.insert({
+    const projectId = Meteor.call('createNewProject', {
       name: data.name,
       members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
           return {
@@ -474,7 +475,12 @@ Meteor.methods({
             designation: destination,
           }
       }),
-      salesRecordId,
+    });
+
+    Projects.update(projectId, {
+        $set: {
+            salesRecordId,
+        }
     });
 
     return salesRecordId;
@@ -700,9 +706,12 @@ Meteor.methods({
         categories: [String]
       }],
     });
-    Projects.insert(project);
+    const projectId = Projects.insert(project);
+    // create new todoist project to add/remove/update task
+    createTodoistProject(project.name, projectId);
+    return projectId;
   },
-    
+
   async getDriveFileList() {
       const drive = google.drive('v3');
       const driveScopes = [
@@ -717,15 +726,15 @@ Meteor.methods({
           config.google.clientDriveId,
           config.google.clientDriveSecret,
           config.google.redirectUri);
-    
+
       //googleServerApiAutToken is async but we need token to make req to google drive api
       let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
       let googleToken =  syncGoogleServerApiAutToken(driveScopes);
-      
+
       oauth2Client.setCredentials({
           access_token: googleToken
       });
-    
+
       // Create the promise so we can use await later.
       const driveFileListPromise = new Promise((resolve, reject) => {
           drive.files.list({
@@ -739,7 +748,7 @@ Meteor.methods({
               resolve(response);
           });
       });
-    
+
       // return promise result to React method
       try {
           return await driveFileListPromise;
