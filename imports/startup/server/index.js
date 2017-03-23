@@ -6,3 +6,4 @@ import './slack';
 import '../../api/server/publications';
 import '../../api/server/methods';
 import './router';
+import '../../api/todos/';
