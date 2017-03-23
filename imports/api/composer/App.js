@@ -1,24 +1,27 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { compose } from 'react-komposer';
+import {Meteor} from 'meteor/meteor';
+import {compose} from 'react-komposer';
 import getTrackerLoader from './traker';
-import { GET_USERS, GET_PROJECTS } from '/imports/api/constants/collections';
-import { SalesRecords } from '/imports/api/lib/collections';
+import {GET_USERS, GET_PROJECTS, GET_CONTACTS, GET_NYLAS_ACCOUNTS} from '/imports/api/constants/collections';
+import {SalesRecords} from '/imports/api/lib/collections';
 
 import App from '/imports/ui/App';
 
-const reactiveMapper = (props, onData)=> {
+const reactiveMapper = (props, onData) => {
 
-    if (Meteor.subscribe(GET_USERS).ready() && Meteor.subscribe(GET_PROJECTS).ready()) {
-
+    if (Meteor.subscribe(GET_USERS).ready() &&
+        Meteor.subscribe(GET_PROJECTS).ready() &&
+        Meteor.subscribe(GET_NYLAS_ACCOUNTS).ready() &&
+        Meteor.subscribe(GET_CONTACTS).ready()
+    ) {
         const currentUser = Meteor.users.findOne(Meteor.userId());
         const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch();
         const users = Meteor.users.find().fetch();
         let usersArr = {};
-        users.forEach(item=>{
+        users.forEach(item => {
             usersArr[item._id] = item
         });
-        onData(null, { currentUser, users, usersArr, salesRecords });
+        onData(null, {currentUser, users, usersArr, salesRecords});
     }
 };
 

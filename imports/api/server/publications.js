@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
 import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages, Projects } from '../lib/collections';
 import { NylasAccounts } from '../models/nylasaccounts/nylas-accounts'
+import { Contacts } from '../models/contacts/contacts'
 import {
     GET_ACTIVITY,
     GET_PROJECTS,
@@ -15,6 +16,7 @@ import {
     GET_NYLAS_ACCOUNTS,
     GET_NEW_PROJECTS,
     GET_NEW_PROJECT,
+    GET_CONTACTS
 } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
@@ -79,6 +81,10 @@ Meteor.startup(()=>{
 
     Meteor.publish(GET_NYLAS_ACCOUNTS, function () {
         return NylasAccounts.find({});
+    });
+
+    Meteor.publish(GET_CONTACTS, function () {
+        return Contacts.find({});
     });
 
     Meteor.publish(GET_NEW_PROJECTS, function() {

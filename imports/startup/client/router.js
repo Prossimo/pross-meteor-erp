@@ -8,7 +8,7 @@ import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
 import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import UserAccount from '../../ui/pages/UserAccount';
-import InboxPage from '../../api/composer/pages/InboxPage';
+import InboxPage from '../../ui/pages/InboxPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';

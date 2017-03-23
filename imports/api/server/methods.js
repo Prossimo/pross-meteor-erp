@@ -19,6 +19,7 @@ import '../lib/extendMatch.js';
 import google from 'googleapis';
 import config from '../config/config';
 import '../models/nylasaccounts/methods';
+import '../models/contacts/methods';
 import { googleServerApiAutToken } from '../../api/server/functions';
 
 const SLACK_API_KEY = config.slack.SLACK_API_KEY;

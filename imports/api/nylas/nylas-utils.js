@@ -205,7 +205,7 @@ module.exports = NylasUtils = {
 
     hasNylasAccounts: () => {
         const accounts = AccountStore.accounts();
-        console.log(accounts)
+        console.log('==== hasNylasAccounts', accounts)
         return accounts.length > 0
     },
 
