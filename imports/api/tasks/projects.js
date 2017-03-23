@@ -30,5 +30,9 @@ export default class TodoistProjects {
             args: { ids }
         });
     }
+
+    reset() {
+        this._commands = [];
+    }
 }
 
