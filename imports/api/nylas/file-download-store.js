@@ -39,7 +39,6 @@ class FileDownloadStore extends Reflux.Store {
     onDownloadFile = (file, provider='email') => {
 
         /*if(NylasUtils.shouldDisplayAsImage(file)) {
-            console.log('call _runDownload', file)
             this._runDownload(file)
         } else {*/
             const token = AccountStore.tokenForAccountId(file.account_id)
@@ -52,7 +51,7 @@ class FileDownloadStore extends Reflux.Store {
         //}
     }
 
-    onDownloadFiles = (files) => { console.log(files);
+    onDownloadFiles = (files) => {
         /*files.forEach((file)=>{
             this.onDownloadFile(file)
         })*/
@@ -63,7 +62,6 @@ class FileDownloadStore extends Reflux.Store {
     }
 
     _runDownload = (file) => {
-        console.log('FileDownloadStore->_runDownload', file)
         try {
             if(this._downloads[file.id]) {
                 this.trigger()

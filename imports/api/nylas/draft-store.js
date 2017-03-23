@@ -123,8 +123,6 @@ class DraftStore extends Reflux.Store {
         let draft = this.draftForClientId(clientId)
 
         draft = _.extend(draft, data)
-
-        //console.log(this._drafts)
     }
 
     removeDraftForClientId(clientId) {

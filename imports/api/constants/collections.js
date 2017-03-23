@@ -16,3 +16,4 @@ export const GET_SLACK_MSG = "getSlackMsg";
 export const GET_NYLAS_ACCOUNTS = "getNylasAccounts";
 export const GET_NEW_PROJECTS = 'getNewProjects';
 export const GET_NEW_PROJECT = 'getNewProject';
+export const GET_CONTACTS = 'getContacts';

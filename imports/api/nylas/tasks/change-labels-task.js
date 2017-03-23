@@ -123,7 +123,6 @@ export default class ChangeLabelsTask extends ChangeMailTask {
             return Promise.reject(new Error("ChangeLabelsTask: You must provide a `threads` or `messages` Array of models or IDs."))
         }
 
-        console.log('Call super.performLocal()')
         return super.performLocal()
     }
 
@@ -137,7 +136,6 @@ export default class ChangeLabelsTask extends ChangeMailTask {
         let labels = _.reject(model.labels, ({id}) => labelsToRemoveIds.includes(id));
         labels = labels.concat(this.labelsToAdd);
 
-        console.log('changesToModel', labels, this.labelsToAdd, this.labelsToRemove)
         labels = _.uniq(labels, false, (label) => label.id);
         return {labels};
     }

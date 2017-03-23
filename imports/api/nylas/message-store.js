@@ -40,7 +40,6 @@ class MessageStore extends Reflux.Store {
             method: 'GET',
             accountId: thread.account_id
         }).then((result) => {
-            //console.log("Nylas get messages result", result);
 
             this._messages = result;
 

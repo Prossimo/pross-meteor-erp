@@ -35,7 +35,7 @@ class NylasAPIRequest {
                 });
                 return Promise.reject(err);
             }
-            const token = this.api.accessTokenForAccountId(this.options.accountId); //console.log('Current user nylas access token', token);
+            const token = this.api.accessTokenForAccountId(this.options.accountId);
             if(!token) {
                 const err = new APIError({
                     statusCode: 400,
@@ -51,7 +51,6 @@ class NylasAPIRequest {
             };
         }
 
-        //console.log("NylasAPI->run", JSON.stringify(this.options));
 
         return new Promise((resolve, reject) => {
             const req = request(this.options, (error, response, body)=>{
@@ -103,8 +102,8 @@ class NylasAPI {
     }
 
     makeRequest(options = {}) {
-        console.log("makeRequest", options);
-        const success = (body) => { console.log("========NyalsAPIRequest result", body);
+        //console.log("makeRequest", options);
+        const success = (body) => { //console.log("========NyalsAPIRequest result", body);
             if(options.beforeProcessing) {
                 body = options.beforeProcessing(body);
             }

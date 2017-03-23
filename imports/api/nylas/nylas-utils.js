@@ -32,7 +32,6 @@ module.exports = NylasUtils = {
     },
 
     contactDisplayFullname: (c) => {
-        console.log(c)
         if (c.name && c.name.length)
             return `${c.name} <${c.email}>`
 
@@ -105,7 +104,6 @@ module.exports = NylasUtils = {
 
         to = _.uniq(to, (p) => p.email)
 
-        console.log('participantsForReply', message, to, cc)
         return {to, cc}
     },
 
@@ -205,7 +203,6 @@ module.exports = NylasUtils = {
 
     hasNylasAccounts: () => {
         const accounts = AccountStore.accounts();
-        console.log(accounts)
         return accounts.length > 0
     },
 

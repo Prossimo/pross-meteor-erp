@@ -1,3 +1,4 @@
 import './headConfig'
-import './router';
+import './router'
+import './nylas-sync'
 

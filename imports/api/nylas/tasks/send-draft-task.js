@@ -19,11 +19,9 @@ export default class SendDraftTask extends Task {
     }
 
     performRemote() {
-        console.log("SendDraftTask->performRemote", this.clientId);
         return this.assertDraftValidity()
             .then(this.sendMessage)
             .then((responseJSON) => {
-                console.log("Send message response", responseJSON)
 
                 this.message = responseJSON
             })

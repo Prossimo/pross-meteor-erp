@@ -46,7 +46,7 @@ const TaskFactory = {
                 if (catsToAdd.length > 1) {
                     throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a single `Category` (folder) for Exchange accounts")
                 }
-                const folder = catsToAdd[0]; console.log('ChangeFolderTask folder', folder)
+                const folder = catsToAdd[0];
                 /*if (!(folder instanceof Category)) {
                     throw new Error("tasksForApplyingCategories: `categoriesToAdd` must return a Category")
                 }*/

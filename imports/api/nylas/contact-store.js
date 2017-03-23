@@ -4,7 +4,7 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import AccountStore from './account-store'
 import RegExpUtils from './RegExpUtils'
-
+import {Contacts} from '../models/contacts/contacts'
 const LIMIT = 100
 
 class ContactStore extends Reflux.Store {
@@ -15,45 +15,43 @@ class ContactStore extends Reflux.Store {
         this.loading = false;
 
         this.listenTo(Actions.loadContacts, this.onLoadContacts)
+
+
     }
 
-    onLoadContacts(accountId) {
-        account = AccountStore.accountForAccountId(accountId); console.log('onLoadContacts', account)
+    onLoadContacts() {
+        let accounts = AccountStore.accounts()
 
-        if(!account) return;
-
-        this.loading = true;
-        this.trigger();
+        if (!accounts || accounts.length == 0) return;
 
 
-        loadContacts = (page) => {
+        loadContacts = (accountId, page) => {
             const query = QueryString.stringify({
-                offset: (page-1) * LIMIT,
+                offset: (page - 1) * LIMIT,
                 limit: LIMIT
             })
+
             NylasAPI.makeRequest({
                 path: `/contacts?${query}`,
                 method: 'GET',
-                accountId: account.accountId
+                accountId: accountId
             }).then((result) => {
-                //console.log("Nylas get contacts result", result);
-
-                if (result) {
+                if (result && result.length) {
                     this.contacts = this.contacts.concat(result);
 
-                    if(result.length == LIMIT) {
-                        loadContacts(page+1)
-                    } else {
-                        this.loading = false
+                    Meteor.call('insertOrUpdateContacts', result)
+                    if (result.length == LIMIT) {
+                        loadContacts(accountId, page + 1)
                     }
-
-
-                    this.trigger();
                 }
             })
         }
 
-        loadContacts(1)
+        accounts.forEach((account) => {
+            loadContacts(account.accountId, 1)
+        })
+
+
     }
 
     getAllContacts() {
@@ -134,17 +132,16 @@ class ContactStore extends Reflux.Store {
             return Promise.resolve([]);
         }
 
+        const filter = {$regex: search, $options: 'i'}
 
-        results = this.contacts.filter((c) => {
-            return (c.email && c.email.indexOf(search) > -1) || (c.name && c.name.indexOf(search) > -1)
-        })
+        result = Contacts.find({$or: [{email: filter}, {name: filter}]}).fetch()
 
-        results = this._distinctByEmail(results)
+        result = this._distinctByEmail(result)
 
-        if (results.length > limit) results.length = limit
+        if (result.length > limit) result.length = limit
 
 
-        return Promise.resolve(results)
+        return Promise.resolve(result)
     }
 
     _distinctByEmail = (contacts) => {
