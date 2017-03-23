@@ -15,6 +15,7 @@ Meteor.methods({
                 Tasks.insert({ project });
             }
         });
+        return projects;
     },
     // sync local items with server item
     'task.syncItems'() {
@@ -32,8 +33,17 @@ Meteor.methods({
     'task.newProject'(name) {
         check(name, String)
         api.projects.add(name);
-        const project = api.commit();
-        console.log(project);
-        console.log(JSON.stringify(project));
+        api.commit();
+        const projects = Meteor.call('task.syncProjects');
+        return _.first(projects);
+    },
+    // add new items
+    'task.newItem'(content, projectId) {
+        check(content, String);
+        check(projectId, Number);
+        api.items.add(content, projectId);
+        api.commit();
+        const items = Meteor.call('task.syncItems');
+        return _.first(items);
     }
 })
