@@ -10,6 +10,10 @@ class TasksView extends Component {
         super(props);
         this.addItem = this.addItem.bind(this);
         this.renderItems = this.renderItems.bind(this);
+        this.handleCheck = this.handleCheck.bind(this);
+        this.addOptimisticItem = this.addOptimisticItem.bind(this);
+        this.removeOptimisticItem = this.removeOptimisticItem.bind(this);
+        this.mergeWithOptimisticItems = this.mergeWithOptimisticItems.bind(this);
         this.state = {
             optimisticItems: [],
         }
@@ -17,6 +21,46 @@ class TasksView extends Component {
 
     componentWillUnmount() {
         this.props.subscribers.forEach((subscriber)=> subscriber.stop());
+    }
+
+    addOptimisticItem(item, type) {
+        item.type = type;
+        this.setState(({ optimisticItems })=> {
+            optimisticItems.push(item);
+            return {
+                optimisticItems,
+            }
+        });
+    }
+
+    removeOptimisticItem(itemId) {
+        console.log('>> ready');
+        this.setState(({ optimisticItems })=> {
+            optimisticItems = optimisticItems.filter(({ id })=> id !== itemId)
+            return {
+                optimisticItems,
+            };
+        });
+    }
+
+    mergeWithOptimisticItems() {
+        let items = this.props.task.items || [];
+        this.state.optimisticItems.forEach((item)=> {
+            switch(item.type) {
+                case 'add':
+                    items.push(item);
+                    break;
+                case 'mod':
+                    items = items.map((remoteItem)=> {
+                        if (remoteItem.id === item.id) {
+                            return item;
+                        } else {
+                            return remoteItem;
+                        }
+                    })
+            }
+        });
+        return items;
     }
 
     addItem(event) {
@@ -27,39 +71,41 @@ class TasksView extends Component {
 
         if (content) {
             event.target.content.value = '';
-            this.setState(({ optimisticItems })=> {
-                optimisticItems.push({
-                    content,
-                    id: itemId,
-                });
-                return {
-                    optimisticItems,
-                }
+            this.addOptimisticItem({
+                content,
+                id: itemId,
+            }, 'add');
+            Meteor.call('task.newItem', content, id, (error, item)=> {
+                this.removeOptimisticItem(itemId);
             });
-            Meteor.call('task.newItem', content, id, (error, remoteItem)=> {
-                this.setState(({ optimisticItems })=> {
-                    optimisticItems = optimisticItems.filter(({ id })=> id !== itemId)
-                    return {
-                        optimisticItems,
-                    };
-                });
+        }
+    }
+
+    handleCheck(item, isChecked) {
+        if (isChecked) {
+            item.checked = 1;
+            this.addOptimisticItem(item, 'mod');
+            Meteor.call('task.complete', item.id, (error, result)=> {
+                this.removeOptimisticItem(item.id);
             });
         }
     }
 
     renderItems() {
-        let items = this.props.task.items || [];
-        this.state.optimisticItems.forEach((item)=> {
-            items.push(item);
-        });
+        const items = this.mergeWithOptimisticItems();
         return (
             <div>
             {
-                items.map(({ id, content })=> {
+                items.map((item)=> {
                     return (
-                        <div className='checkbox' key={id}>
+                        <div className='checkbox' key={item.id}>
                             <label>
-                                <input type='checkbox'/> { content }
+                                <input
+                                    type='checkbox'
+                                    onChange={(event)=> this.handleCheck(item, event.target.checked)}
+                                    checked={ item.checked === 1 }
+                                />
+                                { item.content }
                             </label>
                         </div>
                     );

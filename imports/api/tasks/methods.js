@@ -46,5 +46,12 @@ Meteor.methods({
         api.commit();
         const items = Meteor.call('task.syncItems');
         return _.last(items);
+    },
+    'task.complete'(id) {
+        check(id, Number);
+        api.items.complete([id]);
+        api.commit();
+        const items = Meteor.call('task.syncItems');
+        return _.last(items);
     }
 })
