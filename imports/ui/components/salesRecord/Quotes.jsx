@@ -230,13 +230,52 @@ class Quotes extends React.Component{
         });
     }
     
-    renderGoogleSignIn(){
+    saveDriveFile(e) {
+        e.preventDefault();
+        if(e.target.files.length){
+            let file = e.target.files[0];
+            let fileInfo = {
+                name: file.name,
+                type: file.type
+            };
+            let reader = new FileReader();
+            reader.onload = function(fileLoadEvent) {
+                Meteor.call('saveGoogleDriveFile', fileInfo, reader.result, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return warning(err.message);
+                    }
+                    console.log('===file save result on google drive===');
+                    console.log(result);
+                    console.log('======================================');
+                });
+            };
+            reader.readAsBinaryString(file);
+        }
+    }
+    
+    getGoogleDriveFileList(){
         if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
         
         return(
             <div className="add-quotes">
                 <button onClick={this.getDriveFileList.bind(this)}
                         className="btnn primary-btn">Get google drive list of files</button>
+            </div>
+        )
+    }
+    
+    saveFileToGoogleDrive(){
+        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+        
+        return(
+            <div className="field-wrap">
+                <span className="label">Add file to google Drive</span>
+                <label htmlFor="quote-file"
+                       className="file-label"/>
+                <input type="file"
+                       id="quote-file"
+                       onChange={this.saveDriveFile.bind(this)}/>
             </div>
         )
     }
@@ -247,7 +286,8 @@ class Quotes extends React.Component{
                 {this.renderPopup()}
                 {this.renderQuotes()}
                 {this.renderAddQuotes()}
-                {this.renderGoogleSignIn()}
+                {this.getGoogleDriveFileList()}
+                {this.saveFileToGoogleDrive()}
             </div>
         )
     }
