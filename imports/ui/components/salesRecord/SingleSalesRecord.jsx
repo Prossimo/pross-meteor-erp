@@ -42,8 +42,8 @@ class SingleSalesRecord extends React.Component{
         component: <Invoices/>
       },
       {
-        label: "Documents",
-        component: <Documents/>
+        label: "Files",
+        component: <Files/>
       }
     ];
 
