@@ -1,4 +1,4 @@
-.contacts-page
+.contact-page
   position absolute
   width 100%
   height 100%
@@ -6,22 +6,35 @@
   padding 10px
   border-left 1px solid rgba(221, 221, 221, 0.6)
   display flex
-  flex-direction column
 
-  table {
+  .contact-list {
     display: flex;
     flex-direction: column;
+    min-width: 100px;
+    flex: 1
+
+    table {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      margin-bottom: 0px;
+    }
+    tbody {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    tr {
+      display: flex;
+    }
+    td {
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
-  tbody {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  tr {
-    display: flex;
-  }
-  td {
-    text-overflow: ellipsis;
-    overflow: hidden;
+
+  .contact-overview {
+    min-width: 350px;
+    max-width: 350px;
   }
 
   .focused
@@ -44,17 +57,3 @@
       height 5px
       background linear-gradient(to right, $main-color, alpha($main-color, .1))
       width 100%
-
-  .toolbar-container
-    border-bottom 1px solid $border-color-divider
-    padding 10px 5px
-    display flex
-    flex-direction row
-
-  .content-panel
-    order 1
-    flex 1
-    display flex
-    flex-direction row
-    padding 10px 0
-
