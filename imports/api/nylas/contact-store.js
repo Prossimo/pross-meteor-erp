@@ -75,7 +75,7 @@ class ContactStore extends Reflux.Store {
         }
 
         result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
-        console.log('ContactStore->getContacts', result, search)
+
 
         if(result.length == PAGESIZE) {
             this.fullyLoaded = false

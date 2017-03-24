@@ -122,9 +122,13 @@ export default class ContactsList extends React.Component {
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
-            ContactStore.searchContacts(keyword, {limit:100}).then((contacts)=> {
-                this.setState({contacts: contacts})
-            })
+            if(keyword.length) {
+                ContactStore.searchContacts(keyword, {limit:100}).then((contacts)=> {
+                    this.setState({contacts: contacts})
+                })
+            } else {
+                this.setState({contacts: ContactStore.getContacts()})
+            }
         }, 500)
     }
 }
