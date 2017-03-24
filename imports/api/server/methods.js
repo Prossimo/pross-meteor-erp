@@ -41,7 +41,7 @@ oauth2Client.setCredentials({
     access_token: googleToken
 });
 
-const googleDrive = google.drive('v3');
+const googleDrive = google.drive({ version: 'v3', auth: oauth2Client });
 
 const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
@@ -730,7 +730,8 @@ Meteor.methods({
           googleDrive.files.list({
               auth: oauth2Client,
               pageSize: 10,
-              fields: "nextPageToken, files(id, name)"
+              fields: "nextPageToken, files"
+              // fields: "nextPageToken, files(id, name)"
           }, (err, response) => {
               if (err) {
                   return reject(err);
@@ -748,41 +749,32 @@ Meteor.methods({
       }
   },
     
-  async saveGoogleDriveFile(file) {
-      console.log('===saveDriveFile===');
-      console.log(file);
-      console.log('===================');
+  async saveGoogleDriveFile(fileInfo, fileData) {
       // Create the promise so we can use await later.
-      // const driveFileListPromise = new Promise((resolve, reject) => {
-      //     googleDrive.files.create({
-      //         resource: {
-      //             name: 'Test',
-      //             mimeType: 'text/plain'
-      //         },
-      //         media: {
-      //             mimeType: 'text/plain',
-      //             body: 'Hello World'
-      //         }
-      //     }, (err, response) => {
-      //         if (err) {
-      //             console.log('===saveDriveFile err===');
-      //             console.log(err);
-      //             console.log('=======================');
-      //             return reject(err);
-      //         }
-      //         console.log('===saveDriveFile response===');
-      //         console.log(response);
-      //         console.log('============================');
-      //         resolve(response);
-      //     });
-      // });
+      const driveFileListPromise = new Promise((resolve, reject) => {
+          googleDrive.files.create({
+              resource: {
+                  name: fileInfo.name,
+                  mimeType: fileInfo.type
+              },
+              media: {
+                  mimeType: fileInfo.type,
+                  body: fileData
+              }
+          }, (err, response) => {
+              if (err) {
+                  return reject(err);
+              }
+              resolve(response);
+          });
+      });
       
       // return promise result to React method
-      // try {
-      //     return await driveFileListPromise;
-      // } catch (err) {
-      //     console.log(`ERROR: ${err.message}`);
-      //     throw err;
-      // }
+      try {
+          return await driveFileListPromise;
+      } catch (err) {
+          console.log(`ERROR: ${err.message}`);
+          throw err;
+      }
   }
 });

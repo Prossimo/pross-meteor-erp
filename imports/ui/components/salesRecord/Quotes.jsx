@@ -234,16 +234,23 @@ class Quotes extends React.Component{
         e.preventDefault();
         if(e.target.files.length){
             let file = e.target.files[0];
-            console.log(file);
-            Meteor.call('saveGoogleDriveFile', file, (err, result) => {
-                if (err) {
-                    console.log(err);
-                    return warning(err.message);
-                }
-                console.log('===file save result on google drive===');
-                console.log(result);
-                console.log('======================================');
-            });
+            let fileInfo = {
+                name: file.name,
+                type: file.type
+            };
+            let reader = new FileReader();
+            reader.onload = function(fileLoadEvent) {
+                Meteor.call('saveGoogleDriveFile', fileInfo, reader.result, (err, result) => {
+                    if (err) {
+                        console.log(err);
+                        return warning(err.message);
+                    }
+                    console.log('===file save result on google drive===');
+                    console.log(result);
+                    console.log('======================================');
+                });
+            };
+            reader.readAsBinaryString(file);
         }
     }
     
