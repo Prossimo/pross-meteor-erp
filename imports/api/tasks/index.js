@@ -6,7 +6,6 @@ function createTodoistProject(name, localProjectId) {
     check(localProjectId, String);
     check(name, String);
     const { id } = Meteor.call('task.newProject', name);
-    console.log(id);
     Tasks.update({ 'project.id': id }, {
         $set: {
             localProjectId,

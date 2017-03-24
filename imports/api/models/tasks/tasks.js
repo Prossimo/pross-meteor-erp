@@ -20,7 +20,7 @@ Tasks.schema = new SimpleSchema({
     // items at todoist server
     items: { type: Array, optional: true },
     'items.$': { type:  Object, optional: true },
-    'items.$.id': { type: String, optional: true },
+    'items.$.id': { type: Number, optional: true },
     'items.$.user_id': { type: Number, optional: true },
     'items.$.project_id': { type: Number, optional: true },
     'items.$.content': { type: String, optional: true },

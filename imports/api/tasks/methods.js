@@ -27,7 +27,8 @@ Meteor.methods({
             } else {
                 Tasks.update({ 'project.id': item.project_id }, { $push: { items: item }});
             }
-        })
+        });
+        return items;
     },
     // add new project
     'task.newProject'(name) {
