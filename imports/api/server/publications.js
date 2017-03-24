@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Match } from 'meteor/check';
-import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages, Projects } from '../lib/collections';
+import { Messages, SalesRecords, CreatedUsers, Quotes, Files, Events, SlackMessages, Projects, Tasks } from '../lib/collections';
 import { NylasAccounts } from '../models/nylasaccounts/nylas-accounts'
 import { Contacts } from '../models/contacts/contacts'
 import {
@@ -16,7 +16,8 @@ import {
     GET_NYLAS_ACCOUNTS,
     GET_NEW_PROJECTS,
     GET_NEW_PROJECT,
-    GET_CONTACTS
+    GET_CONTACTS,
+    GET_TASKS,
 } from '../constants/collections';
 import { ADMIN_ROLE_LIST } from '../constants/roles';
 
@@ -93,10 +94,18 @@ Meteor.startup(()=>{
     });
 
     Meteor.publish(GET_NEW_PROJECT, function(_id){
-        Match.test(_id, String);
-
+        if (!Match.test(_id, String)) return this.ready();
         if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
         return Projects.find({_id, 'members.userId': this.userId});
+    });
+
+    Meteor.publish(GET_TASKS, function(projectId) {
+        if (!Match.test(projectId, String)) return this.ready();
+        if(Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Tasks.find({ localProjectId: projectId });
+        // should use publish composite
+        if (Projects.findOne({ _id: projectId, 'members.userId': this.userId})) {
+            return Tasks.find({ localProjectId: projectId });
+        }
     });
 });
 
