@@ -5,7 +5,7 @@ import NylasAPI from './nylas-api'
 import AccountStore from './account-store'
 import RegExpUtils from './RegExpUtils'
 import {Contacts} from '../models/contacts/contacts'
-const LIMIT = 100
+const PAGESIZE = 100
 
 class ContactStore extends Reflux.Store {
     constructor() {
@@ -14,8 +14,10 @@ class ContactStore extends Reflux.Store {
         this.contacts = [];
         this.loading = false;
 
-        this.listenTo(Actions.loadContacts, this.onLoadContacts)
+        this.currentPage = 1
+        this.fullyLoaded = false
 
+        this.listenTo(Actions.loadContacts, this.onLoadContacts)
 
     }
 
@@ -27,8 +29,8 @@ class ContactStore extends Reflux.Store {
 
         loadContacts = (accountId, page) => {
             const query = QueryString.stringify({
-                offset: (page - 1) * LIMIT,
-                limit: LIMIT
+                offset: (page - 1) * PAGESIZE,
+                limit: PAGESIZE
             })
 
             NylasAPI.makeRequest({
@@ -37,12 +39,16 @@ class ContactStore extends Reflux.Store {
                 accountId: accountId
             }).then((result) => {
                 if (result && result.length) {
-                    this.contacts = this.contacts.concat(result);
 
-                    Meteor.call('insertOrUpdateContacts', result)
-                    if (result.length == LIMIT) {
+                    Meteor.call('insertOrUpdateContacts', result, (err, ids) => {
+                        if(ids && ids.length)
+                            this.trigger()
+                    })
+
+                    if (result.length == PAGESIZE) {
                         loadContacts(accountId, page + 1)
                     }
+
                 }
             })
         }
@@ -56,6 +62,34 @@ class ContactStore extends Reflux.Store {
 
     getAllContacts() {
         return this.contacts;
+    }
+
+    getContacts({page, account_id, search}={}) {
+        page = page ? page : this.currentPage
+
+        let filters = {}
+        if(account_id) filters.account_id = account_id
+        if(search) {
+            const regex = {$regex: search, $options: 'i'}
+            filters['$or'] = [{email: regex}, {name: regex}]
+        }
+
+        result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
+
+        if(result.length == PAGESIZE) {
+            this.fullyLoaded = false
+        } else {
+            this.fullyLoaded = true
+        }
+        const cids = _.pluck(this.contacts, '_id')
+        result.forEach((c)=>{
+            if(!_.contains(cids, c._id))
+                this.contacts.push(c)
+        })
+
+        this.currentPage = page
+
+        return this.contacts
     }
 
     isLoading() {

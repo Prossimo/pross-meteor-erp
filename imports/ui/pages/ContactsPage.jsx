@@ -1,7 +1,7 @@
-import React from 'react';
+import React from 'react'
+import ContactsList from '../components/contacts/ContactsList'
 
-
-class ContactsPage extends React.Component{
+export default class ContactsPage extends React.Component{
     constructor(props){
         super(props);
 
@@ -10,9 +10,9 @@ class ContactsPage extends React.Component{
     render() {
         return (
             <div className="contacts-page">
-                <h1>Contacts Page</h1>
+                <ContactsList/>
             </div>
         )
     }
 }
-export default ContactsPage;
+
