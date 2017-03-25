@@ -29,6 +29,8 @@ class AccountStore extends Reflux.Store {
         if(!selectedCategory || !_.contains(allCategories, selectedCategory)) {
             CategoryStore.selectCategory(allCategories[0])
         }
+
+        Actions.loadContacts()
     }
     accounts() {
         this._accounts = Meteor.user().nylasAccounts()

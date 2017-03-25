@@ -1,18 +1,23 @@
-import React from 'react';
+import React from 'react'
+import ContactsList from '../components/contacts/ContactsList'
+import ContactOverview from '../components/contacts/ContactOverview'
 
-
-class ContactsPage extends React.Component{
+export default class ContactsPage extends React.Component{
     constructor(props){
         super(props);
 
+        this.state = {
+            selectedContact: null
+        }
     }
 
     render() {
         return (
-            <div className="contacts-page">
-                <h1>Contacts Page</h1>
+            <div className="contact-page">
+                <ContactsList onSelectContact={(contact)=>this.setState({selectedContact:contact})}/>
+                <ContactOverview contact={this.state.selectedContact}/>
             </div>
         )
     }
 }
-export default ContactsPage;
+

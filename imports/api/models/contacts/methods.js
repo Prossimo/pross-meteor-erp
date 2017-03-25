@@ -36,7 +36,7 @@ Meteor.methods({
 
         let ids = []
         data.forEach((item) => {
-            const {id} = item
+            const {id, name} = item
 
             let contact = _.find(existingContacts, {id})
 
@@ -45,9 +45,11 @@ Meteor.methods({
                     (item.name && contact.name != item.name) ||
                     (item.phone_numbers && item.phone_numbers.length && contact.phone_numbers != item.phone_numbers)) {
                     Contacts.update({id}, {$set: item})
+                    ids.push(id)
                 }
-                ids.push(id)
             } else {
+                if(!name) item.name = item.email
+
                 ids.push(Contacts.insert(item))
             }
         })

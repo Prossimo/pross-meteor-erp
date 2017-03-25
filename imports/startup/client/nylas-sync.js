@@ -1,7 +1,6 @@
 import Actions from '/imports/api/nylas/actions'
 
 fetchContact = () => {
-    console.log('NylasSync->fetchContact')
     if(Meteor.userId()) {
         Actions.loadContacts()
 

@@ -40,6 +40,7 @@ Contacts.schema = new SimpleSchema({
     "phone_numbers.$": {
         type: Object
     },
+    description: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
@@ -52,6 +53,15 @@ Contacts.publicFields = {
     email: 1,
     name: 1,
     phone_numbers: 1,
+    description: 1,
     created_at: 1,
     modified_at: 1
 };
+
+Contacts.helpers({
+    account() {
+        const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
+
+        return NylasAccounts.findOne({accountId: this.account_id})
+    }
+});
