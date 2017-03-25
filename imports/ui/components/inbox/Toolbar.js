@@ -20,7 +20,7 @@ export default class Toolbar extends React.Component {
     render() {
         const thread = this.props.thread
         return (
-            <div className="toolbar-container">
+            <div className="toolbar-panel">
                 <div style={{order: 0, minWidth: 150, maxWidth: 200, flex: 1}}>
                     <ComposeButton/>
                 </div>

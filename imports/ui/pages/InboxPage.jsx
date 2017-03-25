@@ -195,7 +195,6 @@ class InboxPage extends React.Component {
                 {
                     AccountStore.accounts().map((account) => {
                     const categoriesForAccount = CategoryStore.getCategories(account.accountId)
-                    console.log('categoriesForAccount', categoriesForAccount)
 
                     const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
                     <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''

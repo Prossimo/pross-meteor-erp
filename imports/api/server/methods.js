@@ -22,6 +22,28 @@ import '../models/nylasaccounts/methods';
 import '../models/contacts/methods';
 import { googleServerApiAutToken } from '../../api/server/functions';
 
+const driveScopes = [
+    'https://www.googleapis.com/auth/drive',
+    'https://www.googleapis.com/auth/drive.file',
+    'https://www.googleapis.com/auth/drive.appdata',
+    'https://www.googleapis.com/auth/drive.apps.readonly'
+];
+//googleServerApiAutToken is async but we need token to make req to google drive api
+let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
+let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+
+const OAuth2Client = google.auth.OAuth2;
+const oauth2Client = new OAuth2Client(
+    config.google.clientDriveId,
+    config.google.clientDriveSecret,
+    config.google.redirectUri);
+
+oauth2Client.setCredentials({
+    access_token: googleToken
+});
+
+const googleDrive = google.drive({ version: 'v3', auth: oauth2Client });
+
 const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
@@ -704,34 +726,13 @@ Meteor.methods({
   },
     
   async getDriveFileList() {
-      const drive = google.drive('v3');
-      const driveScopes = [
-          'https://www.googleapis.com/auth/drive',
-          'https://www.googleapis.com/auth/drive.file',
-          'https://www.googleapis.com/auth/drive.appdata',
-          'https://www.googleapis.com/auth/drive.apps.readonly'
-      ];
-
-      const OAuth2Client = google.auth.OAuth2;
-      const oauth2Client = new OAuth2Client(
-          config.google.clientDriveId,
-          config.google.clientDriveSecret,
-          config.google.redirectUri);
-    
-      //googleServerApiAutToken is async but we need token to make req to google drive api
-      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
-      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
-      
-      oauth2Client.setCredentials({
-          access_token: googleToken
-      });
-    
       // Create the promise so we can use await later.
       const driveFileListPromise = new Promise((resolve, reject) => {
-          drive.files.list({
+          googleDrive.files.list({
               auth: oauth2Client,
               pageSize: 10,
-              fields: "nextPageToken, files(id, name)"
+              fields: "nextPageToken, files"
+              // fields: "nextPageToken, files(id, name)"
           }, (err, response) => {
               if (err) {
                   return reject(err);
@@ -740,6 +741,35 @@ Meteor.methods({
           });
       });
     
+      // return promise result to React method
+      try {
+          return await driveFileListPromise;
+      } catch (err) {
+          console.log(`ERROR: ${err.message}`);
+          throw err;
+      }
+  },
+    
+  async saveGoogleDriveFile(fileInfo, fileData) {
+      // Create the promise so we can use await later.
+      const driveFileListPromise = new Promise((resolve, reject) => {
+          googleDrive.files.create({
+              resource: {
+                  name: fileInfo.name,
+                  mimeType: fileInfo.type
+              },
+              media: {
+                  mimeType: fileInfo.type,
+                  body: fileData
+              }
+          }, (err, response) => {
+              if (err) {
+                  return reject(err);
+              }
+              resolve(response);
+          });
+      });
+      
       // return promise result to React method
       try {
           return await driveFileListPromise;
