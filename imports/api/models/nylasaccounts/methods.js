@@ -138,6 +138,15 @@ Meteor.methods({
         NylasAccounts.remove({_id: account._id})
     },
 
+    updateNylasAccount(id, data) {
+        const account = NylasAccounts.findOne({_id:id})
+
+        if(!account)
+            throw new Meteor.Error('Could not find nylas account')
+
+        NylasAccounts.update({_id:id}, {$set:data})
+    },
+
     nylasAccountForAccountId(accountId) {
         const accounts = Meteor.user().nylasAccounts()
 

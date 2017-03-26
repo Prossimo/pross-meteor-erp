@@ -9,6 +9,7 @@ import SingleSalesRecord from '../../api/composer/componencts/project/SingleProj
 import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import InboxPage from '../../ui/pages/InboxPage';
+import InboxSettingsPage from '../../ui/pages/InboxSettingsPage';
 import LeadsPage from '/imports/ui/pages/LeadsPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
@@ -65,6 +66,16 @@ FlowRouter.route('/inbox', {
         checkAuth();
         mount(App, {
             content: <InboxPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/inbox_settings', {
+    name: 'InboxSettings',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <InboxSettingsPage/>,
         })
     }
 });

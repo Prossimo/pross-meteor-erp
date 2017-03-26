@@ -118,6 +118,10 @@ class Aside extends React.Component{
                         label: "Account",
                         route: "Account"
                     },
+                    {
+                        label: "Inbox",
+                        route: "InboxSettings"
+                    }
                 ]
             }
         ];
