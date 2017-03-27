@@ -25,7 +25,7 @@ export default class AccountSettingForm extends React.Component {
                         Full Name
                     </Col>
                     <Col sm={9}>
-                        <FormControl type="text" placeholder="Name" value={name} onChange={(evt)=>this.setState({name:evt.target.value})}/>
+                        <FormControl type="text" placeholder="Name" value={this.state.name} onChange={(evt)=>this.setState({name:evt.target.value})}/>
                     </Col>
                 </FormGroup>
 
@@ -83,7 +83,7 @@ export default class AccountSettingForm extends React.Component {
         evt.preventDefault()
 
         const {name, signature} = this.state
-        Meteor.call('updateNylasAccount', this.props.account.id, {name, signature}, (err,res)=>{
+        Meteor.call('updateNylasAccount', this.props.account._id, {name, signature}, (err,res)=>{
             if(err) warning(err.message);
         })
     }

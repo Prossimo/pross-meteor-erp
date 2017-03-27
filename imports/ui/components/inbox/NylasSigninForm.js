@@ -8,6 +8,7 @@ import Actions from '../../../api/nylas/actions'
 export default class NylasSigninForm extends React.Component {
     static propTypes = {
         onCancel: React.PropTypes.func,
+        onCompleted: React.PropTypes.func,
         isAddingTeamInbox: React.PropTypes.bool
     }
     constructor(props) {
@@ -166,8 +167,8 @@ export default class NylasSigninForm extends React.Component {
             }
 
             setTimeout(()=>{
-                this.setState({isProcessing: true})
                 Actions.changedAccounts()
+                if(this.props.onCompleted) this.props.onCompleted()
             }, 6000)
         })
     }

@@ -1,8 +1,10 @@
 import React from 'react'
 import {Tabs, Tab, Panel, Button} from 'react-bootstrap'
 import AccountStore from '../../api/nylas/account-store'
+import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
+
 
 
 export default class InboxSettingsPage extends React.Component {
@@ -12,14 +14,16 @@ export default class InboxSettingsPage extends React.Component {
         super(props)
 
         this.state = {
-            addingInbox: false,
-            addingTeamInbox: false
+            addingIndividualInbox: false,
+            addingTeamInbox: false,
+            accounts: AccountStore.accounts()
         }
     }
 
 
     componentDidMount() {
-
+        this.unsubscribes = []
+        this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
     }
 
     componentWillUnmount() {
@@ -30,45 +34,54 @@ export default class InboxSettingsPage extends React.Component {
         }
     }
 
-    render() {
-        if (Meteor.user().isAdmin())
-            return this.renderTabs()
-        else
-            return this.renderComponent()
+    onAccountStoreChanged = () => {
+        this.setState({accounts: AccountStore.accounts()})
     }
 
-    renderTabs() {
+    render() {
+        return (
+            <div className="inbox-settings-page">
+                {Meteor.user().isAdmin() ? this.renderTabs() : this.renderComponent()}
+            </div>
+        )
+    }
+
+    renderTabs = () => {
         return (
             <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
-                <Tab eventKey={1} title="Team inboxes">{this.renderCompnent(true)}</Tab>
-                <Tab eventKey={2} title="Individual inboxes">{this.renderCompnent()}</Tab>
+                <Tab eventKey={1} title="Team inboxes">{this.renderComponent(true)}</Tab>
+                <Tab eventKey={2} title="Individual inboxes">{this.renderComponent()}</Tab>
             </Tabs>
         )
     }
 
-    renderComponent(isTeamAccount = false) {
-        let accounts = AccountStore.accounts()
+    renderComponent = (isTeamAccount = false) => {
+        let accounts = this.state.accounts.filter((account)=>account.isTeamAccount==isTeamAccount)
 
-        const {addingInbox, addingTeamInbox} = this.state
-        if(addingInbox) {
-            return <NylasSigninForm isAddingTeamInbox={addingTeamInbox} onCancel={() => this.setState({addingInbox: false})}/>
+        const {addingIndividualInbox, addingTeamInbox} = this.state
+        if (addingIndividualInbox&&!isTeamAccount || addingTeamInbox&&isTeamAccount) {
+            return <NylasSigninForm isAddingTeamInbox={isTeamAccount}
+                                    onCancel={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}
+                                    onCompleted={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}/>
         } else {
             return (
-                <div style={{padding:10,backgroundColor:'white'}}>
+                <div style={{padding: 10, backgroundColor: 'white'}}>
                     <div className="toolbar-panel">
                         <div style={{flex: 1}}>
-                            <Button bsStyle="primary" onClick={() => this.setState({addingInbox: true, addingInbox: isTeamAccount})}>Add an inbox</Button>
+                            <Button bsStyle="primary"
+                                    onClick={() => isTeamAccount ? this.setState({addingTeamInbox: true}) : this.setState({addingIndividualInbox: true})}>Add
+                                an inbox</Button>
                         </div>
                     </div>
                     {
                         accounts.map((account) => {
                             const header = (
                                 <div style={{display: 'flex'}}>
-                                    <div style={{flex:1}}>
+                                    <div style={{flex: 1}}>
                                         {account.emailAddress}
                                     </div>
                                     <div>
-                                        <Button bsStyle="danger" bsSize="xsmall"><i className="fa fa-trash"/></Button>
+                                        <Button bsStyle="danger" bsSize="xsmall" onClick={()=>this.onClickRemoveAccount(account)}><i className="fa fa-trash"/></Button>
                                     </div>
                                 </div>
                             )
@@ -82,6 +95,19 @@ export default class InboxSettingsPage extends React.Component {
                     }
                 </div>
             )
+        }
+    }
+
+    onClickRemoveAccount = (account) => {
+        if (confirm(`Are you sure to remove ${account.emailAddress}?`)) {
+            Meteor.call('removeNylasAccount', account, (err, res) => {
+                if (err) {
+                    console.log(err)
+                    return warning(err.message);
+                }
+
+                Actions.changedAccounts()
+            })
         }
     }
 }
