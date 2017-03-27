@@ -249,15 +249,16 @@ class CreateSalesRecord extends React.Component{
         return (
             <div className="create-project">
                 <form onSubmit={this.submitForm.bind(this)}
-                      className="default-form flex-form">
-                    <div className="field-wrap">
-                        <span className="label">Project name</span>
+                      className="">
+                    <div className="form-group">
+                        <label>Project Name</label>
                         <input type="text"
+                               className='form-control'
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
-                    <div className="select-wrap">
-                        <span className="label">Add members</span>
+                    <div className="form-group">
+                        <label>Add Members</label>
                         <Select
                             multi
                             value={selectUsers}
@@ -270,151 +271,198 @@ class CreateSalesRecord extends React.Component{
                     <div className="field-wrap full-width top-10 bottom-10">
                         {this.renderMembersConfig()}
                     </div>
-                    <div className="form-group">
-                        <h3 className="legend">Shipping</h3>
-                        <div className="field-wrap">
-                            <span className="label">Contact name</span>
-                            <input type="text"
-                                   onChange={this.changeState('shippingContactName')}
-                                   value={shippingContactName}/>
+                    <div className='row'>
+                        <div className='col-md-6'>
+                            <div className='panel panel-default'>
+                                <div className='panel-heading'>
+                                    Shipping
+                                </div>
+                                <div className='panel-body'>
+                                    <div className="form-group">
+                                        <label>Contact name</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactName')}
+                                            value={shippingContactName}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Address</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingAddress')}
+                                            value={shippingAddress}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Contact email</label>
+                                        <input type="email"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactEmail')}
+                                            value={shippingContactEmail}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Contact phone</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactPhone')}
+                                            value={shippingContactPhone}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Notes</label>
+                                        <Textarea rows={3}
+                                            className='form-control'
+                                            placeholder="Enter text"
+                                            value={shippingNotes}
+                                            onChange={this.changeState('shippingNotes')}/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="field-wrap">
-                            <span className="label">Address</span>
-                            <input type="text"
-                                   onChange={this.changeState('shippingAddress')}
-                                   value={shippingAddress}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Contact email</span>
-                            <input type="email"
-                                   onChange={this.changeState('shippingContactEmail')}
-                                   value={shippingContactEmail}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Contact phone</span>
-                            <input type="text"
-                                   onChange={this.changeState('shippingContactPhone')}
-                                   value={shippingContactPhone}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Notes</span>
-                            <Textarea rows={3}
-                                      placeholder="Enter text"
-                                      className=""
-                                      value={shippingNotes}
-                                      onChange={this.changeState('shippingNotes')}/>
-                        </div>
-                    </div>
-                    <div className="form-group">
-                        <h3 className="legend">Billing</h3>
-                        <div className="field-wrap">
-                            <span className="label">Contact name</span>
-                            <input type="text"
-                                   onChange={this.changeState('billingContactName')}
-                                   value={billingContactName}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Address</span>
-                            <input type="text"
-                                   onChange={this.changeState('billingAddress')}
-                                   value={billingAddress}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Contact email</span>
-                            <input type="email"
-                                   onChange={this.changeState('billingContactEmail')}
-                                   value={billingContactEmail}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Contact phone</span>
-                            <input type="text"
-                                   onChange={this.changeState('billingContactPhone')}
-                                   value={billingContactPhone}/>
-                        </div>
-                        <div className="field-wrap">
-                            <span className="label">Notes</span>
-                            <Textarea rows={3}
-                                      placeholder="Enter text"
-                                      className=""
-                                      value={billingNotes}
-                                      onChange={this.changeState('billingNotes')}/>
+                        <div className='col-md-6'>
+                            <div className='panel panel-default'>
+                                <div className='panel-heading'>
+                                    Billing
+                                </div>
+                                <div className='panel-body'>
+                                    <div className='form-group'>
+                                        <label>Contact name</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactName')}
+                                            value={billingContactName}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Address</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingAddress')}
+                                            value={billingAddress}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Contact email</label>
+                                        <input type="email"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactEmail')}
+                                            value={billingContactEmail}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Contact phone</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactPhone')}
+                                            value={billingContactPhone}/>
+                                    </div>
+                                    <div className="field-wrap">
+                                        <label>Notes</label>
+                                        <Textarea rows={3}
+                                            className='form-control'
+                                            placeholder="Enter text"
+                                            value={billingNotes}
+                                            onChange={this.changeState('billingNotes')}/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="field-wrap">
-                        <span className="label">Supplier</span>
-                        <input type="text"
-                               onChange={this.changeState('supplier')}
-                               value={supplier}/>
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Shipping Mode</span>
-                        <Select
-                            value={selectedShippingMode}
-                            onChange={this.changeState('selectedShippingMode')}
-                            options={shippingMode}
-                            className={"select-role"}
-                            clearable={false}
-                        />
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Est. Delivery Range</span>
-                        <DatePicker
-                            selected={startDate}
-                            selectsStart  startDate={startDate}
-                            endDate={endDate}
-                            onChange={this.changeState('startDate')} />
-                        <DatePicker
-                            selected={endDate}
-                            selectsEnd  startDate={startDate}
-                            endDate={endDate}
-                            onChange={this.changeState('endDate')} />
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Actual Delivery Date</span>
-                        <DatePicker
+                    <div className='panel panel-default'>
+                        <div className='panel-heading'>
+                            Others
+                        </div>
+                        <div className='panel-body'>
+                            <div className='form-group'>
+                                <label>Supplier</label>
+                                <input type="text"
+                                    className='form-control'
+                                    onChange={this.changeState('supplier')}
+                                    value={supplier}/>
+                            </div>
+                            <div className='form-group'>
+                                <label>Shipping Mode</label>
+                                <Select
+                                    value={selectedShippingMode}
+                                    onChange={this.changeState('selectedShippingMode')}
+                                    options={shippingMode}
+                                    className={"select-role"}
+                                    clearable={false}
+                                />
+                            </div>
+                            <div className='form-group'>
+                                <label>Est. Delivery Range </label>
+                                &nbsp;
+                                <DatePicker
+                                    className='form-control'
+                                    selected={startDate}
+                                    selectsStart  startDate={startDate}
+                                    endDate={endDate}
+                                    onChange={this.changeState('startDate')} />
+                                &nbsp;
+                                to
+                                &nbsp;
+                                <DatePicker
+                                    className='form-control'
+                                    selected={endDate}
+                                    selectsEnd  startDate={startDate}
+                                    endDate={endDate}
+                                    onChange={this.changeState('endDate')} />
+                            </div>
+                            <div className='form-group'>
+                                <label>Actual Delivery Date</label>
+                                &nbsp;
+                                <DatePicker
+                                    className='form-control'
                                     selected={actualDeliveryDate}
                                     onChange={this.changeState('actualDeliveryDate')} />
-                    </div>
-                    <div className="select-wrap">
-                        <span className="label">Production Start Date</span>
-                        <DatePicker
+                            </div>
+                            <div className='form-group'>
+                                <label>Production Start Date</label>
+                                &nbsp;
+                                <DatePicker
+                                    className='form-control'
                                     selected={productionStartDate}
                                     onChange={this.changeState('productionStartDate')} />
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Estimate Production Time (weeks)</span>
-                        <NumericInput min={0} value={estProductionTime} className="" onChange={this.changeState('estProductionTime')} />
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Actual Production Time (weeks)</span>
-                        <NumericInput min={0} value={actProductionTime} className="" onChange={this.changeState('actProductionTime')} />
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Shipper</span>
-                        <input type="text"
-                               onChange={this.changeState('shipper')}
-                               value={shipper}/>
-                    </div>
-                    {
-                        (!this.props.stage) ? (
-                            <div>
-                                <div className="select-wrap">
-                                    <span className="label">Stage</span>
-                                    <Select
-                                        value={selectedStage}
-                                        onChange={this.changeState('selectedStage')}
-                                        options={stages}
-                                        className={"select-role"}
-                                        clearable={false}
-                                    />
-                                </div>
-                                <div className="selected-wrap">
-                                </div>
                             </div>
-                        ) : ''
-                    }
-                    <div className="submit-wrap">
+                            <div className='form-group'>
+                                <label>Estimate Production Time (weeks)</label>
+                                <NumericInput
+                                    min={0}
+                                    value={estProductionTime}
+                                    className='form-control'
+                                    onChange={this.changeState('estProductionTime')} />
+                            </div>
+                            <div className='form-group'>
+                                <label>Actual Production Time (weeks)</label>
+                                <NumericInput
+                                    min={0}
+                                    value={actProductionTime}
+                                    className='form-control'
+                                    onChange={this.changeState('actProductionTime')} />
+                            </div>
+                            <div className='form-group'>
+                                <label>Shipper</label>
+                                <input type="text"
+                                    className='form-control'
+                                    onChange={this.changeState('shipper')}
+                                    value={shipper}/>
+                            </div>
+                            {
+                                (!this.props.stage) ? (
+                                    <div>
+                                        <div className='form-group'>
+                                            <label>Stage</label>
+                                            <Select
+                                                value={selectedStage}
+                                                onChange={this.changeState('selectedStage')}
+                                                options={stages}
+                                                className={"select-role"}
+                                                clearable={false}
+                                            />
+                                        </div>
+                                    </div>
+                                ) : ''
+                            }
+                        </div>
+                    </div>
+                    <div className='form-group text-center'>
                         <button className="btnn primary-btn">{ submitBtnName }</button>
                     </div>
                 </form>

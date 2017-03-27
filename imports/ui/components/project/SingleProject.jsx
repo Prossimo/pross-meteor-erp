@@ -10,19 +10,19 @@ import Files from './Files';
 class SingleProject extends Component {
   constructor(props){
     super(props);
-
+    const projectId = FlowRouter.getParam('id');
     this.tabs = [
       {
         label: 'Activity',
-        component: <Activities/>
+        component: <Activities projectId={projectId}/>
       },
       {
         label: 'Tasks',
-        component: <Tasks/>
+        component: <Tasks projectId={projectId}/>
       },
       {
         label: 'Files',
-        component: <Files/>
+        component: <Files projectId={projectId}/>
       },
     ];
 
