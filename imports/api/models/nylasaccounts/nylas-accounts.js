@@ -45,6 +45,8 @@ NylasAccounts.schema = new SimpleSchema({
     isTeamAccount: {type: Boolean, optional: true},
     userId: {type: String, optional: true},  // if isTeamAccount=true then null
 
+    signature: {type: String, optional: true},
+
     categories: {type: Array, optional: true},
     "categories.$": {
         type: Object
@@ -81,6 +83,7 @@ NylasAccounts.publicFields = {
     isTeamAccount: 1,
     userId: 1,
     categories: 1,
+    signature: 1,
     createdAt: 1,
     modifiedAt: 1
 };
