@@ -3,8 +3,6 @@ import { createContainer  } from 'meteor/react-meteor-data';
 import { Tasks} from '/imports/api/lib/collections';
 import { GET_TASKS} from '/imports/api/constants/collections';
 
-const items = new ReactiveVar([]);
-
 class TasksView extends Component {
     constructor(props) {
         super(props);
@@ -14,6 +12,7 @@ class TasksView extends Component {
         this.addOptimisticItem = this.addOptimisticItem.bind(this);
         this.removeOptimisticItem = this.removeOptimisticItem.bind(this);
         this.mergeWithOptimisticItems = this.mergeWithOptimisticItems.bind(this);
+        this.removeItem = this.removeItem.bind(this);
         this.state = {
             optimisticItems: [],
         }
@@ -34,7 +33,6 @@ class TasksView extends Component {
     }
 
     removeOptimisticItem(itemId) {
-        console.log('>> ready');
         this.setState(({ optimisticItems })=> {
             optimisticItems = optimisticItems.filter(({ id })=> id !== itemId)
             return {
@@ -58,6 +56,12 @@ class TasksView extends Component {
                             return remoteItem;
                         }
                     })
+                    break;
+                case 'remove':
+                    items = items.filter((removeItem)=> {
+                        return  (removeItem.id !== item.id);
+                    });
+                    break;
             }
         });
         return items;
@@ -81,6 +85,14 @@ class TasksView extends Component {
         }
     }
 
+    removeItem(item, event) {
+        event.preventDefault();
+        this.addOptimisticItem(item, 'remove');
+        Meteor.call('task.removeItem', item.id, (error, result)=> {
+            this.removeOptimisticItem(item.id);
+        });
+    }
+
     handleCheck(item, isChecked) {
         if (isChecked) {
             item.checked = 1;
@@ -88,6 +100,12 @@ class TasksView extends Component {
             Meteor.call('task.complete', item.id, (error, result)=> {
                 this.removeOptimisticItem(item.id);
             });
+        } else {
+            item.checked = 0;
+            this.addOptimisticItem(item, 'mod');
+            Meteor.call('task.uncomplete', item.id, (error, result)=> {
+                this.removeOptimisticItem(item.id);
+            })
         }
     }
 
@@ -99,7 +117,8 @@ class TasksView extends Component {
                 items.map((item)=> {
                     return (
                         <div className='checkbox' key={item.id}>
-                            <label>
+                            <a href='#' onClick={(event)=> this.removeItem(item, event)}><i className='fa fa-times'/></a>
+                            <label style={{marginLeft: '20px'}}>
                                 <input
                                     type='checkbox'
                                     onChange={(event)=> this.handleCheck(item, event.target.checked)}

@@ -20,6 +20,7 @@ Meteor.methods({
     // sync local items with server item
     'task.syncItems'() {
         const { items } = api.sync(['items']);
+        console.log(items);
         items.forEach((item)=> {
             const task = Tasks.findOne({ 'project.id': item.project_id, items: { $elemMatch: { id: item.id } }});
             if (task) {
@@ -47,11 +48,25 @@ Meteor.methods({
         const items = Meteor.call('task.syncItems');
         return _.last(items);
     },
+    // complete item
     'task.complete'(id) {
         check(id, Number);
         api.items.complete([id]);
         api.commit();
-        const items = Meteor.call('task.syncItems');
-        return _.last(items);
+        Meteor.call('task.syncItems');
+    },
+    // uncomplete task
+    'task.uncomplete'(id) {
+        check(id, Number);
+        api.items.uncomplete([id]);
+        api.commit();
+        Meteor.call('task.syncItems');
+    },
+    // remove item
+    'task.removeItem'(id) {
+        check(id, Number);
+        api.items.remove([id]);
+        api.commit();
+        Tasks.update({'items.id': id}, {$pull: {items: { id: id }}});
     }
 })
