@@ -271,89 +271,95 @@ class CreateSalesRecord extends React.Component{
                     <div className="field-wrap full-width top-10 bottom-10">
                         {this.renderMembersConfig()}
                     </div>
-                    <div className='panel panel-default'>
-                        <div className='panel-heading'>
-                            Shipping
+                    <div className='row'>
+                        <div className='col-md-6'>
+                            <div className='panel panel-default'>
+                                <div className='panel-heading'>
+                                    Shipping
+                                </div>
+                                <div className='panel-body'>
+                                    <div className="form-group">
+                                        <label>Contact name</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactName')}
+                                            value={shippingContactName}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Address</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingAddress')}
+                                            value={shippingAddress}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Contact email</label>
+                                        <input type="email"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactEmail')}
+                                            value={shippingContactEmail}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Contact phone</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('shippingContactPhone')}
+                                            value={shippingContactPhone}/>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Notes</label>
+                                        <Textarea rows={3}
+                                            className='form-control'
+                                            placeholder="Enter text"
+                                            value={shippingNotes}
+                                            onChange={this.changeState('shippingNotes')}/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className='panel-body'>
-                            <div className="form-group">
-                                <label>Contact name</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('shippingContactName')}
-                                    value={shippingContactName}/>
-                            </div>
-                            <div className="form-group">
-                                <label>Address</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('shippingAddress')}
-                                    value={shippingAddress}/>
-                            </div>
-                            <div className="form-group">
-                                <label>Contact email</label>
-                                <input type="email"
-                                    className='form-control'
-                                    onChange={this.changeState('shippingContactEmail')}
-                                    value={shippingContactEmail}/>
-                            </div>
-                            <div className="form-group">
-                                <label>Contact phone</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('shippingContactPhone')}
-                                    value={shippingContactPhone}/>
-                            </div>
-                            <div className="form-group">
-                                <label>Notes</label>
-                                <Textarea rows={3}
-                                    className='form-control'
-                                    placeholder="Enter text"
-                                    value={shippingNotes}
-                                    onChange={this.changeState('shippingNotes')}/>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='panel panel-default'>
-                        <div className='panel-heading'>
-                            Billing
-                        </div>
-                        <div className='panel-body'>
-                            <div className='form-group'>
-                                <label>Contact name</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('billingContactName')}
-                                    value={billingContactName}/>
-                            </div>
-                            <div className='form-group'>
-                                <label>Address</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('billingAddress')}
-                                    value={billingAddress}/>
-                            </div>
-                            <div className='form-group'>
-                                <label>Contact email</label>
-                                <input type="email"
-                                    className='form-control'
-                                    onChange={this.changeState('billingContactEmail')}
-                                    value={billingContactEmail}/>
-                            </div>
-                            <div className='form-group'>
-                                <label>Contact phone</label>
-                                <input type="text"
-                                    className='form-control'
-                                    onChange={this.changeState('billingContactPhone')}
-                                    value={billingContactPhone}/>
-                            </div>
-                            <div className="field-wrap">
-                                <label>Notes</label>
-                                <Textarea rows={3}
-                                    className='form-control'
-                                    placeholder="Enter text"
-                                    value={billingNotes}
-                                    onChange={this.changeState('billingNotes')}/>
+                        <div className='col-md-6'>
+                            <div className='panel panel-default'>
+                                <div className='panel-heading'>
+                                    Billing
+                                </div>
+                                <div className='panel-body'>
+                                    <div className='form-group'>
+                                        <label>Contact name</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactName')}
+                                            value={billingContactName}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Address</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingAddress')}
+                                            value={billingAddress}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Contact email</label>
+                                        <input type="email"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactEmail')}
+                                            value={billingContactEmail}/>
+                                    </div>
+                                    <div className='form-group'>
+                                        <label>Contact phone</label>
+                                        <input type="text"
+                                            className='form-control'
+                                            onChange={this.changeState('billingContactPhone')}
+                                            value={billingContactPhone}/>
+                                    </div>
+                                    <div className="field-wrap">
+                                        <label>Notes</label>
+                                        <Textarea rows={3}
+                                            className='form-control'
+                                            placeholder="Enter text"
+                                            value={billingNotes}
+                                            onChange={this.changeState('billingNotes')}/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -401,6 +407,7 @@ class CreateSalesRecord extends React.Component{
                             </div>
                             <div className='form-group'>
                                 <label>Actual Delivery Date</label>
+                                &nbsp;
                                 <DatePicker
                                     className='form-control'
                                     selected={actualDeliveryDate}
@@ -408,6 +415,7 @@ class CreateSalesRecord extends React.Component{
                             </div>
                             <div className='form-group'>
                                 <label>Production Start Date</label>
+                                &nbsp;
                                 <DatePicker
                                     className='form-control'
                                     selected={productionStartDate}
