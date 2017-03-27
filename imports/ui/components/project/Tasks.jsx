@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import uuidV4 from 'uuid/v4';
 import { createContainer  } from 'meteor/react-meteor-data';
 import { Tasks} from '/imports/api/lib/collections';
 import { GET_TASKS} from '/imports/api/constants/collections';
@@ -24,6 +25,7 @@ class TasksView extends Component {
 
     addOptimisticItem(item, type) {
         item.type = type;
+        item.optimistic = true;
         this.setState(({ optimisticItems })=> {
             optimisticItems.push(item);
             return {
@@ -42,7 +44,7 @@ class TasksView extends Component {
     }
 
     mergeWithOptimisticItems() {
-        let items = this.props.task.items || [];
+        let items = _.clone(this.props.task.items || []);
         this.state.optimisticItems.forEach((item)=> {
             switch(item.type) {
                 case 'add':
@@ -71,8 +73,7 @@ class TasksView extends Component {
         event.preventDefault();
         const content = event.target.content.value;
         const { project: { id } } = this.props.task;
-        const itemId = Meteor.uuid();
-
+        const itemId = uuidV4();
         if (content) {
             event.target.content.value = '';
             this.addOptimisticItem({
@@ -115,19 +116,36 @@ class TasksView extends Component {
             <div>
             {
                 items.map((item)=> {
-                    return (
-                        <div className='checkbox' key={item.id}>
-                            <a href='#' onClick={(event)=> this.removeItem(item, event)}><i className='fa fa-times'/></a>
-                            <label style={{marginLeft: '20px'}}>
-                                <input
-                                    type='checkbox'
-                                    onChange={(event)=> this.handleCheck(item, event.target.checked)}
-                                    checked={ item.checked === 1 }
-                                />
-                                { item.content }
-                            </label>
-                        </div>
-                    );
+                    if (item.optimistic) {
+                        return (
+                            <div className='checkbox' style={{backgroundColor: 'wheat'}} key={item.id}>
+                                <a href='#'><i className='fa fa-times'/></a>
+                                &nbsp; <i className='fa fa-refresh fa-spin'/>
+                                <label style={{marginLeft: '10px'}}>
+                                    <input
+                                        type='checkbox'
+                                        checked={ item.checked === 1 }
+                                        onChange={()=> {}}
+                                    />
+                                    { item.content }
+                                </label>
+                            </div>
+                        );
+                    } else {
+                        return (
+                            <div className='checkbox' key={item.id}>
+                                <a href='#' onClick={(event)=> this.removeItem(item, event)}><i className='fa fa-times'/></a>
+                                <label style={{marginLeft: '32px'}}>
+                                    <input
+                                        type='checkbox'
+                                        onChange={(event)=> this.handleCheck(item, event.target.checked)}
+                                        checked={ item.checked === 1 }
+                                    />
+                                    { item.content }
+                                </label>
+                            </div>
+                        )
+                    }
                 })
             }
             </div>
