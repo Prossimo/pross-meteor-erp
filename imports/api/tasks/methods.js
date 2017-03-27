@@ -20,7 +20,6 @@ Meteor.methods({
     // sync local items with server item
     'task.syncItems'() {
         const { items } = api.sync(['items']);
-        console.log(items);
         items.forEach((item)=> {
             const task = Tasks.findOne({ 'project.id': item.project_id, items: { $elemMatch: { id: item.id } }});
             if (task) {
