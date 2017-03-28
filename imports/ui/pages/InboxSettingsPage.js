@@ -4,8 +4,7 @@ import AccountStore from '../../api/nylas/account-store'
 import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
-
-
+import {warning} from "/imports/api/lib/alerts"
 
 export default class InboxSettingsPage extends React.Component {
     static propTypes = {}

@@ -5,7 +5,9 @@ import ContactStore from '../../../api/nylas/contact-store'
 
 export default class ContactsList extends React.Component {
     static propTypes = {
-        onSelectContact: React.PropTypes.func
+        onSelectContact: React.PropTypes.func,
+        updatedContact: React.PropTypes.object,
+        removedContact: React.PropTypes.object
     }
 
     constructor(props) {
@@ -22,6 +24,19 @@ export default class ContactsList extends React.Component {
 
     componentWillUnmount() {
         if (this.unlisten) this.unlisten()
+    }
+
+
+    componentWillReceiveProps(nextProps) {
+        const {updatedContact, removedContact} = nextProps
+        let {contacts} = this.state
+        if(updatedContact) {
+            contacts.splice(contacts.findIndex((c)=>c.id==updatedContact.id),1,updatedContact)
+            this.setState({contacts:contacts})
+        } else if(removedContact) {
+            contacts.splice(contacts.findIndex((c)=>c.id==removedContact.id),1)
+            this.setState({contacts:contacts})
+        }
     }
 
     onContactStoreChanged = () => {
@@ -76,17 +91,22 @@ export default class ContactsList extends React.Component {
         )
     }
     renderContacts() {
-        const {contacts} = this.state
+        const {contacts, selectedContact, updatedContact, removedContact} = this.state
 
         if (!contacts || contacts.length == 0) return ''
+
 
         compare = (c1, c2) => {
             if (c1.name > c2.name) return 1
             else if (c1.name < c2.name) return -1
-            return 0
+            else {
+                if(c1.email > c2.email) return 1
+                else if(c1.email < c2.email) return -1
+                return 0
+            }
         }
         return contacts.sort(compare).map((contact, index) => (
-            <tr key={contact._id} onClick={()=>{this.props.onSelectContact && this.props.onSelectContact(contact)}}>
+            <tr className={selectedContact && selectedContact.id===contact.id ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{contact.name}</td>
                 <td width="25%">{contact.email}</td>
@@ -97,6 +117,10 @@ export default class ContactsList extends React.Component {
         ))
     }
 
+    onClickContact = (contact) => {
+        this.setState({selectedContact: contact})
+        if(this.props.onSelectContact) this.props.onSelectContact(contact)
+    }
 
     onScrollContactList = (evt) => {
         const el = evt.target

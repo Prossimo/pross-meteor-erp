@@ -85,7 +85,7 @@ Meteor.startup(()=>{
     });
 
     Meteor.publish(GET_CONTACTS, function () {
-        return Contacts.find({});
+        return Contacts.find({$or:[{removed:false},{removed:null}]});
     });
 
     Meteor.publish(GET_NEW_PROJECTS, function() {

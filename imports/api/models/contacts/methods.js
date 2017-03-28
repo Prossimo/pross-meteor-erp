@@ -59,6 +59,11 @@ Meteor.methods({
 
     removeContact(id)
     {
-        Contacts.remove({_id: id})
+        const contact = Contacts.findOne({_id:id})
+
+        if(contact.account().isTeamAccount && !Meteor.user().isAdmin())
+            throw new Meteor.Error('You have no permission to delete a contact of team inbox')
+
+        Contacts.update({_id: id}, {$set:{removed:true}})
     },
 });
