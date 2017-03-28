@@ -10,6 +10,8 @@ import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import NumericInput from 'react-numeric-input';
 import SelectMembers from './salesRecord/SelectMembers';
+import SelectStakeholders from './salesRecord/SelectStakeholders';
+import ContactStore from '../../../api/nylas/contact-store'
 
 class ProjectMemberConfig extends React.Component{
     constructor(props){
@@ -261,25 +263,7 @@ class CreateSalesRecord extends React.Component{
                                value={projectName}/>
                     </div>
                     <SelectMembers members={this.props.users.filter(({ _id })=> Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}/>
-                    <div className='panel panel-default'>
-                        <div className='panel-heading'>
-                            Add Stakeholders
-                        </div>
-                        <div className='panel-body'>
-                            <label>Stakeholders</label>
-                            <Select
-                                multi
-                                value={selectUsers}
-                                onChange={this.changeState('selectUsers')}
-                                options={memberOptions}
-                                className={"members-select"}
-                                clearable={false}
-                            />
-                            <div className="field-wrap full-width top-10 bottom-10">
-                                {this.renderMembersConfig()}
-                            </div>
-                        </div>
-                    </div>
+                    <SelectStakeholders members={ContactStore.getContacts(1)}/>
                     <div className='row'>
                         <div className='col-md-6'>
                             <div className='panel panel-default'>
