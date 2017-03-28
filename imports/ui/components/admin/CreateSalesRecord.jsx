@@ -4,10 +4,12 @@ import Select from 'react-select';
 import Textarea from 'react-textarea-autosize';
 import { info, warning } from '/imports/api/lib/alerts';
 import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST, STAGES } from '/imports/api/constants/project';
+import { EMPLOYEE_ROLE, ADMIN_ROLE } from '/imports/api/constants/roles';
 import Switch from 'rc-switch';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import NumericInput from 'react-numeric-input';
+import SelectMembers from './salesRecord/SelectMembers';
 
 class ProjectMemberConfig extends React.Component{
     constructor(props){
@@ -258,31 +260,13 @@ class CreateSalesRecord extends React.Component{
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
-                    <div className='panel panel-default'>
-                        <div className='panel-heading'>
-                            Add Members
-                        </div>
-                        <div className='panel-body'>
-                            <label>Add Members</label>
-                            <Select
-                                multi
-                                value={selectUsers}
-                                onChange={this.changeState('selectUsers')}
-                                options={memberOptions}
-                                className={"members-select"}
-                                clearable={false}
-                            />
-                            <div className="field-wrap full-width top-10 bottom-10">
-                                {this.renderMembersConfig()}
-                            </div>
-                        </div>
-                    </div>
+                    <SelectMembers members={this.props.users.filter(({ _id })=> Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}/>
                     <div className='panel panel-default'>
                         <div className='panel-heading'>
                             Add Stakeholders
                         </div>
                         <div className='panel-body'>
-                            <label>Add Members</label>
+                            <label>Stakeholders</label>
                             <Select
                                 multi
                                 value={selectUsers}
