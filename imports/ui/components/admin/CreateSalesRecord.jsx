@@ -202,22 +202,23 @@ class CreateSalesRecord extends React.Component{
         if(!selectUsers.length) return null;
 
         const membersList = selectUsers.map(item=>{
-            return <ProjectMemberConfig key={item.label}
-                                        isMainStakeholder={item.isMainStakeholder}
-                                        changeParentState={this.changeMembersState.bind(this)}
-                                        member={item}
-                                        users={this.props.usersArr}/>
+            return <ProjectMemberConfig
+                    key={item.label}
+                    isMainStakeholder={item.isMainStakeholder}
+                    changeParentState={this.changeMembersState.bind(this)}
+                    member={item}
+                    users={this.props.usersArr}/>
         });
 
         return (
-            <table className="data-table large">
-                <thead className="project-members-table">
-                <tr>
-                    <td>Member</td>
-                    <td>Is main Stakeholder</td>
-                    <td>Secondary Stakeholder Designatioon</td>
-                    <td>Stakeholder Catagory</td>
-                </tr>
+            <table className="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Main Stakeholder</th>
+                        <th>Designation</th>
+                        <th>Category</th>
+                    </tr>
                 </thead>
                 <tbody>{membersList}</tbody>
             </table>
@@ -257,19 +258,43 @@ class CreateSalesRecord extends React.Component{
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
-                    <div className="form-group">
-                        <label>Add Members</label>
-                        <Select
-                            multi
-                            value={selectUsers}
-                            onChange={this.changeState('selectUsers')}
-                            options={memberOptions}
-                            className={"members-select"}
-                            clearable={false}
-                        />
+                    <div className='panel panel-default'>
+                        <div className='panel-heading'>
+                            Add Members
+                        </div>
+                        <div className='panel-body'>
+                            <label>Add Members</label>
+                            <Select
+                                multi
+                                value={selectUsers}
+                                onChange={this.changeState('selectUsers')}
+                                options={memberOptions}
+                                className={"members-select"}
+                                clearable={false}
+                            />
+                            <div className="field-wrap full-width top-10 bottom-10">
+                                {this.renderMembersConfig()}
+                            </div>
+                        </div>
                     </div>
-                    <div className="field-wrap full-width top-10 bottom-10">
-                        {this.renderMembersConfig()}
+                    <div className='panel panel-default'>
+                        <div className='panel-heading'>
+                            Add Stakeholders
+                        </div>
+                        <div className='panel-body'>
+                            <label>Add Members</label>
+                            <Select
+                                multi
+                                value={selectUsers}
+                                onChange={this.changeState('selectUsers')}
+                                options={memberOptions}
+                                className={"members-select"}
+                                clearable={false}
+                            />
+                            <div className="field-wrap full-width top-10 bottom-10">
+                                {this.renderMembersConfig()}
+                            </div>
+                        </div>
                     </div>
                     <div className='row'>
                         <div className='col-md-6'>
