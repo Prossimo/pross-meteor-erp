@@ -6,6 +6,7 @@ import ContactStore from '../../../api/nylas/contact-store'
 export default class ContactsList extends React.Component {
     static propTypes = {
         onSelectContact: React.PropTypes.func,
+        onCreateContact: React.PropTypes.func,
         updatedContact: React.PropTypes.object,
         removedContact: React.PropTypes.object
     }
@@ -57,7 +58,7 @@ export default class ContactsList extends React.Component {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary"><i className="fa fa-user-plus"/></Button>
+                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>

@@ -29,7 +29,7 @@ export default class AccountSettingForm extends React.Component {
                     </Col>
                 </FormGroup>
 
-                <FormGroup controlId="formHorizontalEmail">
+                <FormGroup controlId="formHorizontalSignature">
                     <Col componentClass={ControlLabel} sm={3}>
                         Signature
                     </Col>
