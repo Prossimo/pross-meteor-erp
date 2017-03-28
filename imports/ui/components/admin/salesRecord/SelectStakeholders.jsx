@@ -1,6 +1,5 @@
 import React, { Component, PropTypes } from 'react';
 import Select from 'react-select';
-import { getUserName } from '/imports/api/lib/filters';
 import {
     DESIGNATION_LIST,
     STAKEHOLDER_CATEGORY
@@ -15,9 +14,16 @@ class SelectStakeHolders extends Component{
         this.changeMembers = this.changeMembers.bind(this);
         this.renderMembers = this.renderMembers.bind(this);
         this.changeState = this.changeState.bind(this);
+        this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
+        this.designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
     }
 
     changeState(propName, item, propValue) {
+        if (propName === 'isMainStakeholder') {
+            this.state.selectedMembers.forEach((member)=> {
+                member.isMainStakeholder = false;
+            });
+        }
         item[propName] = propValue;
         this.setState({
             selectedMembers: this.state.selectedMembers,
@@ -25,17 +31,27 @@ class SelectStakeHolders extends Component{
     }
 
     changeMembers(selectedMembers) {
+        selectedMembers.forEach((member)=> {
+            const { designation, categories, isMainStakeholder } = member;
+            if (_.isUndefined(designation) || _.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
+                member.designation = this.designationOptions[0];
+                member.categories = [this.categoryOptions[0]];
+                member.isMainStakeholder = false;
+            }
+        });
+        // has checked
+        const hasChecked = selectedMembers.reduce((result, { isMainStakeholder })=> !!isMainStakeholder || result, false);
+        if (!hasChecked) selectedMembers[0].isMainStakeholder = true;
         this.setState({ selectedMembers});
     }
 
     renderMembers() {
-        const categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
-        const designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
         return (
             <table className='table table-condensed'>
                 <thead>
                     <tr>
                         <th>Name</th>
+                        <th>Main Stakeholder</th>
                         <th>Designation</th>
                         <th>Category</th>
                     </tr>
@@ -43,13 +59,18 @@ class SelectStakeHolders extends Component{
                 <tbody>
                     {
                         this.state.selectedMembers.map((selectedMember)=> {
-                            const { label, value, designation, categories } = selectedMember;
+                            let { label, value, designation, categories , isMainStakeholder} = selectedMember;
                             return (
                                 <tr key={value}>
                                     <td>{ label }</td>
                                     <td>
+                                        <div className='radio'>
+                                            <label><input type='checkbox' checked={isMainStakeholder} onChange={(event)=> this.changeState('isMainStakeholder', selectedMember, event.target.checked) }/></label>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <Select
-                                            options={designationOptions}
+                                            options={this.designationOptions}
                                             value={designation}
                                             onChange={(selectedDesignation)=> { this.changeState('designation', selectedMember, selectedDesignation)}}
                                         />
@@ -57,7 +78,7 @@ class SelectStakeHolders extends Component{
                                     <td>
                                         <Select
                                             multi
-                                            options={categoryOptions}
+                                            options={this.categoryOptions}
                                             value={categories}
                                             onChange={(selectedCatogories)=> { this.changeState('categories', selectedMember, selectedCatogories) }}
                                         />

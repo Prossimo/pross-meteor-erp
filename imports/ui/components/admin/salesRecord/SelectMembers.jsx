@@ -43,7 +43,9 @@ class SelectMembers extends Component{
                 <tbody>
                     {
                         this.state.selectedMembers.map((selectedMember)=> {
-                            const { label, value, designation, categories } = selectedMember;
+                            let { label, value, designation, categories } = selectedMember;
+                            designation = designation || designationOptions[0];
+                            categories = categories || [categoryOptions[0]];
                             return (
                                 <tr key={value}>
                                     <td>{ label }</td>
