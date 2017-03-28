@@ -23,8 +23,10 @@ class SelectStakeHolders extends Component{
             this.state.selectedMembers.forEach((member)=> {
                 member.isMainStakeholder = false;
             });
+            item[propName] = true;
+        } else {
+            item[propName] = propValue;
         }
-        item[propName] = propValue;
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
@@ -73,6 +75,7 @@ class SelectStakeHolders extends Component{
                                             options={this.designationOptions}
                                             value={designation}
                                             onChange={(selectedDesignation)=> { this.changeState('designation', selectedMember, selectedDesignation)}}
+                                            clearable={false}
                                         />
                                     </td>
                                     <td>
@@ -81,6 +84,7 @@ class SelectStakeHolders extends Component{
                                             options={this.categoryOptions}
                                             value={categories}
                                             onChange={(selectedCatogories)=> { this.changeState('categories', selectedMember, selectedCatogories) }}
+                                            clearable={false}
                                         />
                                     </td>
                                 </tr>

@@ -15,6 +15,8 @@ class SelectMembers extends Component{
         this.changeMembers = this.changeMembers.bind(this);
         this.renderMembers = this.renderMembers.bind(this);
         this.changeState = this.changeState.bind(this);
+        this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
+        this.designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
     }
 
     changeState(propName, item, propValue) {
@@ -25,12 +27,17 @@ class SelectMembers extends Component{
     }
 
     changeMembers(selectedMembers) {
+        selectedMembers.forEach((member)=> {
+            const { designation, categories, isMainStakeholder } = member;
+            if (_.isUndefined(designation) || _.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
+                member.designation = this.designationOptions[0];
+                member.categories = [this.categoryOptions[0]];
+            }
+        });
         this.setState({ selectedMembers});
     }
 
     renderMembers() {
-        const categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
-        const designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
         return (
             <table className='table table-condensed'>
                 <thead>
@@ -43,25 +50,25 @@ class SelectMembers extends Component{
                 <tbody>
                     {
                         this.state.selectedMembers.map((selectedMember)=> {
-                            let { label, value, designation, categories } = selectedMember;
-                            designation = designation || designationOptions[0];
-                            categories = categories || [categoryOptions[0]];
+                            const { label, value, designation, categories } = selectedMember;
                             return (
                                 <tr key={value}>
                                     <td>{ label }</td>
                                     <td>
                                         <Select
-                                            options={designationOptions}
+                                            options={this.designationOptions}
                                             value={designation}
                                             onChange={(selectedDesignation)=> { this.changeState('designation', selectedMember, selectedDesignation)}}
+                                            clearable={false}
                                         />
                                     </td>
                                     <td>
                                         <Select
                                             multi
-                                            options={categoryOptions}
+                                            options={this.categoryOptions}
                                             value={categories}
                                             onChange={(selectedCatogories)=> { this.changeState('categories', selectedMember, selectedCatogories) }}
+                                            clearable={false}
                                         />
                                     </td>
                                 </tr>
