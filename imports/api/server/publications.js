@@ -97,14 +97,20 @@ Meteor.startup(() => {
     });
 
     Meteor.publish(GET_CONTACTS, function () {
-        const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts();
-
         return Contacts.find({
             $or: [{
                 removed: false
             }, {
                 removed: null
-            }],
+            }]
+        });
+    });
+
+    Meteor.publish(GET_MY_CONTACTS, function () {
+        if(!this.userId) return []
+        const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts();
+
+        return Contacts.find({
             $or: [{
                 account_id: {
                     $in:_.pluck(nylasAccounts, 'accountId')

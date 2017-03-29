@@ -17,4 +17,5 @@ export const GET_NYLAS_ACCOUNTS = "getNylasAccounts";
 export const GET_NEW_PROJECTS = 'getNewProjects';
 export const GET_NEW_PROJECT = 'getNewProject';
 export const GET_CONTACTS = 'getContacts';
+export const GET_MY_CONTACTS = 'getMyContacts';
 export const GET_TASKS = 'getTasks';
