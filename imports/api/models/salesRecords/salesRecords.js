@@ -22,10 +22,17 @@ SalesRecords.schema = new SimpleSchema({
     members: { type: Array },
     "members.$": { type: Object },
     "members.$.userId": { type: String },
-    "members.$.isMainStakeholder": { type: Boolean },
     "members.$.destination": { type: String, optional: true },
     "members.$.category": { type: Array, optional: true },
     "members.$.category.$": { type: String, optional: true },
+
+    stakeholders: { type: Array },
+    'stakeholders.$': { type: Object },
+    'stakeholders.$.contactId': { type: String },
+    'stakeholders.$.isMainStakeholder': { type: Boolean },
+    'stakeholders.$.destination': { type: String, optional: true },
+    'stakeholders.$.category': { type: Array, optional: true },
+    'stakeholders.$.category.$': { type: String, optional: true },
 
     actualDeliveryDate: { type: Date },
     productionStartDate: { type: Date },

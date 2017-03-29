@@ -123,5 +123,6 @@ class SelectStakeHolders extends Component{
 
 SelectStakeHolders.propTypes = {
     members: PropTypes.array.isRequired,
+    selectedStakeholders: PropTypes.func.isRequired,
 }
 export default SelectStakeHolders;

@@ -46,6 +46,8 @@ class CreateSalesRecord extends React.Component{
             actProductionTime: 0,
         };
         this.changeState = this.changeState.bind(this);
+        this.updateMembers = this.updateMembers.bind(this);
+        this.updateStakeholders = this.updateStakeholders.bind(this);
     }
 
     submitForm(event){
@@ -97,6 +99,14 @@ class CreateSalesRecord extends React.Component{
           }
     }
 
+    updateMembers(members) {
+        console.log(members);
+    }
+
+    updateStakeholders(stakeholders) {
+        console.log(stakeholders);
+    }
+
     render() {
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
@@ -130,8 +140,14 @@ class CreateSalesRecord extends React.Component{
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
-                    <SelectMembers members={this.props.users.filter(({ _id })=> Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}/>
-                    <SelectStakeholders members={ContactStore.getContacts(1)}/>
+                    <SelectMembers
+                        members={this.props.users.filter(({ _id })=> Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}
+                        selectedMembers={this.updateMembers}
+                    />
+                    <SelectStakeholders
+                        members={ContactStore.getContacts(1)}
+                        selectedStakeholders={this.updateStakeholders}
+                    />
                     <div className='row'>
                         <div className='col-md-6'>
                             <div className='panel panel-default'>

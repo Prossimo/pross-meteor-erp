@@ -24,6 +24,11 @@ class SelectMembers extends Component{
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
+        this.props.selectedMembers(this.state.selectedMembers.map(({ label, value, designation, categories })=> ({
+            userId: value,
+            destination: designation.value,
+            category: categories.map(({ label, value })=> value),
+        })));
     }
 
     changeMembers(selectedMembers) {
@@ -35,6 +40,11 @@ class SelectMembers extends Component{
             }
         });
         this.setState({ selectedMembers});
+        this.props.selectedMembers(selectedMembers.map(({ label, value, designation, categories })=> ({
+            userId: value,
+            destination: designation.value,
+            category: categories.map(({ label, value })=> value),
+        })));
     }
 
     renderMembers() {
@@ -107,5 +117,6 @@ class SelectMembers extends Component{
 
 SelectMembers.propTypes = {
     members: PropTypes.array.isRequired,
+    selectedMembers: PropTypes.func.isRequired,
 }
 export default SelectMembers;
