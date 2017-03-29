@@ -170,6 +170,7 @@ class ContactStore extends Reflux.Store {
         const filter = {$regex: search, $options: 'i'}
 
         result = Contacts.find({$or: [{email: filter}, {name: filter}]}).fetch()
+        console.log(JSON.stringify({$or: [{email: filter}, {name: filter}]}))
 
         result = this._distinctByEmail(result)
 

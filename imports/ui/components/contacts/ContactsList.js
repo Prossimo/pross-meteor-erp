@@ -32,10 +32,10 @@ export default class ContactsList extends React.Component {
         const {updatedContact, removedContact} = nextProps
         let {contacts} = this.state
         if(updatedContact) {
-            contacts.splice(contacts.findIndex((c)=>c.id==updatedContact.id),1,updatedContact)
+            contacts.splice(contacts.findIndex((c)=>c._id==updatedContact._id),1,updatedContact)
             this.setState({contacts:contacts})
         } else if(removedContact) {
-            contacts.splice(contacts.findIndex((c)=>c.id==removedContact.id),1)
+            contacts.splice(contacts.findIndex((c)=>c._id==removedContact._id),1)
             this.setState({contacts:contacts})
         }
     }
@@ -107,7 +107,7 @@ export default class ContactsList extends React.Component {
             }
         }
         return contacts.sort(compare).map((contact, index) => (
-            <tr className={selectedContact && selectedContact.id===contact.id ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
+            <tr className={selectedContact===contact ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{contact.name}</td>
                 <td width="25%">{contact.email}</td>

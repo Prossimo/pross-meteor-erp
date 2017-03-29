@@ -12,6 +12,7 @@ export default class ContactsPage extends React.Component {
 
         this.state = {
             showContactModal: false,
+            creating: false,
             selectedContact: null,
             updatedContact: null,
             removedContact: null
@@ -23,7 +24,7 @@ export default class ContactsPage extends React.Component {
             <div className="contact-page">
                 <ContactsList
                     onSelectContact={(contact) => this.setState({selectedContact: contact})}
-                    onCreateContact={() => this.setState({showContactModal: true})}
+                    onCreateContact={() => this.setState({showContactModal: true, creating:true})}
                     updatedContact={this.state.updatedContact}
                     removedContact={this.state.removedContact}
                 />
@@ -38,8 +39,8 @@ export default class ContactsPage extends React.Component {
     }
 
     renderContactModal() {
-        const {showContactModal, selectedContact} = this.state
-        const title = selectedContact ? 'Edit Contact' : 'Create Contact'
+        const {showContactModal, selectedContact, creating} = this.state
+        const title = selectedContact&&!creating ? 'Edit Contact' : 'Create Contact'
 
         return (
             <Modal show={showContactModal} onHide={() => {
@@ -47,7 +48,7 @@ export default class ContactsPage extends React.Component {
             }}>
                 <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <ContactForm contact={selectedContact} onSaved={this.onSavedContact}/>
+                    <ContactForm contact={!creating?selectedContact:null} onSaved={this.onSavedContact}/>
                 </Modal.Body>
             </Modal>
         )
