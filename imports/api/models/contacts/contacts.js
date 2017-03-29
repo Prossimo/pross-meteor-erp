@@ -32,8 +32,8 @@ Contacts.deny({
 
 Contacts.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
-    id: {type: String},
-    account_id: {type: String},
+    id: {type: String, optional: true},
+    account_id: {type: String, optional: true},
     email: {type: String},
     name: {type: String, optional: true},
     phone_numbers: {type: Array, optional: true},
@@ -41,6 +41,8 @@ Contacts.schema = new SimpleSchema({
         type: Object
     },
     description: {type: String, optional: true},
+    removed: {type: Boolean, optional: true},
+    edited: {type: Boolean, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
@@ -54,6 +56,8 @@ Contacts.publicFields = {
     name: 1,
     phone_numbers: 1,
     description: 1,
+    removed: 1,
+    edited: 1,
     created_at: 1,
     modified_at: 1
 };

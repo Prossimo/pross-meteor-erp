@@ -1,10 +1,13 @@
 import React from 'react'
 import {Button} from 'react-bootstrap'
+import {warning} from '/imports/api/lib/alerts'
 
 
 export default class ContactOverview extends React.Component {
     static propTypes = {
-        contact: React.PropTypes.object
+        contact: React.PropTypes.object,
+        onRemoveContact: React.PropTypes.func,
+        onEditContact: React.PropTypes.func
     }
 
     constructor(props) {
@@ -30,11 +33,14 @@ export default class ContactOverview extends React.Component {
 
 
     renderToolbar() {
+        const contact = this.props.contact
+        const account = contact ? contact.account() : null
+        const disabled = !contact || account && !Meteor.user().isAdmin() && account.isTeamAccount
         return (
             <div className="toolbar-panel">
                 <div>
-                    <Button bsStyle="default"><i className="fa fa-edit"/></Button>&nbsp;
-                    <Button bsStyle="danger"><i className="fa fa-trash"/></Button>
+                    <Button bsStyle="default" disabled={disabled} onClick={this.onClickEditContact}><i className="fa fa-edit"/></Button>&nbsp;
+                    <Button bsStyle="danger" disabled={disabled} onClick={this.onClickRemoveContact}><i className="fa fa-trash"/></Button>
                 </div>
             </div>
         )
@@ -58,6 +64,16 @@ export default class ContactOverview extends React.Component {
                 </div>
             </div>
         )
+    }
+
+    onClickEditContact = () => {
+        const contact = this.props.contact
+        this.props.onEditContact && this.props.onEditContact(contact)
+    }
+
+    onClickRemoveContact = () => {
+        const contact = this.props.contact
+        this.props.onRemoveContact && this.props.onRemoveContact(contact)
     }
 
 }

@@ -5,8 +5,8 @@ Meteor.methods({
     insertContact(data)
     {
         check(data, {
-            id: String,
-            account_id: String,
+            id: Match.Maybe(String),
+            account_id: Match.Maybe(String),
             email: String,
             name: Match.Maybe(String),
             phone_numbers: Match.Maybe(Array)
@@ -27,6 +27,32 @@ Meteor.methods({
         return Contacts.update({id}, data)
     },
 
+    insertOrUpdateContact(data)
+    {
+        check(data, {
+            _id: Match.Maybe(String),
+            id: Match.Maybe(String),
+            account_id: Match.Maybe(String),
+            email: String,
+            name: Match.Maybe(String),
+            phone_numbers: Match.Maybe(Array),
+            description: Match.Maybe(String)
+        });
+
+        data.edited = true
+        const {_id} = data
+        if(_id) {
+            const contact = Contacts.findOne({_id:_id})
+            if(!contact) throw new Meteor.Error(`Could not find the contact with _id:${_id}`)
+
+            Contacts.update({_id:_id}, {$set:data})
+            return _id
+        } else {
+            return Contacts.insert(data)
+        }
+
+    },
+
     insertOrUpdateContacts(data) {
         if (!data || data.length == 0) return null
 
@@ -41,9 +67,12 @@ Meteor.methods({
             let contact = _.find(existingContacts, {id})
 
             if (contact) {
-                if ((item.email && contact.email != item.email) ||
+                if (!contact.edited && (
+                    (item.email && contact.email != item.email) ||
                     (item.name && contact.name != item.name) ||
-                    (item.phone_numbers && item.phone_numbers.length && contact.phone_numbers != item.phone_numbers)) {
+                    (item.phone_numbers && item.phone_numbers.length && contact.phone_numbers != item.phone_numbers)
+                    )
+                ) {
                     Contacts.update({id}, {$set: item})
                     ids.push(id)
                 }
@@ -59,6 +88,11 @@ Meteor.methods({
 
     removeContact(id)
     {
-        Contacts.remove({_id: id})
+        const contact = Contacts.findOne({_id:id})
+
+        if(contact.account().isTeamAccount && !Meteor.user().isAdmin())
+            throw new Meteor.Error('You have no permission to delete a contact of team inbox')
+
+        Contacts.update({_id: id}, {$set:{removed:true}})
     },
 });
