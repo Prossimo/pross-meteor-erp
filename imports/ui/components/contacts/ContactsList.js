@@ -92,7 +92,7 @@ export default class ContactsList extends React.Component {
         )
     }
     renderContacts() {
-        const {contacts, selectedContact, updatedContact, removedContact} = this.state
+        const {contacts, selectedContact} = this.state
 
         if (!contacts || contacts.length == 0) return ''
 
@@ -113,7 +113,7 @@ export default class ContactsList extends React.Component {
                 <td width="25%">{contact.email}</td>
                 <td width="15%">{contact.phone_numbers}</td>
                 <td width="25%">{contact.description}</td>
-                <td width="10%">{contact.account().name}</td>
+                <td width="10%">{contact.account() ? contact.account().name : ''}</td>
             </tr>
         ))
     }
