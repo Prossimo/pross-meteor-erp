@@ -4,102 +4,25 @@ import Select from 'react-select';
 import Textarea from 'react-textarea-autosize';
 import { info, warning } from '/imports/api/lib/alerts';
 import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST, STAGES } from '/imports/api/constants/project';
+import { EMPLOYEE_ROLE, ADMIN_ROLE } from '/imports/api/constants/roles';
 import Switch from 'rc-switch';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import NumericInput from 'react-numeric-input';
-
-class ProjectMemberConfig extends React.Component{
-    constructor(props){
-        super(props);
-        this.designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
-        this.categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
-
-        this.state = {
-            selectedDesignation: this.designationOptions[0],
-            selectedCategory: [this.categoryOptions[0]],
-        }
-    }
-
-    componentDidMount(){
-        const { changeParentState, member, isMainStakeholder } = this.props;
-        changeParentState(member.value, 'destination', this.designationOptions[0].value);
-        changeParentState(member.value, 'category', [this.categoryOptions[0].value]);
-        changeParentState(member.value, 'isMainStakeholder', !!isMainStakeholder);
-    }
-
-    changeDesignation(selectedDesignation){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'destination', selectedDesignation.value);
-
-        this.setState({selectedDesignation});
-    }
-
-    changeCategory(selectedCategory){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'category', selectedCategory.map(item=>item.value));
-
-        this.setState({selectedCategory})
-    }
-    changeMainStakeholder(isMainStakeholder){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'isMainStakeholder', isMainStakeholder);
-
-        this.setState({isMainStakeholder});
-    }
-
-    render(){
-        const { member, isMainStakeholder } = this.props;
-        const { selectedDesignation, selectedCategory } = this.state;
-
-        return(
-            <tr>
-                <td>{member.label}</td>
-                <td>
-                    <Switch onChange={this.changeMainStakeholder.bind(this)}
-                            checkedChildren={'Yes'}
-                            unCheckedChildren={'No'}
-                            checked={isMainStakeholder}
-                    />
-                </td>
-                <td>
-                    <Select
-                        value={selectedDesignation}
-                        onChange={this.changeDesignation.bind(this)}
-                        options={this.designationOptions}
-                        className={"select-role"}
-                        clearable={false}
-                    />
-                </td>
-                <td>
-                    <Select
-                        multi
-                        value={selectedCategory}
-                        onChange={this.changeCategory.bind(this)}
-                        options={this.categoryOptions}
-                        className={"select-role"}
-                        clearable={false}
-                    />
-                </td>
-            </tr>
-        )
-    }
-}
+import SelectMembers from './salesRecord/SelectMembers';
+import SelectStakeholders from './salesRecord/SelectStakeholders';
+import ContactStore from '../../../api/nylas/contact-store'
 
 class CreateSalesRecord extends React.Component{
     constructor(props){
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
         this.stages = STAGES.map(item =>({ label: item.charAt(0).toUpperCase() + item.slice(1), value: item }));
+        this.members = [];
+        this.stakeholders = [];
 
         this.state = {
             projectName: '',
-            selectUsers: [{
-                label: getUserName(props.currentUser, true),
-                value: props.currentUser._id,
-                isMainStakeholder: true
-            }],
-            memberOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
             actualDeliveryDate: moment(),
             productionStartDate: moment(),
             startDate: moment().subtract(29, 'days'),
@@ -125,26 +48,21 @@ class CreateSalesRecord extends React.Component{
             actProductionTime: 0,
         };
         this.changeState = this.changeState.bind(this);
+        this.updateMembers = this.updateMembers.bind(this);
+        this.updateStakeholders = this.updateStakeholders.bind(this);
     }
 
     submitForm(event){
         event.preventDefault();
-        const { projectName,  selectUsers, shipper, supplier,
+        const { projectName, shipper, supplier,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress,  shippingContactEmail,  shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes , selectedStage } = this.state;
 
         const data = {
             name: projectName,
-            members: selectUsers.map(member=>{
-                return{
-                    userId: member.value,
-                    isMainStakeholder: member.isMainStakeholder,
-                    destination: member.destination,
-                    category: member.category
-                }
-            }),
-
+            members: this.members,
+            stakeholders: this.stakeholders,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
@@ -176,20 +94,6 @@ class CreateSalesRecord extends React.Component{
         });
     }
 
-    changeMembersState(memberId, state, value){
-        let { selectUsers } = this.state;
-        selectUsers.forEach((member)=>{
-            if(member.value === memberId){
-                member[state] = value;
-            }else if(state === 'isMainStakeholder' && value){
-                member['isMainStakeholder'] = false;
-            }
-        });
-        if(selectUsers.every(item=>item.isMainStakeholder === false)) return;
-
-        this.setState({selectUsers})
-    }
-
     changeState(key) {
           return e => {
                 if(e) {
@@ -197,35 +101,17 @@ class CreateSalesRecord extends React.Component{
                 }
           }
     }
-    renderMembersConfig(){
-        const { selectUsers } = this.state;
-        if(!selectUsers.length) return null;
 
-        const membersList = selectUsers.map(item=>{
-            return <ProjectMemberConfig key={item.label}
-                                        isMainStakeholder={item.isMainStakeholder}
-                                        changeParentState={this.changeMembersState.bind(this)}
-                                        member={item}
-                                        users={this.props.usersArr}/>
-        });
+    updateMembers(members) {
+        this.members = members;
+    }
 
-        return (
-            <table className="data-table large">
-                <thead className="project-members-table">
-                <tr>
-                    <td>Member</td>
-                    <td>Is main Stakeholder</td>
-                    <td>Secondary Stakeholder Designatioon</td>
-                    <td>Stakeholder Catagory</td>
-                </tr>
-                </thead>
-                <tbody>{membersList}</tbody>
-            </table>
-        )
+    updateStakeholders(stakeholders) {
+        this.stakeholders = stakeholders;
     }
 
     render() {
-        const { projectName, selectedShippingMode, selectUsers, supplier, shipper, memberOptions,
+        const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
@@ -257,20 +143,14 @@ class CreateSalesRecord extends React.Component{
                                onChange={this.changeState('projectName')}
                                value={projectName}/>
                     </div>
-                    <div className="form-group">
-                        <label>Add Members</label>
-                        <Select
-                            multi
-                            value={selectUsers}
-                            onChange={this.changeState('selectUsers')}
-                            options={memberOptions}
-                            className={"members-select"}
-                            clearable={false}
-                        />
-                    </div>
-                    <div className="field-wrap full-width top-10 bottom-10">
-                        {this.renderMembersConfig()}
-                    </div>
+                    <SelectMembers
+                        members={this.props.users.filter(({ _id })=> Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}
+                        selectedMembers={this.updateMembers}
+                    />
+                    <SelectStakeholders
+                        members={ContactStore.getContacts(1)}
+                        selectedStakeholders={this.updateStakeholders}
+                    />
                     <div className='row'>
                         <div className='col-md-6'>
                             <div className='panel panel-default'>

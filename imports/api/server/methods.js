@@ -417,9 +417,14 @@ Meteor.methods({
       shippingMode: String,
       members: [{
         userId: String,
-        isMainStakeholder: Boolean,
         destination: String,
         category: [String]
+      }],
+      stakeholders: [{
+        contactId: String,
+        destination: String,
+        category: [String],
+        isMainStakeholder: Boolean,
       }],
       actualDeliveryDate: Date,
       productionStartDate: Date,
