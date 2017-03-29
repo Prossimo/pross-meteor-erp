@@ -30,6 +30,12 @@ class SelectStakeHolders extends Component{
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
+        this.props.selectedStakeholders(this.state.selectedMembers.map(({ label, value, isMainStakeholder, designation, categories })=> ({
+            contactId: value,
+            destination: designation.value,
+            isMainStakeholder,
+            category: categories.map(({ label, value })=> value),
+        })));
     }
 
     changeMembers(selectedMembers) {
@@ -43,8 +49,14 @@ class SelectStakeHolders extends Component{
         });
         // has checked
         const hasChecked = selectedMembers.reduce((result, { isMainStakeholder })=> !!isMainStakeholder || result, false);
-        if (!hasChecked) selectedMembers[0].isMainStakeholder = true;
+        if (!hasChecked && selectedMembers.length > 0) selectedMembers[0].isMainStakeholder = true;
         this.setState({ selectedMembers});
+        this.props.selectedStakeholders(selectedMembers.map(({ label, value, isMainStakeholder, designation, categories })=> ({
+            contactId: value,
+            destination: designation.value,
+            isMainStakeholder,
+            category: categories.map(({ label, value })=> value),
+        })));
     }
 
     renderMembers() {
