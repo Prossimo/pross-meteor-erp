@@ -3,6 +3,7 @@ import {Modal} from 'react-bootstrap'
 import ContactsList from '../components/contacts/ContactsList'
 import ContactOverview from '../components/contacts/ContactOverview'
 import ContactForm from '../components/contacts/ContactForm'
+import {warning} from '/imports/api/lib/alerts'
 
 
 export default class ContactsPage extends React.Component {

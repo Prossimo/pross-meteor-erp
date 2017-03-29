@@ -1,6 +1,5 @@
 import React from 'react'
 import {Button} from 'react-bootstrap'
-import {warning} from '/imports/api/lib/alerts'
 
 
 export default class ContactOverview extends React.Component {

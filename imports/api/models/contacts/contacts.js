@@ -41,6 +41,7 @@ Contacts.schema = new SimpleSchema({
         type: Object
     },
     description: {type: String, optional: true},
+    userId: {type: String, optional: true},
     removed: {type: Boolean, optional: true},
     edited: {type: Boolean, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
@@ -56,6 +57,7 @@ Contacts.publicFields = {
     name: 1,
     phone_numbers: 1,
     description: 1,
+    userId: 1,
     removed: 1,
     edited: 1,
     created_at: 1,
