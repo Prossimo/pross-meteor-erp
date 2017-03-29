@@ -18,6 +18,8 @@ class CreateSalesRecord extends React.Component{
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
         this.stages = STAGES.map(item =>({ label: item.charAt(0).toUpperCase() + item.slice(1), value: item }));
+        this.members = [];
+        this.stakeholders = [];
 
         this.state = {
             projectName: '',
@@ -59,7 +61,8 @@ class CreateSalesRecord extends React.Component{
 
         const data = {
             name: projectName,
-            members: [],
+            members: this.members,
+            stakeholders: this.stakeholders,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
@@ -100,11 +103,11 @@ class CreateSalesRecord extends React.Component{
     }
 
     updateMembers(members) {
-        console.log(members);
+        this.members = members;
     }
 
     updateStakeholders(stakeholders) {
-        console.log(stakeholders);
+        this.stakeholders = stakeholders;
     }
 
     render() {
