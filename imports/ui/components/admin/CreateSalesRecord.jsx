@@ -13,83 +13,6 @@ import SelectMembers from './salesRecord/SelectMembers';
 import SelectStakeholders from './salesRecord/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
 
-class ProjectMemberConfig extends React.Component{
-    constructor(props){
-        super(props);
-        this.designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
-        this.categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
-
-        this.state = {
-            selectedDesignation: this.designationOptions[0],
-            selectedCategory: [this.categoryOptions[0]],
-        }
-    }
-
-    componentDidMount(){
-        const { changeParentState, member, isMainStakeholder } = this.props;
-        changeParentState(member.value, 'destination', this.designationOptions[0].value);
-        changeParentState(member.value, 'category', [this.categoryOptions[0].value]);
-        changeParentState(member.value, 'isMainStakeholder', !!isMainStakeholder);
-    }
-
-    changeDesignation(selectedDesignation){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'destination', selectedDesignation.value);
-
-        this.setState({selectedDesignation});
-    }
-
-    changeCategory(selectedCategory){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'category', selectedCategory.map(item=>item.value));
-
-        this.setState({selectedCategory})
-    }
-    changeMainStakeholder(isMainStakeholder){
-        const { changeParentState, member } = this.props;
-        changeParentState(member.value, 'isMainStakeholder', isMainStakeholder);
-
-        this.setState({isMainStakeholder});
-    }
-
-    render(){
-        const { member, isMainStakeholder } = this.props;
-        const { selectedDesignation, selectedCategory } = this.state;
-
-        return(
-            <tr>
-                <td>{member.label}</td>
-                <td>
-                    <Switch onChange={this.changeMainStakeholder.bind(this)}
-                            checkedChildren={'Yes'}
-                            unCheckedChildren={'No'}
-                            checked={isMainStakeholder}
-                    />
-                </td>
-                <td>
-                    <Select
-                        value={selectedDesignation}
-                        onChange={this.changeDesignation.bind(this)}
-                        options={this.designationOptions}
-                        className={"select-role"}
-                        clearable={false}
-                    />
-                </td>
-                <td>
-                    <Select
-                        multi
-                        value={selectedCategory}
-                        onChange={this.changeCategory.bind(this)}
-                        options={this.categoryOptions}
-                        className={"select-role"}
-                        clearable={false}
-                    />
-                </td>
-            </tr>
-        )
-    }
-}
-
 class CreateSalesRecord extends React.Component{
     constructor(props){
         super(props);
@@ -98,12 +21,6 @@ class CreateSalesRecord extends React.Component{
 
         this.state = {
             projectName: '',
-            selectUsers: [{
-                label: getUserName(props.currentUser, true),
-                value: props.currentUser._id,
-                isMainStakeholder: true
-            }],
-            memberOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}}),
             actualDeliveryDate: moment(),
             productionStartDate: moment(),
             startDate: moment().subtract(29, 'days'),
@@ -133,22 +50,14 @@ class CreateSalesRecord extends React.Component{
 
     submitForm(event){
         event.preventDefault();
-        const { projectName,  selectUsers, shipper, supplier,
+        const { projectName, shipper, supplier,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress,  shippingContactEmail,  shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail,  billingNotes , selectedStage } = this.state;
 
         const data = {
             name: projectName,
-            members: selectUsers.map(member=>{
-                return{
-                    userId: member.value,
-                    isMainStakeholder: member.isMainStakeholder,
-                    destination: member.destination,
-                    category: member.category
-                }
-            }),
-
+            members: [],
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
             estDeliveryRange: [startDate.toDate(), endDate.toDate()],
@@ -180,20 +89,6 @@ class CreateSalesRecord extends React.Component{
         });
     }
 
-    changeMembersState(memberId, state, value){
-        let { selectUsers } = this.state;
-        selectUsers.forEach((member)=>{
-            if(member.value === memberId){
-                member[state] = value;
-            }else if(state === 'isMainStakeholder' && value){
-                member['isMainStakeholder'] = false;
-            }
-        });
-        if(selectUsers.every(item=>item.isMainStakeholder === false)) return;
-
-        this.setState({selectUsers})
-    }
-
     changeState(key) {
           return e => {
                 if(e) {
@@ -201,36 +96,9 @@ class CreateSalesRecord extends React.Component{
                 }
           }
     }
-    renderMembersConfig(){
-        const { selectUsers } = this.state;
-        if(!selectUsers.length) return null;
-
-        const membersList = selectUsers.map(item=>{
-            return <ProjectMemberConfig
-                    key={item.label}
-                    isMainStakeholder={item.isMainStakeholder}
-                    changeParentState={this.changeMembersState.bind(this)}
-                    member={item}
-                    users={this.props.usersArr}/>
-        });
-
-        return (
-            <table className="table table-condensed">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th>Main Stakeholder</th>
-                        <th>Designation</th>
-                        <th>Category</th>
-                    </tr>
-                </thead>
-                <tbody>{membersList}</tbody>
-            </table>
-        )
-    }
 
     render() {
-        const { projectName, selectedShippingMode, selectUsers, supplier, shipper, memberOptions,
+        const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
