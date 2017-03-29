@@ -27,6 +27,7 @@ import {
     GET_NEW_PROJECTS,
     GET_NEW_PROJECT,
     GET_CONTACTS,
+    GET_MY_CONTACTS,
     GET_TASKS,
 } from '../constants/collections';
 import {ADMIN_ROLE_LIST} from '../constants/roles';

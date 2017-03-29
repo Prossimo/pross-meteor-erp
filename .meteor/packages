@@ -57,6 +57,8 @@ rajit:bootstrap3-datepicker
 aldeed:autoform-bs-datepicker
 gilbertwat:bootstrap3-daterangepicker
 meteorhacks:picker
-npm-container
 react-meteor-data
 froatsnook:request
+
+
+npm-container
