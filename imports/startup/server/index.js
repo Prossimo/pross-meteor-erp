@@ -7,3 +7,4 @@ import '../../api/server/publications';
 import '../../api/server/methods';
 import './router';
 import '../../api/tasks/';
+import '../../api/drive/';
