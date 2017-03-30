@@ -37,10 +37,6 @@ Projects.schema = new SimpleSchema({
     'members.$.categories.$': {
         type: String,
         allowedValues: STAKEHOLDER_CATEGORY,
-    },
-    salesRecordId: {
-        type: String,
-        optional: true,
     }
 });
 
