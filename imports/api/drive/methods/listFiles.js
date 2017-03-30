@@ -1,4 +1,4 @@
-import drive from './drive';
+import { drive } from './drive';
 import SimpleSchema from 'simpl-schema';
 
 export default new ValidatedMethod({
