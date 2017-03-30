@@ -3,9 +3,11 @@ import SimpleSchema from 'simpl-schema';
 
 export default new ValidatedMethod({
     name: 'drive.listFiles',
-    validate: new SimpleSchema().validator(),
-    run() {
-        const params = {};
+    validate: new SimpleSchema({
+        query: { type: String, optional: true },
+    }).validator(),
+    run({ query }) {
+        const params = query ? { q: query } : {};
         return Meteor.wrapAsync(drive.files.list)(params);
     }
 })

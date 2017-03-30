@@ -15,6 +15,7 @@ import {
 } from '../lib/collections';
 import { createTodoistProject } from '../tasks';
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
+import { prossDocDrive } from '../drive';
 
 import '../lib/extendMatch.js';
 import google from 'googleapis';
@@ -488,29 +489,9 @@ Meteor.methods({
         })
       });
 
-
-    const salesRecordId = SalesRecords.insert(data);
-
-    // Add new project for this salesRecord
-    //const projectId = Meteor.call('createNewProject', {
-      //name: data.name,
-      //members: data.members.map(({userId, isMainStakeholder, category, destination })=> {
-          //return {
-            //userId,
-            //isMainStakeholder,
-            //categories: category,
-            //designation: destination,
-          //}
-      //}),
-    //});
-
-    //Projects.update(projectId, {
-        //$set: {
-            //salesRecordId,
-        //}
-    //});
-
-    return salesRecordId;
+    // create folder in google drive
+    prossDocDrive.createSalesRecordFolder.call({ name: data.name });
+    return SalesRecords.insert(data);
   },
 
   postSlackMessage(channel, message){
@@ -736,6 +717,8 @@ Meteor.methods({
     const projectId = Projects.insert(project);
     // create new todoist project to add/remove/update task
     createTodoistProject(project.name, projectId);
+    // create new project folder in google drive
+    prossDocDrive.createProjectFolder.call({ name: project.name });
     return projectId;
   },
 
