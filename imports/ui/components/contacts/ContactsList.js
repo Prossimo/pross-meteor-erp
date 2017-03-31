@@ -44,7 +44,7 @@ export default class ContactsList extends React.Component {
         this.setState({contacts: ContactStore.getContacts(1)})
     }
 
-    render() {
+    render() {console.log('ContactsList->render()','1')
         return (
             <div className="contact-list">
                 {this.renderToolbar()}
