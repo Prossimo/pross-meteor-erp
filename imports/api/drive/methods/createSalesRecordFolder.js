@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import { SalesRecords } from '../../lib/collections';
 import createFolder from './createFolder';
 import { prossDocDrive } from '../../config/config';
 
@@ -8,9 +9,11 @@ export default new ValidatedMethod({
     name: 'drive.createSalesRecordFolder',
     validate: new SimpleSchema({
         name: { type: String },
+        salesRecordId: { type: String },
     }).validator(),
-    run({ name }) {
+    run({ name, salesRecordId }) {
         const salesRecordName = `00[##### ${name}]`;
-        return createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
+        const { id } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
+        SalesRecords.update(salesRecordId, { $set: { folderId: id }});
     },
 })

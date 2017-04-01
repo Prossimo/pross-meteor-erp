@@ -57,6 +57,7 @@ SalesRecords.schema = new SimpleSchema({
     estProductionTime: { type: Number, optional: true },
     actProductionTime: { type: Number, optional: true },
     stage: { type: String, allowedValues: STAGES },
+    folderId: { type: String, optional: true },
 });
 
 SalesRecords.attachSchema(SalesRecords.schema);

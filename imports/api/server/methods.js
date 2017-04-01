@@ -488,10 +488,10 @@ Meteor.methods({
           }
         })
       });
-
+    const salesRecordId = SalesRecords.insert(data);
     // create folder in google drive
-    prossDocDrive.createSalesRecordFolder.call({ name: data.name });
-    return SalesRecords.insert(data);
+    prossDocDrive.createSalesRecordFolder.call({ name: data.name, salesRecordId });
+    return salesRecordId;
   },
 
   postSlackMessage(channel, message){
@@ -718,7 +718,7 @@ Meteor.methods({
     // create new todoist project to add/remove/update task
     createTodoistProject(project.name, projectId);
     // create new project folder in google drive
-    prossDocDrive.createProjectFolder.call({ name: project.name });
+    prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
     return projectId;
   },
 
