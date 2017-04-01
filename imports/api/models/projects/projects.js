@@ -37,6 +37,10 @@ Projects.schema = new SimpleSchema({
     'members.$.categories.$': {
         type: String,
         allowedValues: STAKEHOLDER_CATEGORY,
+    },
+    folderId: {
+        type: String,
+        optional: true,
     }
 });
 
