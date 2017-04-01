@@ -11,7 +11,7 @@ import Quotes from './Quotes';
 import Details from './Details';
 import Activity from './Activity';
 import Tasks from './Tasks';
-import Files from './Files';
+import Files from '../libs/Files';
 import Invoices from './Invoices';
 import Documents from './Documents';
 import Conversations from './Conversations';
@@ -43,7 +43,7 @@ class SingleSalesRecord extends React.Component{
       },
       {
         label: "Files",
-        component: <Files/>
+        component: <Files type='salesRecord'/>
       }
     ];
 

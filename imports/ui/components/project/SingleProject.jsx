@@ -5,7 +5,7 @@ import { Projects } from '/imports/api/lib/collections';
 import { GET_NEW_PROJECT } from '/imports/api/constants/collections';
 import Activities from './Activities';
 import Tasks from './Tasks';
-import Files from './Files';
+import Files from '../libs/Files';
 
 class SingleProject extends Component {
   constructor(props){
@@ -22,7 +22,7 @@ class SingleProject extends Component {
       },
       {
         label: 'Files',
-        component: <Files projectId={projectId}/>
+        component: <Files type='project'/>
       },
     ];
 
