@@ -3,12 +3,12 @@ import createFolder from './createFolder';
 import createSalesRecordFolder from './createSalesRecordFolder';
 import createProjectFolder from './createProjectFolder';
 import getAccessToken from './getAccessToken';
-import getFolderId from './getFolderId';
+import removeFiles from './removeFiles';
 
 export {
     listFiles,
     createFolder,
     createSalesRecordFolder,
     createProjectFolder,
-    getFolderId,
+    removeFiles,
 }
