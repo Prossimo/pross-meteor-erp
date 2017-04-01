@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import { info, warning } from '/imports/api/lib/alerts';
 import MediaUploader from '../libs/MediaUploader';
 
-export default class Files extends Component {
+class Files extends Component {
     constructor(props) {
         super(props);
         this.addFile = this.addFile.bind(this);
@@ -17,7 +17,16 @@ export default class Files extends Component {
             remoteFiles: [],
             loadingRemoteFiles: true,
         }
-        check(props.project.folderId, String);
+        switch(props.type) {
+            case 'project':
+                this.folderId = props.project.folderId;
+                if (!this.folderId) warning('Your folder was not created yet')
+                break;
+            case 'salesRecord':
+                this.folderId = props.salesRecord.folderId;
+                if (!this.folderId) warning('Your folder was not created yet')
+                break;
+        }
     }
 
     componentDidMount() {
@@ -28,8 +37,7 @@ export default class Files extends Component {
             this.token = token;
         });
 
-        const folderId = this.props.project.folderId;
-        Meteor.call('drive.listFiles', {query: `'${folderId}' in parents and trashed = false`}, (error, result)=> {
+        Meteor.call('drive.listFiles', {query: `'${this.folderId}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
@@ -65,7 +73,9 @@ export default class Files extends Component {
                             <tr key={id}>
                                 <td>
                                     <div className='attached-file' key={id}>
-                                        <span className='file-name'>{name}</span>
+                                        <a href={`https://www.googleapis.com/drive/v3/files/${id}?alt=media&access_token=${this.token}`} target='_blank'>
+                                            <span className='file-name'>{name}</span>
+                                        </a>
                                     </div>
                                 </td>
                                 <td className='text-right'>
@@ -107,7 +117,7 @@ export default class Files extends Component {
                 file,
                 token: this.token,
                 metadata: {
-                    parents: [this.props.project.folderId],
+                    parents: [this.folderId],
                 },
                 onProgress: ({ loaded, total })=> {
                     const percentage = Math.round(loaded/total * 100);
@@ -169,3 +179,8 @@ export default class Files extends Component {
         )
     }
 }
+
+Files.propTypes  = {
+    type: PropTypes.string.isRequired,
+}
+export default Files;
