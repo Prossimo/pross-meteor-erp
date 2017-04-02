@@ -4,7 +4,7 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import AccountStore from './account-store'
 import RegExpUtils from './RegExpUtils'
-import {Contacts} from '../models/contacts/contacts'
+import Contacts from '../models/contacts/contacts'
 const PAGESIZE = 100
 
 class ContactStore extends Reflux.Store {

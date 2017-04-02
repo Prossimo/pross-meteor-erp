@@ -14,6 +14,13 @@ import SelectStakeholders from './salesRecord/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
 
 class CreateSalesRecord extends React.Component{
+    static propTypes = {
+        contacts: React.PropTypes.array,
+        subject: React.PropTypes.string,
+        stage: React.PropTypes.string,
+        salesRecord: React.PropTypes.object
+    }
+
     constructor(props){
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item=>({label: item, value: item}));
@@ -21,31 +28,34 @@ class CreateSalesRecord extends React.Component{
         this.members = [];
         this.stakeholders = [];
 
+        const {salesRecord, subject, contacts} = props
         this.state = {
-            projectName: '',
-            actualDeliveryDate: moment(),
-            productionStartDate: moment(),
-            startDate: moment().subtract(29, 'days'),
-            endDate: moment(),
+            projectName: salesRecord ? salesRecord.name : subject||'',
+            actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
+            productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) :  moment(),
+            startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) :  moment().subtract(29, 'days'),
+            endDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[1]) :  moment(),
 
-            shippingContactPhone: '',
-            shippingContactName: '',
-            shippingContactEmail: '',
-            shippingAddress: '',
-            shippingNotes: '',
+            shippingContactPhone: salesRecord ? salesRecord.shippingContactPhone : '',
+            shippingContactName: salesRecord ? salesRecord.shippingContactName : '',
+            shippingContactEmail: salesRecord ? salesRecord.shippingContactEmail : '',
+            shippingAddress: salesRecord ? salesRecord.shippingAddress : '',
+            shippingNotes: salesRecord ? salesRecord.shippingNotes : '',
 
-            billingContactPhone: '',
-            billingContactName: '',
-            billingContactEmail: '',
-            billingAddress: '',
-            billingNotes: '',
+            billingContactPhone: salesRecord ? salesRecord.billingContactPhone : '',
+            billingContactName: salesRecord ? salesRecord.billingContactName : '',
+            billingContactEmail: salesRecord ? salesRecord.billingContactEmail : '',
+            billingAddress: salesRecord ? salesRecord.billingAddress : '',
+            billingNotes: salesRecord ? salesRecord.billingNotes : '',
 
-            selectedShippingMode: this.shippingMode[0],
-            selectedStage: this.stages[0],
-            supplier: '',
-            shipper: '',
-            estProductionTime: 0,
-            actProductionTime: 0,
+            selectedShippingMode: salesRecord ? salesRecord.selectedShippingMode : this.shippingMode[0],
+            selectedStage: salesRecord ? salesRecord.selectedStage : this.stages[0],
+            supplier: salesRecord ? salesRecord.supplier : '',
+            shipper: salesRecord ? salesRecord.shipper : '',
+            estProductionTime: salesRecord ? salesRecord.estProductionTime : 0,
+            actProductionTime: salesRecord ? salesRecord.actProductionTime : 0,
+
+            contacts: contacts
         };
         this.changeState = this.changeState.bind(this);
         this.updateMembers = this.updateMembers.bind(this);
@@ -107,6 +117,7 @@ class CreateSalesRecord extends React.Component{
     }
 
     updateStakeholders(stakeholders) {
+        console.log('updateStakeholders', stakeholders)
         this.stakeholders = stakeholders;
     }
 
@@ -114,7 +125,9 @@ class CreateSalesRecord extends React.Component{
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
-            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage } = this.state;
+            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage ,
+            contacts
+        } = this.state;
         const { shippingMode, stages } = this;
         let submitBtnName = 'Add salesRecord';
         switch(this.props.stage) {
@@ -148,8 +161,9 @@ class CreateSalesRecord extends React.Component{
                         selectedMembers={this.updateMembers}
                     />
                     <SelectStakeholders
-                        members={ContactStore.getContacts(1)}
-                        selectedStakeholders={this.updateStakeholders}
+                        members={contacts ? contacts : ContactStore.getContacts(1)}
+                        selectedMembers={contacts}
+                        onSelectStakeholders={this.updateStakeholders}
                     />
                     <div className='row'>
                         <div className='col-md-6'>

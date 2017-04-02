@@ -15,7 +15,7 @@ class ContactsCollection extends Mongo.Collection {
     }
 }
 
-export const Contacts = new ContactsCollection("Contacts");
+export default Contacts = new ContactsCollection("Contacts");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Contacts.deny({
