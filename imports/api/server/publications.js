@@ -1,7 +1,6 @@
 import {Meteor} from 'meteor/meteor';
 import {Match} from 'meteor/check';
 import {
-    Messages,
     SalesRecords,
     CreatedUsers,
     Quotes,
@@ -14,7 +13,6 @@ import {
 import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
 import Contacts from '../models/contacts/contacts'
 import {
-    GET_ACTIVITY,
     GET_PROJECTS,
     GET_USERS,
     GET_PROJECT,
@@ -39,12 +37,6 @@ Meteor.startup(() => {
                 "services": 0
             }
         });
-    });
-
-    Meteor.publish(GET_ACTIVITY, function (projectId) {
-        Match.test(projectId, String);
-
-        return Messages.find({projectId});
     });
 
     Meteor.publish(GET_PROJECTS, function () {

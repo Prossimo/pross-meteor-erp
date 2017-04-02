@@ -5,6 +5,7 @@ import NylasAPI from './nylas-api'
 import AccountStore from './account-store'
 import RegExpUtils from './RegExpUtils'
 import Contacts from '../models/contacts/contacts'
+import { GET_MY_CONTACTS } from '../constants/collections'
 const PAGESIZE = 100
 
 class ContactStore extends Reflux.Store {
@@ -18,7 +19,7 @@ class ContactStore extends Reflux.Store {
         this.fullyLoaded = false
 
         this.listenTo(Actions.loadContacts, this.onLoadContacts)
-
+        this.listenTo(Actions.resetContacts, ()=>this.contacts=[])
     }
 
     onLoadContacts() {
@@ -65,6 +66,7 @@ class ContactStore extends Reflux.Store {
     }
 
     getContacts({page, account_id, search}={}) {
+
         page = page ? page : this.currentPage
 
         let filters = {}

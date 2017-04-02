@@ -14,7 +14,7 @@ class ThreadStore extends Reflux.Store {
         this.listenTo(Actions.changedThreads, this.trigger)
 
         this.threads = [];
-        this.selectedThread = null;
+        this.currentThread = null;
 
         this.loading = false;
         this.fullyLoaded = false;
@@ -80,11 +80,7 @@ class ThreadStore extends Reflux.Store {
 
     selectThread(thread) {
         Actions.loadMessages(thread);
-        this.selectedThread = thread;
-    }
-
-    getSelectedThread() {
-        return this.selectedThread;
+        this.currentThread = thread;
     }
 
     changeThreads(threads) {
