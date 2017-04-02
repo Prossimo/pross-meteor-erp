@@ -12,7 +12,7 @@ import {
     Tasks
 } from '../lib/collections';
 import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
-import {Contacts} from '../models/contacts/contacts'
+import Contacts from '../models/contacts/contacts'
 import {
     GET_ACTIVITY,
     GET_PROJECTS,

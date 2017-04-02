@@ -69,7 +69,7 @@ export default class ContactForm extends React.Component {
         Meteor.call('insertOrUpdateContact', data, (err, contactId) => {
             if (err) return warning(err.message)
 
-            const {Contacts} = require('/imports/api/models/contacts/contacts')
+            const Contacts = require('/imports/api/models/contacts/contacts')
             if (this.props.onSaved) this.props.onSaved(Contacts.findOne({_id:contactId}), this.props.contact != null)
         })
     }
