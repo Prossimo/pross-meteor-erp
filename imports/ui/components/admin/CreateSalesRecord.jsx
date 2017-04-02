@@ -18,7 +18,8 @@ class CreateSalesRecord extends React.Component{
         contacts: React.PropTypes.array,
         subject: React.PropTypes.string,
         stage: React.PropTypes.string,
-        salesRecord: React.PropTypes.object
+        salesRecord: React.PropTypes.object,
+        messages: React.PropTypes.array         // messages to be attached from email
     }
 
     constructor(props){
@@ -28,7 +29,7 @@ class CreateSalesRecord extends React.Component{
         this.members = [];
         this.stakeholders = [];
 
-        const {salesRecord, subject, contacts} = props
+        const {salesRecord, subject} = props
         this.state = {
             projectName: salesRecord ? salesRecord.name : subject||'',
             actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
@@ -53,9 +54,8 @@ class CreateSalesRecord extends React.Component{
             supplier: salesRecord ? salesRecord.supplier : '',
             shipper: salesRecord ? salesRecord.shipper : '',
             estProductionTime: salesRecord ? salesRecord.estProductionTime : 0,
-            actProductionTime: salesRecord ? salesRecord.actProductionTime : 0,
+            actProductionTime: salesRecord ? salesRecord.actProductionTime : 0
 
-            contacts: contacts
         };
         this.changeState = this.changeState.bind(this);
         this.updateMembers = this.updateMembers.bind(this);
@@ -96,7 +96,7 @@ class CreateSalesRecord extends React.Component{
             estProductionTime,
             actProductionTime
         };
-        Meteor.call("addProject", data, (err, res)=>{
+        Meteor.call("insertSalesRecord", data, this.props.messages, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
@@ -125,8 +125,7 @@ class CreateSalesRecord extends React.Component{
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
-            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage ,
-            contacts
+            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage
         } = this.state;
         const { shippingMode, stages } = this;
         let submitBtnName = 'Add salesRecord';
@@ -161,8 +160,8 @@ class CreateSalesRecord extends React.Component{
                         selectedMembers={this.updateMembers}
                     />
                     <SelectStakeholders
-                        members={contacts ? contacts : ContactStore.getContacts(1)}
-                        selectedMembers={contacts}
+                        members={this.props.contacts ? this.props.contacts : ContactStore.getContacts(1)}
+                        selectedMembers={this.props.contacts}
                         onSelectStakeholders={this.updateStakeholders}
                     />
                     <div className='row'>

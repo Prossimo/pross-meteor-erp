@@ -1,10 +1,24 @@
+import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
-import _ from 'underscore';
-import {SalesRecords} from '../../lib/collections';
 import { STAGES } from '../../constants/project';
 
+class SalesRecordsCollection extends Mongo.Collection {
+    insert(doc, callback) {
+        const ourDoc = doc;
+        ourDoc.createdAt = ourDoc.createdAt || new Date();
+        const result = super.insert(ourDoc, callback);
+        return result
+    }
+
+    remove(selector) {
+        const result = super.remove(selector);
+        return result;
+    }
+}
+
+export default SalesRecords = new SalesRecordsCollection("SalesRecords");
 // Deny all client-side updates since we will be using methods to manage this collection
 /*salesRecords.deny({
     insert() { return true; },

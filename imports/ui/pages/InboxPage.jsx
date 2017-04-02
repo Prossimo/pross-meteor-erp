@@ -9,6 +9,7 @@ import NylasUtils from '../../api/nylas/nylas-utils';
 import AccountStore from '../../api/nylas/account-store';
 import CategoryStore from '../../api/nylas/category-store';
 import ThreadStore from '../../api/nylas/thread-store';
+import MessageStore from '../../api/nylas/message-store';
 import DraftStore from '../../api/nylas/draft-store';
 import ItemCategory from '../components/inbox/ItemCategory';
 import ItemThread from '../components/inbox/ItemThread';
@@ -23,16 +24,17 @@ class InboxPage extends React.Component {
     constructor(props) {
         super(props);
 
+        const currentCategory = CategoryStore.currentCategory
         this.state = {
             addingInbox: false,
             addingTeamInbox: false,
             salesRecordModal: false,
             bindingSalesRecord: false,
-            threads: [],
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
-            selectedCategory: null,
-            selectedThread: null
+            currentCategory: currentCategory,
+            threads: currentCategory ? ThreadStore.getThreads(currentCategory) : [],
+            currentThread: ThreadStore.currentThread
         }
 
 
@@ -66,15 +68,16 @@ class InboxPage extends React.Component {
     }
 
     onCategoryStoreChanged = () => {
+        const currentCategory = CategoryStore.currentCategory
         this.setState({
-            selectedCategory: CategoryStore.getSelectedCategory(),
-            threads: ThreadStore.getThreads(CategoryStore.getSelectedCategory()),
+            currentCategory: currentCategory,
+            threads: ThreadStore.getThreads(currentCategory),
         })
     }
 
     onThreadStoreChanged = () => {
         this.setState({
-            threads: ThreadStore.getThreads(CategoryStore.getSelectedCategory()),
+            threads: ThreadStore.getThreads(CategoryStore.currentCategory),
             loadingThreads: ThreadStore.loading
         })
     }
@@ -133,7 +136,7 @@ class InboxPage extends React.Component {
     renderInbox() {
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-                <Toolbar currentUser={this.props.currentUser} thread={this.state.selectedThread}
+                <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
                          onSelectMenuSalesRecord={this.onSelectMenuSalesRecord}/>
 
                 <div className="content-panel">
@@ -175,15 +178,15 @@ class InboxPage extends React.Component {
     }
 
     renderSalesRecordModal() {
-        const {salesRecordModal, bindingSalesRecord, selectedThread} = this.state
+        const {salesRecordModal, bindingSalesRecord, currentThread} = this.state
 
-        if (!selectedThread) return ''
+        if (!currentThread) return ''
 
 
         const filter = {
-            account_id: selectedThread.account_id,
+            account_id: currentThread.account_id,
             email: {
-                $in: _.pluck(_.uniq(selectedThread.participants, 'email'), 'email')
+                $in: _.pluck(_.uniq(currentThread.participants, 'email'), 'email')
             }
         }
 
@@ -193,8 +196,14 @@ class InboxPage extends React.Component {
         return (
             <Modal show={salesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
-                <Modal.Body><CreateSalesRecord {...this.props} contacts={contacts}
-                                               subject={selectedThread.subject}/></Modal.Body>
+                <Modal.Body>
+                    <CreateSalesRecord
+                        {...this.props}
+                        contacts={contacts}
+                        subject={currentThread.subject}
+                        messages={MessageStore.messages()}
+                    />
+                </Modal.Body>
             </Modal>
         )
     }
@@ -207,7 +216,7 @@ class InboxPage extends React.Component {
     }
 
     renderCategories() {
-        const {selectedCategory} = this.state;
+        const {currentCategory} = this.state;
 
         return (
             <div className="list-category">
@@ -237,7 +246,7 @@ class InboxPage extends React.Component {
                                                 onClick={(evt) => {
                                                     this.onCategorySelected(category)
                                                 }}
-                                                selected={selectedCategory && category.id == selectedCategory.id}
+                                                selected={currentCategory && category.id == currentCategory.id}
                                             />
                                         } else {
                                             return <div></div>
@@ -304,14 +313,14 @@ class InboxPage extends React.Component {
     }
 
     renderThreads() {
-        const {threads, selectedThread, loadingThreads} = this.state;
+        const {threads, currentThread, loadingThreads} = this.state;
 
         return (
             <div className="list-thread">
                 {
                     threads.map((thread) => <ItemThread key={thread.id} thread={thread}
                                                         onClick={(evt) => this.onThreadSelected(thread)}
-                                                        selected={selectedThread && thread.id == selectedThread.id}/>)
+                                                        selected={currentThread && thread.id == currentThread.id}/>)
 
                 }
                 {loadingThreads &&
@@ -329,7 +338,7 @@ class InboxPage extends React.Component {
     }
 
     onThreadSelected(thread) {
-        this.setState({selectedThread: thread});
+        this.setState({currentThread: thread});
 
         ThreadStore.selectThread(thread);
     }
@@ -338,7 +347,7 @@ class InboxPage extends React.Component {
         const el = evt.target
 
         if (!this.state.loadingThreads && !ThreadStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
-            Actions.loadThreads(CategoryStore.getSelectedCategory(), {page: ThreadStore.currentPage + 1})
+            Actions.loadThreads(CategoryStore.currentCategory, {page: ThreadStore.currentPage + 1})
         }
     }
 }

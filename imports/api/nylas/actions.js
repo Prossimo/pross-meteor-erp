@@ -7,6 +7,8 @@ const Actions = Reflux.createActions([
     'loadThreads',          // folder, {page, search}
     'loadMessages',         // thread
 
+    'resetContacts',
+
     'toggleMessageExpanded',
     'toggleAllMessagesExpanded',
     'toggleHiddenMessages',

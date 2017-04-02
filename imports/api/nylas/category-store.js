@@ -9,7 +9,7 @@ class CategoryStore extends Reflux.Store {
     constructor() {
         super();
 
-        this.selectedCategory = null;
+        this.currentCategory = null;
     }
 
     getCategories(accountId) {
@@ -19,13 +19,9 @@ class CategoryStore extends Reflux.Store {
     }
 
     selectCategory(category) {
-        this.selectedCategory = category;
+        this.currentCategory = category;
         this.trigger();
         Actions.loadThreads(category);
-    }
-
-    getSelectedCategory() {
-        return this.selectedCategory;
     }
 
     getInboxCategory(accountId) {

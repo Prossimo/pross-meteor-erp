@@ -1,6 +1,7 @@
 import React from 'react';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
+import Actions from '/imports/api/nylas/actions'
 
 class SignIn extends React.Component{
     constructor(props){
@@ -36,6 +37,7 @@ class SignIn extends React.Component{
                 if(err) return this.setState({authError: err});
                 Meteor.loginWithPassword({email}, password, (err) => {
                     FlowRouter.reload();
+                    Actions.resetContacts()
                 });
             })
         }
@@ -43,6 +45,7 @@ class SignIn extends React.Component{
             Meteor.loginWithPassword({email}, password, (err) => {
                 if (err) return this.setState({authError: "Invalid username or password"});
                 FlowRouter.reload();
+                Actions.resetContacts()
             });
         }
     }
