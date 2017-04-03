@@ -610,9 +610,7 @@ Meteor.methods({
       name: String,
       members: [{
         userId: String,
-        isMainStakeholder: Boolean,
-        designation: String,
-        categories: [String]
+        isAdmin: Boolean,
       }],
     });
     const projectId = Projects.insert(project);
