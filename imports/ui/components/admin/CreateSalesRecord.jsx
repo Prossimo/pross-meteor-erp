@@ -117,7 +117,6 @@ class CreateSalesRecord extends React.Component{
     }
 
     updateStakeholders(stakeholders) {
-        console.log('updateStakeholders', stakeholders)
         this.stakeholders = stakeholders;
     }
 

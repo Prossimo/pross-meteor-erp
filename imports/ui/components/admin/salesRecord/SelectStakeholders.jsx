@@ -27,11 +27,12 @@ class SelectStakeHolders extends Component {
             selectedMembers: selectedMembers
         }
 
-        props.onSelectStakeholders && props.onSelectStakeholders(selectedMembers.map(({label, value, isMainStakeholder, designation, categories}) => ({
+        props.onSelectStakeholders && props.onSelectStakeholders(selectedMembers.map(({label, value, isMainStakeholder, designation, categories, notify}) => ({
             contactId: value,
             destination: designation.value,
             isMainStakeholder,
             category: categories.map(({label, value}) => value),
+            notify,
         })));
     }
 
@@ -47,11 +48,12 @@ class SelectStakeHolders extends Component {
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
-        this.props.onSelectStakeholders(this.state.selectedMembers.map(({label, value, isMainStakeholder, designation, categories}) => ({
+        this.props.onSelectStakeholders(this.state.selectedMembers.map(({label, value, isMainStakeholder, designation, categories, notify}) => ({
             contactId: value,
             destination: designation.value,
             isMainStakeholder,
             category: categories.map(({label, value}) => value),
+            notify,
         })));
     }
 
@@ -59,23 +61,25 @@ class SelectStakeHolders extends Component {
         selectedMembers = this.getConvertedSelectedMembers(selectedMembers)
         this.setState({selectedMembers: selectedMembers})
 
-        this.props.onSelectStakeholders(selectedMembers.map(({label, value, isMainStakeholder, designation, categories}) => ({
+        this.props.onSelectStakeholders(selectedMembers.map(({label, value, isMainStakeholder, designation, categories, notify}) => ({
             contactId: value,
             destination: designation.value,
             isMainStakeholder,
             category: categories.map(({label, value}) => value),
+            notify,
         })));
     }
 
     getConvertedSelectedMembers = (selectedMembers) => {
         if (!selectedMembers || selectedMembers.length == 0) return []
         selectedMembers.forEach((member) => {
-            const {designation, categories, isMainStakeholder} = member;
+            const {designation, categories, isMainStakeholder, nofity} = member;
             if (_.isUndefined(designation) || _.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
                 member.designation = this.designationOptions[0];
                 member.categories = [this.categoryOptions[0]];
                 member.isMainStakeholder = false;
             }
+            if (_.isUndefined(nofity)) member.notify = true;
         });
         // has checked
         const hasChecked = selectedMembers.reduce((result, {isMainStakeholder}) => !!isMainStakeholder || result, false);
@@ -91,6 +95,7 @@ class SelectStakeHolders extends Component {
                 <tr>
                     <th>Name</th>
                     <th>Main Stakeholder</th>
+                    <th>Notify</th>
                     <th>Designation</th>
                     <th>Category</th>
                 </tr>
@@ -98,7 +103,7 @@ class SelectStakeHolders extends Component {
                 <tbody>
                 {
                     this.state.selectedMembers.map((selectedMember) => {
-                        let {label, value, email, designation, categories, isMainStakeholder} = selectedMember;
+                        let {label, value, email, designation, categories, isMainStakeholder, notify} = selectedMember;
                         return (
                             <tr key={value}>
                                 <td><div>{ label }</div><div style={{fontSize:12,color:'gray',paddingLeft:5}}>{email}</div></td>
@@ -106,6 +111,13 @@ class SelectStakeHolders extends Component {
                                     <div className='radio'>
                                         <label><input type='checkbox' checked={isMainStakeholder}
                                                       onChange={(event) => this.changeState('isMainStakeholder', selectedMember, event.target.checked) }/></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div className='radio'>
+                                        <label>
+                                            <input type='checkbox' checked={notify} onChange={(event) => this.changeState('notify', selectedMember, event.target.checked)}/>
+                                        </label>
                                     </div>
                                 </td>
                                 <td>

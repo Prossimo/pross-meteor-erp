@@ -44,6 +44,7 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$': { type: Object },
     'stakeholders.$.contactId': { type: String },
     'stakeholders.$.isMainStakeholder': { type: Boolean },
+    'stakeholders.$.notify': { type: Boolean },
     'stakeholders.$.destination': { type: String, optional: true },
     'stakeholders.$.category': { type: Array, optional: true },
     'stakeholders.$.category.$': { type: String, optional: true },
