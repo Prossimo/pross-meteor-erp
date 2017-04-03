@@ -96,3 +96,4 @@ $ apache2ctl restart
 
 18. Help links:
 - [deploy tutorial](https://www.phusionpassenger.com/library/walkthroughs/deploy/meteor/digital_ocean/apache/oss/xenial/install_passenger.html)
+-[process diagram] (https://drive.google.com/file/d/0B-guFXEigZ5pV1hLQWFTY2RiLU0/view?usp=sharing)
