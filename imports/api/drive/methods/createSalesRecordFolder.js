@@ -15,5 +15,10 @@ export default new ValidatedMethod({
         const salesRecordName = `00[##### ${name}]`;
         const { id } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
         SalesRecords.update(salesRecordId, { $set: { folderId: id }});
+        // copy template to new created folder
+        const { files } = listFiles.call({ query: `'${prossDocDrive.templateFolderId}' in parents` });
+        files.forEach((file)=> {
+            copyFiles.call({ fileId: file.id, parentId: id });
+        });
     },
 })
