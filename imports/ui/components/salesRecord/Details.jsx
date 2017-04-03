@@ -202,32 +202,47 @@ class Details extends React.Component{
 
         return (
             <div className="details-inbox-tab">
-                <h2>Project Attributes
-                    { this.renderEditAttributesButton(this.state.isEditingAttributes, this.toggleEditAttributes, this.saveAttributes) }
-                </h2>
-                <table className="data-table">
-                    <tbody>
-                    {this.renderTableRows(attrRows, salesRecord, 'attributes')}
-                    </tbody>
-                </table>
+                <div className='panel panel-default'>
+                    <div className='panel-heading'>
+                        Project Attributes
+                        { this.renderEditAttributesButton(this.state.isEditingAttributes, this.toggleEditAttributes, this.saveAttributes) }
+                    </div>
+                    <div className='panel-body'>
+                        <table className="table table-condensed">
+                            <tbody>
+                            {this.renderTableRows(attrRows, salesRecord, 'attributes')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <h2>Shipping
-                    { this.renderEditAttributesButton(this.state.isEditingShipping, this.toggleEditShipping, this.saveShipping) }
-                </h2>
-                <table className="data-table">
-                    <tbody>
-                    {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
-                    </tbody>
-                </table>
+                <div className='panel panel-default'>
+                    <div className='panel-heading'>
+                        Shipping
+                        { this.renderEditAttributesButton(this.state.isEditingShipping, this.toggleEditShipping, this.saveShipping) }
+                    </div>
+                    <div className='panel-body'>
+                        <table className="table table-condensed">
+                            <tbody>
+                            {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                <h2>Billing
-                    { this.renderEditAttributesButton(this.state.isEditingBilling, this.toggleEditBilling, this.saveBilling) }
-                </h2>
-                <table className="data-table">
-                   <tbody>
-                   {this.renderTableRows(billingRows, salesRecord , 'billing')}
-                   </tbody>
-                </table>
+                <div className='panel panel-default'>
+                    <div className='panel-heading'>
+                        Billing
+                        { this.renderEditAttributesButton(this.state.isEditingBilling, this.toggleEditBilling, this.saveBilling) }
+                    </div>
+                    <div className='panel-body'>
+                        <table className="table table-condensed">
+                           <tbody>
+                           {this.renderTableRows(billingRows, salesRecord , 'billing')}
+                           </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         )
     }
