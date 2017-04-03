@@ -5,6 +5,7 @@ import createProjectFolder from './createProjectFolder';
 import getAccessToken from './getAccessToken';
 import removeFiles from './removeFiles';
 import getFiles from './getFiles';
+import copyFiles from './copyFiles';
 
 export {
     listFiles,
@@ -13,4 +14,5 @@ export {
     createProjectFolder,
     removeFiles,
     getFiles,
+    copyFiles,
 }
