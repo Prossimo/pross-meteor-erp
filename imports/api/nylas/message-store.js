@@ -119,8 +119,8 @@ class MessageStore extends Reflux.Store {
 
         for (message of messages) {
             if (!this._messagesExpanded[message.id]) continue;
-            for (file of message.files)
-                Actions.downloadFile(file)
+            /*for (file of message.files)
+                Actions.downloadFile(file)*/
         }
     }
 

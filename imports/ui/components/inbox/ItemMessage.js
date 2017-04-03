@@ -285,7 +285,6 @@ class ItemMessage extends React.Component {
     }
 
     _toggleCollapsed = () => {
-        console.log("asdfasf", this.props.isLastMsg)
         if (this.props.isLastMsg) return;
         Actions.toggleMessageExpanded(this.props.message.id)
     }
