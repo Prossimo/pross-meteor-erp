@@ -1,10 +1,5 @@
 import SimpleSchema from 'simpl-schema';
 import { Projects } from '../../lib/collections';
-import { ALL_ROLES } from '../../constants/roles';
-import {
-    DESIGNATION_LIST,
-    STAKEHOLDER_CATEGORY
-} from '/imports/api/constants/project';
 
 Projects.schema = new SimpleSchema({
     _id: { type: String },
@@ -23,20 +18,9 @@ Projects.schema = new SimpleSchema({
     'members.$.userId': {
         type: String,
     },
-    'members.$.isMainStakeholder': {
+    'members.$.isAdmin': {
         type: Boolean,
         defaultValue: false,
-    },
-    'members.$.designation': {
-        type: String,
-        allowedValues: DESIGNATION_LIST,
-    },
-    'members.$.categories': {
-        type: Array,
-    },
-    'members.$.categories.$': {
-        type: String,
-        allowedValues: STAKEHOLDER_CATEGORY,
     },
     folderId: {
         type: String,
