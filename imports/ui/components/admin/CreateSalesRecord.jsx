@@ -147,6 +147,22 @@ class CreateSalesRecord extends React.Component{
             <div className="create-project">
                 <form onSubmit={this.submitForm.bind(this)}
                       className="">
+                    {
+                        (!this.props.stage) ? (
+                            <div>
+                                <div className='form-group'>
+                                    <label>Stage</label>
+                                    <Select
+                                        value={selectedStage}
+                                        onChange={this.changeState('selectedStage')}
+                                        options={stages}
+                                        className={"select-role"}
+                                        clearable={false}
+                                    />
+                                </div>
+                            </div>
+                        ) : ''
+                    }
                     <div className="form-group">
                         <label>Project Name</label>
                         <input type="text"
@@ -336,22 +352,6 @@ class CreateSalesRecord extends React.Component{
                                     onChange={this.changeState('shipper')}
                                     value={shipper}/>
                             </div>
-                            {
-                                (!this.props.stage) ? (
-                                    <div>
-                                        <div className='form-group'>
-                                            <label>Stage</label>
-                                            <Select
-                                                value={selectedStage}
-                                                onChange={this.changeState('selectedStage')}
-                                                options={stages}
-                                                className={"select-role"}
-                                                clearable={false}
-                                            />
-                                        </div>
-                                    </div>
-                                ) : ''
-                            }
                         </div>
                     </div>
                     <div className='form-group text-center'>
