@@ -31,6 +31,7 @@ Meteor.methods({
                 destination: String,
                 category: [String],
                 isMainStakeholder: Boolean,
+                notify: Boolean,
             }],
             actualDeliveryDate: Date,
             productionStartDate: Date,
