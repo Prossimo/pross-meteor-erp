@@ -44,6 +44,8 @@ Tasks.schema = new SimpleSchema({
     'items.$.date_added': { type: String, optional: true },
     // local project id link to project
     localProjectId: { type: String, optional: true },
+    // local salesRecordId link to salesRecord
+    localSalesRecordId: { type: String, optional: true },
 });
 
 Tasks.attachSchema(Tasks.schema);

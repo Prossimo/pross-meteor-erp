@@ -125,12 +125,22 @@ Meteor.startup(() => {
         return Projects.find({_id, 'members.userId': this.userId});
     });
 
-    Meteor.publish(GET_TASKS, function (projectId) {
-        if (!Match.test(projectId, String)) return this.ready();
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Tasks.find({localProjectId: projectId});
+    Meteor.publish(GET_TASKS, function (saleProjectId) {
+        if (!Match.test(saleProjectId, String)) return this.ready();
+        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Tasks.find({
+            $or: [
+                { localProjectId: saleProjectId },
+                { localSalesRecordId: saleProjectId }
+            ]
+        });
         // should use publish composite
         if (Projects.findOne({_id: projectId, 'members.userId': this.userId})) {
-            return Tasks.find({localProjectId: projectId});
+            return Tasks.find({ $or:
+                [
+                    { localProjectId: saleProjectId },
+                    { localSalesRecordId: saleProjectId }
+                ]
+            });
         }
     });
 });

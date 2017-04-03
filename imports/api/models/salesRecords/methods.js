@@ -4,6 +4,7 @@ import SalesRecords from './salesRecords'
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
 import config from '../../config/config';
 import Messages from '../messages/messages'
+import { createTodoistSalesRecord } from '../../tasks';
 
 
 import {prossDocDrive} from '../../drive';
@@ -93,8 +94,12 @@ Meteor.methods({
                 })
             });
         const salesRecordId = SalesRecords.insert(data);
+
         // create folder in google drive
         prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
+
+        // create todoist project
+        createTodoistSalesRecord(data.name, salesRecordId);
 
         // Insert conversations attached
         console.log("Messages to be attached", messages)
