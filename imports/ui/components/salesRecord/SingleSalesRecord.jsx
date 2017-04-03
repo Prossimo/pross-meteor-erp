@@ -10,7 +10,7 @@ import ContactInfo from '../account/ContactInfo';
 import Quotes from './Quotes';
 import Details from './Details';
 import Activity from './Activity';
-import Tasks from './Tasks';
+import Tasks from '../libs/Tasks';
 import Files from '../libs/Files';
 import Invoices from './Invoices';
 import Documents from './Documents';
@@ -19,7 +19,6 @@ import Conversations from './Conversations';
 class SingleSalesRecord extends React.Component{
   constructor(props){
     super(props);
-
     this.tabs = [
       {
         label: "Activity",
@@ -44,6 +43,10 @@ class SingleSalesRecord extends React.Component{
       {
         label: "Files",
         component: <Files type='salesRecord'/>
+      },
+      {
+        label: 'Tasks',
+        component: <Tasks projectId={props.salesRecord._id}/>
       }
     ];
 
