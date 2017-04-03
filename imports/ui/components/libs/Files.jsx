@@ -68,15 +68,25 @@ class Files extends Component {
                 </thead>
                 <tbody>
                 {
-                    this.state.remoteFiles.map(({ name, id })=> {
+                    this.state.remoteFiles.map(({ name, id, mimeType })=> {
                         return (
                             <tr key={id}>
                                 <td>
-                                    <div className='attached-file' key={id}>
-                                        <a href={`https://www.googleapis.com/drive/v3/files/${id}?alt=media&access_token=${this.token}`} target='_blank'>
-                                            <span className='file-name'>{name}</span>
-                                        </a>
-                                    </div>
+                                {
+                                    (mimeType === 'application/vnd.google-apps.folder') ? (
+                                        <div className='attached-folder' key={id}>
+                                            <a href='#'>
+                                                <span className='file-name'>{name}</span>
+                                            </a>
+                                        </div>
+                                    ) : (
+                                        <div className='attached-file' key={id}>
+                                            <a href={`https://www.googleapis.com/drive/v3/files/${id}?alt=media&access_token=${this.token}`} target='_blank'>
+                                                <span className='file-name'>{name}</span>
+                                            </a>
+                                        </div>
+                                    )
+                                }
                                 </td>
                                 <td className='text-right'>
                                     <a href='#' onClick={(event)=> this.removeFile(id, event)}>
