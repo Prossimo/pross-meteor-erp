@@ -265,6 +265,22 @@ div.error-msg
   input[type="file"]
     display none
 
+  .attached-folder
+    height auto
+    padding 20px 15px 20px 45px
+    position relative
+    color $main-color
+    word-wrap break-word
+
+    &:after
+      content '\f114'
+      font-family FontAwesome
+      position absolute
+      transform translateY(-50%)
+      top 50%
+      left 15px
+      font-size 25px
+
   .attached-file
     height auto
     padding 20px 15px 20px 45px
