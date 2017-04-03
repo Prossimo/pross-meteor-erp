@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom';
 import _ from "underscore";
 //import {autolink} from './autolinker';
 //import {autoscaleImages} from './autoscale-images';
+import QuotedHTMLTransformer from '../../utils/quoted-html-transformer'
 import EventedIFrame from './EventedIFrame'
 export default class EmailFrame extends React.Component {
 
-
+    static propTypes = {
+        showQuotedText: React.PropTypes.bool,
+        content: React.PropTypes.string
+    }
 
     componentDidMount() {
         this._mounted = true;
@@ -30,15 +34,13 @@ export default class EmailFrame extends React.Component {
     }
 
     _emailContent() {
-        return this.props.content;
-
         // When showing quoted text, always return the pure content
-        /*if (this.props.showQuotedText) {
+        if (this.props.showQuotedText) {
             return this.props.content;
         }
         return QuotedHTMLTransformer.removeQuotedHTML(this.props.content, {
             keepIfWholeBodyIsQuote: true,
-        });*/
+        });
     }
 
     _writeContent() {
