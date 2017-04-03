@@ -106,7 +106,7 @@ class SelectStakeHolders extends Component {
                         let {label, value, email, designation, categories, isMainStakeholder, notify} = selectedMember;
                         return (
                             <tr key={value}>
-                                <td><div>{ label }</div><div style={{fontSize:12,color:'gray',paddingLeft:5}}>{email}</div></td>
+                                <td><div>{ label }</div>{/*<div style={{fontSize:12,color:'gray',paddingLeft:5}}>{email}</div>*/}</td>
                                 <td>
                                     <div className='radio'>
                                         <label><input type='checkbox' checked={isMainStakeholder}
