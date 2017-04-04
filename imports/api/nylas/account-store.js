@@ -19,14 +19,14 @@ class AccountStore extends Reflux.Store {
 
         if(!accounts || accounts.length==0) return
 
-        const selectedCategory = CategoryStore.getSelectedCategory()
+        const currentCategory = CategoryStore.currentCategory
         let allCategories = []
 
         accounts.forEach((account)=>{
             allCategories = allCategories.concat(account.categories)
         })
 
-        if(!selectedCategory || !_.contains(allCategories, selectedCategory)) {
+        if(!currentCategory || !_.contains(allCategories, currentCategory)) {
             CategoryStore.selectCategory(allCategories[0])
         }
 
@@ -60,10 +60,10 @@ class AccountStore extends Reflux.Store {
     }
 
     getSelectedAccount() {
-        const selectedCategory = CategoryStore.getSelectedCategory()
+        const currentCategory = CategoryStore.currentCategory
 
-        if(selectedCategory) {
-            return this.accountForAccountId(selectedCategory.account_id)
+        if(currentCategory) {
+            return this.accountForAccountId(currentCategory.account_id)
         }
 
         return this.defaultAccount()
