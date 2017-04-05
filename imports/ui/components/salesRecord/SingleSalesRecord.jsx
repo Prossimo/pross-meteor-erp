@@ -166,11 +166,21 @@ class SingleSalesRecord extends React.Component{
           return(
             <li key={member.user._id}
                 className="member-list">
-
-                            <span onClick={this.showUserInfo.bind(this, member.user)}
-                                  className={classNames("memberName", {"main": member.isMainStakeholder}) }>
-                                {getUserName(member.user, true)}</span>
-                <span className="email">{getUserEmail(member.user)}</span>
+                {
+                  Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
+                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}}>
+                      <span className='fa fa-times pull-right'></span>
+                    </a>
+                  ) : ''
+                }
+                <span
+                  onClick={this.showUserInfo.bind(this, member.user)}
+                  className={classNames("memberName", {"main": member.isMainStakeholder}) }>
+                  {getUserName(member.user, true)}
+                </span>
+                <span className="email">
+                  {getUserEmail(member.user)}
+                </span>
                 <div>
                   {member.category.map(cat=>{
                     return <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>
