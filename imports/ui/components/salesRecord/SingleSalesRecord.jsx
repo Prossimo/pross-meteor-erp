@@ -1,9 +1,10 @@
 import React from 'react';
 import classNames from 'classnames';
-import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
+import { ADMIN_ROLE_LIST, EMPLOYEE_ROLE, ADMIN_ROLE } from '/imports/api/constants/roles';
 import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project';
 import { getUserName, getUserEmail } from '/imports/api/lib/filters';
 import { info, warning } from '/imports/api/lib/alerts'
+import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select';
 import Popup from '../popup/Popup';
 import ContactInfo from '../account/ContactInfo';
@@ -50,14 +51,45 @@ class SingleSalesRecord extends React.Component{
       }
     ];
 
+    this.memberTypeOptions = [
+      { label: 'Add Member', value: 'member' },
+      { label: 'Add Stakeholder', value: 'stakeholder' },
+    ]
+
     this.state = {
       activeTab: this.tabs.find(tab=>tab.label === "Activity"),
       showPopup: false,
+      popupTitle: '',
       popupData: null,
-      selectUser: null,
-      selectedCategory: [],
-      selectedDesignation: null,
+      member: {
+        selectedUser: null,
+        selectedCategory: [],
+        selectedDesignation: null,
+      },
+      stakeholder: {
+        selectedContact: null,
+        selectedCategory: [],
+        selectedDesignation: null,
+        notify: true,
+      },
+      memberType: this.memberTypeOptions[0],
     }
+
+    this.renderStakeholders = this.renderStakeholders.bind(this);
+    this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
+    this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
+    this.changeState = this.changeState.bind(this);
+    this.addMember = this.addMember.bind(this);
+    this.addStakeholder = this.addStakeholder.bind(this);
+    this.showContactInfo = this.showContactInfo.bind(this);
+    /*
+    * should not publish all contact to client
+    * because searching in contact causes lag in UI, index contact list to provide quick search
+    * */
+    this.contacts = {};
+    ContactStore.getContacts(1).forEach((contact)=> {
+      this.contacts[contact._id] = contact;
+    });
   }
 
 
@@ -88,6 +120,41 @@ class SingleSalesRecord extends React.Component{
       return activeTab.content
     }
   }
+
+  renderStakeholders() {
+    const salesRecord = this.props.salesRecord;
+    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : [];
+    return (
+      <ul className="project-members">
+      {
+        stakeholders.map(({ contactId, category })=> {
+          let email = 'unknown';
+          const contact = this.contacts[contactId];
+          if (contact && contact.email) {
+            if (contact.email.length > 34)
+              email = contact.email.slice(0, 34) + '...';
+            else
+              email = contact.email;
+          }
+          return (
+            <li key={contactId} className='member-list'>
+              <span className='memberName' onClick={()=> this.showContactInfo(contact)}>{ email }</span>
+              <div>
+              {
+                category.map((name)=> {
+                  return (<span className='member-cat' key={name}>{name}</span>)
+                })
+              }
+              </div>
+            </li>
+          );
+        })
+      }
+      </ul>
+    )
+
+  }
+
   //todo change style
   renderProjectMembers(){
     const { salesRecord } = this.props;
@@ -116,22 +183,80 @@ class SingleSalesRecord extends React.Component{
     )
   }
 
-  changeDesignation(selectedDesignation){
-    this.setState({selectedDesignation});
+  changeState(subState, propName, propValue) {
+    subState[propName] = propValue;
+    this.setState((prevState)=> prevState);
   }
 
-  changeCategory(selectedCategory){
-    this.setState({selectedCategory});
+  renderAddStakeholderForm() {
+    const { stakeholder: { selectedContact, selectedCategory, selectedDesignation, notify}} = this.state;
+    const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
+    const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
+    const selectContactOptions = ContactStore.getContacts(1)
+      .filter(({ _id })=> !this.props.salesRecord.stakeholders.map(({ contactId })=> contactId).includes(_id))
+      .map(({ _id, name, email }) => ({
+          label: `${email}`,
+          value: _id,
+      }));
+
+    if(Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) {
+        return (
+            <div className='form'>
+                <div className='form-group'>
+                    <Select
+                      value={selectedContact}
+                      placeholder="Choose stakeholder"
+                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedContact', item)}
+                      options={selectContactOptions}
+                      className={"members-select"}
+                      clearable={false}
+                    />
+                </div>
+                <div className="form-group">
+                    <Select
+                      value={selectedDesignation}
+                      placeholder="Stakeholder designation"
+                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedDesignation', item)}
+                      options={designationOptions}
+                      className={"members-select"}
+                      clearable={false}
+                    />
+                </div>
+                <div className="form-group">
+                    <Select
+                      multi
+                      placeholder="Stakehoder categories"
+                      value={selectedCategory}
+                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedCategory', item)}
+                      options={categoryOptions}
+                      className={"members-select"}
+                      clearable={false}
+                    />
+                </div>
+                <div className="checkbox">
+                    <label><input
+                        type="checkbox"
+                        value=""
+                        checked={ notify }
+                        onChange={(event)=> this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
+                        Notify
+                    </label>
+                </div>
+                <button onClick={this.addStakeholder} className="btnn primary-btn">Add Stakeholder</button>
+            </div>
+        )
+    }
   }
 
-  renderAddUserForm(){
+  renderAddMemberForm(){
     const { salesRecord, users } = this.props;
-    const { selectUser, selectedCategory, selectedDesignation} = this.state;
+    const { member: { selectedUser, selectedCategory, selectedDesignation }} = this.state;
     const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
     const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
     const membersIds = salesRecord.members.map(i=>i.userId);
     const selectOptions = users
-      .filter(user=>membersIds.indexOf(user._id)<0)
+      .filter(user => membersIds.indexOf(user._id)<0) // do not contain current user
+      .filter(user => Roles.userIsInRole(user._id, [ EMPLOYEE_ROLE, ADMIN_ROLE ])) // must be admin or employee
       .map(user=>{
         return {
           label: `${getUserName(user, true)} ${getUserEmail(user)}`,
@@ -141,69 +266,92 @@ class SingleSalesRecord extends React.Component{
     if(Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST))
       return(
         <div>
-            <div className="add-member-form">
-                <div className="select-wrap">
+            <div className="form">
+                <div className="form-group">
                     <Select
-                      value={selectUser}
+                      value={selectedUser}
                       placeholder="Choose user"
-                      onChange={this.changeSelectUser.bind(this)}
+                      onChange={(item)=> this.changeState(this.state.member, 'selectedUser', item)}
                       options={selectOptions}
                       className={"members-select"}
                       clearable={false}
                     />
                 </div>
-                <div className="select-wrap">
+                <div className="form-group">
                     <Select
                       value={selectedDesignation}
                       placeholder="User designation"
-                      onChange={this.changeDesignation.bind(this)}
+                      onChange={(item)=> this.changeState(this.state.member, 'selectedDesignation', item)}
                       options={designationOptions}
                       className={"members-select"}
                       clearable={false}
                     />
                 </div>
-                <div className="select-wrap">
+                <div className="form-group">
                     <Select
                       multi
                       placeholder="User categories"
                       value={selectedCategory}
-                      onChange={this.changeCategory.bind(this)}
+                      onChange={(item)=> this.changeState(this.state.member, 'selectedCategory', item)}
                       options={categoryOptions}
                       className={"members-select"}
                       clearable={false}
                     />
                 </div>
-                <button onClick={this.assignUsers.bind(this)} className="btnn primary-btn">Add member</button>
+                <button onClick={this.addMember} className="btnn primary-btn">Add member</button>
             </div>
         </div>
       )
   }
 
-  changeSelectUser(selectUser){
-    this.setState({selectUser})
+  addStakeholder() {
+    const { stakeholder: { selectedContact, selectedDesignation, selectedCategory, notify } } = this.state;
+    const { salesRecord } = this.props;
+    if(_.isNull(selectedContact)) return warning("Choose stakeholder");
+    const stakeholder = {
+      contactId: selectedContact.value,
+      destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
+      category: selectedCategory.map(item => item.value),
+      notify,
+    };
+    Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result)=> {
+      if(error) return warning(error.reason? error.reason : 'Add member failed!');
+      this.setState({
+        stakeholder: {
+          notify: true,
+          selectedContact: null,
+          selectedDesignation: null,
+          selectedCategory: [],
+        }
+      });
+      info("Add stakeholder to salesRecord success!");
+    })
   }
 
-  assignUsers(){
-    const { selectUser, selectedDesignation, selectedCategory } = this.state;
+  addMember(){
+    const { member: { selectedUser, selectedDesignation, selectedCategory }} = this.state;
     const { salesRecord } = this.props;
-    if(_.isNull(selectUser)) return warning("Choose user");
+    if(_.isNull(selectedUser)) return warning("Choose user");
 
     const member = {
-      userId: selectUser.value,
+      userId: selectedUser.value,
       isMainStakeholder: false,
       destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
       category: selectedCategory.map(i=>i.value)
     };
 
-    Meteor.call("addMemberToProject", salesRecord._id, member, err=>{
+    Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
       if(err) return warning(err.reason? err.reason : "Add member failed!");
       this.setState({
-        selectUser: null,
-        selectedDesignation: null,
-        selectedCategory: []
+        member: {
+          selectedUser: null,
+          selectedDesignation: null,
+          selectedCategory: []
+        }
       });
       info("Add member to salesRecord success!");
     });
+
     Meteor.call("addUserToSlackChannel", member.userId, salesRecord.slackChanel, err=>{
       if(err) return warning(err.error);
       info("User success add to slack channel!");
@@ -217,15 +365,36 @@ class SingleSalesRecord extends React.Component{
   showUserInfo(user){
     this.setState({
       showPopup: true,
-      popupData: <ContactInfo user={user}
-                              hide={this.hidePopup.bind(this)}
-                              editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
+      popupTitle: 'Member Info',
+      popupData: <ContactInfo
+        user={user}
+        hide={this.hidePopup.bind(this)}
+        editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
+  }
+
+  showContactInfo(contact) {
+    this.setState({
+      showPopup: true,
+      popupTitle: 'Stakeholder Info',
+      popupData: (
+        <div>
+          <div className='form-group'>
+            <label>Name</label>
+            <p style={{overflow: 'auto'}}>{contact.name}</p>
+          </div>
+          <div className='form-group'>
+            <label>Email</label>
+            <p style={{overflow: 'auto'}}>{contact.email}</p>
+          </div>
+        </div>
+      )
+    })
   }
 
   renderPopup(){
-    const { popupData, showPopup } = this.state;
+    const { popupData, showPopup, popupTitle } = this.state;
     return <Popup active={showPopup}
-                  title="User info"
+                  title={popupTitle}
                   hide={this.hidePopup.bind(this)}
                   content={popupData}/>
   }
@@ -249,11 +418,28 @@ class SingleSalesRecord extends React.Component{
               </div>
           </div>
           <aside className="right-sidebar">
-              <div className="header-control">
-                  <h2 className="title">{sidebarTitle}</h2>
-              </div>
-            {this.renderAddUserForm()}
-            {this.renderProjectMembers()}
+            <div className='form-group'>
+              <Select
+                name='memberType'
+                value={this.state.memberType}
+                options={this.memberTypeOptions}
+                onChange={(item) => this.changeState(this.state, 'memberType', item)}
+                clearable={false}
+              />
+            </div>
+            {
+              (this.state.memberType.value === 'member') ? (
+                <div>
+                  { this.renderAddMemberForm() }
+                  { this.renderProjectMembers() }
+                </div>
+              ) : (
+                <div>
+                  { this.renderAddStakeholderForm() }
+                  { this.renderStakeholders() }
+                </div>
+              )
+            }
           </aside>
       </div>
     )

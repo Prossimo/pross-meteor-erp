@@ -14,7 +14,8 @@ export default class SendActionButton extends React.Component {
         clientId: React.PropTypes.string,
         style: React.PropTypes.object,
         isValidDraft: React.PropTypes.func,
-        disabled: React.PropTypes.func
+        disabled: React.PropTypes.func,
+        salesRecordId: React.PropTypes.string
     };
 
     static defaultProps = {
@@ -48,7 +49,7 @@ export default class SendActionButton extends React.Component {
         return ({
             title: "Send",
             iconUrl: null,
-            onSend: (clientId) => Actions.sendDraft(clientId),
+            onSend: (clientId, options={}) => Actions.sendDraft(clientId, options),
             configKey: "send",
         });
     }
@@ -59,8 +60,8 @@ export default class SendActionButton extends React.Component {
         actionConfigs.push({
             title: "Send and archive",
             iconUrl: null,
-            onSend: (clientId) => {
-                Actions.sendDraft(clientId)
+            onSend: (clientId, options={}) => {
+                Actions.sendDraft(clientId, options)
 
                 // Queue task for archiving
                 //tasks = TaskFactory.tasksForArchiving({threads:threads})
@@ -87,7 +88,7 @@ export default class SendActionButton extends React.Component {
     _onSendWithAction = ({onSend}) => {
         if (this.props.isValidDraft()) {
             try {
-                onSend(this.props.draft.clientId);
+                onSend(this.props.clientId, {salesRecordId:this.props.salesRecordId});
             } catch (err) {
                 console.error(err)
             }

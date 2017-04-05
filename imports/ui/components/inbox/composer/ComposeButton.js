@@ -4,14 +4,16 @@ import Actions from '../../../../api/nylas/actions';
 export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
 
+    static propTypes = {
+        salesRecordId: React.PropTypes.string
+    }
+
     constructor(props) {
         super(props)
-
-        this._onNewCompose = this._onNewCompose.bind(this)
     }
 
     _onNewCompose = () => {
-        Actions.composeNew()
+        Actions.composeNew(this.props.salesRecordId)
     }
 
     render() {
