@@ -4,6 +4,7 @@ import Actions from './actions'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
 import NylasUtils from './nylas-utils'
+import {insertConversation} from '../models/conversations/methods'
 
 ComposeType = {
     Creating: 'creating',
@@ -26,7 +27,7 @@ class DraftStore extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = () => {
+    _onComposeNew = (salesRecordId) => {
         DraftFactory.createDraft().then((draft)=>{
             this._drafts.push(draft)
 
@@ -89,10 +90,10 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onSendDraft(clientId) {
+    _onSendDraft(clientId, options={}) {
         this._draftsSending[clientId] = true
 
-        Actions.queueTask(new SendDraftTask(clientId))
+        Actions.queueTask(new SendDraftTask(clientId, options))
 
         this._draftsViewState[clientId] = {
             modal: false,
@@ -101,9 +102,16 @@ class DraftStore extends Reflux.Store {
         this.trigger()
     }
 
-    _onSendDraftSuccess = ({message, clientId} = {}) =>{
+    _onSendDraftSuccess = ({message, clientId, salesRecordId} = {}) =>{
+        console.log('_onSendDraftSuccess', message, clientId, salesRecordId)
         this.removeDraftForClientId(clientId)
         this.trigger()
+
+        if(salesRecordId) {
+            message.salesRecordId = salesRecordId
+            const conversationId = insertConversation.call(message)
+            console.log("new conversation id", conversationId)
+        }
     }
 
     _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) =>{

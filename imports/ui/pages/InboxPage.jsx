@@ -201,7 +201,7 @@ class InboxPage extends React.Component {
                         {...this.props}
                         contacts={contacts}
                         subject={currentThread.subject}
-                        messages={MessageStore.messages()}
+                        conversations={MessageStore.messages()}
                     />
                 </Modal.Body>
             </Modal>

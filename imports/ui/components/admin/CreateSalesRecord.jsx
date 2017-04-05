@@ -19,7 +19,7 @@ class CreateSalesRecord extends React.Component{
         subject: React.PropTypes.string,
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
-        messages: React.PropTypes.array         // messages to be attached from email
+        conversations: React.PropTypes.array         // conversations to be attached from email
     }
 
     constructor(props){
@@ -96,7 +96,7 @@ class CreateSalesRecord extends React.Component{
             estProductionTime,
             actProductionTime
         };
-        Meteor.call("insertSalesRecord", data, this.props.messages, (err, res)=>{
+        Meteor.call("insertSalesRecord", data, this.props.conversations, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
@@ -120,7 +120,7 @@ class CreateSalesRecord extends React.Component{
         this.stakeholders = stakeholders;
     }
 
-    render() {
+    render() {console.log(this.props.conversations)
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,

@@ -17,3 +17,4 @@ export const GET_NEW_PROJECT = 'getNewProject';
 export const GET_CONTACTS = 'getContacts';
 export const GET_MY_CONTACTS = 'getMyContacts';
 export const GET_TASKS = 'getTasks';
+export const GET_CONVERSATIONS = 'getConversations';

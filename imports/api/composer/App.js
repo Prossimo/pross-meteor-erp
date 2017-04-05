@@ -2,7 +2,7 @@ import React from 'react';
 import {Meteor} from 'meteor/meteor';
 import {compose} from 'react-komposer';
 import getTrackerLoader from './traker';
-import {GET_USERS, GET_PROJECTS, GET_MY_CONTACTS, GET_NYLAS_ACCOUNTS} from '/imports/api/constants/collections';
+import {GET_USERS, GET_PROJECTS, GET_MY_CONTACTS, GET_NYLAS_ACCOUNTS, GET_CONVERSATIONS} from '/imports/api/constants/collections';
 import SalesRecords from '/imports/api/models/salesRecords/salesRecords';
 
 import App from '/imports/ui/App';
