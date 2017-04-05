@@ -51,6 +51,11 @@ class SingleSalesRecord extends React.Component{
       }
     ];
 
+    this.memberTypeOptions = [
+      { label: 'Add Member', value: 'member' },
+      { label: 'Add Stakeholder', value: 'stakeholder' },
+    ]
+
     this.state = {
       activeTab: this.tabs.find(tab=>tab.label === "Activity"),
       showPopup: false,
@@ -65,9 +70,11 @@ class SingleSalesRecord extends React.Component{
         selectedCategory: [],
         selectedDesignation: null,
         notify: true,
-      }
+      },
+      memberType: this.memberTypeOptions[0],
     }
 
+    this.renderStakeholders = this.renderStakeholders.bind(this);
     this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
     this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
     this.changeState = this.changeState.bind(this);
@@ -103,6 +110,41 @@ class SingleSalesRecord extends React.Component{
       return activeTab.content
     }
   }
+
+  renderStakeholders() {
+    const salesRecord = this.props.salesRecord;
+    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : [];
+    return (
+      <ul className="project-members">
+      {
+        stakeholders.map(({ contactId, category })=> {
+          const contact = ContactStore.getContacts(1).find(({ _id })=> _id === contactId);
+          let email = 'unknown';
+          if (contact && contact.email) {
+            if (contact.email.length > 34)
+              email = contact.email.slice(0, 34) + '...';
+            else
+              email = contact.email;
+          }
+          return (
+            <li key={contactId} className='member-list'>
+              <span className='email' href='#'>{ email }</span>
+              <div>
+              {
+                category.map((name)=> {
+                  return (<span className='member-cat' key={name}>{name}</span>)
+                })
+              }
+              </div>
+            </li>
+          );
+        })
+      }
+      </ul>
+    )
+
+  }
+
   //todo change style
   renderProjectMembers(){
     const { salesRecord } = this.props;
@@ -345,21 +387,28 @@ class SingleSalesRecord extends React.Component{
               </div>
           </div>
           <aside className="right-sidebar">
-              <div className="header-control">
-              </div>
-            <div className='panel panel-default'>
-                <div className='panel-heading'>Add Member</div>
-                <div className='panel-body'>
-                    {this.renderAddMemberForm()}
-                </div>
+            <div className='form-group'>
+              <Select
+                name='memberType'
+                value={this.state.memberType}
+                options={this.memberTypeOptions}
+                onChange={(item) => this.changeState(this.state, 'memberType', item)}
+                clearable={false}
+              />
             </div>
-            <div className='panel panel-default'>
-                <div className='panel-heading'>Add Stakehoder</div>
-                <div className='panel-body'>
-                    {this.renderAddStakeholderForm()}
+            {
+              (this.state.memberType.value === 'member') ? (
+                <div>
+                  { this.renderAddMemberForm() }
+                  { this.renderProjectMembers() }
                 </div>
-            </div>
-            {this.renderProjectMembers()}
+              ) : (
+                <div>
+                  { this.renderAddStakeholderForm() }
+                  { this.renderStakeholders() }
+                </div>
+              )
+            }
           </aside>
       </div>
     )
