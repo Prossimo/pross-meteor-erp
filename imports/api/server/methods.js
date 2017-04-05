@@ -362,6 +362,19 @@ Meteor.methods({
     });
   },
 
+  addStakeholderToSalesRecord(salesRecordId, stakeholder) {
+    check(salesRecordId, String);
+    check(stakeholder, {
+      contactId: String,
+      destination: Match.OneOf(String, null),
+      category: Match.OneOf([String], []),
+      notify: Boolean,
+    });
+    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access Denined');
+    stakeholder.isMainStakeholder = false;
+    SalesRecords.update(salesRecordId, {$push: { stakeholders: stakeholder }});
+  },
+
   addMemberToProject(salesRecordId, member){
     check(salesRecordId, String);
     check(member, {
