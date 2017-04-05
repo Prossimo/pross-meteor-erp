@@ -4,7 +4,7 @@ const SlackBot = Npm.require('slackbots');
 Meteor.startup(() => {
     //todo add reload ws connection
     const bot = new SlackBot({
-        token: "xoxb-143253157236-jMQdyGbxvdujhuNuhU6cJNYq",
+        token: "xoxb-143253157236-cBzs3iNbCDuxCOIHTPnI2LHG",
         name: "prossimobot"
     });
 
