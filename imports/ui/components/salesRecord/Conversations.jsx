@@ -1,197 +1,146 @@
 import React from 'react';
-import classNames from 'classnames';
-import Textarea from 'react-textarea-autosize';
-import Select from 'react-select';
-import { getUserName, getUserEmail } from '/imports/api/lib/filters';
-import { simpleEmail } from '/imports/api/lib/functions';
-import { info, warning } from '/imports/api/lib/alerts';
+import { createContainer  } from 'meteor/react-meteor-data';
+import { GET_CONVERSATIONS } from '/imports/api/constants/collections';
+import Conversations from '/imports/api/models/conversations/conversations'
 
-class ConversationBox extends React.Component{
+import NylasUtils from '/imports/api/nylas/nylas-utils'
+import DraftStore from '/imports/api/nylas/draft-store'
+import ComposeButton from '../inbox/composer/ComposeButton'
+import ComposeModal from '../inbox/composer/ComposeModal'
+import EmailFrame from '../inbox/EmailFrame'
+
+export default class ConversationsView extends React.Component{
+    static propTypes = {
+        salesRecord: React.PropTypes.object
+    }
     constructor(props){
         super(props);
 
         this.state = {
-            text: '',
-            subject: '',
-            selectUsers: props.members.map(memberId=>{
-                return{
-                    label: getUserName(props.usersArr[memberId], true),
-                    value: memberId
-                }
-            }),
-            selectOptions: props.users.map(item=>{return {label: getUserName(item, true), value: item._id}})
         }
     }
 
-    changeText(event){
-        this.setState({text: event.target.value})
+
+    componentDidMount() {
+        this.unsubscribes = [];
+        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged));
     }
 
-    changeSelectUser(selectUsers){
-        this.setState({selectUsers})
+    componentWillUnmount() {
+        this.unsubscribes.forEach((unsubscribe) => {
+            unsubscribe()
+        });
     }
-
-    sendMessage(){
-        const { usersArr, currentUser, label } = this.props;
-        const { selectUsers, text, subject } = this.state;
-        const memberEmails = selectUsers.map(item=>{
-            return getUserEmail(usersArr[item.value])
-        });
-        const membersId = selectUsers.map(item=>{
-            return item.value;
-        });
-
-        if(!text) return warning("Write a message! Field is empty!");
-        if(!subject) return warning("Write a subject!");
-        if(!memberEmails.length) return warning("Nobody to send!");
-
-        const sendEmailCb = (err)=>{
-            if(err) return console.log(err);
-            info(`Email send`);
-            this.setState({
-                subject: '',
-                text: ''
-            })
-        };
-
-        //todo more test
-
-        Meteor.call('updateUserConversationGroups', label, membersId,(err)=>{
-            if(err) return warning("Conversation group update failed!");
-            info("Conversation group update success!")
-        });
-
-        Meteor.call("sendEmail", {
-            to: memberEmails,
-            from: 'mail@prossimo.us',
-            subject: subject,
-            replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-            html: simpleEmail(currentUser, text)
-        },sendEmailCb);
-    }
-
-    changeSubject(event){
-        this.setState({subject: event.target.value})
+    onDraftStoreChanged = () => {
+        this.setState({
+            composeState: DraftStore.draftViewStateForModal()
+        })
     }
 
     render() {
-        const { selectUsers, selectOptions, subject } = this.state;
+        const { composeState } = this.state;
 
-        return (
-            <div>
-                <div className="flex-container">
-                    <div className="left-part">
-                    <div className="field-wrap">
-                        <input type="text"
-                               value={subject}
-                               onChange={this.changeSubject.bind(this)}
-                               placeholder="Subject"/>
-                    </div>
-                    <Textarea rows={5}
-                              placeholder="Enter message"
-                              className="conversation-textarea"
-                              value={this.state.text}
-                              onChange={this.changeText.bind(this)}/>
-                    </div>
-                    <div className="right-part">
-                        <div className="select-wrap">
-                            <Select
-                                multi
-                                placeholder='Select members'
-                                value={selectUsers}
-                                onChange={this.changeSelectUser.bind(this)}
-                                options={selectOptions}
-                                className={"members-select"}
-                                clearable={false}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <button onClick={this.sendMessage.bind(this)}
-                        className="btnn primary-btn">Send message</button>
-            </div>
-        )
-    }
-}
-
-class Conversations extends React.Component{
-    constructor(props){
-        super(props);
-        const { profile } = props.currentUser;
-        if(Array.isArray(profile.conversationGroups) && profile.conversationGroups.length){
-            this.tabs = profile.conversationGroups.map(item=>{
-                return {
-                    label: item.name,
-                    content: <ConversationBox currentUser={props.currentUser}
-                                              usersArr={props.usersArr}
-                                              users={props.users}
-                                              label={item.name}
-                                              members={item.members} />
-                }
-            });
-        }else{
-            this.tabs = [
-                {
-                    label: "Stakeholders",
-                    content: <ConversationBox usersArr={props.usersArr}
-                                              label={"Stakeholders"}
-                                              currentUser={props.currentUser}
-                                              users={props.users}
-                                              members={[]}/>
-                }
-            ]
-        }
-
-
-
-        this.state = {
-            activeTab: this.tabs[0],
-        }
-    }
-
-    toggleTab(activeTab){
-        this.setState({activeTab})
-    }
-    getTabs(){
-        const { activeTab } = this.state;
-
-        return (
-            <ul>
-                {this.tabs.map(item=>{
-                    return (
-                        <li key={item.label}
-                            onClick={this.toggleTab.bind(this, item)}
-                            className={classNames({"active": item === activeTab})}
-                        >{item.label}</li>
-                    )
-                })}
-            </ul>
-        )
-    }
-    getContent(){
-        const { activeTab } = this.state;
-        if(activeTab.component){
-            return React.cloneElement(activeTab.component, this.props);
-        }else{
-            return activeTab.content
-        }
-    }
-
-    render() {
+        console.log(this.props)
+        const {salesRecord} = this.props
         return (
             <div className="conversations-tab">
-                <div className="tab-container">
-                    <div className="tab-controls">
-                        {this.getTabs()}
-                    </div>
-                    <div className="tab-content">
-                        {this.getContent()}
-                    </div>
-                </div>
+                <ComposeButton/>
+                <ConversationList conversations={salesRecord.conversations()}/>
+                <ComposeModal isOpen={composeState && composeState.show}
+                              clientId={composeState && composeState.clientId}
+                              salesRecordId={salesRecord._id}
+                              onClose={this.onCloseComposeModal}/>
             </div>
         )
     }
+
+
+    onCloseComposeModal = () => {
+        const {composeState} = this.state
+        if (!composeState) return
+
+        const draft = DraftStore.draftForClientId(composeState.clientId)
+
+        if (!NylasUtils.isEmptyDraft(draft)) {
+            if (confirm('Are you sure to discard?'))
+                DraftStore.removeDraftForClientId(draft.clientId)
+        } else {
+            DraftStore.removeDraftForClientId(draft.clientId)
+        }
+    }
 }
 
-export default Conversations;
+class ConversationList extends React.Component {
+    static propTypes = {
+        conversations: React.PropTypes.array
+    }
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            expanded:[]
+        }
+    }
+
+    render() {
+        const {conversations} = this.props
+        if(!conversations || conversations.length==0) return <div>There is no conversation!</div>
+
+        const {expanded} = this.state
+        return (
+            <div>
+                {
+                    conversations.map((conversation)=>{
+                        return (
+                            <div className="conversation-item-container" key={conversation._id}>
+                                <div className="conversation-header">
+                                    {this.renderToggleIcon(conversation)}
+                                    <span className="name">{conversation.from && conversation.from.length ? NylasUtils.contactDisplayName(conversation.from[0]) : ""}</span>
+                                    <span className="timestamp">{NylasUtils.shortTimeString(conversation.date)}</span>
+                                </div>
+                                <div className="conversation-body">
+                                    {
+                                        expanded[conversation._id] ? <EmailFrame content={conversation.body} showQuotedText={false}/> : <div className="snippet">{conversation.snippet}</div>
+                                    }
+                                </div>
+                            </div>
+                        )
+                    })
+                }
+            </div>
+        )
+    }
+
+    renderToggleIcon(conversation) {
+        let expanded = this.state.expanded
+        const toggleStyle = {
+            padding: 5,
+            display: 'inline'
+        }
+        if (expanded[conversation._id])
+            return (
+                <div style={toggleStyle}
+                     onClick={ (e) => {
+                         expanded[conversation._id] = false
+                         this.setState({expanded: expanded});
+                         e.stopPropagation()
+                     }}>
+                    <img src="/icons/inbox/message-disclosure-triangle-active.png" style={{width: 11}}/>
+                </div>
+            )
+        else
+            return (
+                <div style={toggleStyle}
+                     onClick={ (e) => {
+                         expanded[conversation._id] = true
+                         this.setState({expanded: expanded});
+                         e.stopPropagation()
+                     }}>
+                    <img src="/icons/inbox/message-disclosure-triangle.png" style={{width: 9}}/>
+                </div>
+            )
+    }
+}
+
+

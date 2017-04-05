@@ -4,6 +4,8 @@ import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import DraftStore from '../../../../api/nylas/draft-store'
+import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+
 
 import {FormControl} from 'react-bootstrap'
 import ParticipantsInputField from './ParticipantsInputField'
@@ -11,7 +13,8 @@ import ParticipantsInputField from './ParticipantsInputField'
 
 export default class ComposeView extends React.Component {
     static propTypes = {
-        clientId: React.PropTypes.string
+        clientId: React.PropTypes.string,
+        salesRecordId: React.PropTypes.string
     }
 
     constructor(props) {
@@ -62,19 +65,26 @@ export default class ComposeView extends React.Component {
 
         const {from, to, cc, bcc, subject} = draft
 
+        let contactOptions = [], onlyselect = false;
+        if(this.props.salesRecordId) {
+            const salesRecord = SalesRecord.findOne({_id:this.props.salesRecordId})
+            contactOptions = salesRecord.contactsForStakeholders()
+            onlyselect = true
+        }
+
         const ccSelector = (
-            <ParticipantsInputField label="Cc" contacts={cc} onChange={this._onChangeCc}/>
+            <ParticipantsInputField label="Cc" onlyselect={onlyselect} options={contactOptions} values={cc} onChange={this._onChangeCc}/>
         )
 
         const bccSelector = (
-            <ParticipantsInputField label="Bcc" contacts={bcc} onChange={this._onChangeBcc}/>
+            <ParticipantsInputField label="Bcc" onlyselect={onlyselect} options={contactOptions} values={bcc} onChange={this._onChangeBcc}/>
         )
 
         return (
             <div>
                 <div><span>From:&nbsp;&nbsp;</span><span>{from[0].email}</span></div>
                 <div className="input-wrap">
-                    <ParticipantsInputField label="To" contacts={to} onChange={this._onChangeTo}/>
+                    <ParticipantsInputField label="To" onlyselect={onlyselect} options={contactOptions} values={to} onChange={this._onChangeTo}/>
                     <div className="composer-header-actions">
                         {!expandedCc && <div className="action" onClick={this._onClickCc}>Cc</div>}
                         {!expandedBcc && <div className="action" onClick={this._onClickBcc}>Bcc</div>}
@@ -125,7 +135,13 @@ export default class ComposeView extends React.Component {
         return (
             <div className="composer-action-bar-wrap">
                 <div className="composer-action-bar-content">
-                    <SendActionButton draft={this.state.draft} disabled={this._isUnableToSend} isValidDraft={this._isValidDraft}/>
+                    <SendActionButton
+                        clientId={this.props.clientId}
+                        draft={this.state.draft}
+                        disabled={this._isUnableToSend}
+                        isValidDraft={this._isValidDraft}
+                        salesRecordId={this.props.salesRecordId}
+                    />
                 </div>
             </div>
         )

@@ -1,8 +1,11 @@
+import _ from 'underscore'
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import { STAGES } from '../../constants/project';
+import Conversations from '../conversations/conversations'
+import Contacts from '../contacts/contacts'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -117,3 +120,13 @@ SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options)
     // modifier.$set = modifier.$set || {};
     doc.modifiedAt = Date.now();
 });
+
+SalesRecords.helpers({
+    conversations() {
+        return Conversations.find({salesRecordId: this._id}).fetch()
+    },
+    contactsForStakeholders() {
+        const contactIds = _.pluck(this.stakeholders, 'contactId')
+        return Contacts.find({_id:{$in:contactIds}}).fetch()
+    }
+})
