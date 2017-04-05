@@ -56,6 +56,13 @@ class SingleSalesRecord extends React.Component{
       { label: 'Add Stakeholder', value: 'stakeholder' },
     ]
 
+    this.stageOptions = [
+      { label: 'Lead', value: 'lead' },
+      { label: 'Opportunity', value: 'opportunity' },
+      { label: 'Order', value: 'order' },
+      { label: 'Ticket', value: 'ticket' },
+    ]
+
     this.state = {
       activeTab: this.tabs.find(tab=>tab.label === "Activity"),
       showPopup: false,
@@ -84,6 +91,7 @@ class SingleSalesRecord extends React.Component{
     this.showContactInfo = this.showContactInfo.bind(this);
     this.removeMember = this.removeMember.bind(this);
     this.removeStakeholder = this.removeStakeholder.bind(this);
+    this.changeStage = this.changeStage.bind(this);
     /*
     * should not publish all contact to client
     * because searching in contact causes lag in UI, index contact list to provide quick search
@@ -216,6 +224,15 @@ class SingleSalesRecord extends React.Component{
         })}
       </ul>
     )
+  }
+
+  changeStage(salesRecordId, item) {
+    if (item) {
+      Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error)=> {
+        if (error) return warning(error.reason ? error.reason : 'Change stage failed!');
+        info('Change stage sucess');
+      })
+    }
   }
 
   changeState(subState, propName, propValue) {
@@ -438,12 +455,24 @@ class SingleSalesRecord extends React.Component{
     const { salesRecord } = this.props;
     const sidebarTitle = "SalesRecord members";
     const projectName = salesRecord.name;
+    const defaultStage = this.stageOptions.find(({ value })=> value === salesRecord.stage);
     return (
       <div className="page-container single-project">
         {this.renderPopup()}
           <div className="main-content">
               <div className="tab-container">
-                  <h2 className="page-title">{projectName}</h2>
+                  <div className='page-title'>
+                    <div className='row'>
+                      <h2 className="col-md-10">{projectName}</h2>
+                      <Select
+                        className='col-md-2'
+                        value={defaultStage}
+                        options={this.stageOptions}
+                        clearable={false}
+                        onChange={(item)=> this.changeStage(salesRecord._id, item)}
+                      />
+                    </div>
+                  </div>
                   <div className="tab-controls">
                     {this.getTabs()}
                   </div>
