@@ -15,7 +15,7 @@ import Tasks from '../libs/Tasks';
 import Files from '../libs/Files';
 import Invoices from './Invoices';
 import Documents from './Documents';
-import Conversations from './Conversations';
+import Conversations from './conversations/Conversations';
 
 class SingleSalesRecord extends React.Component{
   constructor(props){

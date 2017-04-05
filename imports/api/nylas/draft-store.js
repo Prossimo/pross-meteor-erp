@@ -41,13 +41,11 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onComposeReply = ({thread, message, type, modal}) =>{
-        if(!thread || !message) return
+    _onComposeReply = ({message, type, modal}) =>{
+        if(!message) return
 
-        threadId = thread.id
-        messageId = message.id
 
-        let existingDraft = this.draftForReply(threadId, messageId)
+        let existingDraft = this.draftForReply(message.thread_id, message.id)
 
         if(existingDraft) {
             const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
@@ -61,7 +59,7 @@ class DraftStore extends Reflux.Store {
             }
             this.trigger()
         } else {
-            DraftFactory.createDraftForReply({thread, message, type}).then((draft)=>{
+            DraftFactory.createDraftForReply({message, type}).then((draft)=>{
                 this._drafts.push(draft)
 
                 this._draftsViewState[draft.clientId] = {
@@ -76,8 +74,8 @@ class DraftStore extends Reflux.Store {
     }
 
 
-    _onComposeForward = ({thread, message, modal}) => {
-        DraftFactory.createDraftForForward({thread, message}).then((draft)=>{
+    _onComposeForward = ({message, modal}) => {
+        DraftFactory.createDraftForForward({message}).then((draft)=>{
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {

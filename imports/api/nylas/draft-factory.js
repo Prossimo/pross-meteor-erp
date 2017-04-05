@@ -25,7 +25,7 @@ class DraftFactory {
         })
     }
 
-    createDraftForReply = ({thread, message, type}) => {
+    createDraftForReply = ({message, type}) => {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
@@ -39,7 +39,7 @@ class DraftFactory {
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Re:'),
             to: to,
             cc: cc,
-            thread_id: thread.id,
+            thread_id: message.thread_id,
             reply_to_message_id: message.id,
             account_id: message.account_id,
             body: `${body}<br><br><div class="gmail_quote">
@@ -53,7 +53,7 @@ class DraftFactory {
         })
     }
 
-    createDraftForForward = ({thread, message}) => {
+    createDraftForForward = ({message}) => {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
@@ -73,7 +73,7 @@ class DraftFactory {
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Fwd:'),
             files: [].concat(message.files),
-            thread_id: thread.id,
+            thread_id: message.thread_id,
             account_id: message.account_id,
             body: `${body}<br><br><div class="gmail_quote">
             ---------- Forwarded message ---------
