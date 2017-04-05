@@ -7,7 +7,6 @@ import Actions from '../../../api/nylas/actions'
 
 class MessageControls extends React.Component {
     static propTypes = {
-        thread: React.PropTypes.object.isRequired,
         message: React.PropTypes.object.isRequired
     }
 
@@ -89,18 +88,18 @@ class MessageControls extends React.Component {
 
 
     _onReply = () => {
-        const {thread, message} = this.props
-        Actions.composeReply({thread, message, type: 'reply', modal: true})
+        const {message} = this.props
+        Actions.composeReply({message, type: 'reply', modal: true})
     }
 
     _onReplyAll = () => {
-        const {thread, message} = this.props
-        Actions.composeReply({thread, message, type: 'reply-all', modal: true})
+        const {message} = this.props
+        Actions.composeReply({message, type: 'reply-all', modal: true})
     }
 
     _onForward = () => {
-        const {thread, message} = this.props
-        Actions.composeForward({thread, message, modal: true})
+        const {message} = this.props
+        Actions.composeForward({message, modal: true})
     }
 
     _onShowActionsMenu() {

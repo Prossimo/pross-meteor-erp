@@ -5,7 +5,6 @@ import ItemMessage from './ItemMessage'
 
 export default class MessageItemContainer extends React.Component {
     static propTypes = {
-        thread: React.PropTypes.object.isRequired,
         message: React.PropTypes.object.isRequired,
         collapsed: React.PropTypes.bool,
         isLastMsg: React.PropTypes.bool,
@@ -57,7 +56,6 @@ export default class MessageItemContainer extends React.Component {
         return <ItemMessage
             ref="message"
             pending={pending}
-            thread={this.props.thread}
             message={this.props.message}
             className={classnames}
             collapsed={this.props.collapsed}

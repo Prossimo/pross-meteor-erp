@@ -1,24 +1,39 @@
 import _ from 'underscore';
 import React from 'react';
-import NylasUtils from '../../../api/nylas/nylas-utils';
-import MessageStore from '../../../api/nylas/message-store';
-import MessageItemContainer from './MessageItemContainer';
+import NylasUtils from '/imports/api/nylas/nylas-utils';
+import MessageItemContainer from '../../inbox/MessageItemContainer';
+import {ConversationStore} from '/imports/api/nylas/message-store'
 
-class MessageList extends React.Component {
+class ConversationList extends React.Component {
 
+    static propTypes = {
+        conversations: React.PropTypes.array
+    }
     constructor(props) {
         super(props);
 
-        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this);
+
+
+        this.MINIFY_THRESHOLD = 3
+
+        this.store = new ConversationStore(props.conversations)
 
         this.state = this._getStateFromStore()
         this.state.minified = true
-        this.MINIFY_THRESHOLD = 3
+
+        console.log('constructor')
     }
 
+    _getStateFromStore() {
+        return {
+            messages: this.store.messages(),
+            messagesExpandedState: this.store.messagesExpanded()
+        }
+    }
     componentDidMount() {
         this.unsubscribes = [];
-        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged));
+        this.unsubscribes.push(this.store.listen(this.onStoreChanged));
+        console.log('componentDidMount')
     }
 
     componentWillUnmount() {
@@ -27,64 +42,20 @@ class MessageList extends React.Component {
         });
     }
 
-    onMessageStoreChanged() {
+    onStoreChanged = () => {
         let newState = this._getStateFromStore();
 
-        if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)
-            newState.minified = true
         this.setState(newState)
     }
 
-    _getStateFromStore() {
-        return {
-            messages: MessageStore.messages(),
-            messagesExpandedState: MessageStore.messagesExpanded(),
-            currentThread: MessageStore.currentThread(),
-            loading: MessageStore.loading()
-        }
-    }
-
     render() {
-        if (!this.state.currentThread) return <span />
 
         return (
-            <div className="list-message">
-                {this.renderSubject()}
+            <div className="list-message" style={{marginTop:10}}>
                 {this.renderMessages()}
             </div>
         )
     }
-
-    renderSubject() {
-        let subject = this.state.currentThread.subject
-
-        if (!subject || subject.length == 0)
-            subject = "(No Subject)";
-
-        return (
-            <div className="message-subject-wrap">
-                {/*<MailImportantIcon thread={this.state.currentThread}/>*/}
-                <div style={{flex: 1}}>
-                    <span className="message-subject">{subject}</span>
-                    {/*<MailLabelSet removable={true} thread={@state.currentThread} includeCurrentCategories={true} />*/}
-                </div>
-                {this.renderIcons()}
-            </div>
-        )
-    }
-
-    renderIcons() {
-        return (
-            <div className="message-icons-wrap">
-                {/*{@_renderExpandToggle()}*/}
-                {/*<div onClick={@_onPrintThread}>*/}
-                {/*<RetinaImg name="print.png" title="Print Thread" mode={RetinaImg.Mode.ContentIsMask}/>*/}
-                {/*</div>*/}
-            </div>
-        )
-
-    }
-
 
     renderMessages() {
         let elements = []
@@ -167,10 +138,10 @@ class MessageList extends React.Component {
         return messages
     }
 
-    _renderMinifiedBundle(bundle) { console.log('_renderMinifiedBundle', bundle)
+    _renderMinifiedBundle(bundle) {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10);
-        const h = Math.round(BUNDLE_HEIGHT / lines.length)
+        h = Math.round(BUNDLE_HEIGHT / lines.length)
 
         return (
             <div className="minified-bundle"
@@ -217,4 +188,4 @@ class MessageList extends React.Component {
 
 }
 
-export default MessageList;
+export default ConversationList;
