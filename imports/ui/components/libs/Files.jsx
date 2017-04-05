@@ -11,22 +11,25 @@ class Files extends Component {
         this.renderRemoteFiles = this.renderRemoteFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
         this.removeFile = this.removeFile.bind(this);
+        this.updateFolder = this.updateFolder.bind(this);
         this.token = null;
         this.state = {
             files: [],
             remoteFiles: [],
             loadingRemoteFiles: true,
+            folderId: "",
         }
         switch(props.type) {
             case 'project':
-                this.folderId = props.project.folderId;
-                if (!this.folderId) warning('Your folder was not created yet')
+                this.rootfolderId = props.project.folderId;
+                if (!this.rootfolderId) warning('Your folder was not created yet')
                 break;
             case 'salesRecord':
-                this.folderId = props.salesRecord.folderId;
-                if (!this.folderId) warning('Your folder was not created yet')
+                this.rootfolderId = props.salesRecord.folderId;
+                if (!this.rootfolderId) warning('Your folder was not created yet')
                 break;
         }
+        this.state.folderId = this.rootfolderId;
     }
 
     componentDidMount() {
@@ -37,7 +40,7 @@ class Files extends Component {
             this.token = token;
         });
 
-        Meteor.call('drive.listFiles', {query: `'${this.folderId}' in parents and trashed = false`}, (error, result)=> {
+        Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
@@ -45,6 +48,38 @@ class Files extends Component {
                 remoteFiles: result.files ,
                 loadingRemoteFiles: false,
             });
+        })
+    }
+
+    updateFolder(event) {
+        let folderId = event.target.getAttribute("data-id");
+        event.preventDefault();
+        this.setState({folderId: folderId});
+
+        Meteor.call('drive.getAccessToken', {}, (error, token)=> {
+            if (error) {
+                return warning('could not connect to google drive');
+            }
+            this.token = token;
+        });
+
+
+        Meteor.call('drive.listFiles', {query: `'${folderId}' in parents and trashed = false`}, (error, result)=> {
+            if (error) {
+                return warning('could not list files from google drive');
+            }
+            Meteor.call('drive.getParents', {fileId: folderId}, (err, parents)=> {
+                if (err) {
+                    return warning('could not list files from google drive');
+                }
+                if (parents.parents.length > 1)
+                    parents.parents = [this.rootfolderId];
+                result.files.unshift({id: parents.parents.slice(-1)[0], name: "..", mimeType: "application/vnd.google-apps.folder"});
+                this.setState({
+                    remoteFiles: result.files ,
+                    loadingRemoteFiles: false,
+                });
+            })
         })
     }
 
@@ -74,9 +109,9 @@ class Files extends Component {
                                 <td>
                                 {
                                     (mimeType === 'application/vnd.google-apps.folder') ? (
-                                        <div className='attached-folder' key={id}>
-                                            <a href='#'>
-                                                <span className='file-name'>{name}</span>
+                                        <div className='attached-folder' data-val={id}>
+                                            <a href='#' >
+                                                <span className='file-name' data-id={id} onClick={this.updateFolder}>{name}</span>
                                             </a>
                                         </div>
                                     ) : (
@@ -127,7 +162,7 @@ class Files extends Component {
                 file,
                 token: this.token,
                 metadata: {
-                    parents: [this.folderId],
+                    parents: [this.state.folderId],
                 },
                 onProgress: ({ loaded, total })=> {
                     const percentage = Math.round(loaded/total * 100);
@@ -161,7 +196,7 @@ class Files extends Component {
             <div className='file-tab default-form'>
                 <div className='row'>
                     <div className='col-md-8'>
-                        <a href={`https://drive.google.com/drive/folders/{folderId}`} target='_blank'>
+                        <a href={`https://drive.google.com/drive/folders/${this.state.folderId}`} target='_blank'>
                             <span className='file-name'>Open Folder</span>
                         </a>
                         {
