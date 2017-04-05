@@ -142,6 +142,24 @@ class Files extends Component {
             this.updateFileList();
             //console.log ('successfully created google docs!');
         });
+
+        Meteor.call('drive.listFiles', {query: `'${folderId}' in parents and trashed = false`}, (error, result)=> {
+            if (error) {
+                return warning('could not list files from google drive');
+            }
+            Meteor.call('drive.getParents', {fileId: folderId}, (err, parents)=> {
+                if (err) {
+                    return warning('could not list files from google drive');
+                }
+                if (parents.parents.length > 1)
+                    parents.parents = [this.rootfolderId];
+                result.files.unshift({id: parents.parents.slice(-1)[0], name: "..", mimeType: "application/vnd.google-apps.folder"});
+                this.setState({
+                    remoteFiles: result.files ,
+                    loadingRemoteFiles: false,
+                });
+            })
+        })
     }
 
     removeFile(fileId, event) {
