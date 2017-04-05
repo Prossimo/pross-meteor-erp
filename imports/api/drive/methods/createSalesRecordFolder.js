@@ -14,7 +14,7 @@ export default new ValidatedMethod({
         salesRecordId: { type: String },
     }).validator(),
     run({ name, salesRecordId }) {
-        const salesRecordName = `00[##### ${name}]`;
+        const salesRecordName = `##### ${name}`;
         const { id } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
         SalesRecords.update(salesRecordId, { $set: { folderId: id }});
         // copy template to new created folder

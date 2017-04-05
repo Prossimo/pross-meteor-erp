@@ -14,7 +14,7 @@ export default new ValidatedMethod({
         projectId: { type: String },
     }).validator(),
     run({ name, projectId }) {
-        const projectName = `00[##### ${name}]`;
+        const projectName = `##### ${name}`;
         const { id } =  createFolder.call({ name: projectName, parent: projectParentFolderId });
         Projects.update(projectId, { $set: { folderId: id } });
     },
