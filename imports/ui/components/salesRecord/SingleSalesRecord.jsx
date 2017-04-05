@@ -59,6 +59,7 @@ class SingleSalesRecord extends React.Component{
     this.state = {
       activeTab: this.tabs.find(tab=>tab.label === "Activity"),
       showPopup: false,
+      popupTitle: '',
       popupData: null,
       member: {
         selectedUser: null,
@@ -80,6 +81,15 @@ class SingleSalesRecord extends React.Component{
     this.changeState = this.changeState.bind(this);
     this.addMember = this.addMember.bind(this);
     this.addStakeholder = this.addStakeholder.bind(this);
+    this.showContactInfo = this.showContactInfo.bind(this);
+    /*
+    * should not publish all contact to client
+    * because searching in contact causes lag in UI, index contact list to provide quick search
+    * */
+    this.contacts = {};
+    ContactStore.getContacts(1).forEach((contact)=> {
+      this.contacts[contact._id] = contact;
+    });
   }
 
 
@@ -118,8 +128,8 @@ class SingleSalesRecord extends React.Component{
       <ul className="project-members">
       {
         stakeholders.map(({ contactId, category })=> {
-          const contact = ContactStore.getContacts(1).find(({ _id })=> _id === contactId);
           let email = 'unknown';
+          const contact = this.contacts[contactId];
           if (contact && contact.email) {
             if (contact.email.length > 34)
               email = contact.email.slice(0, 34) + '...';
@@ -128,7 +138,7 @@ class SingleSalesRecord extends React.Component{
           }
           return (
             <li key={contactId} className='member-list'>
-              <span className='email' href='#'>{ email }</span>
+              <span className='memberName' onClick={()=> this.showContactInfo(contact)}>{ email }</span>
               <div>
               {
                 category.map((name)=> {
@@ -355,15 +365,36 @@ class SingleSalesRecord extends React.Component{
   showUserInfo(user){
     this.setState({
       showPopup: true,
-      popupData: <ContactInfo user={user}
-                              hide={this.hidePopup.bind(this)}
-                              editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
+      popupTitle: 'Member Info',
+      popupData: <ContactInfo
+        user={user}
+        hide={this.hidePopup.bind(this)}
+        editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
+  }
+
+  showContactInfo(contact) {
+    this.setState({
+      showPopup: true,
+      popupTitle: 'Stakeholder Info',
+      popupData: (
+        <div>
+          <div className='form-group'>
+            <label>Name</label>
+            <p style={{overflow: 'auto'}}>{contact.name}</p>
+          </div>
+          <div className='form-group'>
+            <label>Email</label>
+            <p style={{overflow: 'auto'}}>{contact.email}</p>
+          </div>
+        </div>
+      )
+    })
   }
 
   renderPopup(){
-    const { popupData, showPopup } = this.state;
+    const { popupData, showPopup, popupTitle } = this.state;
     return <Popup active={showPopup}
-                  title="User info"
+                  title={popupTitle}
                   hide={this.hidePopup.bind(this)}
                   content={popupData}/>
   }
