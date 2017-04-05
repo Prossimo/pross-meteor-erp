@@ -161,6 +161,9 @@ class Files extends Component {
             <div className='file-tab default-form'>
                 <div className='row'>
                     <div className='col-md-8'>
+                        <a href={`https://drive.google.com/drive/folders/{folderId}`} target='_blank'>
+                            <span className='file-name'>Open Folder</span>
+                        </a>
                         {
                             (this.state.loadingRemoteFiles) ? (
                                 <div>Loading data from google drive .... </div>
