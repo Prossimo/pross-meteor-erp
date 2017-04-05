@@ -43,10 +43,25 @@ Meteor.startup(() => {
         });
     });
 
-    Meteor.publish(GET_PROJECTS, function () {
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find();
-        return SalesRecords.find({"members.userId": this.userId})
-    });
+    Meteor.publishComposite(GET_PROJECTS, function() {
+      return {
+        find() {
+          if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find();
+          return SalesRecords.find({'members.userId': this.userId})
+        },
+        children: [
+          {
+            find({ stakeholders }) {
+              if (stakeholders) {
+                const contactIds = stakeholders.map(({ contactId })=> contactId);
+                return Contacts.find({ _id: { $in: contactIds } });
+              }
+            }
+
+          }
+        ]
+      }
+    })
 
     Meteor.publish(GET_QUOTES, function (projectId) {
         Match.test(projectId, String);
