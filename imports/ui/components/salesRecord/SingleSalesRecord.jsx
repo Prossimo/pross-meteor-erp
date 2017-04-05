@@ -82,6 +82,8 @@ class SingleSalesRecord extends React.Component{
     this.addMember = this.addMember.bind(this);
     this.addStakeholder = this.addStakeholder.bind(this);
     this.showContactInfo = this.showContactInfo.bind(this);
+    this.removeMember = this.removeMember.bind(this);
+    this.removeStakeholder = this.removeStakeholder.bind(this);
     /*
     * should not publish all contact to client
     * because searching in contact causes lag in UI, index contact list to provide quick search
@@ -121,6 +123,14 @@ class SingleSalesRecord extends React.Component{
     }
   }
 
+  removeStakeholder(salesRecordId, contactId, event) {
+    event.preventDefault();
+    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , contactId, (error, result)=> {
+      if(error) return warning(error.reason? error.reason : 'remove stakeholder failed!');
+      info('remove stakeholder success!');
+    });
+  }
+
   renderStakeholders() {
     const salesRecord = this.props.salesRecord;
     const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : [];
@@ -138,6 +148,13 @@ class SingleSalesRecord extends React.Component{
           }
           return (
             <li key={contactId} className='member-list'>
+              {
+                Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
+                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeStakeholder(salesRecord._id, contactId, event)}>
+                    <span className='fa fa-times pull-right'></span>
+                  </a>
+                ) : ''
+              }
               <span className='memberName' onClick={()=> this.showContactInfo(contact)}>{ email }</span>
               <div>
               {
@@ -155,6 +172,14 @@ class SingleSalesRecord extends React.Component{
 
   }
 
+  removeMember(salesRecordId, userId, event) {
+    event.preventDefault();
+    Meteor.call('removeMemberFromSalesRecord', salesRecordId , userId, (error, result)=> {
+      if(error) return warning(error.reason? error.reason : 'remove member failed!');
+      info('remove member success!');
+    });
+  }
+
   //todo change style
   renderProjectMembers(){
     const { salesRecord } = this.props;
@@ -168,7 +193,7 @@ class SingleSalesRecord extends React.Component{
                 className="member-list">
                 {
                   Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
-                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}}>
+                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeMember(salesRecord._id, member.userId, event)}>
                       <span className='fa fa-times pull-right'></span>
                     </a>
                   ) : ''
