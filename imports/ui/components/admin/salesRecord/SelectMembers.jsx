@@ -9,14 +9,21 @@ import {
 class SelectMembers extends Component{
     constructor(props) {
         super(props);
-        this.state = {
-            selectedMembers: [],
-        }
         this.changeMembers = this.changeMembers.bind(this);
         this.renderMembers = this.renderMembers.bind(this);
         this.changeState = this.changeState.bind(this);
         this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
         this.designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
+        this.state = {
+          selectedMembers: [
+            {
+              label: getUserName(Meteor.user(), true),
+              value: Meteor.userId(),
+              designation: this.designationOptions[0],
+              categories: [this.categoryOptions[0]],
+            }
+          ],
+        }
     }
 
     changeState(propName, item, propValue) {
