@@ -13,6 +13,15 @@ const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
+    changeStageOfSalesRecord(salesRecordId, stage) {
+      check(salesRecordId, String);
+      check(stage, String);
+      const salesRecord = SalesRecords.findOne({ _id: salesRecordId, 'members.userId': this.userId });
+      if (salesRecord || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+        SalesRecords.update(salesRecordId, {$set: { stage }});
+      }
+    },
+
     removeStakeholderFromSalesRecord(salesRecordId, contactId) {
       check(salesRecordId, String);
       check(contactId, String);
