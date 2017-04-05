@@ -258,9 +258,14 @@ class Files extends Component {
             <div className='file-tab default-form'>
                 <div className='row'>
                     <div className='col-md-8'>
+<<<<<<< 5f0cecee3bcdb946b9a85fe561c93555103b91b4
                         <div>{this.state.msgstring}</div>
                         <a href={`https://drive.google.com/drive/folders/${this.state.folderId}`} target='_blank'>
                             <span className='file-name hand-cursor'>Open Folder</span>
+=======
+                        <a href={`https://drive.google.com/drive/folders/${this.state.folderId}`} target='_blank'>
+                            <span className='file-name'>Open Folder</span>
+>>>>>>> fix view subfolders in Files
                         </a>
                         {
                             (this.state.loadingRemoteFiles) ? (
