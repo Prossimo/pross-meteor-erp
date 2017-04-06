@@ -19,7 +19,7 @@ class CreateSalesRecord extends React.Component{
         subject: React.PropTypes.string,
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
-        messages: React.PropTypes.array         // messages to be attached from email
+        conversations: React.PropTypes.array         // conversations to be attached from email
     }
 
     constructor(props){
@@ -96,7 +96,7 @@ class CreateSalesRecord extends React.Component{
             estProductionTime,
             actProductionTime
         };
-        Meteor.call("insertSalesRecord", data, this.props.messages, (err, res)=>{
+        Meteor.call("insertSalesRecord", data, this.props.conversations, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
@@ -147,6 +147,22 @@ class CreateSalesRecord extends React.Component{
             <div className="create-project">
                 <form onSubmit={this.submitForm.bind(this)}
                       className="">
+                    {
+                        (!this.props.stage) ? (
+                            <div>
+                                <div className='form-group'>
+                                    <label>Stage</label>
+                                    <Select
+                                        value={selectedStage}
+                                        onChange={this.changeState('selectedStage')}
+                                        options={stages}
+                                        className={"select-role"}
+                                        clearable={false}
+                                    />
+                                </div>
+                            </div>
+                        ) : ''
+                    }
                     <div className="form-group">
                         <label>Project Name</label>
                         <input type="text"
@@ -336,22 +352,6 @@ class CreateSalesRecord extends React.Component{
                                     onChange={this.changeState('shipper')}
                                     value={shipper}/>
                             </div>
-                            {
-                                (!this.props.stage) ? (
-                                    <div>
-                                        <div className='form-group'>
-                                            <label>Stage</label>
-                                            <Select
-                                                value={selectedStage}
-                                                onChange={this.changeState('selectedStage')}
-                                                options={stages}
-                                                className={"select-role"}
-                                                clearable={false}
-                                            />
-                                        </div>
-                                    </div>
-                                ) : ''
-                            }
                         </div>
                     </div>
                     <div className='form-group text-center'>

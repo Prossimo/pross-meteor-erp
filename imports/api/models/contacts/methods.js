@@ -59,23 +59,21 @@ Meteor.methods({
 
         data = data.filter((item) => item.id && item.email && item.account_id)
 
-        let existingContacts = Contacts.find({id: {$in: _.pluck(data, 'id')}}).fetch()
 
         let ids = []
         data.forEach((item) => {
-            const {id, name} = item
+            const {name} = item
 
-            let contact = _.find(existingContacts, {id})
+            let contact = Contacts.findOne({account_id:item.account_id, email:item.email})
 
             if (contact) {
                 if (!contact.edited && (
-                    (item.email && contact.email != item.email) ||
-                    (item.name && contact.name != item.name) ||
+                    (item.name && item.name != item.email && contact.name != item.name) ||
                     (item.phone_numbers && item.phone_numbers.length && contact.phone_numbers != item.phone_numbers)
                     )
                 ) {
-                    Contacts.update({id}, {$set: item})
-                    ids.push(id)
+                    Contacts.update({_id:contact._id}, {$set: item})
+                    ids.push(contact._id)
                 }
             } else {
                 if(!name) item.name = item.email

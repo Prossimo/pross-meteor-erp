@@ -101,6 +101,7 @@
 
   .right-sidebar
     overflow hidden
+    padding: 5px
 
     .title
       position relative
@@ -387,40 +388,8 @@
       border 1px solid $grey
 
 
-.conversations-tab
-  padding 0 20px
-  margin-top -30px
-  .tab-container
-    padding 0
 
-  .tab-controls
-    padding 0
 
-  .tab-content
-    padding 10px 0
-
-  .left-part,
-  .right-part
-    width 50%
-    padding 0 10px
-
-  .flex-container
-    margin-bottom 15px
-
-    .field-wrap
-      margin-top 10px
-      margin-bottom 10px
-      width 100%
-
-      input
-        width 100%
-        border-bottom 2px solid $main-color
-        padding 0 10px
-
-  .conversation-textarea
-    width 100%
-    border-radius 3px
-    padding 15px
 .create-project
   .project-members-table
     td
@@ -430,3 +399,46 @@
   flex-direction column
 
 
+.conversations-tab {
+  padding: 0 20px;
+  margin-top: -30px;
+
+  .conversation-item-container {
+    padding: 5px;
+    border-bottom: 1px solid rgba(220, 220, 220, 1);
+    margin-top: 10px;
+
+    .conversation-header {
+      padding: 10px 0;
+
+      .name {
+        margin-right: 15px;
+        font-weight: bold;
+      }
+      .timestamp {
+        color: rgba(128, 128, 128, 1);
+        font-size: 12px;
+      }
+    }
+
+    .conversation-body {
+      width: 100%;
+      max-width: 800px;
+      //margin: 0 auto;
+      padding: 0 20px $spacing-standard 20px;
+
+      .iframe-container {
+        margin-top: 10px;
+        width: 100%;
+
+        iframe {
+          width: 100%;
+          border: 0;
+          padding: 0;
+          overflow: auto;
+        }
+      }
+    }
+  }
+
+}

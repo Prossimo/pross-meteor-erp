@@ -186,12 +186,21 @@ class InboxPage extends React.Component {
         const filter = {
             account_id: currentThread.account_id,
             email: {
-                $in: _.pluck(_.uniq(currentThread.participants, 'email'), 'email')
+                $in: _.pluck(currentThread.participants, 'email')
             }
         }
 
-        const contacts = _.uniq(Contacts.find(filter).fetch(), 'email')
+        const contacts = _.filter(_.uniq(Contacts.find(filter).fetch(), (c)=>c.email), (c)=>{
+            var re = /\S+@prossimo.us/;
+            if(re.test(c.email)) return false   // Remove @prossimo.us contacts
+
+            const users = Meteor.users.find({'emails.address':c.email}).fetch()
+            if(users && users.length) return false  // Remove CRM users
+
+            return true
+        })
         console.log(JSON.stringify(filter), contacts)
+
         const title = bindingSalesRecord ? 'Bind this thread to existing SalesRecord' : 'Create new SalesRecord from this thread'
         return (
             <Modal show={salesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
@@ -201,7 +210,7 @@ class InboxPage extends React.Component {
                         {...this.props}
                         contacts={contacts}
                         subject={currentThread.subject}
-                        messages={MessageStore.messages()}
+                        conversations={MessageStore.messages()}
                     />
                 </Modal.Body>
             </Modal>

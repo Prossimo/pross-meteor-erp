@@ -6,19 +6,20 @@ import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
 
 class MessageStore extends Reflux.Store {
-    constructor() {
+    constructor(messages=[]) {
         super();
 
-
         this._registerListeners();
-        this._setStoreDefaults();
+        this._setStoreDefaults(messages);
     }
 
-    _setStoreDefaults() {
+    _setStoreDefaults(messages) {
         this._currentThread = null;
-        this._messages = [];
+        this._messages = messages;
         this._messagesExpanded = {};
         this._loading = false;
+
+        this._expandMessagesToDefault()
     }
 
     _registerListeners() {
@@ -39,7 +40,7 @@ class MessageStore extends Reflux.Store {
             path: `/messages?${query}`,
             method: 'GET',
             accountId: thread.account_id
-        }).then((result) => {
+        }).then((result) => {console.log('Messate result', thread, result)
 
             this._messages = result;
 
@@ -93,7 +94,7 @@ class MessageStore extends Reflux.Store {
         this.trigger()
     }
     _expandMessagesToDefault() {
-        visibleMessages = this.messages()
+        const visibleMessages = this.messages()
 
         visibleMessages.forEach((message, idx)=>{
             if(message.unread || message.draft || idx==visibleMessages.length - 1)
@@ -143,4 +144,5 @@ class MessageStore extends Reflux.Store {
 
 }
 
+export const ConversationStore = MessageStore
 module.exports = new MessageStore()

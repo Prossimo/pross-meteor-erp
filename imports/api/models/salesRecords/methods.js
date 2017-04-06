@@ -3,7 +3,7 @@ import  {HTTP} from 'meteor/http';
 import SalesRecords from './salesRecords'
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
 import config from '../../config/config';
-import Messages from '../messages/messages'
+import Conversations from '../conversations/conversations'
 import { createTodoistSalesRecord } from '../../tasks';
 
 
@@ -14,7 +14,7 @@ const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
     // NOTICE: it must be saleRecord
-    insertSalesRecord(data, messages){
+    insertSalesRecord(data, conversations){
         if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
             throw new Meteor.Error("Access denied");
         }
@@ -103,11 +103,11 @@ Meteor.methods({
         createTodoistSalesRecord(data.name, salesRecordId);
 
         // Insert conversations attached
-        console.log("Messages to be attached", messages)
-        if(messages && messages.length) {
-            messages.forEach((message)=>{
-                message.salesRecordId = salesRecordId
-                Messages.insert(message)
+        console.log("Conversations to be attached", conversations)
+        if(conversations && conversations.length) {
+            conversations.forEach((conversation)=>{
+                conversation.salesRecordId = salesRecordId
+                Conversations.insert(conversation)
             })
         }
         return salesRecordId;

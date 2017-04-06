@@ -7,7 +7,8 @@ export default class ComposeModal extends React.Component {
     static propTypes = {
         clientId: React.PropTypes.string,
         isOpen: React.PropTypes.bool,
-        onClose: React.PropTypes.func.isRequired
+        onClose: React.PropTypes.func.isRequired,
+        salesRecordId: React.PropTypes.string
     }
 
     constructor(props) {
@@ -17,11 +18,11 @@ export default class ComposeModal extends React.Component {
     }
 
     render() {
-        const {isOpen, clientId, onClose} = this.props
+        const {isOpen, clientId, onClose, salesRecordId} = this.props
         return (
             <Modal show={isOpen} onHide={onClose} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>{draft && draft.reply_to_message_id ? "Edit Message" : "Compose New Mail"}</Modal.Title></Modal.Header>
-                <Modal.Body><ComposeView clientId={clientId}/></Modal.Body>
+                <Modal.Body><ComposeView clientId={clientId} salesRecordId={salesRecordId}/></Modal.Body>
             </Modal>
         )
     }

@@ -1,40 +1,54 @@
 import React from 'react'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import ContactStore from '../../../../api/nylas/contact-store'
-import {Creatable} from 'react-select'
+import Select, {Creatable} from 'react-select'
 
 
 export default class ParticipantsInputField extends React.Component {
     static propTypes = {
         label: React.PropTypes.string,
-        contacts: React.PropTypes.array,
-        onChange: React.PropTypes.func
+        values: React.PropTypes.array,      // Pre selected contacts array
+        options: React.PropTypes.array,      // selectable contacts array
+        onChange: React.PropTypes.func,
+        onlyselect: React.PropTypes.bool
     }
 
     constructor (props) {
         super(props)
 
         this.state = {
-            values: this._getValuesFromContacts(props.contacts),
-            options: []
+            values: this._getValuesFromContacts(props.values),
+            options: this._getValuesFromContacts(props.options)
         }
     }
 
     render() {
         const {label, values, options} = this.state
+
+        const creatableSelect = (<Creatable
+            className="select-wrap"
+            multi
+            options={options}
+            value={values}
+            valueRenderer={(item)=>item.value}
+            onChange={this._onChange}
+            onInputChange={this._onInputChange}
+            clearable={true}
+        />)
+        const select = (<Select
+            className="select-wrap"
+            multi
+            options={options}
+            value={values}
+            valueRenderer={(item)=>item.value}
+            onChange={this._onChange}
+            clearable={true}
+        />)
+
         return (
             <div className="input-wrap">
                 <label className="participant-label">{this.props.label?`${this.props.label}:`:''}</label>
-                <Creatable
-                    className="select-wrap"
-                    multi
-                    options={options}
-                    value={values}
-                    valueRenderer={(item)=>item.value}
-                    onChange={this._onChange}
-                    onInputChange={this._onInputChange}
-                    clearable={false}
-                />
+                { this.props.onlyselect ? select : creatableSelect}
             </div>
         )
     }

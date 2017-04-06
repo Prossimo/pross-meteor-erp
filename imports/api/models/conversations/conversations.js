@@ -1,7 +1,7 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 
-class MessagesCollection extends Mongo.Collection {
+class ConversationsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc;
         ourDoc.created_at = ourDoc.created_at || new Date();
@@ -15,10 +15,10 @@ class MessagesCollection extends Mongo.Collection {
     }
 }
 
-export default Messages = new MessagesCollection("Messages");
+export default Conversations = new ConversationsCollection("Conversations");
 
 // Deny all client-side updates since we will be using methods to manage this collection
-Messages.deny({
+Conversations.deny({
     insert() {
         return true;
     },
@@ -30,7 +30,7 @@ Messages.deny({
     }
 });
 
-Messages.schema = new SimpleSchema({
+Conversations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
 
     id: {type: String, optional: true},
@@ -41,21 +41,61 @@ Messages.schema = new SimpleSchema({
     "from.$": {
         type: Object
     },
+    "from.$.name": {
+        type: String,
+        optional: true
+    },
+    "from.$.email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
+    },
     to: {type: Array, optional: true},
     "to.$": {
         type: Object
+    },
+    "to.$.name": {
+        type: String,
+        optional: true
+    },
+    "to.$.email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
     },
     cc: {type: Array, optional: true},
     "cc.$": {
         type: Object
     },
+    "cc.$.name": {
+        type: String,
+        optional: true
+    },
+    "cc.$.email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
+    },
     bcc: {type: Array, optional: true},
     "bcc.$": {
         type: Object
     },
+    "bcc.$.name": {
+        type: String,
+        optional: true
+    },
+    "bcc.$.email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
+    },
     reply_to: {type: Array, optional: true},
     "reply_to.$": {
         type: Object
+    },
+    "reply_to.$.name": {
+        type: String,
+        optional: true
+    },
+    "reply_to.$.email": {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email
     },
     date: {type: Number},
     unread: {type: Boolean, optional: true},
@@ -81,9 +121,9 @@ Messages.schema = new SimpleSchema({
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
 
-Messages.attachSchema(Messages.schema);
+Conversations.attachSchema(Conversations.schema);
 
-Messages.publicFields = {
+Conversations.publicFields = {
     id: 1,
     account_id: 1,
     thread_id: 1,
@@ -110,7 +150,7 @@ Messages.publicFields = {
     modified_at: 1
 };
 
-Messages.helpers({
+Conversations.helpers({
     account() {
         const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
 
