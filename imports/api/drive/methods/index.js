@@ -6,6 +6,7 @@ import getAccessToken from './getAccessToken';
 import removeFiles from './removeFiles';
 import getFiles from './getFiles';
 import getParents from './getParents';
+import createFile from './createFile';
 import copyFiles from './copyFiles';
 
 export {
@@ -16,4 +17,5 @@ export {
     removeFiles,
     getFiles,
     copyFiles,
+    createFile,
 }
