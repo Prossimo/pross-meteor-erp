@@ -12,12 +12,14 @@ class Files extends Component {
         this.uploadFiles = this.uploadFiles.bind(this);
         this.removeFile = this.removeFile.bind(this);
         this.updateFolder = this.updateFolder.bind(this);
+        this.addGooglefiles = this.addGooglefiles.bind(this);
         this.token = null;
         this.state = {
             files: [],
             remoteFiles: [],
             loadingRemoteFiles: true,
             folderId: "",
+            msgstring: "",
         }
         switch(props.type) {
             case 'project':
@@ -51,8 +53,39 @@ class Files extends Component {
         })
     }
 
+    updateFileList() {
+        Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
+            if (error) {
+                return warning('could not list files from google drive');
+            }
+            if (this.state.folderId != this.rootfolderId) {
+                Meteor.call('drive.getParents', {fileId: this.state.folderId}, (err, parents)=> {
+                    if (err) {
+                        return warning('could not list files from google drive');
+                    }
+                    if (parents.parents.length > 1)
+                        parents.parents = [this.rootfolderId];
+                    result.files.unshift({
+                        id: parents.parents.slice(-1)[0],
+                        name: "..",
+                        mimeType: "application/vnd.google-apps.folder"
+                    });
+                    this.setState({
+                        remoteFiles: result.files,
+                        loadingRemoteFiles: false,
+                    });
+                });
+            } else {
+                this.setState({
+                    remoteFiles: result.files ,
+                    loadingRemoteFiles: false,
+                });
+            }
+        });
+    }
+
     updateFolder(event) {
-        let folderId = event.target.getAttribute("data-id");
+        let folderId = event.target.getAttribute('data-id');
         event.preventDefault();
         this.setState({folderId: folderId});
 
@@ -63,24 +96,53 @@ class Files extends Component {
             this.token = token;
         });
 
+        this.updateFileList();
+    }
 
-        Meteor.call('drive.listFiles', {query: `'${folderId}' in parents and trashed = false`}, (error, result)=> {
+    addGooglefiles(event) {
+        event.preventDefault();
+        var file_name = prompt('Please enter new file name', 'Create new file');
+
+        if (file_name == null)
+            return;
+        var filetype = '';
+        switch (event.target.getAttribute('data-val')) {
+            case 'Docs':
+                filetype = 'application/vnd.google-apps.document';
+                break;
+            case 'Spreadsheet':
+                filetype = 'application/vnd.google-apps.spreadsheet';
+                break;
+            case 'Slide':
+                filetype = 'application/vnd.google-apps.presentation';
+                break;
+            case 'Drawing':
+                filetype = 'application/vnd.google-apps.drawing';
+                break;
+        }
+        const file = {
+            name: file_name,
+            parent: this.state.folderId,
+            filetype: filetype
+        };
+        this.setState({msgstring: 'Creating new Google '+event.target.getAttribute('data-val')+' file...'});
+
+        Meteor.call('drive.getAccessToken', {}, (error, token)=> {
+            if (error) {
+                return warning('could not connect to google drive');
+            }
+            this.token = token;
+        });
+
+
+        Meteor.call('drive.createFile', file, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
-            Meteor.call('drive.getParents', {fileId: folderId}, (err, parents)=> {
-                if (err) {
-                    return warning('could not list files from google drive');
-                }
-                if (parents.parents.length > 1)
-                    parents.parents = [this.rootfolderId];
-                result.files.unshift({id: parents.parents.slice(-1)[0], name: "..", mimeType: "application/vnd.google-apps.folder"});
-                this.setState({
-                    remoteFiles: result.files ,
-                    loadingRemoteFiles: false,
-                });
-            })
-        })
+            this.setState({msgstring: ''});
+            this.updateFileList();
+            //console.log ('successfully created google docs!');
+        });
     }
 
     removeFile(fileId, event) {
@@ -196,8 +258,9 @@ class Files extends Component {
             <div className='file-tab default-form'>
                 <div className='row'>
                     <div className='col-md-8'>
+                        <div>{this.state.msgstring}</div>
                         <a href={`https://drive.google.com/drive/folders/${this.state.folderId}`} target='_blank'>
-                            <span className='file-name'>Open Folder</span>
+                            <span className='file-name hand-cursor'>Open Folder</span>
                         </a>
                         {
                             (this.state.loadingRemoteFiles) ? (
@@ -215,6 +278,22 @@ class Files extends Component {
                             <input type='file'
                                id='quote-file'
                                onChange={this.addFile}/>
+                        </div>
+                        <div className='text-center'>
+                            <span className='label'>Add Google Docs file</span>
+                            <input type='button' className='hand-cursor' onClick={this.addGooglefiles} data-val='Docs' value='Add Google Docs file'/>
+                        </div>
+                        <div className='text-center'>
+                            <span className='label'>Add Google SpreadSheet file</span>
+                            <input type='button' className='hand-cursor' onClick={this.addGooglefiles} data-val='Spreadsheet' value='Add Google SpreadSheet file'/>
+                        </div>
+                        <div className='text-center'>
+                            <span className='label'>Add Google Slides file</span>
+                            <input type='button' className='hand-cursor' onClick={this.addGooglefiles} data-val='Slide' value='Add Google Slides file'/>
+                        </div>
+                        <div className='text-center'>
+                            <span className='label'>Add Google Drawing file</span>
+                            <input type='button' className='hand-cursor' onClick={this.addGooglefiles} data-val='Drawing' value='Add Google Drawing file'/>
                         </div>
                         <div>
                             {
