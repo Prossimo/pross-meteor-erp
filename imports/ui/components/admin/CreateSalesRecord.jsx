@@ -120,7 +120,7 @@ class CreateSalesRecord extends React.Component{
         this.stakeholders = stakeholders;
     }
 
-    render() {console.log(this.props.conversations)
+    render() {
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
