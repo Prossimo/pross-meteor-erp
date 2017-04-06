@@ -135,6 +135,10 @@ Meteor.methods({
                             "quote_date": data.productionStartDate,
 
                         }
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + response.token
                     }
                 }, function( err, result ) {
                     if ( err ) {
