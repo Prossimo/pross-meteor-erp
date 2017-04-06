@@ -13,6 +13,7 @@ import {
 import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
 import Contacts from '../models/contacts/contacts'
 import Conversations from '../models/conversations/conversations'
+import MailTemplates from '../models/mailtemplates/mailtemplates'
 import {
     GET_PROJECTS,
     GET_USERS,
@@ -28,7 +29,8 @@ import {
     GET_CONTACTS,
     GET_MY_CONTACTS,
     GET_TASKS,
-    GET_CONVERSATIONS
+    GET_CONVERSATIONS,
+    GET_MAILTEMPLATES
 } from '../constants/collections';
 import {ADMIN_ROLE_LIST} from '../constants/roles';
 
@@ -150,6 +152,11 @@ Meteor.startup(() => {
         if (!Match.test(salesRecordId, String)) return this.ready();
 
         return Conversations.find({salesRecordId})
+    });
+
+    Meteor.publish(GET_MAILTEMPLATES, function () {
+
+        return MailTemplates.find({userId:this.userId})
     });
 });
 

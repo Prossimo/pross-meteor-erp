@@ -5,6 +5,7 @@ import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import {warning} from "/imports/api/lib/alerts"
+import TemplatesView from '../components/mailtemplates/TemplatesView'
 
 export default class InboxSettingsPage extends React.Component {
     static propTypes = {}
@@ -40,7 +41,7 @@ export default class InboxSettingsPage extends React.Component {
     render() {
         return (
             <div className="inbox-settings-page">
-                {Meteor.user().isAdmin() ? this.renderTabs() : this.renderComponent()}
+                {Meteor.user().isAdmin() ? this.renderTabs() : this.renderInboxesComponent()}
             </div>
         )
     }
@@ -48,13 +49,14 @@ export default class InboxSettingsPage extends React.Component {
     renderTabs = () => {
         return (
             <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
-                <Tab eventKey={1} title="Team inboxes">{this.renderComponent(true)}</Tab>
-                <Tab eventKey={2} title="Individual inboxes">{this.renderComponent()}</Tab>
+                <Tab eventKey={1} title="Team inboxes">{this.renderInboxesComponent(true)}</Tab>
+                <Tab eventKey={2} title="Individual inboxes">{this.renderInboxesComponent()}</Tab>
+                <Tab eventKey={3} title="Templates">{this.renderTemplatesComponent()}</Tab>
             </Tabs>
         )
     }
 
-    renderComponent = (isTeamAccount = false) => {
+    renderInboxesComponent = (isTeamAccount = false) => {
         let accounts = this.state.accounts.filter((account)=>account.isTeamAccount==isTeamAccount)
 
         const {addingIndividualInbox, addingTeamInbox} = this.state
@@ -108,6 +110,10 @@ export default class InboxSettingsPage extends React.Component {
                 Actions.changedAccounts()
             })
         }
+    }
+
+    renderTemplatesComponent() {
+        return  <TemplatesView/>
     }
 }
 
