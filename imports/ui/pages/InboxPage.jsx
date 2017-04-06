@@ -192,10 +192,10 @@ class InboxPage extends React.Component {
 
         const contacts = _.filter(_.uniq(Contacts.find(filter).fetch(), (c)=>c.email), (c)=>{
             var re = /\S+@prossimo.us/;
-            if(re.test(c.email)) return false
+            if(re.test(c.email)) return false   // Remove @prossimo.us contacts
 
             const users = Meteor.users.find({'emails.address':c.email}).fetch()
-            if(users && users.length) return false
+            if(users && users.length) return false  // Remove CRM users
 
             return true
         })

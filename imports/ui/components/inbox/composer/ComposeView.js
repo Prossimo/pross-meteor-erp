@@ -2,7 +2,9 @@ import _ from 'underscore'
 import React from 'react'
 import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
+import AccountSelect from './AccountSelect'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
+import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 
@@ -23,8 +25,8 @@ export default class ComposeView extends React.Component {
         draft = this._getDraftFromStore()
         this.state = {
             draft: draft,
-            expandedCc: draft.cc&&draft.cc.length ? true : false,
-            expandedBcc: draft.bcc&&draft.bcc.length ? true : false
+            expandedCc: draft.cc && draft.cc.length ? true : false,
+            expandedBcc: draft.bcc && draft.bcc.length ? true : false
         }
     }
 
@@ -47,9 +49,10 @@ export default class ComposeView extends React.Component {
     }
 
 
-    _changeDraftStore(data={}) {
+    _changeDraftStore(data = {}) {
         DraftStore.changeDraftForClientId(this.props.clientId, data)
     }
+
     render() {
         return (
             <div className="composer-inner-wrap">
@@ -66,25 +69,38 @@ export default class ComposeView extends React.Component {
         const {from, to, cc, bcc, subject} = draft
 
         let contactOptions = [], onlyselect = false;
-        if(this.props.salesRecordId) {
-            const salesRecord = SalesRecord.findOne({_id:this.props.salesRecordId})
+        if (this.props.salesRecordId) {
+            const salesRecord = SalesRecord.findOne({_id: this.props.salesRecordId})
             contactOptions = salesRecord.contactsForStakeholders()
             onlyselect = true
         }
 
         const ccSelector = (
-            <ParticipantsInputField label="Cc" onlyselect={onlyselect} options={contactOptions} values={cc} onChange={this._onChangeCc}/>
+            <ParticipantsInputField label="Cc" onlyselect={onlyselect} options={contactOptions} values={cc}
+                                    onChange={this._onChangeCc}/>
         )
 
         const bccSelector = (
-            <ParticipantsInputField label="Bcc" onlyselect={onlyselect} options={contactOptions} values={bcc} onChange={this._onChangeBcc}/>
+            <ParticipantsInputField label="Bcc" onlyselect={onlyselect} options={contactOptions} values={bcc}
+                                    onChange={this._onChangeBcc}/>
         )
 
+        const accounts = AccountStore.accounts()
+        let fromSelector
+        if (accounts.length > 1) {
+            const account = AccountStore.accountForAccountId(draft.account_id)
+            fromSelector = <AccountSelect onChange={this._onChangeFrom} account={account}/>
+        } else {
+            fromSelector = <span style={{padding:'5px 10px'}}>{from[0].email}</span>
+        }
         return (
             <div>
-                <div><span>From:&nbsp;&nbsp;</span><span>{from[0].email}</span></div>
                 <div className="input-wrap">
-                    <ParticipantsInputField label="To" onlyselect={onlyselect} options={contactOptions} values={to} onChange={this._onChangeTo}/>
+                    <label className="participant-label">From:</label>{fromSelector}
+                </div>
+                <div className="input-wrap">
+                    <ParticipantsInputField label="To" onlyselect={onlyselect} options={contactOptions} values={to}
+                                            onChange={this._onChangeTo}/>
                     <div className="composer-header-actions">
                         {!expandedCc && <div className="action" onClick={this._onClickCc}>Cc</div>}
                         {!expandedBcc && <div className="action" onClick={this._onClickBcc}>Bcc</div>}
@@ -104,8 +120,8 @@ export default class ComposeView extends React.Component {
     _renderEditor() {
         const modules = {
             toolbar: [
-                [{ 'header': [1, 2, false] }],
-                ['bold', 'italic', 'underline','strike', 'blockquote'],
+                [{'header': [1, 2, false]}],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
                 [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
                 ['link', 'image'],
                 ['clean']
@@ -121,10 +137,10 @@ export default class ComposeView extends React.Component {
         return (
             <div>
                 <ReactQuill placeholder="Write here..."
-                            value={this.state.draft?this.state.draft.body:""}
+                            value={this.state.draft ? this.state.draft.body : ""}
                             theme="snow"
-                            modules = {modules}
-                            formats = {formats}
+                            modules={modules}
+                            formats={formats}
                             onChange={this._onChangeBody}>
                 </ReactQuill>
             </div>
@@ -152,30 +168,38 @@ export default class ComposeView extends React.Component {
 
         this._changeDraftStore({subject: subject})
 
-        this.setState({draft:this._getDraftFromStore()})
+        this.setState({draft: this._getDraftFromStore()})
     }
     _onChangeBody = (text) => {
         this._changeDraftStore({body: text})
 
-        this.setState({draft:this._getDraftFromStore()})
+        this.setState({draft: this._getDraftFromStore()})
     }
 
-    _onChangeTo = (contacts) => {console.log('_onChangeTo', contacts)
-        this._changeDraftStore({to:contacts})
+    _onChangeFrom = (account) => {
+        this._changeDraftStore({
+            account_id: account.accountId,
+            from: [{email: account.emailAddress, name: account.name}]
+        })
 
-        this.setState({draft:this._getDraftFromStore()})
+        this.setState({draft: this._getDraftFromStore()})
+    }
+    _onChangeTo = (contacts) => {
+        this._changeDraftStore({to: contacts})
+
+        this.setState({draft: this._getDraftFromStore()})
     }
 
     _onChangeCc = (contacts) => {
-        this._changeDraftStore({cc:contacts})
+        this._changeDraftStore({cc: contacts})
 
-        this.setState({draft:this._getDraftFromStore()})
+        this.setState({draft: this._getDraftFromStore()})
     }
 
     _onChangeBcc = (contacts) => {
-        this._changeDraftStore({bcc:contacts})
+        this._changeDraftStore({bcc: contacts})
 
-        this.setState({draft:this._getDraftFromStore()})
+        this.setState({draft: this._getDraftFromStore()})
     }
 
     _onClickCc = (e) => {
@@ -187,7 +211,7 @@ export default class ComposeView extends React.Component {
     }
 
     _isUnableToSend = () => {
-        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length==0
+        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0
     }
 
 
@@ -196,7 +220,7 @@ export default class ComposeView extends React.Component {
             return false;
         }
 
-        if(!this.state.draft) return false
+        if (!this.state.draft) return false
 
         const {to, cc, bcc, subject, body, files, uploads} = this.state.draft;
         const allRecipients = [].concat(to, cc, bcc);
@@ -216,7 +240,7 @@ export default class ComposeView extends React.Component {
             return alert(dealbreaker);
         }
 
-        const bodyIsEmpty = !body || body.length==0
+        const bodyIsEmpty = !body || body.length == 0
         const forwarded = NylasUtils.isForwardedMessage({subject, body});
         const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0;
 
@@ -246,11 +270,11 @@ export default class ComposeView extends React.Component {
     }
     _mentionsAttachment = (body) => {
         /*let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
-        const signatureIndex = cleaned.indexOf('<signature>');
-        if (signatureIndex !== -1) {
-            cleaned = cleaned.substr(0, signatureIndex - 1);
-        }
-        return (cleaned.indexOf("attach") >= 0);*/
+         const signatureIndex = cleaned.indexOf('<signature>');
+         if (signatureIndex !== -1) {
+         cleaned = cleaned.substr(0, signatureIndex - 1);
+         }
+         return (cleaned.indexOf("attach") >= 0);*/
         return false
     }
 
