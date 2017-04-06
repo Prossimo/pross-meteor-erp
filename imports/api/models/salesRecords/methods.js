@@ -110,6 +110,41 @@ Meteor.methods({
                 Conversations.insert(conversation)
             })
         }
+
+        HTTP.post('http://78.47.83.46:8000/api/login_check', {
+            data: {
+                "_username": "admin",
+                "_password": "12345678"
+            }
+        }, function( error, response ) {
+
+            if ( error ) {
+                console.log( error );
+            } else {
+                //console.log( response);
+                HTTP.post('http://78.47.83.46:8000/api/projects', {
+                    data: {
+                        "project": {
+                            "client_name": data.name,
+                            "client_phone": data.billingContactPhone,
+                            "client_email": data.billingContactEmail,
+                            "client_address": data.billingAddress,
+                            "project_name": data.name,
+                            "project_address": data.shippingAddress,
+                            "files": [],
+                            "quote_date": data.productionStartDate,
+
+                        }
+                    }
+                }, function( err, result ) {
+                    if ( err ) {
+                        console.log( err );
+                    } else {
+                        //console.log( result);
+                    }
+                });
+            }
+        });
         return salesRecordId;
     },
 });
