@@ -23,6 +23,7 @@ import config from '../config/config';
 import '../models/nylasaccounts/methods';
 import '../models/contacts/methods';
 import '../models/salesRecords/methods';
+import '../models/mailtemplates/methods';
 import { googleServerApiAutToken } from '../../api/server/functions';
 
 const driveScopes = [
