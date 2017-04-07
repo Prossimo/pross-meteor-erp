@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import {FormControl, FormGroup, Col} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
 import AccountSelect from './AccountSelect'
@@ -7,9 +8,9 @@ import NylasUtils from '../../../../api/nylas/nylas-utils'
 import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import TemplateSelect from '../../mailtemplates/TemplateSelect'
 
 
-import {FormControl} from 'react-bootstrap'
 import ParticipantsInputField from './ParticipantsInputField'
 
 
@@ -49,8 +50,8 @@ export default class ComposeView extends React.Component {
     }
 
 
-    _changeDraftStore(data = {}) {
-        DraftStore.changeDraftForClientId(this.props.clientId, data)
+    _changeDraftStore(data = {}, shouldIncludeSignature=null) {
+        DraftStore.changeDraftForClientId(this.props.clientId, data, shouldIncludeSignature)
     }
 
     render() {
@@ -97,6 +98,8 @@ export default class ComposeView extends React.Component {
             <div>
                 <div className="input-wrap">
                     <label className="participant-label">From:</label>{fromSelector}
+                    &nbsp;&nbsp;<TemplateSelect onChange={this._onChangeTemplate}/>
+
                 </div>
                 <div className="input-wrap">
                     <ParticipantsInputField label="To" onlyselect={onlyselect} options={contactOptions} values={to}
@@ -202,6 +205,11 @@ export default class ComposeView extends React.Component {
         this.setState({draft: this._getDraftFromStore()})
     }
 
+    _onChangeTemplate = (template) => {
+        this._changeDraftStore({subject:template ? template.subject : '', body:template ? template.body : ''}, true)
+        this.setState({draft: this._getDraftFromStore()})
+    }
+
     _onClickCc = (e) => {
         this.setState({expandedCc: true})
     }
@@ -277,5 +285,4 @@ export default class ComposeView extends React.Component {
          return (cleaned.indexOf("attach") >= 0);*/
         return false
     }
-
 }
