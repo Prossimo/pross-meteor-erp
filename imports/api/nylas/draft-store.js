@@ -125,9 +125,10 @@ class DraftStore extends Reflux.Store {
         return _.findWhere(this._drafts, {thread_id: threadId, reply_to_message_id:messageId})
     }
 
-    changeDraftForClientId(clientId, data={}) {
+    changeDraftForClientId(clientId, data={}, shouldIncludeSignature=null) {
         let draft = this.draftForClientId(clientId)
 
+        if(shouldIncludeSignature) data.body = DraftFactory.getBodyWithSignature(data.body, draft.account_id)
         draft = _.extend(draft, data)
     }
 
