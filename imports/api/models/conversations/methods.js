@@ -7,3 +7,18 @@ export const insertConversation = new ValidatedMethod({
         return Conversations.insert(data)
     }
 })
+
+Meteor.methods({
+    insertConversation(data)
+    {
+        /*check(data, {
+            id: Match.Maybe(String),
+            account_id: Match.Maybe(String),
+            email: String,
+            name: Match.Maybe(String),
+            phone_numbers: Match.Maybe(Array)
+        });*/
+
+        return Conversations.insert(data)
+    }
+});
