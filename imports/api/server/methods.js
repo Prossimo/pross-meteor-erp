@@ -382,7 +382,6 @@ Meteor.methods({
     check(member, {
       userId: String,
       isMainStakeholder: Boolean,
-      destination: Match.OneOf(String, null),
       category: Match.OneOf([String], [])
     });
 

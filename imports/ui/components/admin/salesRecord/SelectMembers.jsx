@@ -2,7 +2,6 @@ import React, { Component, PropTypes } from 'react';
 import Select from 'react-select';
 import { getUserName } from '/imports/api/lib/filters';
 import {
-    DESIGNATION_LIST,
     STAKEHOLDER_CATEGORY
 } from '/imports/api/constants/project';
 
@@ -13,13 +12,11 @@ class SelectMembers extends Component{
         this.renderMembers = this.renderMembers.bind(this);
         this.changeState = this.changeState.bind(this);
         this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
-        this.designationOptions = DESIGNATION_LIST.map((designation)=> ({label: designation, value: designation}));
         this.state = {
           selectedMembers: [
             {
               label: getUserName(Meteor.user(), true),
               value: Meteor.userId(),
-              designation: this.designationOptions[0],
               categories: [this.categoryOptions[0]],
             }
           ],
@@ -31,25 +28,22 @@ class SelectMembers extends Component{
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
-        this.props.selectedMembers(this.state.selectedMembers.map(({ label, value, designation, categories })=> ({
+        this.props.selectedMembers(this.state.selectedMembers.map(({ label, value, categories })=> ({
             userId: value,
-            destination: designation.value,
             category: categories.map(({ label, value })=> value),
         })));
     }
 
     changeMembers(selectedMembers) {
         selectedMembers.forEach((member)=> {
-            const { designation, categories, isMainStakeholder } = member;
-            if (_.isUndefined(designation) || _.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
-                member.designation = this.designationOptions[0];
+            const { categories, isMainStakeholder } = member;
+            if (_.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
                 member.categories = [this.categoryOptions[0]];
             }
         });
         this.setState({ selectedMembers});
-        this.props.selectedMembers(selectedMembers.map(({ label, value, designation, categories })=> ({
+        this.props.selectedMembers(selectedMembers.map(({ label, value, categories })=> ({
             userId: value,
-            destination: designation.value,
             category: categories.map(({ label, value })=> value),
         })));
     }
@@ -60,25 +54,16 @@ class SelectMembers extends Component{
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Designation</th>
                         <th>Category</th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         this.state.selectedMembers.map((selectedMember)=> {
-                            const { label, value, designation, categories } = selectedMember;
+                            const { label, value, categories } = selectedMember;
                             return (
                                 <tr key={value}>
                                     <td>{ label }</td>
-                                    <td>
-                                        <Select
-                                            options={this.designationOptions}
-                                            value={designation}
-                                            onChange={(selectedDesignation)=> { this.changeState('designation', selectedMember, selectedDesignation)}}
-                                            clearable={false}
-                                        />
-                                    </td>
                                     <td>
                                         <Select
                                             multi
