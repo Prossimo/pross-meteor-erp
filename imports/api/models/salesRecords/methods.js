@@ -49,7 +49,6 @@ Meteor.methods({
             shippingMode: String,
             members: [{
                 userId: String,
-                destination: String,
                 category: [String]
             }],
             stakeholders: [{

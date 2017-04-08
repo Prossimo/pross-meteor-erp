@@ -71,7 +71,6 @@ class SingleSalesRecord extends React.Component{
       member: {
         selectedUser: null,
         selectedCategory: [],
-        selectedDesignation: null,
       },
       stakeholder: {
         selectedContact: null,
@@ -302,8 +301,7 @@ class SingleSalesRecord extends React.Component{
 
   renderAddMemberForm(){
     const { salesRecord, users } = this.props;
-    const { member: { selectedUser, selectedCategory, selectedDesignation }} = this.state;
-    const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
+    const { member: { selectedUser, selectedCategory }} = this.state;
     const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
     const membersIds = salesRecord.members.map(i=>i.userId);
     const selectOptions = users
@@ -325,16 +323,6 @@ class SingleSalesRecord extends React.Component{
                       placeholder="Choose user"
                       onChange={(item)=> this.changeState(this.state.member, 'selectedUser', item)}
                       options={selectOptions}
-                      className={"members-select"}
-                      clearable={false}
-                    />
-                </div>
-                <div className="form-group">
-                    <Select
-                      value={selectedDesignation}
-                      placeholder="User designation"
-                      onChange={(item)=> this.changeState(this.state.member, 'selectedDesignation', item)}
-                      options={designationOptions}
                       className={"members-select"}
                       clearable={false}
                     />
@@ -381,14 +369,13 @@ class SingleSalesRecord extends React.Component{
   }
 
   addMember(){
-    const { member: { selectedUser, selectedDesignation, selectedCategory }} = this.state;
+    const { member: { selectedUser, selectedCategory }} = this.state;
     const { salesRecord } = this.props;
     if(_.isNull(selectedUser)) return warning("Choose user");
 
     const member = {
       userId: selectedUser.value,
       isMainStakeholder: false,
-      destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
       category: selectedCategory.map(i=>i.value)
     };
 
@@ -397,7 +384,6 @@ class SingleSalesRecord extends React.Component{
       this.setState({
         member: {
           selectedUser: null,
-          selectedDesignation: null,
           selectedCategory: []
         }
       });
