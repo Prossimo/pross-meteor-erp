@@ -111,6 +111,8 @@ class DraftStore extends Reflux.Store {
             console.log("new conversation id", conversationId)*/
             Meteor.call('insertConversation', message, (err,res) => {
                 console.log('insertConversationResult', err, res)
+
+                Actions.loadConversations(salesRecordId)
             })
         }
     }

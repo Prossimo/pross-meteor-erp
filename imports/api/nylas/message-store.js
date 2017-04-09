@@ -4,6 +4,7 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
+import Conversations from '/imports/api/models/conversations/conversations'
 
 class MessageStore extends Reflux.Store {
     constructor(messages=[]) {
@@ -27,6 +28,7 @@ class MessageStore extends Reflux.Store {
         this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded);
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded);
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages);
+        this.listenTo(Actions.loadConversations, this._onLoadConversations);
     }
 
     _onLoadMessages(thread) {
@@ -40,7 +42,7 @@ class MessageStore extends Reflux.Store {
             path: `/messages?${query}`,
             method: 'GET',
             accountId: thread.account_id
-        }).then((result) => {console.log('Messate result', thread, result)
+        }).then((result) => {
 
             this._messages = result;
 
@@ -66,6 +68,15 @@ class MessageStore extends Reflux.Store {
         })
 
         this._currentThread = thread;
+    }
+
+    _onLoadConversations(salesRecordId) {
+        this._messages = Conversations.find({salesRecordId}).fetch()
+        this._messages.sort((m1, m2)=>m1.date-m2.date)
+        this._loading = false;
+        this._expandMessagesToDefault();
+
+        this.trigger()
     }
 
     _onToggleMessageExpanded(id) {
