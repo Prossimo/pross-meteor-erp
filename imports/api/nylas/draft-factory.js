@@ -8,10 +8,7 @@ class DraftFactory {
         const account = fields.account_id ? AccountStore.accountForAccountId(fields.account_id) : AccountStore.getSelectedAccount()
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        let body = fields.body || ''
-        if(account.signature && account.signature.length) {
-            body += `<br><br><div class="gmail_quote">${account.signature}</div>`
-        }
+        let body = fields.body || this.getBodyWithSignature('', account.accountId)
         return Promise.resolve({
             body: body,
             subject: fields.subject || '',
@@ -32,6 +29,7 @@ class DraftFactory {
         const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
 
         let body = this.getBodyWithSignature('', message.account_id)
+
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Re:'),
             to: to,

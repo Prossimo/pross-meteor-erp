@@ -28,7 +28,9 @@ const Actions = Reflux.createActions([
     'sendDraftFailed',
 
     'queueTask',
-    'queueTasks'
+    'queueTasks',
+
+    'loadConversations'
 ]);
 
 module.exports = Actions;
