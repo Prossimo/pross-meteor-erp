@@ -72,6 +72,8 @@ class Details extends React.Component{
             'productionStartDate',
             'supplier',
             'shipper',
+            'estProductionTime',
+            'actProductionTime',
         );
         Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
@@ -113,6 +115,55 @@ class Details extends React.Component{
         );
     }
 
+    renderRowType(field, type, value, shippingModes) {
+        switch(type) {
+            case 'date':
+                return (
+                    <DatePicker
+                        selected={moment(value)}
+                        onChange={((date)=> this.changeState(field, date.toDate()))}
+                    />
+                )
+            case 'select':
+                return (
+                    <Select
+                       value={value}
+                       onChange={({ value })=> this.changeState(field, value)}
+                       options={shippingModes}
+                       className={"select-role"}
+                       clearable={false}
+                    />
+                );
+            case 'textarea':
+                return (
+                    <textarea
+                        rows='2'
+                        value={value}
+                        style={{width: '100%'}}
+                        onChange={(event)=> this.changeState(field, event.target.value)}
+                    />
+                );
+            case 'number':
+                return (
+                    <input
+                        type={'number'}
+                        value={value}
+                        style={{width: '100%'}}
+                        onChange={(event)=> this.changeState(field, parseFloat(event.target.value))}
+                    />
+                );
+            default:
+                return (
+                    <input
+                        type={type}
+                        value={value}
+                        style={{width: '100%'}}
+                        onChange={(event)=> this.changeState(field, event.target.value)}
+                    />
+                );
+        }
+    }
+
     renderTableRows(rows, data, name){
          return _.map(rows, ({ type, field, label })=>{
             let value = data[field];
@@ -126,46 +177,15 @@ class Details extends React.Component{
                         <td>{label}</td>
                         <td>
                             {
-                                (type === 'date') ? (
-                                    <DatePicker
-                                        selected={moment(value)}
-                                        onChange={((date)=> this.changeState(field, date.toDate()))}
-                                    />
-                                ) : (
-                                    ( type === 'select' ) ? (
-                                         <Select
-                                            value={value}
-                                            onChange={({ value })=> this.changeState(field, value)}
-                                            options={shippingModes}
-                                            className={"select-role"}
-                                            clearable={false}
-                                         />
-                                    ) :  (
-                                        ( type === 'textarea' ) ? (
-                                            <textarea
-                                                rows='2'
-                                                value={value}
-                                                style={{width: '100%'}}
-                                                onChange={(event)=> this.changeState(field, event.target.value)}
-                                            />
-
-                                        ) : (
-                                            <input
-                                                type={type}
-                                                value={value}
-                                                style={{width: '100%'}}
-                                                onChange={(event)=> this.changeState(field, event.target.value)}
-                                            />
-                                        )
-                                    )
-                                )
+                                this.renderRowType(field, type, value, shippingModes)
                             }
                         </td>
                     </tr>
                 );
             }
-            if (!value) return null;
-            if (type === 'date') value = moment(value).format('MM DD YYYY');
+            if (_.isNull(value) || _.isUndefined(value)) return null;
+            if (type === 'date') value = moment(value).format('MM/DD/YYYY');
+            if (type === 'daterange') value = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`;
             return (
                 <tr key={field}>
                     <td>{label}</td>
@@ -184,6 +204,9 @@ class Details extends React.Component{
             {label: "Production start date", field: "productionStartDate", type: 'date'},
             {label: "Supplier", field: "supplier", type: 'text'},
             {label: "Shipper", field: "shipper", type: 'text'},
+            {label: 'EST Production Time', field: 'estProductionTime', type: 'number'},
+            {label: 'ACT Production Time', field: 'actProductionTime', type: 'number'},
+            {label: 'EST Delivery Range', field: 'estDeliveryRange', type: 'daterange'},
         ];
         const shippingRows = [
             {label: "Contact name", field: "shippingContactName", type: 'text'},
@@ -199,6 +222,13 @@ class Details extends React.Component{
             {label: "Address", field: "billingAddress", type: 'text'},
             {label: "Notes", field: "billingNotes", type: 'textarea'},
         ];
+        const otherRows = [
+            { label: 'ID', field: '_id', type: 'text' },
+            { label: 'Created At', field: 'createdAt', type: 'date' },
+            { label: 'Modified At', field: 'modifiedAt', type: 'date' },
+            { label: 'Slack Chanel', field: 'slackChanel', type: 'text' },
+            { label: 'Folder Id', field: 'folderId', type: 'text' },
+        ]
 
         return (
             <div className="details-inbox-tab">
@@ -240,6 +270,18 @@ class Details extends React.Component{
                            <tbody>
                            {this.renderTableRows(billingRows, salesRecord , 'billing')}
                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div className='panel panel-default'>
+                    <div className='panel-heading'>
+                        Others
+                    </div>
+                    <div className='panel-body'>
+                        <table className="table table-condensed">
+                            <tbody>
+                            {this.renderTableRows(otherRows, salesRecord, 'shipping')}
+                            </tbody>
                         </table>
                     </div>
                 </div>
