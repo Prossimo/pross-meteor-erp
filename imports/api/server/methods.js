@@ -308,7 +308,7 @@ Meteor.methods({
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-
+    shipping.modifiedAt = new Date();
     return SalesRecords.update(salesRecordId, {
       $set: shipping,
     });
@@ -333,6 +333,7 @@ Meteor.methods({
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
+    billing.modifiedAt = new Date();
     return SalesRecords.update(salesRecordId, {
       $set: billing,
     });
@@ -346,6 +347,8 @@ Meteor.methods({
       productionStartDate: Date,
       supplier: Match.Maybe(String),
       shipper: Match.Maybe(String),
+      estProductionTime: Match.Maybe(Number),
+      actProductionTime: Match.Maybe(Number),
     })
 
     // current user belongs to ADMIN LIST
@@ -358,7 +361,7 @@ Meteor.methods({
 
     // check permission
     if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-
+    attributes.modifiedAt = new Date();
     return SalesRecords.update(salesRecordId, {
       $set: attributes,
     });
