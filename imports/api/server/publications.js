@@ -30,9 +30,14 @@ import {
     GET_MY_CONTACTS,
     GET_TASKS,
     GET_CONVERSATIONS,
-    GET_MAILTEMPLATES
+    GET_MAILTEMPLATES,
+    GET_ALL_USERS,
 } from '../constants/collections';
-import {ADMIN_ROLE_LIST} from '../constants/roles';
+import {
+  ADMIN_ROLE,
+  SUPER_ADMIN_ROLE,
+  ADMIN_ROLE_LIST
+} from '../constants/roles';
 
 Meteor.startup(() => {
     Meteor.publish(GET_USERS, function () {
@@ -76,9 +81,19 @@ Meteor.startup(() => {
         return SalesRecords.find({_id, "members.userId": this.userId});
     });
 
-    Meteor.publish(GET_ADMIN_CREATE_USERS, function () {
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
-            return CreatedUsers.find({createBy: this.userId});
+    Meteor.publish(GET_ALL_USERS, function () {
+      if (Roles.userIsInRole(this.userId, [SUPER_ADMIN_ROLE])) {
+          // SUPERADMIN: can see any user
+          return Meteor.users.find({}, {
+            services: 0,
+          })
+      }
+      if (Roles.userIsInRole(this.userId, [ADMIN_ROLE])) {
+          // ADMIN: see role <= ADMIN
+          return Meteor.users.find({ roles: { $nin: [SUPER_ADMIN_ROLE]} }, {
+            services: 0,
+          })
+      }
     });
 
     Meteor.publish(GET_PROJECT_FILES, function (projectId) {

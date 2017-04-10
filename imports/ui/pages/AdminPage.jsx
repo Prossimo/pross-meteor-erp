@@ -1,22 +1,55 @@
-import React from 'react';
+import React, { Component } from 'react';
 import EditableUsersTable  from '../components/admin/EditableUsersTable'
+import { createContainer  } from 'meteor/react-meteor-data';
+import { GET_ALL_USERS } from '/imports/api/constants/collections';
+import {
+  ADMIN_ROLE,
+  SUPER_ADMIN_ROLE,
+  ADMIN_ROLE_LIST,
+} from '/imports/api/constants/roles';
 
-class AdminPage extends React.Component{
+class AdminPage extends Component{
   constructor(props){
     super(props);
   }
-  
+
+  componentWillUnmount() {
+    this.props.subscribers.forEach((subscriber)=> subscriber.stop());
+  }
+
   render() {
-    return (
-      <div className="page-container admin-page">
-        <div className="main-content">
-          <div className="tab-container">
-            <h2 className="page-title">Admin page</h2>
-            <EditableUsersTable createdUsers={this.props.createdUsers}/>
+    if (Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) {
+      return (
+        <div className="page-container admin-page">
+          <div className="main-content">
+            <div className="tab-container">
+              <h2 className="page-title">Admin page</h2>
+              <EditableUsersTable createdUsers={this.props.users}/>
+            </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    } else {
+      return (
+        <div className='text-center'>Access Denied</div>
+      )
+    }
   }
 }
-export default AdminPage;
+
+export default createContainer(()=> {
+  const subscribers = [];
+  let users = [];
+  subscribers.push(Meteor.subscribe(GET_ALL_USERS));
+  if (Roles.userIsInRole(Meteor.userId(), [SUPER_ADMIN_ROLE])) {
+    users = Meteor.users.find({}).fetch();
+  }
+  if (Roles.userIsInRole(Meteor.userId(), [ADMIN_ROLE])) {
+    users = Meteor.users.find({roles: { $nin: [SUPER_ADMIN_ROLE] }}).fetch();
+  }
+  return {
+    subscribers,
+    loading: !subscribers.reduce((prev, subscriber)=> prev && subscriber.ready(), true),
+    users,
+  }
+}, AdminPage);

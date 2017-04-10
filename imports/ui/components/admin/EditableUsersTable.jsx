@@ -1,14 +1,15 @@
-import React from 'react';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import { info } from '/imports/api/lib/alerts';
-import { isValidEmail } from '/imports/api/lib/validation';
+import React, { Component, PropTypes } from 'react';
 import _ from 'underscore';
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
+import { info, warning } from '/imports/api/lib/alerts';
+import { isValidEmail } from '/imports/api/lib/validation';
 import { USER_ROLE_LIST } from '/imports/api/constants/roles';
+import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
 
-class EditableUsersTable extends React.Component{
+class EditableUsersTable extends Component{
   constructor(props){
     super(props);
-    
+
     this.activeFormatterStatus = this.activeFormatterStatus.bind(this);
     this.usernameValidator = this.usernameValidator.bind(this);
     this.emailValidator = this.emailValidator.bind(this);
@@ -17,7 +18,7 @@ class EditableUsersTable extends React.Component{
     this.onAfterSaveCell = this.onAfterSaveCell.bind(this);
     this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
   }
-  
+
   customConfirm(next, dropRowKeys) {
     const dropRowKeysStr = dropRowKeys.join(',');
     if (confirm(`(It's a custom confirm)Are you sure you want to delete ${dropRowKeysStr}?`)) {
@@ -29,7 +30,7 @@ class EditableUsersTable extends React.Component{
       });
     }
   }
-  
+
   onAfterInsertRow(row) {
     const userData = {
       firstName: row.firstName,
@@ -39,10 +40,11 @@ class EditableUsersTable extends React.Component{
       role: row.role
     };
     Meteor.call('adminCreateUser', userData, (err)=>{
+      if (err) return warning(err.reason ? err.reason : err);
       info('Successful create user!');
     })
   }
-  
+
   onAfterSaveCell(row, cellName, cellValue) {
     const userData = {
       _id: row._id,
@@ -52,29 +54,29 @@ class EditableUsersTable extends React.Component{
       email: row.email,
       role: row.role
     };
-    
+
     Meteor.call('adminEditUser', userData, (err)=>{
       info('User was successfully edited!');
     });
   }
-  
+
   onBeforeSaveCell(row, cellName, cellValue) {
     // You can do any validation on here for editing value,
     // return false for reject the editing
     let validationStatus = true;
-    
+
     let uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== cellValue) return true} );
     let uniqueEmail = this.props.createdUsers.filter(person => { if (person.email !== cellValue) return true} );
     if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
       validationStatus = false;
     }
-    
+
     if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
       validationStatus = false;
     }
     return validationStatus;
   }
-  
+
   // validator function pass the user input value and row object. In addition, a bool return value is expected
   usernameValidator(value, row) {
     const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
@@ -92,7 +94,7 @@ class EditableUsersTable extends React.Component{
     }
     return response;
   }
-  
+
   // validator function pass the user input value and row object. In addition, a bool return value is expected
   emailValidator(value, row) {
     const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
@@ -115,11 +117,11 @@ class EditableUsersTable extends React.Component{
     }
     return response;
   }
-  
+
   activeFormatterStatus(cell, row, enumObject, index) {
     return cell ? "Active" : "Not active yet";
   }
-  
+
   render() {
     const selectRowProp = {
       mode: 'checkbox',
@@ -135,12 +137,23 @@ class EditableUsersTable extends React.Component{
       beforeSaveCell: this.onBeforeSaveCell, // a hook for before saving cell
       afterSaveCell: this.onAfterSaveCell  // a hook for after saving cell
     };
-  
+
     const userRoles = USER_ROLE_LIST;
-    
+
+    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles })=> {
+      return {
+        _id,
+        username,
+        firstName,
+        lastName,
+        email: emails[0].address,
+        role: roles[0],
+        isActive: emails[0].verified,
+      }
+    })
     return (
       <BootstrapTable
-        data={ this.props.createdUsers }
+        data={ createdUsers }
         insertRow={ true }
         pagination
         selectRow={ selectRowProp }
@@ -150,7 +163,6 @@ class EditableUsersTable extends React.Component{
         options={ options }
       >
         <TableHeaderColumn
-          width='150'
           dataField='_id'
           isKey={ true }
           hidden
@@ -162,7 +174,6 @@ class EditableUsersTable extends React.Component{
         <TableHeaderColumn width='150' dataField='firstName' dataSort={ true }>First Name</TableHeaderColumn>
         <TableHeaderColumn width='150' dataField='lastName' dataSort={ true }>Last Name</TableHeaderColumn>
         <TableHeaderColumn
-          width='150'
           dataField='username'
           dataSort={ true }
           editable={ { type: 'input', validator: this.usernameValidator } }
@@ -170,7 +181,6 @@ class EditableUsersTable extends React.Component{
           Username
         </TableHeaderColumn>
         <TableHeaderColumn
-          width='150'
           dataField='email'
           dataSort={ true }
           editable={ { type: 'input', validator: this.emailValidator } }
@@ -178,7 +188,6 @@ class EditableUsersTable extends React.Component{
           Email
         </TableHeaderColumn>
         <TableHeaderColumn
-          width='150'
           dataField='isActive'
           dataSort={ true }
           dataFormat={ this.activeFormatterStatus }
@@ -188,7 +197,6 @@ class EditableUsersTable extends React.Component{
           Status
         </TableHeaderColumn>
         <TableHeaderColumn
-          width='150'
           dataField='role'
           dataSort={ true }
           editable={ { type: 'select', options: { values: userRoles } } }
@@ -198,6 +206,10 @@ class EditableUsersTable extends React.Component{
       </BootstrapTable>
     )
   }
+}
+
+EditableUsersTable.propTypes = {
+  createdUsers: PropTypes.array.isRequired,
 }
 
 export default  EditableUsersTable;

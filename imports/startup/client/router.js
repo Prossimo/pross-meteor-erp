@@ -4,7 +4,6 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 
 import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
-import AdminPage from '../../api/composer/pages/AdminPage';
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
 import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
 import UserAccount from '../../ui/pages/UserAccount';
@@ -17,6 +16,7 @@ import ContactsPage from '/imports/ui/pages/ContactsPage';
 import FinancialPage from '/imports/ui/pages/FinancialPage';
 import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
 import ProjectsPage from '/imports/ui/pages/ProjectsPage';
+import AdminPage from '/imports/ui/pages/AdminPage';
 import DashboardPage from '/imports/ui/pages/DashboardPage';
 import SingleProjectPage from '/imports/ui/components/project/SingleProject';
 
