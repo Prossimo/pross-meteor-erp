@@ -17,9 +17,17 @@ class Details extends React.Component{
         this.toggleEditShipping = this.toggleEditShipping.bind(this);
         this.toggleEditBilling = this.toggleEditBilling.bind(this);
         this.changeState = this.changeState.bind(this);
+        this.changeStateElem = this.changeStateElem.bind(this);
         this.saveAttributes = this.saveAttributes.bind(this);
         this.saveBilling = this.saveBilling.bind(this);
         this.saveShipping = this.saveShipping.bind(this);
+    }
+
+    changeStateElem(field, value, index) {
+        this.state.salesRecord[field][index] = value;
+        this.setState({
+            salesRecord: this.state.salesRecord,
+        });
     }
 
     changeState(field, value) {
@@ -74,6 +82,7 @@ class Details extends React.Component{
             'shipper',
             'estProductionTime',
             'actProductionTime',
+            'estDeliveryRange',
         );
         Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
@@ -152,6 +161,28 @@ class Details extends React.Component{
                         onChange={(event)=> this.changeState(field, parseFloat(event.target.value))}
                     />
                 );
+            case 'daterange':
+                return (
+                    <div>
+                        <DatePicker
+                            className='form-control'
+                            selected={moment(value[0])}
+                            selectsStart
+                            startDate={moment(value[0])}
+                            endDate={moment(value[1])}
+                            onChange={(date)=> this.changeStateElem(field, date.toDate(), 0)} />
+                        &nbsp;
+                        to
+                        &nbsp;
+                        <DatePicker
+                            className='form-control'
+                            selected={moment(value[1])}
+                            selectsStart
+                            startDate={moment(value[0])}
+                            endDate={moment(value[1])}
+                            onChange={(date)=> this.changeStateElem(field, date.toDate(), 1)} />
+                    </div>
+                )
             default:
                 return (
                     <input
