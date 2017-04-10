@@ -4,16 +4,23 @@ import  {HTTP} from 'meteor/http';
 import {check, Match} from 'meteor/check';
 import {
   Files,
-  CreatedUsers,
   SlackUsers,
   Quotes,
   SlackMessages,
   Settings,
   Projects,
-    SalesRecords
+  SalesRecords
 } from '../lib/collections';
 import { createTodoistProject } from '../tasks';
-import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../constants/roles';
+import {
+  EMPLOYEE_ROLE,
+  ADMIN_ROLE,
+  STAKEHOLDER_ROLE,
+  VENDOR_ROLE,
+  SHIPPER_ROLE,
+  ADMIN_ROLE_LIST,
+  SUPER_ADMIN_ROLE,
+} from '../constants/roles';
 import { prossDocDrive } from '../drive';
 
 
@@ -230,17 +237,56 @@ Meteor.methods({
     return "Message is sending";
   },
 
-  adminCreateUser(data){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-    if (Accounts.findUserByEmail(data.email) || CreatedUsers.findOne({email: data.email}))
-      throw new Meteor.Error('validEmail', `Email "${data.email}" is already exist`);
-    if (Accounts.findUserByUsername(data.username) || CreatedUsers.findOne({username: data.username}))
-      throw new Meteor.Error('validUsername', `"${data.username}" is already exist`);
+  adminCreateUser(user) {
+    check(user, new SimpleSchema({
+      firstName: {
+        type: String,
+      },
+      lastName: {
+        type: String,
+      },
+      username: {
+        type: String,
+      },
+      email: {
+        type: String,
+        regEx: SimpleSchema.RegEx.Email,
+      },
+      role: {
+        type: String,
+        allowedValues: [
+          EMPLOYEE_ROLE,
+          ADMIN_ROLE,
+          STAKEHOLDER_ROLE,
+          VENDOR_ROLE,
+          SHIPPER_ROLE,
+        ]
+      }
+    }));
+    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
+    const { email, username, firstName, lastName, role } = user;
+    if (Accounts.findUserByEmail(email))
+      throw new Meteor.Error('validEmail', `Email "${email}" is already exist`);
+    if (Accounts.findUserByUsername(username))
+      throw new Meteor.Error('validUsername', `"${username}" is already exist`);
 
-    data.createBy = this.userId;
-    data.createAt = new Date();
-    data.isActive = false;
-    CreatedUsers.insert(data);
+    const createdUserId = Accounts.createUser({
+      username,
+      email,
+      profile: {
+        firstName,
+        lastName,
+      }
+    });
+
+    Meteor.users.update(createdUserId, {
+      $set: {
+        createdBy: this.userId,
+        roles: [role],
+      }
+    })
+    Meteor.defer(()=> Accounts.sendEnrollmentEmail(createdUserId));
+    return createdUserId;
   },
 
   adminEditUser(updatedUserInfo, unicFields){

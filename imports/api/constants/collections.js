@@ -19,3 +19,4 @@ export const GET_MY_CONTACTS = 'getMyContacts';
 export const GET_TASKS = 'getTasks';
 export const GET_CONVERSATIONS = 'getConversations';
 export const GET_MAILTEMPLATES = 'getMailTemplates';
+export const GET_ALL_USERS = 'getAllUsers';

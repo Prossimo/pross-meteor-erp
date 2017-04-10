@@ -1,6 +1,5 @@
 import { Mongo } from  'meteor/mongo';
 import SalesRecordsCollection from '../models/salesRecords/salesRecords'
-export const CreatedUsers = new Mongo.Collection("CreatedUsers");
 export const Quotes = new Mongo.Collection("Quotes");
 export const Events = new Mongo.Collection("Events");
 export const SlackMessages = new Mongo.Collection("SlackMessages");

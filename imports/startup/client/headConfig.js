@@ -9,6 +9,3 @@ const metaViewport = {"name":"viewport", "content": "width=device-width, initial
 DocHead.addMeta(metaCharset);
 DocHead.addMeta(metaIE);
 DocHead.addMeta(metaViewport);
-
-const linkInfo = {rel: "stylesheet", type: "text/css", href: "https://npmcdn.com/react-bootstrap-table/dist/react-bootstrap-table-all.min.css"};
-DocHead.addLink(linkInfo);
