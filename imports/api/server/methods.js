@@ -289,50 +289,34 @@ Meteor.methods({
     return createdUserId;
   },
 
-  adminEditUser(updatedUserInfo, unicFields){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-    if (unicFields.newEmail) {
-      if (Accounts.findUserByEmail(updatedUserInfo.email) || CreatedUsers.findOne({email: updatedUserInfo.email}))
-        throw new Meteor.Error('validEmail', `Email "${updatedUserInfo.email}" is already exist`);
-    }
-    if (unicFields.newUsername) {
-      if (Accounts.findUserByUsername(updatedUserInfo.username) || CreatedUsers.findOne({username: updatedUserInfo.username}))
-        throw new Meteor.Error('validUsername', `"${updatedUserInfo.username}" is already exist`);
-    }
-    CreatedUsers.update({_id: updatedUserInfo._id}, {$set: updatedUserInfo}, (err) => {
-      if (err) {
-        throw new Meteor.Error(err)
+  adminEditUser(userId, userFields){
+    check(userId, String);
+    check(userFields, {
+      firstName: String,
+      lastName: String,
+      role: String,
+    })
+    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
+    if (Roles.userIsInRole(this.userId), ADMIN_ROLE && role === SUPER_ADMIN_ROLE) throw new Meteor.Error('Can not set current user as super admin');
+    const { firstName, lastName, role } = userFields;
+    Meteor.users.update(userId, {
+      $set: {
+        'profile.firstName': firstName,
+        'profile.lastName': lastName,
+        'roles.0': role,
       }
-    });
+    })
   },
 
-  adminRemoveUser(userId){
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
-    CreatedUsers.remove(userId);
-  },
-
-  checkCreatedAccount(email){
-    return CreatedUsers.find({email}).count();
-  },
-
-  initCreatedUser(email, password){
-    const createdUser = CreatedUsers.findOne({email, isActive: false});
-
-    const userId = Accounts.createUser({
-      username: createdUser.username,
-      email,
-      password,
-      profile: {
-        firstName: createdUser.firstName,
-        lastName: createdUser.lastName,
-        role: [
-          {role: 'user'}
-        ]
-      }
-    });
-    Roles.addUsersToRoles(userId, [createdUser.role]);
-    CreatedUsers.update({_id: createdUser._id}, {$set: {isActive: true}});
-    return userId;
+  adminRemoveUser(userIds) {
+    check(userIds, [String]);
+    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
+    // can not remove super admin role
+    const removeIds = userIds.filter((userId)=> !Roles.userIsInRole(userId, [SUPER_ADMIN_ROLE]));
+    Meteor.users.remove({ _id: { $in: removeIds } });
+    if (removeIds.length != userIds.length) {
+      throw new Meteor.Error('Can not remove super admin account');
+    }
   },
 
   updateProjectShipping(salesRecordId, shipping) {
