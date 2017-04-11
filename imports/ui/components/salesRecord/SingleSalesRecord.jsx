@@ -468,28 +468,37 @@ class SingleSalesRecord extends React.Component{
               </div>
           </div>
           <aside className="right-sidebar">
-            <div className='form-group'>
-              <Select
-                name='memberType'
-                value={this.state.memberType}
-                options={this.memberTypeOptions}
-                onChange={(item) => this.changeState(this.state, 'memberType', item)}
-                clearable={false}
-              />
+            <div className='sidebar-box'>
+              <div className='form-group'>
+                <Select
+                  name='memberType'
+                  value={this.state.memberType}
+                  options={this.memberTypeOptions}
+                  onChange={(item) => this.changeState(this.state, 'memberType', item)}
+                  clearable={false}
+                />
+              </div>
+              {
+                (this.state.memberType.value === 'member') ? (
+                  <div>
+                    { this.renderAddMemberForm() }
+                  </div>
+                ) : (
+                  <div>
+                    { this.renderAddStakeholderForm() }
+                  </div>
+                )
+              }
             </div>
+            <div className='sidebar-box'>
             {
               (this.state.memberType.value === 'member') ? (
-                <div>
-                  { this.renderAddMemberForm() }
-                  { this.renderProjectMembers() }
-                </div>
+                this.renderProjectMembers()
               ) : (
-                <div>
-                  { this.renderAddStakeholderForm() }
-                  { this.renderStakeholders() }
-                </div>
+                this.renderStakeholders()
               )
             }
+            </div>
           </aside>
       </div>
     )
