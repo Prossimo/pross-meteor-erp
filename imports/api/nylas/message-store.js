@@ -32,6 +32,7 @@ class MessageStore extends Reflux.Store {
     }
 
     _onLoadMessages(thread) {
+        thread = thread ? thread : this._currentThread
         if(!thread || !thread.account_id) return;
 
         this._loading = true;
