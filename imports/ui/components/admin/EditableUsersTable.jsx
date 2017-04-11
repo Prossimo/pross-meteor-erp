@@ -19,12 +19,14 @@ class EditableUsersTable extends Component{
     this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
   }
 
-  customConfirm(next, dropRowKeys) {
-    const dropRowKeysStr = dropRowKeys.join(',');
-    if (confirm(`(It's a custom confirm)Are you sure you want to delete ${dropRowKeysStr}?`)) {
+  customConfirm(next, userIds) {
+    if (confirm(`(It's a custom confirm)Are you sure you want to delete ${userIds}?`)) {
       // If the confirmation is true, call the function that
       // continues the deletion of the record.
-      Meteor.call('adminRemoveUser', dropRowKeysStr, (err) => {
+      Meteor.call('adminRemoveUser', userIds, (error) => {
+        if (error) {
+          return warning(error.reason ? error.reason : error.error);
+        }
         info('User was successfully removed!');
         next();
       });
@@ -40,22 +42,20 @@ class EditableUsersTable extends Component{
       role: row.role
     };
     Meteor.call('adminCreateUser', userData, (err)=>{
-      if (err) return warning(err.reason ? err.reason : err);
+      if (err) return warning(err.reason ? err.reason : err.error);
       info('Successful create user!');
     })
   }
 
   onAfterSaveCell(row, cellName, cellValue) {
     const userData = {
-      _id: row._id,
       firstName: row.firstName,
       lastName: row.lastName,
-      username: row.username,
-      email: row.email,
       role: row.role
     };
 
-    Meteor.call('adminEditUser', userData, (err)=>{
+    Meteor.call('adminEditUser', row._id, userData, (err)=>{
+      if (err) return warning(error.reason ? error.reason : error.error);
       info('User was successfully edited!');
     });
   }
@@ -168,22 +168,32 @@ class EditableUsersTable extends Component{
           hidden
           hiddenOnInsert
           autoValue={ true }
+          editable={ false }
         >
           User Id
         </TableHeaderColumn>
-        <TableHeaderColumn width='150' dataField='firstName' dataSort={ true }>First Name</TableHeaderColumn>
-        <TableHeaderColumn width='150' dataField='lastName' dataSort={ true }>Last Name</TableHeaderColumn>
+
+        <TableHeaderColumn
+          dataField='firstName'
+          dataSort={ true }>First Name
+        </TableHeaderColumn>
+
+        <TableHeaderColumn
+          dataField='lastName'
+          dataSort={ true }>Last Name
+        </TableHeaderColumn>
+
         <TableHeaderColumn
           dataField='username'
           dataSort={ true }
-          editable={ { type: 'input', validator: this.usernameValidator } }
+          editable={ false }
         >
           Username
         </TableHeaderColumn>
         <TableHeaderColumn
           dataField='email'
+          editable={false}
           dataSort={ true }
-          editable={ { type: 'input', validator: this.emailValidator } }
         >
           Email
         </TableHeaderColumn>

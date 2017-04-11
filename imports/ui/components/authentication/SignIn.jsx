@@ -25,51 +25,34 @@ class SignIn extends React.Component{
             password = this.state.password.trim(),
             passwordRepeat = this.state.passwordRepeat.trim();
         if(!isValidEmail(email)) {
-    	  		return this.setState({ authError: "Please enter valid e-mail address" });
-    	  }
-    
-        if(!isValidPassword(password, 6)) {
-    	  		return this.setState({ authError: "Please enter valid password" });
+            return this.setState({ authError: "Please enter valid e-mail address" });
         }
 
-        if (isUserCreated && password === passwordRepeat) {
-            Meteor.call("initCreatedUser", email, password, (err, res)=>{
-                if(err) return this.setState({authError: err});
-                Meteor.loginWithPassword({email}, password, (err) => {
-                    FlowRouter.reload();
-                    Actions.resetContacts()
-                });
-            })
+        if(!isValidPassword(password, 6)) {
+            return this.setState({ authError: "Please enter valid password" });
         }
-        else{
-            Meteor.loginWithPassword({email}, password, (err) => {
-                if (err) return this.setState({authError: "Invalid username or password"});
-                FlowRouter.reload();
-                Actions.resetContacts()
-            });
-        }
+
+        //if (isUserCreated && password === passwordRepeat) {
+            //Meteor.call("initCreatedUser", email, password, (err, res)=>{
+                //if(err) return this.setState({authError: err});
+                //Meteor.loginWithPassword({email}, password, (err) => {
+                    //FlowRouter.reload();
+                    //Actions.resetContacts()
+                //});
+            //})
+        //}
+        //else{
+      Meteor.loginWithPassword({email}, password, (err) => {
+          if (err) return this.setState({authError: "Invalid username or password"});
+          FlowRouter.reload();
+          Actions.resetContacts()
+      });
+        //}
     }
 
     focusInput(event){
         event.target.parentElement.classList.add('active');
         this.setState({authError: false, validationPassword: false});
-    }
-
-    blurInput(event){
-        const { isUserCreated, password, passwordRepeat } = this.state;
-        if(event.target.value === ''){
-            event.target.parentElement.classList.remove('active');
-        }
-        if(event.target.id === 'email'){
-            Meteor.call("checkCreatedAccount", event.target.value, (err,res)=>{
-                if(err) return;
-                this.setState({checkCreateAccount: true, isUserCreated: res});
-            })
-        }
-        if(isUserCreated && password && passwordRepeat){
-            if(password !== passwordRepeat)
-                this.setState({validationPassword: "Password is wrong"});
-        }
     }
 
     change(event){
@@ -94,7 +77,6 @@ class SignIn extends React.Component{
                 <input id="passwordRepeat"
                        type="password"
                        onFocus={this.focusInput.bind(this)}
-                       onBlur={this.blurInput.bind(this)}
                        value={this.state.passwordRepeat}
                        onChange={this.change.bind(this)}
                 />
@@ -115,7 +97,6 @@ class SignIn extends React.Component{
                         <input id="email"
                                type="email"
                                onFocus={this.focusInput.bind(this)}
-                               onBlur={this.blurInput.bind(this)}
                                value={email}
                                onChange={this.change.bind(this)}
                         />
@@ -125,7 +106,6 @@ class SignIn extends React.Component{
                         <input id="password"
                                type="password"
                                onFocus={this.focusInput.bind(this)}
-                               onBlur={this.blurInput.bind(this)}
                                value={password}
                                onChange={this.change.bind(this)}
                         />
