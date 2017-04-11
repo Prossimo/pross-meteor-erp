@@ -9,17 +9,17 @@ class DraftFactory {
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
         let body = fields.body || this.getBodyWithSignature('', account.accountId)
-        return Promise.resolve({
+        return Promise.resolve(_.extend({
             body: body,
-            subject: fields.subject || '',
+            subject: '',
             clientId: NylasUtils.generateTempId(),
-            from: fields.from || [NylasUtils.defaultMe(account)],
-            to: fields.to || [],
-            cc: fields.cc || [],
-            bcc: fields.bcc || [],
+            from: [NylasUtils.defaultMe(account)],
+            to: [],
+            cc: [],
+            bcc: [],
             date: new Date().getTime() / 1000,
             account_id: account.accountId
-        })
+        }, fields))
     }
 
     createDraftForReply = ({message, type}) => {
