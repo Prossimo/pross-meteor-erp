@@ -43,7 +43,7 @@ class MessageStore extends Reflux.Store {
             method: 'GET',
             accountId: thread.account_id
         }).then((result) => {
-
+            //console.log('onLoadMessage result',  result)
             this._messages = result;
 
             this._messages.sort((m1, m2)=>m1.date-m2.date)

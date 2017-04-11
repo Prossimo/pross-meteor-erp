@@ -167,7 +167,7 @@ class MessageList extends React.Component {
         return messages
     }
 
-    _renderMinifiedBundle(bundle) { console.log('_renderMinifiedBundle', bundle)
+    _renderMinifiedBundle(bundle) {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10);
         const h = Math.round(BUNDLE_HEIGHT / lines.length)
