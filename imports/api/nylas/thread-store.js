@@ -3,7 +3,7 @@ import Reflux from 'reflux'
 import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
-import AccountStore from './account-store'
+import CategoryStore from './category-store'
 
 const PAGE_SIZE = 100
 
@@ -22,17 +22,18 @@ class ThreadStore extends Reflux.Store {
     }
 
     onLoadThreads = (category, {page = 1, search}={}) => {
+        category = category ? category : CategoryStore.currentCategory
+        if(!category) return
+
         this.loading = true;
         this.trigger();
-
-
         const query = QueryString.stringify({in: category.id, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE});
         NylasAPI.makeRequest({
             path: `/threads?${query}`,
             method: 'GET',
             accountId: category.account_id
         }).then((result) => {
-
+            //console.log('loadThreads result', result)
             if (result && result.length) {
                 result.forEach((item) => {
                     const thread = _.findWhere(this.threads, {id: item.id})
