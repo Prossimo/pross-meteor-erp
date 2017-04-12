@@ -53,6 +53,7 @@
     "react-s-alert": "^1.2.2",
     "react-select": "^1.0.0-rc.3",
     "react-textarea-autosize": "^4.0.5",
+    "react-treebeard": "^1.1.4",
     "reflux": "^6.2.0",
     "request-progress": "^3.0.0",
     "simpl-schema": "^0.2.2",
