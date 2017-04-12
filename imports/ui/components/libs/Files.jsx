@@ -2,6 +2,61 @@ import React, { Component, PropTypes } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import { info, warning } from '/imports/api/lib/alerts';
 import MediaUploader from '../libs/MediaUploader';
+import {Treebeard, decorators} from 'react-treebeard';
+
+var fileview_data = [];
+var folder_ct = 0;
+
+function extract(data, parent) {
+    let cur_idx = folder_ct;
+    let i = 0;
+    fileview_data[cur_idx] = {data: data, parent: parent};
+    folder_ct++;
+    for (; i < data.children.length; i++) {
+        if (data.children[i].mimeType == "application/vnd.google-apps.folder") {
+            extract(data.children[i], cur_idx);
+        }
+    }
+}
+
+function update_fileview_data(node) {
+    let i = 0;
+    for(; i<folder_ct; i++) {
+        if (fileview_data[i].id == node.id) {
+            fileview_data[i].children = node.children;
+            fileview_data[i].loading = node.loading;
+        }
+    }
+}
+
+function merge_fileview_data() {
+    let i = folder_ct - 1, j;
+    var parent_idx;
+    for (; i > 0; i--) {
+        parent_idx = fileview_data[i].parent;
+        for (j=0; j< fileview_data[parent_idx].data.children.length; j++ ) {
+            if (fileview_data[parent_idx].data.children[j].id == fileview_data[i].data.id)
+                fileview_data[parent_idx].data.children[j].children = fileview_data[i].data.children;
+        }
+    }
+    return fileview_data[0].data;
+}
+
+// Example: Customising The Header Decorator To Include Icons
+decorators.Header = (props) => {
+    const style = props.style;
+    const iconType = props.node.children ? 'folder' : 'file-text';
+    const iconClass = `fa fa-${iconType}`;
+    const iconStyle = { marginRight: '5px' };
+    return (
+        <div style={style.base}>
+            <div style={style.title}>
+                <i className={iconClass} style={iconStyle}/>
+                {props.node.name}
+            </div>
+        </div>
+    );
+};
 
 class Files extends Component {
     constructor(props) {
@@ -11,8 +66,8 @@ class Files extends Component {
         this.renderRemoteFiles = this.renderRemoteFiles.bind(this);
         this.uploadFiles = this.uploadFiles.bind(this);
         this.removeFile = this.removeFile.bind(this);
-        this.updateFolder = this.updateFolder.bind(this);
         this.addGooglefiles = this.addGooglefiles.bind(this);
+        this.onToggle = this.onToggle.bind(this);
         this.token = null;
         this.state = {
             files: [],
@@ -20,6 +75,7 @@ class Files extends Component {
             loadingRemoteFiles: true,
             folderId: "",
             msgstring: "",
+            data: {}
         }
         switch(props.type) {
             case 'project':
@@ -41,64 +97,65 @@ class Files extends Component {
             }
             this.token = token;
         });
+        googledrv_filedata = [];
+        filedata_ct = 0;
+        callback_ct = 0;
+
+        //getFileList(this.rootfolderId, 0);
+        var data = {name: "root", toggled: true, children:[]};
 
         Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
+            data.children = result.files;
+            data.children.forEach(function(item, index) {
+               if (item.mimeType == "application/vnd.google-apps.folder") {
+                   data.children[index].loading = true;
+                   data.children[index].children = [];
+               }
+            });
             this.setState({
-                remoteFiles: result.files ,
+                data: data,
                 loadingRemoteFiles: false,
             });
         })
     }
 
-    updateFileList() {
-        Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
+    updateSelectedFolder() {
+        let curnode = this.state.cursor;
+        Meteor.call('drive.listFiles', {query: `'${curnode.id}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
-            if (this.state.folderId != this.rootfolderId) {
-                Meteor.call('drive.getParents', {fileId: this.state.folderId}, (err, parents)=> {
-                    if (err) {
-                        return warning('could not list files from google drive');
-                    }
-                    if (parents.parents.length > 1)
-                        parents.parents = [this.rootfolderId];
-                    result.files.unshift({
-                        id: parents.parents.slice(-1)[0],
-                        name: "..",
-                        mimeType: "application/vnd.google-apps.folder"
-                    });
-                    this.setState({
-                        remoteFiles: result.files,
-                        loadingRemoteFiles: false,
-                    });
-                });
-            } else {
-                this.setState({
-                    remoteFiles: result.files ,
-                    loadingRemoteFiles: false,
-                });
-            }
+            curnode.children = result.files;
+            curnode.children.forEach(function (item, index) {
+                if (item.mimeType == "application/vnd.google-apps.folder") {
+                    curnode.children[index].loading = true;
+                    curnode.children[index].children = [];
+                }
+            });
+            curnode.loading = false;
+            fileview_data = [];
+            folder_ct = 0;
+            extract(this.state.data, -1);
+            update_fileview_data(curnode);
+            this.setState({
+                data: merge_fileview_data(),
+                loadingRemoteFiles: false,
+            });
         });
-    }
-
-    updateFolder(event) {
-        let folderId = event.target.getAttribute('data-id');
-        event.preventDefault();
-        this.setState({folderId: folderId});
-
-        Meteor.call('drive.getAccessToken', {}, (error, token)=> {
-            if (error) {
-                return warning('could not connect to google drive');
-            }
-            this.token = token;
+        curnode.loading = true;
+        fileview_data = [];
+        folder_ct = 0;
+        extract(this.state.data, -1);
+        update_fileview_data(curnode);
+        this.setState({
+            data: merge_fileview_data(),
+            loadingRemoteFiles: false,
         });
 
-        this.updateFileList();
     }
-
     addGooglefiles(event) {
         event.preventDefault();
         var file_name = prompt('Please enter new file name', 'Create new file');
@@ -139,62 +196,60 @@ class Files extends Component {
                 return warning('could not list files from google drive');
             }
             this.setState({msgstring: ''});
-            this.updateFileList();
+            this.updateSelectedFolder();
             //console.log ('successfully created google docs!');
         });
     }
 
     removeFile(fileId, event) {
         event.preventDefault();
-        Meteor.call('drive.removeFiles', { fileId });
-        this.setState((prevState)=> {
+        Meteor.call('drive.removeFiles', { fileId }, (err)=> {
+            this.updateSelectedFolder();
+        });
+
+        /*this.setState((prevState)=> {
             prevState.remoteFiles = prevState.remoteFiles.filter(({ id })=> id !== fileId);
             return prevState;
-        })
+        })*/
+    }
+
+    onToggle(node, toggled){
+        if(this.state.cursor){this.state.cursor.active = false;}
+        node.active = true;
+        if (node.loading == true) {
+            Meteor.call('drive.listFiles', {query: `'${node.id}' in parents and trashed = false`}, (error, result)=> {
+                if (error) {
+                    return warning('could not list files from google drive');
+                }
+                node.children = result.files;
+                node.children.forEach(function (item, index) {
+                    if (item.mimeType == "application/vnd.google-apps.folder") {
+                        node.children[index].loading = true;
+                        node.children[index].children = [];
+                    }
+                });
+                node.loading = false;
+                fileview_data = [];
+                folder_ct = 0;
+                extract(this.state.data, -1);
+                update_fileview_data(node);
+                this.setState({
+                    data: merge_fileview_data(),
+                    loadingRemoteFiles: false,
+                });
+            })
+        }
+        if(node.children){ node.toggled = toggled; }
+        this.setState({ cursor: node, folderId: node.id });
     }
 
     renderRemoteFiles() {
         return (
-            <table className='table table-condensed'>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {
-                    this.state.remoteFiles.map(({ name, id, mimeType })=> {
-                        return (
-                            <tr key={id}>
-                                <td>
-                                {
-                                    (mimeType === 'application/vnd.google-apps.folder') ? (
-                                        <div className='attached-folder' data-val={id}>
-                                            <a href='#' >
-                                                <span className='file-name' data-id={id} onClick={this.updateFolder}>{name}</span>
-                                            </a>
-                                        </div>
-                                    ) : (
-                                        <div className='attached-file' key={id}>
-                                            <a href={`https://www.googleapis.com/drive/v3/files/${id}?alt=media&access_token=${this.token}`} target='_blank'>
-                                                <span className='file-name'>{name}</span>
-                                            </a>
-                                        </div>
-                                    )
-                                }
-                                </td>
-                                <td className='text-right'>
-                                    <a href='#' onClick={(event)=> this.removeFile(id, event)}>
-                                        <span className='fa fa-times'/>
-                                    </a>
-                                </td>
-                            </tr>
-                        );
-                    })
-                }
-                </tbody>
-            </table>
+            <Treebeard
+                data={this.state.data}
+                onToggle={this.onToggle}
+                decorators={decorators}
+            />
         )
     }
 
@@ -231,10 +286,11 @@ class Files extends Component {
                     this.setState({ files: this.state.files });
                 },
                 onComplete: (remoteFile)=>  {
-                    this.setState((prevState)=> {
+                    this.updateSelectedFolder();
+                    /*this.setState((prevState)=> {
                         prevState.remoteFiles.push(JSON.parse(remoteFile));
                         return prevState;
-                    });
+                    });*/
                 }
             });
             uploader.upload();
