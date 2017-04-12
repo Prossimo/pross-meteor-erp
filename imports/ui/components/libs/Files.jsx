@@ -158,6 +158,10 @@ class Files extends Component {
     }
     addGooglefiles(event) {
         event.preventDefault();
+        if (this.state.cursor.mimeType != 'application/vnd.google-apps.folder') {
+            this.setState({msgstring: 'Please select folder!'});
+            return ;
+        }
         var file_name = prompt('Please enter new file name', 'Create new file');
 
         if (file_name == null)
@@ -184,13 +188,6 @@ class Files extends Component {
         };
         this.setState({msgstring: 'Creating new Google '+event.target.getAttribute('data-val')+' file...'});
 
-        Meteor.call('drive.getAccessToken', {}, (error, token)=> {
-            if (error) {
-                return warning('could not connect to google drive');
-            }
-            this.token = token;
-        });
-
         Meteor.call('drive.createFile', file, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
@@ -216,28 +213,41 @@ class Files extends Component {
     onToggle(node, toggled){
         if(this.state.cursor){this.state.cursor.active = false;}
         node.active = true;
-        if (node.loading == true) {
-            Meteor.call('drive.listFiles', {query: `'${node.id}' in parents and trashed = false`}, (error, result)=> {
-                if (error) {
-                    return warning('could not list files from google drive');
-                }
-                node.children = result.files;
-                node.children.forEach(function (item, index) {
-                    if (item.mimeType == "application/vnd.google-apps.folder") {
-                        node.children[index].loading = true;
-                        node.children[index].children = [];
+        console.log (node);
+        if (node.mimeType == 'application/vnd.google-apps.document') {
+            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&alt=media&access_token='+this.token, '_blank');
+        } else if (node.mimeType == 'application/vnd.google-apps.spreadsheet') {
+            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&alt=media&access_token='+this.token, '_blank');
+        } else if (node.mimeType == 'application/vnd.google-apps.presentation') {
+            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.presentationml.presentation&alt=media&access_token='+this.token, '_blank');
+        } else if (node.mimeType == 'application/vnd.google-apps.drawing') {
+            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/pdf&alt=media&access_token='+this.token, '_blank');
+        } else if (node.mimeType == 'application/vnd.google-apps.folder') {
+            if (node.loading == true) {
+                Meteor.call('drive.listFiles', {query: `'${node.id}' in parents and trashed = false`}, (error, result)=> {
+                    if (error) {
+                        return warning('could not list files from google drive');
                     }
-                });
-                node.loading = false;
-                fileview_data = [];
-                folder_ct = 0;
-                extract(this.state.data, -1);
-                update_fileview_data(node);
-                this.setState({
-                    data: merge_fileview_data(),
-                    loadingRemoteFiles: false,
-                });
-            })
+                    node.children = result.files;
+                    node.children.forEach(function (item, index) {
+                        if (item.mimeType == 'application/vnd.google-apps.folder') {
+                            node.children[index].loading = true;
+                            node.children[index].children = [];
+                        }
+                    });
+                    node.loading = false;
+                    fileview_data = [];
+                    folder_ct = 0;
+                    extract(this.state.data, -1);
+                    update_fileview_data(node);
+                    this.setState({
+                        data: merge_fileview_data(),
+                        loadingRemoteFiles: false,
+                    });
+                })
+            }
+        } else {
+            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'?alt=media&access_token='+this.token, '_blank');
         }
         if(node.children){ node.toggled = toggled; }
         this.setState({ cursor: node, folderId: node.id });
