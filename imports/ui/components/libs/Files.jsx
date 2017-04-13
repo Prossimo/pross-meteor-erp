@@ -239,29 +239,31 @@ class Files extends Component {
 
     removeFile(fileId, fileName, event) {
         event.preventDefault();
-        Meteor.call('drive.removeFiles', { fileId }, (err)=> {
-            this.updateSelectedFolder();
-            if(typeof this.slackChannel === 'undefined') return;
+        if (confirm('Are you sure you want to remove this file?')) {
+            Meteor.call('drive.removeFiles', { fileId }, (err)=> {
+                this.updateSelectedFolder();
+                if(typeof this.slackChannel === 'undefined') return;
 
-            const params = {
-                username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
-                icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
-                attachments: [
-                    {
-                        "color": "#36a64f",
-                        "text": `<Removed ${fileName}>`
-                    }
-                ]
-            };
+                const params = {
+                    username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
+                    icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
+                    attachments: [
+                        {
+                            "color": "#36a64f",
+                            "text": `<Removed ${fileName}>`
+                        }
+                    ]
+                };
 
-            const slackText = `I just removed the file named as "${fileName}"`;
-            Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
-        });
+                const slackText = `I just removed the file named as "${fileName}"`;
+                Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
+            });
 
-        /*this.setState((prevState)=> {
-            prevState.remoteFiles = prevState.remoteFiles.filter(({ id })=> id !== fileId);
-            return prevState;
-        })*/
+            /*this.setState((prevState)=> {
+                prevState.remoteFiles = prevState.remoteFiles.filter(({ id })=> id !== fileId);
+                return prevState;
+            })*/
+        }
     }
 
     onToggle(node, toggled){
