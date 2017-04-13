@@ -50,7 +50,7 @@ class ThreadStore extends Reflux.Store {
                 })
             }
 
-            if (!result || result.length < PAGE_SIZE) {
+            if (!threads || threads.length < PAGE_SIZE) {
                 this.fullyLoaded = true
             } else {
                 this.fullyLoaded = false
@@ -65,20 +65,20 @@ class ThreadStore extends Reflux.Store {
 
     onFetchSalesRecordThreads() {
         // For auto attach conversation
-        //console.log('==========> fetchSalesRecordThreads started <=========')
+
         SalesRecord.find().fetch().forEach((sr) => {
             const salesRecordId = sr._id
-            //console.log(sr.threads())
+
             sr.threads().forEach((thread) => {
-                //console.log(thread)
+
                 NylasAPI.makeRequest({
                     path: `/threads/${thread.id}`,
                     method: 'GET',
                     accountId: thread.account_id
-                }).then((t) => {//console.log('===Thread', t)
+                }).then((t) => {
                     if (t.version != thread.version) {
                         Meteor.call('updateThreadAndMessages', sr._id, t, (err,res)=>{
-                            //console.log('sending changedConversations action')
+
                             setTimeout(()=>{
                                 Actions.changedConversations(sr._id)
                             }, 18000)

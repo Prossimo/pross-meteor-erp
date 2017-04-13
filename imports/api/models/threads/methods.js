@@ -43,8 +43,11 @@ Meteor.methods({
                     Fiber(() => {
                         messages.forEach((message) => {
                             const existingMessage = Messages.findOne({id:message.id})
-                            if(!existingMessage)
+                            if(!existingMessage) {
                                 Messages.insert(message)
+                            } else {
+                                Messages.update({_id:existingMessage._id}, {$set:message})
+                            }
                         })
                     }).run()
                 }
