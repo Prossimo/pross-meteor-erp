@@ -50,13 +50,14 @@ decorators.Header = (props) => {
     const iconClass = `fa fa-${iconType}`;
     const iconStyle = { marginRight: '5px' };
     style.title.display = 'inline-block';
+    console.log (props);
     return (
         <div style={style.base}>
             <div style={style.title}>
                 <i className={iconClass} style={iconStyle}/>
                 {props.node.name}
             </div>
-            <a href='#' style={{marginLeft: 20}} onClick={(event)=> props.removeFile(props.node.id, event)}>
+            <a href='#' style={{marginLeft: 20}} onClick={(event)=> props.removeFile(props.node.id, props.node.name, event)}>
                 <span className='fa fa-times'/>
             </a>
         </div>
@@ -163,6 +164,7 @@ class Files extends Component {
         });
 
     }
+
     addGooglefiles(event) {
         event.preventDefault();
         if (!this.state.cursor || this.state.cursor.mimeType != 'application/vnd.google-apps.folder') {
@@ -236,10 +238,25 @@ class Files extends Component {
         });
     }
 
-    removeFile(fileId, event) {
+    removeFile(fileId, fileName, event) {
         event.preventDefault();
         Meteor.call('drive.removeFiles', { fileId }, (err)=> {
             this.updateSelectedFolder();
+            if(typeof this.slackChannel === 'undefined') return;
+
+            const params = {
+                username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
+                icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
+                attachments: [
+                    {
+                        "color": "#36a64f",
+                        "text": `<Removed ${fileName}>`
+                    }
+                ]
+            };
+
+            const slackText = `I just removed the file named as "${fileName}"`;
+            Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
         });
 
         /*this.setState((prevState)=> {
@@ -335,6 +352,21 @@ class Files extends Component {
                 },
                 onComplete: (remoteFile)=>  {
                     this.updateSelectedFolder();
+                    if(typeof this.slackChannel === 'undefined') return;
+
+                    const params = {
+                        username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
+                        icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
+                        attachments: [
+                            {
+                                "color": "#36a64f",
+                                "text": `<Removed ${fileName}>`
+                            }
+                        ]
+                    };
+
+                    const slackText = 'I just uploaded new file';
+                    Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
                     /*this.setState((prevState)=> {
                         prevState.remoteFiles.push(JSON.parse(remoteFile));
                         return prevState;
