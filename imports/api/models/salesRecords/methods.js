@@ -3,8 +3,11 @@ import  {HTTP} from 'meteor/http';
 import SalesRecords from './salesRecords'
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
 import config from '../../config/config';
-import Conversations from '../conversations/conversations'
-import { createTodoistSalesRecord } from '../../tasks';
+import Threads from '../threads/threads'
+import Messages from '../messages/messages'
+import {createTodoistSalesRecord} from '../../tasks';
+import NylasAPI from '../../nylas/nylas-api'
+import queryString from 'query-string'
 
 
 import {prossDocDrive} from '../../drive';
@@ -14,33 +17,33 @@ const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
     changeStageOfSalesRecord(salesRecordId, stage) {
-      check(salesRecordId, String);
-      check(stage, String);
-      const salesRecord = SalesRecords.findOne({ _id: salesRecordId, 'members.userId': this.userId });
-      if (salesRecord || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-        SalesRecords.update(salesRecordId, {$set: { stage }});
-      }
+        check(salesRecordId, String);
+        check(stage, String);
+        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId});
+        if (salesRecord || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+            SalesRecords.update(salesRecordId, {$set: {stage}});
+        }
     },
 
     removeStakeholderFromSalesRecord(salesRecordId, contactId) {
-      check(salesRecordId, String);
-      check(contactId, String);
+        check(salesRecordId, String);
+        check(contactId, String);
 
-      if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-        return SalesRecords.update(salesRecordId, {$pull: { stakeholders: { contactId } }});
-      }
+        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+            return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {contactId}}});
+        }
     },
 
     removeMemberFromSalesRecord(salesRecordId, userId) {
-      check(userId, String);
-      check(salesRecordId, String);
+        check(userId, String);
+        check(salesRecordId, String);
 
-      if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-        return SalesRecords.update(salesRecordId, {$pull: { members: { userId } }});
-      }
+        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+            return SalesRecords.update(salesRecordId, {$pull: {members: {userId}}});
+        }
     },
     // NOTICE: it must be saleRecord
-    insertSalesRecord(data, conversations){
+    insertSalesRecord(data, thread){
         if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
             throw new Meteor.Error("Access denied");
         }
@@ -88,7 +91,7 @@ Meteor.methods({
             }
         });
 
-        console.log("Create slack channel response", responseCreateChannel)
+        //console.log("Create slack channel response", responseCreateChannel)
         if (!responseCreateChannel.data.ok) {
             if (responseCreateChannel.data.error = 'name_taken') {
                 throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);
@@ -119,6 +122,8 @@ Meteor.methods({
                     }
                 })
             });
+
+
         const salesRecordId = SalesRecords.insert(data);
 
         // create folder in google drive
@@ -128,11 +133,27 @@ Meteor.methods({
         createTodoistSalesRecord(data.name, salesRecordId);
 
         // Insert conversations attached
-        console.log("Conversations to be attached", conversations)
-        if(conversations && conversations.length) {
-            conversations.forEach((conversation)=>{
-                conversation.salesRecordId = salesRecordId
-                Conversations.insert(conversation)
+        if (thread) {
+            //console.log("thread to be attached", thread)
+            thread.salesRecordId = salesRecordId
+            Threads.insert(thread)
+
+            const query = queryString.stringify({thread_id: thread.id});
+            NylasAPI.makeRequest({
+                path: `/messages?${query}`,
+                method: 'GET',
+                accountId: thread.account_id
+            }).then((messages) => {
+                if (messages && messages.length) {
+
+                    const Fiber = require('fibers')
+
+                    Fiber(() => {
+                        messages.forEach((message) => {
+                            Messages.insert(message)
+                        })
+                    }).run()
+                }
             })
         }
 
@@ -141,10 +162,10 @@ Meteor.methods({
                 "_username": "admin",
                 "_password": "12345678"
             }
-        }, function( error, response ) {
+        }, function (error, response) {
 
-            if ( error ) {
-                console.log( error );
+            if (error) {
+                console.log(error);
             } else {
                 //console.log( response);
                 HTTP.post('http://78.47.83.46:8000/api/projects', {
@@ -165,9 +186,9 @@ Meteor.methods({
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + response.token
                     }
-                }, function( err, result ) {
-                    if ( err ) {
-                        console.log( err );
+                }, function (err, result) {
+                    if (err) {
+                        console.log(err);
                     } else {
                         //console.log( result);
                     }
@@ -176,4 +197,5 @@ Meteor.methods({
         });
         return salesRecordId;
     },
+
 });

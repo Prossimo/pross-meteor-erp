@@ -7,7 +7,7 @@ import {ConversationStore} from '/imports/api/nylas/message-store'
 class ConversationList extends React.Component {
 
     static propTypes = {
-        conversations: React.PropTypes.array
+        salesRecord: React.PropTypes.object
     }
     constructor(props) {
         super(props);
@@ -16,7 +16,7 @@ class ConversationList extends React.Component {
 
         this.MINIFY_THRESHOLD = 3
 
-        this.store = new ConversationStore(props.conversations)
+        this.store = new ConversationStore(props.salesRecord)
 
         this.state = this._getStateFromStore()
         this.state.minified = true

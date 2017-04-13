@@ -31,7 +31,8 @@ import '../models/nylasaccounts/methods';
 import '../models/contacts/methods';
 import '../models/salesRecords/methods';
 import '../models/mailtemplates/methods';
-import '../models/conversations/methods';
+import '../models/messages/methods';
+import '../models/threads/methods';
 import { googleServerApiAutToken } from '../../api/server/functions';
 
 const driveScopes = [
@@ -482,11 +483,11 @@ Meteor.methods({
     });
 
     if (!response.data.ok) return;
-    console.log(response);
+    //console.log(response);
 
     const file = HTTP.get(response.data.file.url_private_download, {params: {token: SLACK_API_KEY}});
 
-    console.log(file)
+    //console.log(file)
 
     return response.data.file.permalink_public;
   },

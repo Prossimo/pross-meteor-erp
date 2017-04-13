@@ -4,7 +4,8 @@ import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
 import { STAGES } from '../../constants/project';
-import Conversations from '../conversations/conversations'
+import Threads from '../threads/threads'
+import Messages from '../messages/messages'
 import Contacts from '../contacts/contacts'
 
 class SalesRecordsCollection extends Mongo.Collection {
@@ -75,7 +76,7 @@ SalesRecords.schema = new SimpleSchema({
     estProductionTime: { type: Number, optional: true },
     actProductionTime: { type: Number, optional: true },
     stage: { type: String, allowedValues: STAGES },
-    folderId: { type: String, optional: true },
+    folderId: { type: String, optional: true }
 });
 
 SalesRecords.attachSchema(SalesRecords.schema);
@@ -104,7 +105,7 @@ SalesRecords.publicFields = {
     shipper: 1,
     estProductionTime: 1,
     actProductionTime: 1,
-    stage: 1,
+    stage: 1
 };
 
 Factory.define('salesRecord', SalesRecords, {
@@ -122,8 +123,13 @@ SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options)
 });
 
 SalesRecords.helpers({
-    conversations() {
-        return Conversations.find({salesRecordId: this._id}).fetch()
+    threads() {
+        return Threads.find({salesRecordId: this._id}).fetch()
+    },
+    messages() {
+        const threads = this.threads()
+
+        return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
     contactsForStakeholders() {
         const contactIds = _.pluck(this.stakeholders, 'contactId')

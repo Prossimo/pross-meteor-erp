@@ -4,6 +4,7 @@ import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
+import SalesRecord from '../models/salesRecords/salesRecords'
 
 const PAGE_SIZE = 100
 
@@ -12,6 +13,7 @@ class ThreadStore extends Reflux.Store {
         super();
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
+        this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
 
         this.threads = [];
         this.currentThread = null;
@@ -32,16 +34,18 @@ class ThreadStore extends Reflux.Store {
             path: `/threads?${query}`,
             method: 'GET',
             accountId: category.account_id
-        }).then((result) => {
-            //console.log('loadThreads result', result)
-            if (result && result.length) {
-                result.forEach((item) => {
-                    const thread = _.findWhere(this.threads, {id: item.id})
+        }).then((threads) => {
+            //console.log('loadThreads result', threads)
+
+            if (threads && threads.length) {
+
+                threads.forEach((t) => {
+                    const thread = _.findWhere(this.threads, {id: t.id})
 
                     if (!thread) {
-                        this.threads.push(item)
-                    } else if (thread.version != item.version) {
-                        this.threads[_.indexOf(this.threads, thread)] = item
+                        this.threads.push(t)
+                    } else if (thread.version != t.version) {
+                        this.threads[_.indexOf(this.threads, thread)] = t
                     }
                 })
             }
@@ -56,6 +60,32 @@ class ThreadStore extends Reflux.Store {
             this.trigger();
 
             this.currentPage = page ? page : 1;
+        })
+    }
+
+    onFetchSalesRecordThreads() {
+        // For auto attach conversation
+        //console.log('==========> fetchSalesRecordThreads started <=========')
+        SalesRecord.find().fetch().forEach((sr) => {
+            const salesRecordId = sr._id
+            //console.log(sr.threads())
+            sr.threads().forEach((thread) => {
+                //console.log(thread)
+                NylasAPI.makeRequest({
+                    path: `/threads/${thread.id}`,
+                    method: 'GET',
+                    accountId: thread.account_id
+                }).then((t) => {//console.log('===Thread', t)
+                    if (t.version != thread.version) {
+                        Meteor.call('updateThreadAndMessages', sr._id, t, (err,res)=>{
+                            //console.log('sending changedConversations action')
+                            setTimeout(()=>{
+                                Actions.changedConversations(sr._id)
+                            }, 18000)
+                        })
+                    }
+                })
+            })
         })
     }
 

@@ -12,14 +12,14 @@ import NumericInput from 'react-numeric-input';
 import SelectMembers from './salesRecord/SelectMembers';
 import SelectStakeholders from './salesRecord/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
+import MessageStore from '../../../api/nylas/message-store'
+import Contacts from '/imports/api/models/contacts/contacts'
 
 class CreateSalesRecord extends React.Component{
     static propTypes = {
-        contacts: React.PropTypes.array,
-        subject: React.PropTypes.string,
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
-        conversations: React.PropTypes.array         // conversations to be attached from email
+        thread: React.PropTypes.object         // thread to be attached from email
     }
 
     constructor(props){
@@ -29,9 +29,10 @@ class CreateSalesRecord extends React.Component{
         this.members = [];
         this.stakeholders = [];
 
-        const {salesRecord, subject} = props
+
+        const {salesRecord} = props
         this.state = {
-            projectName: salesRecord ? salesRecord.name : subject||'',
+            projectName: salesRecord ? salesRecord.name : '',
             actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
             productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) :  moment(),
             startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) :  moment().subtract(29, 'days'),
@@ -57,6 +58,29 @@ class CreateSalesRecord extends React.Component{
             actProductionTime: salesRecord ? salesRecord.actProductionTime : 0
 
         };
+
+        if(props.thread) {
+            const filter = {
+                account_id: props.thread.account_id,
+                email: {
+                    $in: _.pluck(props.thread.participants, 'email')
+                }
+            }
+
+            const contacts = _.filter(_.uniq(Contacts.find(filter).fetch(), (c)=>c.email), (c)=>{
+                var re = /\S+@prossimo.us/;
+                if(re.test(c.email)) return false   // Remove @prossimo.us contacts
+
+                const users = Meteor.users.find({'emails.address':c.email}).fetch()
+                if(users && users.length) return false  // Remove CRM users
+
+                return true
+            })
+            console.log(JSON.stringify(filter), contacts)
+            this.state.contacts = contacts;
+        } else {
+            this.state.contacts = ContactStore.getContacts(1)
+        }
         this.changeState = this.changeState.bind(this);
         this.updateMembers = this.updateMembers.bind(this);
         this.updateStakeholders = this.updateStakeholders.bind(this);
@@ -96,7 +120,8 @@ class CreateSalesRecord extends React.Component{
             estProductionTime,
             actProductionTime
         };
-        Meteor.call("insertSalesRecord", data, this.props.conversations, (err, res)=>{
+
+        Meteor.call("insertSalesRecord", data, this.props.thread, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
@@ -124,8 +149,8 @@ class CreateSalesRecord extends React.Component{
         const { projectName, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
-            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage
-        } = this.state;
+            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
+        contacts} = this.state;
         const { shippingMode, stages } = this;
         let submitBtnName = 'Add salesRecord';
         switch(this.props.stage) {
@@ -175,8 +200,8 @@ class CreateSalesRecord extends React.Component{
                         selectedMembers={this.updateMembers}
                     />
                     <SelectStakeholders
-                        members={this.props.contacts ? this.props.contacts : ContactStore.getContacts(1)}
-                        selectedMembers={this.props.contacts}
+                        members={ contacts }
+                        selectedMembers={this.props.thread ? contacts : []}
                         onSelectStakeholders={this.updateStakeholders}
                     />
                     <div className='row'>

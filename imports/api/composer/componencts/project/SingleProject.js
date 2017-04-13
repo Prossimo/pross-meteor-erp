@@ -4,8 +4,8 @@ import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
 import { Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
 import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
-import Conversations from '/imports/api/models/conversations/conversations'
-import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_CONVERSATIONS } from '/imports/api/constants/collections';
+import Messages from '/imports/api/models/messages/messages'
+import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_THREADS, GET_MESSAGES } from '/imports/api/constants/collections';
 import SingleProject from '/imports/ui/components/salesRecord/SingleSalesRecord';
 
 const options = {
@@ -20,7 +20,7 @@ const reactiveMapper = (props, onData)=> {
         Meteor.subscribe(GET_QUOTES, projectId).ready() &&
         Meteor.subscribe(GET_PROJECT_FILES, projectId).ready() &&
         Meteor.subscribe(GET_SLACK_MSG, projectId).ready() &&
-        Meteor.subscribe(GET_CONVERSATIONS, projectId).ready()
+        Meteor.subscribe(GET_MESSAGES, projectId).ready()
     ) {
         const files = {};
         Files.find({}).fetch().forEach(item=>files[item._id]=item);
