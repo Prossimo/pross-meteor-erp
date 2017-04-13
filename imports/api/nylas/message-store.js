@@ -4,19 +4,26 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
-import Conversations from '/imports/api/models/conversations/conversations'
+import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 
 class MessageStore extends Reflux.Store {
-    constructor(messages=[]) {
+    constructor(salesRecord=null) {
         super();
 
         this._registerListeners();
-        this._setStoreDefaults(messages);
+        this._setStoreDefaults();
+
+        if(salesRecord) {
+            this.salesRecord = salesRecord
+            this._messages = salesRecord.messages()
+
+            this._expandMessagesToDefault()
+        }
     }
 
     _setStoreDefaults(messages) {
         this._currentThread = null;
-        this._messages = messages;
+        this._messages = [];
         this._messagesExpanded = {};
         this._loading = false;
 
@@ -28,7 +35,7 @@ class MessageStore extends Reflux.Store {
         this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded);
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded);
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages);
-        this.listenTo(Actions.loadConversations, this._onLoadConversations);
+        this.listenTo(Actions.changedConversations, this._onLoadConversations);
     }
 
     _onLoadMessages(thread) {
@@ -71,17 +78,21 @@ class MessageStore extends Reflux.Store {
         this._currentThread = thread;
     }
 
-    _onLoadConversations(salesRecordId) {
-        this._messages = Conversations.find({salesRecordId}).fetch()
-        this._messages.sort((m1, m2)=>m1.date-m2.date)
-        this._loading = false;
-        this._expandMessagesToDefault();
+    _onLoadConversations(salesRecordId) { console.log('_onLoadConversations', salesRecordId, this.salesRecord)
+        if(this.salesRecord && this.salesRecord._id==salesRecordId) {
+            this._messages = SalesRecord.findOne({_id: salesRecordId}).messages()
+            this._messages.sort((m1, m2) => m1.date - m2.date)
+            console.log('fetch salesrecord messages',this._messages)
+            this._loading = false;
+            this._expandMessagesToDefault();
 
-        this.trigger()
+            this.trigger()
+        }
     }
 
     _onToggleMessageExpanded(id) {
-        message = _.findWhere(this._messages, {id})
+        const message = _.findWhere(this._messages, {id})
+
         if (!message) return;
 
         if (this._messagesExpanded[id])

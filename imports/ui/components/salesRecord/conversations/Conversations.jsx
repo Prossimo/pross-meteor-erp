@@ -42,7 +42,7 @@ export default class ConversationsView extends React.Component{
         return (
             <div className="conversations-tab">
                 <ComposeButton/>
-                <ConversationList conversations={salesRecord.conversations()}/>
+                <ConversationList salesRecord={salesRecord}/>
                 <ComposeModal isOpen={composeState && composeState.show}
                               clientId={composeState && composeState.clientId}
                               salesRecordId={salesRecord._id}

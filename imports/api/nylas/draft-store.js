@@ -4,7 +4,7 @@ import Actions from './actions'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
 import NylasUtils from './nylas-utils'
-import {insertConversation} from '../models/conversations/methods'
+import NylasAPI from './nylas-api'
 
 ComposeType = {
     Creating: 'creating',
@@ -28,7 +28,7 @@ class DraftStore extends Reflux.Store {
     }
 
     _onComposeNew = (salesRecordId) => {
-        DraftFactory.createDraft().then((draft)=>{
+        DraftFactory.createDraft().then((draft) => {
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {
@@ -41,13 +41,13 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onComposeReply = ({message, type, modal}) =>{
-        if(!message) return
+    _onComposeReply = ({message, type, modal}) => {
+        if (!message) return
 
 
         let existingDraft = this.draftForReply(message.thread_id, message.id)
 
-        if(existingDraft) {
+        if (existingDraft) {
             const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
             existingDraft.to = to
             existingDraft.cc = cc
@@ -59,7 +59,7 @@ class DraftStore extends Reflux.Store {
             }
             this.trigger()
         } else {
-            DraftFactory.createDraftForReply({message, type}).then((draft)=>{
+            DraftFactory.createDraftForReply({message, type}).then((draft) => {
                 this._drafts.push(draft)
 
                 this._draftsViewState[draft.clientId] = {
@@ -75,7 +75,7 @@ class DraftStore extends Reflux.Store {
 
 
     _onComposeForward = ({message, modal}) => {
-        DraftFactory.createDraftForForward({message}).then((draft)=>{
+        DraftFactory.createDraftForForward({message}).then((draft) => {
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {
@@ -88,7 +88,7 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onSendDraft(clientId, options={}) {
+    _onSendDraft(clientId, options = {}) {
         this._draftsSending[clientId] = true
 
         Actions.queueTask(new SendDraftTask(clientId, options))
@@ -100,24 +100,28 @@ class DraftStore extends Reflux.Store {
         this.trigger()
     }
 
-    _onSendDraftSuccess = ({message, clientId, salesRecordId} = {}) =>{
+    _onSendDraftSuccess = ({message, clientId, salesRecordId} = {}) => {
         console.log('_onSendDraftSuccess', message, clientId, salesRecordId)
         this.removeDraftForClientId(clientId)
         this.trigger()
 
-        if(salesRecordId) {
-            message.salesRecordId = salesRecordId
-            /*const conversationId = insertConversation.call(message)
-            console.log("new conversation id", conversationId)*/
-            Meteor.call('insertConversation', message, (err,res) => {
-                console.log('insertConversationResult', err, res)
+        if (salesRecordId) {
+            NylasAPI.makeRequest({
+                path: `/threads/${message.thread_id}`,
+                method: 'GET',
+                accountId: message.account_id
+            }).then((thread) => {
+                if (thread) {
 
-                Actions.loadConversations(salesRecordId)
+                    Meteor.call('insertOrUpdateThreadWithMessage', salesRecordId, thread, message, (err, res) => {
+                        Actions.changedConversations(salesRecordId)
+                    })
+                }
             })
         }
     }
 
-    _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) =>{
+    _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) => {
         alert(`Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`)
         this.trigger()
     }
@@ -127,27 +131,27 @@ class DraftStore extends Reflux.Store {
     }
 
     draftForReply(threadId, messageId) {
-        return _.findWhere(this._drafts, {thread_id: threadId, reply_to_message_id:messageId})
+        return _.findWhere(this._drafts, {thread_id: threadId, reply_to_message_id: messageId})
     }
 
-    changeDraftForClientId(clientId, data={}, shouldIncludeSignature=null) {
+    changeDraftForClientId(clientId, data = {}, shouldIncludeSignature = null) {
         let draft = this.draftForClientId(clientId)
 
-        if(shouldIncludeSignature) data.body = DraftFactory.getBodyWithSignature(data.body, draft.account_id)
+        if (shouldIncludeSignature) data.body = DraftFactory.getBodyWithSignature(data.body, draft.account_id)
         draft = _.extend(draft, data)
     }
 
     removeDraftForClientId(clientId) {
         const draft = this.draftForClientId(clientId)
 
-        if(!draft) return
+        if (!draft) return
 
         const index = _.indexOf(this._drafts, draft)
 
-        if(index > -1)
+        if (index > -1)
             this._drafts.splice(index, 1)
 
-        if(this._draftsViewState[clientId]) delete this._draftsViewState[clientId]
+        if (this._draftsViewState[clientId]) delete this._draftsViewState[clientId]
 
         this.trigger()
     }
@@ -159,7 +163,7 @@ class DraftStore extends Reflux.Store {
     draftViewStateForModal() {
         states = _.values(this._draftsViewState)
 
-        stateForModal = _.findWhere(states, {modal:true})
+        stateForModal = _.findWhere(states, {modal: true})
 
         return stateForModal
     }

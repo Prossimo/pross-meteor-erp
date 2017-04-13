@@ -12,7 +12,8 @@ import {
 } from '../lib/collections';
 import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
 import Contacts from '../models/contacts/contacts'
-import Conversations from '../models/conversations/conversations'
+import Threads from '../models/threads/threads'
+import Messages from '../models/messages/messages'
 import MailTemplates from '../models/mailtemplates/mailtemplates'
 import {
     GET_PROJECTS,
@@ -29,7 +30,8 @@ import {
     GET_CONTACTS,
     GET_MY_CONTACTS,
     GET_TASKS,
-    GET_CONVERSATIONS,
+    GET_MESSAGES,
+    GET_THREADS,
     GET_MAILTEMPLATES,
     GET_ALL_USERS,
 } from '../constants/collections';
@@ -178,10 +180,20 @@ Meteor.startup(() => {
         }
     });
 
-    Meteor.publish(GET_CONVERSATIONS, function (salesRecordId) {
+    Meteor.publish(GET_MESSAGES, function (salesRecordId) {
         if (!Match.test(salesRecordId, String)) return this.ready();
 
-        return Conversations.find({salesRecordId})
+        //const threads = Threads.find({salesRecordId}).fetch()
+
+        //return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
+        return Messages.find()
+    });
+
+    Meteor.publish(GET_THREADS, function (salesRecordId) {
+        //if (!Match.test(salesRecordId, String)) return this.ready();
+
+        //return Threads.find({salesRecordId})
+        return Threads.find({})
     });
 
     Meteor.publish(GET_MAILTEMPLATES, function () {

@@ -1,7 +1,7 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 
-class ConversationsCollection extends Mongo.Collection {
+class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc;
         ourDoc.created_at = ourDoc.created_at || new Date();
@@ -15,10 +15,10 @@ class ConversationsCollection extends Mongo.Collection {
     }
 }
 
-export default Conversations = new ConversationsCollection("Conversations");
+export default Messages = new MessagesCollection("Messages");
 
 // Deny all client-side updates since we will be using methods to manage this collection
-Conversations.deny({
+Messages.deny({
     insert() {
         return true;
     },
@@ -30,7 +30,7 @@ Conversations.deny({
     }
 });
 
-Conversations.schema = new SimpleSchema({
+Messages.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
 
     id: {type: String, optional: true},
@@ -115,15 +115,13 @@ Conversations.schema = new SimpleSchema({
     "labels.$": {
         type: Object
     },
-
-    salesRecordId: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
 
-Conversations.attachSchema(Conversations.schema);
+Messages.attachSchema(Messages.schema);
 
-Conversations.publicFields = {
+Messages.publicFields = {
     id: 1,
     account_id: 1,
     thread_id: 1,
@@ -143,14 +141,11 @@ Conversations.publicFields = {
     folder: 1,
     labels: 1,
 
-    salesRecordId: 1,
-    removed: 1,
-    edited: 1,
     created_at: 1,
     modified_at: 1
 };
 
-Conversations.helpers({
+Messages.helpers({
     account() {
         const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
 
