@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { ProgressBar } from 'react-bootstrap';
 import { info, warning } from '/imports/api/lib/alerts';
 import MediaUploader from '../libs/MediaUploader';
-import {Treebeard, decorators} from 'react-treebeard';
+import {Treebeard, decorators} from './accordionview';
 import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 
 var fileview_data = [];
@@ -49,12 +49,16 @@ decorators.Header = (props) => {
     const iconType = props.node.children ? 'folder' : 'file-text';
     const iconClass = `fa fa-${iconType}`;
     const iconStyle = { marginRight: '5px' };
+    style.title.display = 'inline-block';
     return (
         <div style={style.base}>
             <div style={style.title}>
                 <i className={iconClass} style={iconStyle}/>
                 {props.node.name}
             </div>
+            <a href='#' style={{marginLeft: 20}} onClick={(event)=> props.removeFile(props.node.id, event)}>
+                <span className='fa fa-times'/>
+            </a>
         </div>
     );
 };
@@ -292,6 +296,7 @@ class Files extends Component {
                 data={this.state.data}
                 onToggle={this.onToggle}
                 decorators={decorators}
+                removeFile={this.removeFile}
             />
         )
     }
