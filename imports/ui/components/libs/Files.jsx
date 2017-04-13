@@ -3,6 +3,7 @@ import { ProgressBar } from 'react-bootstrap';
 import { info, warning } from '/imports/api/lib/alerts';
 import MediaUploader from '../libs/MediaUploader';
 import {Treebeard, decorators} from 'react-treebeard';
+import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 
 var fileview_data = [];
 var folder_ct = 0;
@@ -80,10 +81,12 @@ class Files extends Component {
         switch(props.type) {
             case 'project':
                 this.rootfolderId = props.project.folderId;
+                this.slackChannel = props.salesRecords[0].slackChanel;
                 if (!this.rootfolderId) warning('Your folder was not created yet')
                 break;
             case 'salesRecord':
                 this.rootfolderId = props.salesRecord.folderId;
+                this.slackChannel = props.salesRecord.slackChanel;
                 if (!this.rootfolderId) warning('Your folder was not created yet')
                 break;
         }
@@ -102,7 +105,7 @@ class Files extends Component {
         callback_ct = 0;
 
         //getFileList(this.rootfolderId, 0);
-        var data = {name: "root", toggled: true, children:[]};
+        var data = {name: "root", toggled: true, children:[], mimeType: 'application/vnd.google-apps.folder', id:this.rootfolderId};
 
         Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
@@ -110,7 +113,7 @@ class Files extends Component {
             }
             data.children = result.files;
             data.children.forEach(function(item, index) {
-               if (item.mimeType == "application/vnd.google-apps.folder") {
+               if (item.mimeType == 'application/vnd.google-apps.folder') {
                    data.children[index].loading = true;
                    data.children[index].children = [];
                }
@@ -158,7 +161,7 @@ class Files extends Component {
     }
     addGooglefiles(event) {
         event.preventDefault();
-        if (this.state.cursor.mimeType != 'application/vnd.google-apps.folder') {
+        if (!this.state.cursor || this.state.cursor.mimeType != 'application/vnd.google-apps.folder') {
             this.setState({msgstring: 'Please select folder!'});
             return ;
         }
@@ -167,6 +170,7 @@ class Files extends Component {
         if (file_name == null)
             return;
         var filetype = '';
+        var file_url = '';
         switch (event.target.getAttribute('data-val')) {
             case 'Docs':
                 filetype = 'application/vnd.google-apps.document';
@@ -183,17 +187,47 @@ class Files extends Component {
         }
         const file = {
             name: file_name,
-            parent: this.state.folderId,
+            parent: this.state.cursor.id,
             filetype: filetype
         };
-        this.setState({msgstring: 'Creating new Google '+event.target.getAttribute('data-val')+' file...'});
+
+        //this.setState({msgstring: 'Creating new Google '+event.target.getAttribute('data-val')+' file...'});
 
         Meteor.call('drive.createFile', file, (error, result)=> {
             if (error) {
                 return warning('could not list files from google drive');
             }
+            switch (filetype) {
+                case 'application/vnd.google-apps.document':
+                    file_url = 'https://www.googleapis.com/drive/v3/files/'+this.state.cursor.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&alt=media&access_token='+this.token;
+                    break;
+                case 'application/vnd.google-apps.spreadsheet':
+                    file_url = 'https://www.googleapis.com/drive/v3/files/'+this.state.cursor.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&alt=media&access_token='+this.token;
+                    break;
+                case 'application/vnd.google-apps.presentation':
+                    file_url = 'https://www.googleapis.com/drive/v3/files/'+this.state.cursor.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.presentationml.presentation&alt=media&access_token='+this.token;
+                    break;
+                case 'application/vnd.google-apps.drawing':
+                    file_url = 'https://www.googleapis.com/drive/v3/files/'+this.state.cursor.id+'/export?mimeType=application/pdf&alt=media&access_token='+this.token;
+                    break;
+            }
             this.setState({msgstring: ''});
             this.updateSelectedFolder();
+            if(typeof this.slackChannel === 'undefined') return;
+
+            const params = {
+                username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
+                icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
+                attachments: [
+                    {
+                        "color": "#36a64f",
+                        "text": `<${file_url}|Go to file ${file_name}>`
+                    }
+                ]
+            };
+
+            const slackText = `I just added new file named as "${file_name}"`;
+            Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
             //console.log ('successfully created google docs!');
         });
     }
@@ -213,7 +247,6 @@ class Files extends Component {
     onToggle(node, toggled){
         if(this.state.cursor){this.state.cursor.active = false;}
         node.active = true;
-        console.log (node);
         if (node.mimeType == 'application/vnd.google-apps.document') {
             window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&alt=media&access_token='+this.token, '_blank');
         } else if (node.mimeType == 'application/vnd.google-apps.spreadsheet') {
