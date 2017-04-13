@@ -35,8 +35,8 @@ Todos.schema = new SimpleSchema({
     id: {type: String},
     account_id: {type: String},
     email: {type: String},
-    title: {type: String, optional: true}
-    content: {type: String, optional: true}
+    title: {type: String, optional: true},
+    content: {type: String, optional: true},
     //description: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}

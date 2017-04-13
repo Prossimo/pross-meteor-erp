@@ -78,11 +78,11 @@ class MessageStore extends Reflux.Store {
         this._currentThread = thread;
     }
 
-    _onLoadConversations(salesRecordId) { console.log('_onLoadConversations', salesRecordId, this.salesRecord)
+    _onLoadConversations(salesRecordId) {
         if(this.salesRecord && this.salesRecord._id==salesRecordId) {
             this._messages = SalesRecord.findOne({_id: salesRecordId}).messages()
             this._messages.sort((m1, m2) => m1.date - m2.date)
-            console.log('fetch salesrecord messages',this._messages)
+
             this._loading = false;
             this._expandMessagesToDefault();
 
