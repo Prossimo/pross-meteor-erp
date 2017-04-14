@@ -50,7 +50,6 @@ decorators.Header = (props) => {
     const iconClass = `fa fa-${iconType}`;
     const iconStyle = { marginRight: '5px' };
     style.title.display = 'inline-block';
-    console.log (props);
     return (
         <div style={style.base}>
             <div style={style.title}>
