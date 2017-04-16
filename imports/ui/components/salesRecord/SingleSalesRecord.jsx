@@ -52,7 +52,7 @@ class SingleSalesRecord extends React.Component{
     ];
 
     this.memberTypeOptions = [
-      { label: 'Add Member', value: 'member' },
+      { label: 'Add Employee', value: 'member' },
       { label: 'Add Stakeholder', value: 'stakeholder' },
     ]
 
@@ -338,7 +338,7 @@ class SingleSalesRecord extends React.Component{
                       clearable={false}
                     />
                 </div>
-                <button onClick={this.addMember} className="btnn primary-btn">Add member</button>
+                <button onClick={this.addMember} className="btnn primary-btn">Add Employee</button>
             </div>
         </div>
       )
@@ -355,7 +355,7 @@ class SingleSalesRecord extends React.Component{
       notify,
     };
     Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result)=> {
-      if(error) return warning(error.reason? error.reason : 'Add member failed!');
+      if(error) return warning(error.reason? error.reason : 'Add stakeholder failed!');
       this.setState({
         stakeholder: {
           notify: true,
@@ -380,14 +380,14 @@ class SingleSalesRecord extends React.Component{
     };
 
     Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
-      if(err) return warning(err.reason? err.reason : "Add member failed!");
+      if(err) return warning(err.reason? err.reason : "Add employee failed!");
       this.setState({
         member: {
           selectedUser: null,
           selectedCategory: []
         }
       });
-      info("Add member to salesRecord success!");
+      info("Add employee to salesRecord success!");
     });
 
     Meteor.call("addUserToSlackChannel", member.userId, salesRecord.slackChanel, err=>{
@@ -403,7 +403,7 @@ class SingleSalesRecord extends React.Component{
   showUserInfo(user){
     this.setState({
       showPopup: true,
-      popupTitle: 'Member Info',
+      popupTitle: 'Employee Info',
       popupData: <ContactInfo
         user={user}
         hide={this.hidePopup.bind(this)}
