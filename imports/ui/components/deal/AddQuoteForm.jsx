@@ -48,7 +48,7 @@ class AddQuoteForm extends React.Component{
         event.preventDefault();
 
         const { currentFile, quoteName, totalCost, alertsActive } = this.state;
-        const { salesRecord, usersArr, currentUser } = this.props;
+        const { deal, usersArr, currentUser } = this.props;
         if(!currentFile)return warning(`You must add PDF file`);
         if(quoteName === '')return warning(`Empty quote name`);
         if(totalCost === '')return warning(`Empty total cost field`);
@@ -56,7 +56,7 @@ class AddQuoteForm extends React.Component{
         const quoteData = {
             name: quoteName,
             createAt: new Date(),
-            projectId: salesRecord._id,
+            projectId: deal._id,
             revisions: [
                 {
                     revisionNumber: 0,
@@ -72,11 +72,11 @@ class AddQuoteForm extends React.Component{
         const file = new FS.File(currentFile);
         file.metadata = {
             userId: Meteor.userId(),
-            projectId: salesRecord._id,
+            projectId: deal._id,
             createAt: new Date
         };
 
-        const memberEmails = salesRecord.members.map(member=>{
+        const memberEmails = deal.members.map(member=>{
             return getUserEmail(member.user);
         });
 
@@ -96,10 +96,10 @@ class AddQuoteForm extends React.Component{
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `Add new quote in "${salesRecord.name}" project`,
+                subject: `Add new quote in "${deal.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
                 attachments: [quoteData.revisions[0].fileId],
-                html: generateEmailHtml(currentUser, `Go to project "${salesRecord.name}"`, FlowRouter.url(FlowRouter.current().path))
+                html: generateEmailHtml(currentUser, `Go to project "${deal.name}"`, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         };
 
@@ -113,7 +113,7 @@ class AddQuoteForm extends React.Component{
             quoteData.revisions[0].fileId = res._id;
             Meteor.call("addNewQuote", quoteData, addQuoteCb);
 
-            if(typeof salesRecord.slackChanel === 'undefined') return;
+            if(typeof deal.slackChanel === 'undefined') return;
 
             const params = {
                 username: getSlackUsername(usersArr[Meteor.userId()]),
@@ -121,14 +121,14 @@ class AddQuoteForm extends React.Component{
                 attachments: [
                     {
                         "color": "#36a64f",
-                        "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${salesRecord.name}>`
+                        "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${deal.name}>`
                     }
                 ]
             };
 
             const slackText = `I just added new quote "${quoteData.name}"`;
 
-            Meteor.call("sendBotMessage", salesRecord.slackChanel, slackText, params);
+            Meteor.call("sendBotMessage", deal.slackChanel, slackText, params);
         };
 
         Files.insert(file, fileInsertCb);

@@ -6,15 +6,15 @@ import DraftStore from '../draft-store'
 import AccountStore from '../account-store'
 
 export default class SendDraftTask extends Task {
-    constructor(clientId, {salesRecordId}={}) {
+    constructor(clientId, {dealId}={}) {
         super();
         this.clientId = clientId
         this.uploaded = [];
         this.draft = null;
         this.message = null;
 
-        // For SalesRecord conversation
-        this.salesRecordId = salesRecordId;
+        // For deal conversation
+        this.dealId = dealId;
     }
 
     label() {
@@ -85,7 +85,7 @@ export default class SendDraftTask extends Task {
         Actions.sendDraftSuccess({
             message: this.message,
             clientId: this.clientId,
-            salesRecordId: this.salesRecordId
+            dealId: this.dealId
         });
         NylasAPI.makeDraftDeletionRequest(this.draft);
 
@@ -117,7 +117,7 @@ export default class SendDraftTask extends Task {
             threadId: this.draft.thread_id,
             clientId: this.clientId,
             errorMessage: message,
-            salesRecordId: this.salesRecordId
+            dealId: this.dealId
         });
 
 

@@ -4,8 +4,8 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 
 import App from '../../api/composer/App';
 import AuthenticationPage from '../../ui/pages/AuthenticationPage';
-import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
-import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
+import SingleDeal from '../../api/composer/componencts/project/SingleProject';
+import DealPage from '/imports/ui/pages/DealPage';
 import UserAccount from '../../ui/pages/UserAccount';
 import InboxPage from '../../ui/pages/InboxPage';
 import InboxSettingsPage from '../../ui/pages/InboxSettingsPage';
@@ -100,7 +100,7 @@ FlowRouter.route('/project/:id', {
     }
 })
 
-FlowRouter.route('/salesrecord/:id', {
+FlowRouter.route('/Deal/:id', {
     name: 'SalesRecord',
     action(){
         checkAuth();

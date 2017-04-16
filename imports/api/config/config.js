@@ -35,7 +35,7 @@ module.exports = {
         clientSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
         redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
         refreshToken: '1/WE2FqFkUAH4UX54YEXMXzlboX7dfcL_u6D0g187yKyc',
-        salesRecordParentFolderId: '0B2L677Tiv56RbmRDUDdTQnZTbHM',
+        dealParentFolderId: '0B2L677Tiv56RbmRDUDdTQnZTbHM',
         projectParentFolderId: '0B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
         templateFolderId: '0B2L677Tiv56ROTRpUFAtSEdiM2M',
     }

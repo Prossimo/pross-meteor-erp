@@ -4,18 +4,18 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import Deal from '/imports/api/models/deals/deals'
 
 class MessageStore extends Reflux.Store {
-    constructor(salesRecord=null) {
+    constructor(deal=null) {
         super();
 
         this._registerListeners();
         this._setStoreDefaults();
 
-        if(salesRecord) {
-            this.salesRecord = salesRecord
-            this._messages = salesRecord.messages()
+        if(deal) {
+            this.deal = deal
+            this._messages = deal.messages()
 
             this._expandMessagesToDefault()
         }
@@ -78,9 +78,9 @@ class MessageStore extends Reflux.Store {
         this._currentThread = thread;
     }
 
-    _onLoadConversations(salesRecordId) {
-        if(this.salesRecord && this.salesRecord._id==salesRecordId) {
-            this._messages = SalesRecord.findOne({_id: salesRecordId}).messages()
+    _onLoadConversations(dealId) {
+        if(this.deal && this.deal._id==dealId) {
+            this._messages = Deal.findOne({_id: dealId}).messages()
             this._messages.sort((m1, m2) => m1.date - m2.date)
 
             this._loading = false;

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
-import AllSalesRecords from '../components/salesRecord/AllSalesRecords';
-import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord';
+import AllDeals from '../components/deal/AllDeals';
+import CreateDeal from '/imports/ui/components/admin/CreateDeal';
 import { Button, InputGroup, FormControl } from 'react-bootstrap';
 
 class OpportunitiesPage extends React.Component{
@@ -10,11 +10,11 @@ class OpportunitiesPage extends React.Component{
         this.tabs = [
             {
                 label: 'All Opportunities',
-                component: <AllSalesRecords/>
+                component: <AllDeals/>
             },
             {
                 label: 'Add Opportunity',
-                component: <CreateSalesRecord/>
+                component: <CreateDeal/>
             }
         ];
         this.state ={
@@ -74,7 +74,7 @@ class OpportunitiesPage extends React.Component{
         const { activeTab } = this.state;
         if(!activeTab.component) return null;
         const props = _.clone(this.props);
-        props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper })=> {
+        props.deals = props.deals.filter(({ stage, name, supplier, shipper })=> {
             const keyfilter = new RegExp(this.state.keyword,'i');
             return stage === 'opportunity' && (this.state.keyword == null || (name.search(keyfilter) > -1));
         });

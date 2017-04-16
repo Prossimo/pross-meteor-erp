@@ -1,5 +1,5 @@
 //collections
-export const PROJECTS = 'SalesRecords';
+export const PROJECTS = 'Deals';
 export const FILES = 'Files';
 
 //publications

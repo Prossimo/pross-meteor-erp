@@ -13,19 +13,19 @@ function createTodoistProject(name, localProjectId) {
     });
 }
 
-function createTodoistSalesRecord(name, localSalesRecordId) {
-    check(localSalesRecordId, String);
+function createTodoistDeal(name, localDealId) {
+    check(localDealId, String);
     check(name, String);
     const { id } = Meteor.call('task.newProject', name);
     Tasks.update({ 'project.id': id }, {
         $set: {
-            localSalesRecordId,
+            localDealId,
         }
     });
 }
 
 export {
     createTodoistProject,
-    createTodoistSalesRecord,
+    createTodoistDeal,
 };
 

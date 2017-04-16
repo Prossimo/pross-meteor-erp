@@ -1,11 +1,11 @@
 import _ from 'underscore';
 import  {HTTP} from 'meteor/http';
-import SalesRecords from './salesRecords'
+import Deals from './deals'
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
 import config from '../../config/config';
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
-import {createTodoistSalesRecord} from '../../tasks';
+import {createTodoistDeal} from '../../tasks';
 import NylasAPI from '../../nylas/nylas-api'
 import queryString from 'query-string'
 
@@ -16,34 +16,34 @@ const SLACK_API_KEY = config.slack.SLACK_API_KEY;
 const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
 
 Meteor.methods({
-    changeStageOfSalesRecord(salesRecordId, stage) {
-        check(salesRecordId, String);
+    changeStageOfDeal(dealId, stage) {
+        check(dealId, String);
         check(stage, String);
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId});
-        if (salesRecord || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            SalesRecords.update(salesRecordId, {$set: {stage}});
+        const deal = Deals.findOne({_id: dealId, 'members.userId': this.userId});
+        if (deal || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+            Deals.update(dealId, {$set: {stage}});
         }
     },
 
-    removeStakeholderFromSalesRecord(salesRecordId, contactId) {
-        check(salesRecordId, String);
+    removeStakeholderFromDeal(dealId, contactId) {
+        check(dealId, String);
         check(contactId, String);
 
         if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {contactId}}});
+            return Deals.update(dealId, {$pull: {stakeholders: {contactId}}});
         }
     },
 
-    removeMemberFromSalesRecord(salesRecordId, userId) {
+    removeMemberFromDeal(dealId, userId) {
         check(userId, String);
-        check(salesRecordId, String);
+        check(dealId, String);
 
         if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            return SalesRecords.update(salesRecordId, {$pull: {members: {userId}}});
+            return Deals.update(dealId, {$pull: {members: {userId}}});
         }
     },
     // NOTICE: it must be saleRecord
-    insertSalesRecord(data, thread){
+    insertDeal(data, thread){
         if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
             throw new Meteor.Error("Access denied");
         }
@@ -124,18 +124,18 @@ Meteor.methods({
             });
 
 
-        const salesRecordId = SalesRecords.insert(data);
+        const dealId = Deals.insert(data);
 
         // create folder in google drive
-        prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
+        prossDocDrive.createDealFolder.call({name: data.name, dealId});
 
         // create todoist project
-        createTodoistSalesRecord(data.name, salesRecordId);
+        createTodoistDeal(data.name, dealId);
 
         // Insert conversations attached
         if (thread) {
             //console.log("thread to be attached", thread)
-            thread.salesRecordId = salesRecordId
+            thread.dealId = dealId
             Threads.insert(thread)
 
             const query = queryString.stringify({thread_id: thread.id});
@@ -195,7 +195,7 @@ Meteor.methods({
                 });
             }
         });
-        return salesRecordId;
+        return dealId;
     },
 
 });

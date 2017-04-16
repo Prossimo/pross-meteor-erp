@@ -7,7 +7,7 @@ Settings.schema = new SimpleSchema({
     },
     key: {
         type: String,
-        allowedValues: ['salesRecord', 'newProject']
+        allowedValues: ['deal', 'newProject']
     },
     show: {
         type: Array,

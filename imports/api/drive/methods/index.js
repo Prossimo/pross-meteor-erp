@@ -1,6 +1,6 @@
 import listFiles from './listFiles';
 import createFolder from './createFolder';
-import createSalesRecordFolder from './createSalesRecordFolder';
+import createDealFolder from './createDealFolder';
 import createProjectFolder from './createProjectFolder';
 import getAccessToken from './getAccessToken';
 import removeFiles from './removeFiles';
@@ -12,7 +12,7 @@ import copyFiles from './copyFiles';
 export {
     listFiles,
     createFolder,
-    createSalesRecordFolder,
+    createDealFolder,
     createProjectFolder,
     removeFiles,
     getFiles,

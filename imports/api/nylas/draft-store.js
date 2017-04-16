@@ -27,7 +27,7 @@ class DraftStore extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = (salesRecordId) => {
+    _onComposeNew = (dealId) => {
         DraftFactory.createDraft().then((draft) => {
             this._drafts.push(draft)
 
@@ -100,12 +100,12 @@ class DraftStore extends Reflux.Store {
         this.trigger()
     }
 
-    _onSendDraftSuccess = ({message, clientId, salesRecordId} = {}) => {
-        console.log('_onSendDraftSuccess', message, clientId, salesRecordId)
+    _onSendDraftSuccess = ({message, clientId, dealId} = {}) => {
+        console.log('_onSendDraftSuccess', message, clientId, dealId)
         this.removeDraftForClientId(clientId)
         this.trigger()
 
-        if (salesRecordId) {
+        if (dealId) {
             NylasAPI.makeRequest({
                 path: `/threads/${message.thread_id}`,
                 method: 'GET',
@@ -113,8 +113,8 @@ class DraftStore extends Reflux.Store {
             }).then((thread) => {
                 if (thread) {
 
-                    Meteor.call('insertOrUpdateThreadWithMessage', salesRecordId, thread, message, (err, res) => {
-                        Actions.changedConversations(salesRecordId)
+                    Meteor.call('insertOrUpdateThreadWithMessage', dealId, thread, message, (err, res) => {
+                        Actions.changedConversations(dealId)
                     })
                 }
             })

@@ -1,22 +1,22 @@
 import SimpleSchema from 'simpl-schema';
-import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
+import Deals from '/imports/api/models/deals/deals'
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
 import createFolder from './createFolder';
 import { prossDocDrive } from '../../config/config';
 
-const { salesRecordParentFolderId }  = prossDocDrive;
+const { dealParentFolderId }  = prossDocDrive;
 
 export default new ValidatedMethod({
-    name: 'drive.createSalesRecordFolder',
+    name: 'drive.createDealFolder',
     validate: new SimpleSchema({
         name: { type: String },
-        salesRecordId: { type: String },
+        dealId: { type: String },
     }).validator(),
-    run({ name, salesRecordId }) {
-        const salesRecordName = `##### ${name}`;
-        const { id } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
-        SalesRecords.update(salesRecordId, { $set: { folderId: id }});
+    run({ name, dealId }) {
+        const dealName = `##### ${name}`;
+        const { id } = createFolder.call({ name: dealName, parent: dealParentFolderId});
+        SalesRecords.update(dealId, { $set: { folderId: id }});
         // copy template to new created folder
         const { files } = listFiles.call({ query: `'${prossDocDrive.templateFolderId}' in parents` });
         files.forEach((file)=> {

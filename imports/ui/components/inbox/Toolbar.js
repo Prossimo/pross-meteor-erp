@@ -10,7 +10,7 @@ import {DropdownButton, MenuItem} from 'react-bootstrap'
 export default class Toolbar extends React.Component {
     static propTypes = {
         thread: React.PropTypes.object,
-        onSelectMenuSalesRecord: React.PropTypes.func
+        onSelectMenuDeal: React.PropTypes.func
     }
 
     constructor(props) {
@@ -30,19 +30,19 @@ export default class Toolbar extends React.Component {
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
-                    {this.renderSalesRecordMenu()}
+                    {this.renderDealMenu()}
                 </div>
             </div>
         )
     }
 
-    renderSalesRecordMenu() {
+    renderDealMenu() {
         const {thread} = this.props
         return (
             <div style={{marginTop:12, float:'right'}}>
-                <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record" disabled={!thread}>
-                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new SalesRecord from this thread</MenuItem>
-                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('bind')}>Bind this thread to existing SalesRecord</MenuItem>
+                <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
+                    <MenuItem onSelect={() => this.props.onSelectMenuDeal('create')}>Create new Deal from this thread</MenuItem>
+                    <MenuItem onSelect={() => this.props.onSelectMenuDeal('bind')}>Bind this thread to existing Deal</MenuItem>
                 </DropdownButton>
             </div>
         )

@@ -9,7 +9,7 @@ import ConversationList from './ConversationList'
 
 export default class ConversationsView extends React.Component{
     static propTypes = {
-        salesRecord: React.PropTypes.object
+        deal: React.PropTypes.object
     }
     constructor(props){
         super(props);
@@ -38,14 +38,14 @@ export default class ConversationsView extends React.Component{
     render() {
         const { composeState } = this.state;
 
-        const {salesRecord} = this.props
+        const {deal} = this.props
         return (
             <div className="conversations-tab">
                 <ComposeButton/>
-                <ConversationList salesRecord={salesRecord}/>
+                <ConversationList deal={deal}/>
                 <ComposeModal isOpen={composeState && composeState.show}
                               clientId={composeState && composeState.clientId}
-                              salesRecordId={salesRecord._id}
+                              dealId={deal._id}
                               onClose={this.onCloseComposeModal}/>
             </div>
         )

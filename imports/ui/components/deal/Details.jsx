@@ -11,7 +11,7 @@ class Details extends React.Component{
             isEditingAttributes: false,
             isEditingShipping: false,
             isEditingBilling: false,
-            salesRecord: props.salesRecord,
+            deal: props.deal,
         }
         this.toggleEditAttributes = this.toggleEditAttributes.bind(this);
         this.toggleEditShipping = this.toggleEditShipping.bind(this);
@@ -24,30 +24,30 @@ class Details extends React.Component{
     }
 
     changeStateElem(field, value, index) {
-        this.state.salesRecord[field][index] = value;
+        this.state.deal[field][index] = value;
         this.setState({
-            salesRecord: this.state.salesRecord,
+            deal: this.state.deal,
         });
     }
 
     changeState(field, value) {
-        this.state.salesRecord[field] = value;
+        this.state.deal[field] = value;
         this.setState({
-            salesRecord: this.state.salesRecord,
+            deal: this.state.deal,
         });
     }
 
     saveBilling() {
-        const salesRecordId = this.state.salesRecord._id;
+        const dealId = this.state.deal._id;
         const billing = _.pick(
-            this.state.salesRecord,
+            this.state.deal,
             'billingContactName',
             'billingContactEmail',
             'billingContactPhone',
             'billingAddress',
             'billingNotes',
         );
-        Meteor.call('updateProjectBilling', salesRecordId, billing, (error, result)=> {
+        Meteor.call('updateProjectBilling', dealId, billing, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditBilling();
             return info(`Success update project`);
@@ -55,16 +55,16 @@ class Details extends React.Component{
     }
 
     saveShipping() {
-        const salesRecordId = this.state.salesRecord._id;
+        const dealId = this.state.deal._id;
         const shipping = _.pick(
-            this.state.salesRecord,
+            this.state.deal,
             'shippingContactName',
             'shippingContactName',
             'shippingContactPhone',
             'shippingAddress',
             'shippingNotes',
         );
-        Meteor.call('updateProjectShipping', salesRecordId, shipping, (error, result)=> {
+        Meteor.call('updateProjectShipping', dealId, shipping, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditShipping();
             return info(`Success update project`);
@@ -72,9 +72,9 @@ class Details extends React.Component{
     }
 
     saveAttributes() {
-        const salesRecordId = this.state.salesRecord._id;
+        const dealId = this.state.deal._id;
         const attributes = _.pick(
-            this.state.salesRecord,
+            this.state.deal,
             'shippingMode',
             'actualDeliveryDate',
             'productionStartDate',
@@ -84,7 +84,7 @@ class Details extends React.Component{
             'actProductionTime',
             'estDeliveryRange',
         );
-        Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result)=> {
+        Meteor.call('updateProjectAttributes', dealId, attributes, (error, result)=> {
             if(error) return warning(`Problems with updating project. ${error.error}`);
             this.toggleEditAttributes();
             return info(`Success update project`);
@@ -228,7 +228,7 @@ class Details extends React.Component{
     }
 
     render() {
-        const { salesRecord } = this.state;
+        const { deal } = this.state;
         const attrRows = [
             {label: "Shipping mode", field: "shippingMode", type: 'select'},
             {label: "Actual delivery date", field: "actualDeliveryDate", type: 'date'},
@@ -271,7 +271,7 @@ class Details extends React.Component{
                     <div className='panel-body'>
                         <table className="table table-condensed">
                             <tbody>
-                            {this.renderTableRows(attrRows, salesRecord, 'attributes')}
+                            {this.renderTableRows(attrRows, deal, 'attributes')}
                             </tbody>
                         </table>
                     </div>
@@ -285,7 +285,7 @@ class Details extends React.Component{
                     <div className='panel-body'>
                         <table className="table table-condensed">
                             <tbody>
-                            {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
+                            {this.renderTableRows(shippingRows, deal, 'shipping')}
                             </tbody>
                         </table>
                     </div>
@@ -299,7 +299,7 @@ class Details extends React.Component{
                     <div className='panel-body'>
                         <table className="table table-condensed">
                            <tbody>
-                           {this.renderTableRows(billingRows, salesRecord , 'billing')}
+                           {this.renderTableRows(billingRows, deal , 'billing')}
                            </tbody>
                         </table>
                     </div>
@@ -311,7 +311,7 @@ class Details extends React.Component{
                     <div className='panel-body'>
                         <table className="table table-condensed">
                             <tbody>
-                            {this.renderTableRows(otherRows, salesRecord, 'shipping')}
+                            {this.renderTableRows(otherRows, deal, 'shipping')}
                             </tbody>
                         </table>
                     </div>
