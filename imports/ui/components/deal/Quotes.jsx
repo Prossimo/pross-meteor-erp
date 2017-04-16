@@ -160,7 +160,7 @@ class Quotes extends React.Component{
     }
 
     showAddQuoteForm(){
-        const { salesRecord, usersArr, currentUser, quotes } = this.props;
+        const { deal, usersArr, currentUser, quotes } = this.props;
         this.setState({
             showPopup: true,
             popupTitle: 'Add new quote',
@@ -168,7 +168,7 @@ class Quotes extends React.Component{
                                      currentUser={currentUser}
                                      usersArr={usersArr}
                                      quotes={quotes}
-                                     salesRecord={salesRecord}/>
+                                     deal={deal}/>
         })
     }
 
@@ -181,7 +181,7 @@ class Quotes extends React.Component{
     }
 
     addRevision(quote){
-        const { salesRecord, usersArr, currentUser } = this.props;
+        const { deal, usersArr, currentUser } = this.props;
         this.setState({
             showPopup: true,
             popupTitle: `Add revision to ${quote.name}`,
@@ -189,7 +189,7 @@ class Quotes extends React.Component{
                                              currentUser={currentUser}
                                              usersArr={usersArr}
                                              quote={quote}
-                                             project={salesRecord} />
+                                             project={deal} />
         })
     }
 

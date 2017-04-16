@@ -1,4 +1,4 @@
-import './salesRecords/salesRecords'
+import './deals/deals'
 import './users/users'
 import './settings/settings'
 import './projects/projects'

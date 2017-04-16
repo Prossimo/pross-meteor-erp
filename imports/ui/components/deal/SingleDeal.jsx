@@ -17,7 +17,7 @@ import Invoices from './Invoices';
 import Documents from './Documents';
 import Conversations from './conversations/Conversations';
 
-class SingleSalesRecord extends React.Component{
+class SingleDeal extends React.Component{
   constructor(props){
     super(props);
     this.tabs = [
@@ -43,11 +43,11 @@ class SingleSalesRecord extends React.Component{
       },
       {
         label: "Files",
-        component: <Files type='salesRecord'/>
+        component: <Files type='deal'/>
       },
       {
         label: 'Tasks',
-        component: <Tasks projectId={props.salesRecord._id}/>
+        component: <Tasks projectId={props.deal._id}/>
       }
     ];
 
@@ -130,17 +130,17 @@ class SingleSalesRecord extends React.Component{
     }
   }
 
-  removeStakeholder(salesRecordId, contactId, event) {
+  removeStakeholder(dealId, contactId, event) {
     event.preventDefault();
-    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , contactId, (error, result)=> {
+    Meteor.call('removeStakeholderFromDeal', dealId , contactId, (error, result)=> {
       if(error) return warning(error.reason? error.reason : 'remove stakeholder failed!');
       info('remove stakeholder success!');
     });
   }
 
   renderStakeholders() {
-    const salesRecord = this.props.salesRecord;
-    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : [];
+    const deal = this.props.deal;
+    const stakeholders = deal && deal.stakeholders ? deal.stakeholders : [];
     return (
       <ul className="project-members">
       {
@@ -157,7 +157,7 @@ class SingleSalesRecord extends React.Component{
             <li key={contactId} className='member-list'>
               {
                 Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
-                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeStakeholder(salesRecord._id, contactId, event)}>
+                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeStakeholder(deal._id, contactId, event)}>
                     <span className='fa fa-times pull-right'></span>
                   </a>
                 ) : ''
@@ -179,9 +179,9 @@ class SingleSalesRecord extends React.Component{
 
   }
 
-  removeMember(salesRecordId, userId, event) {
+  removeMember(dealId, userId, event) {
     event.preventDefault();
-    Meteor.call('removeMemberFromSalesRecord', salesRecordId , userId, (error, result)=> {
+    Meteor.call('removeMemberFromDeal', dealId , userId, (error, result)=> {
       if(error) return warning(error.reason? error.reason : 'remove member failed!');
       info('remove member success!');
     });
@@ -189,18 +189,18 @@ class SingleSalesRecord extends React.Component{
 
   //todo change style
   renderProjectMembers(){
-    const { salesRecord } = this.props;
-    if(!salesRecord )return null;
+    const { deal } = this.props;
+    if(!deal )return null;
     return (
       <ul className="project-members">
-        {_.isArray(salesRecord.members) && salesRecord.members.map(member=>{
+        {_.isArray(deal.members) && deal.members.map(member=>{
           if(!member.user) return null;
           return(
             <li key={member.user._id}
                 className="member-list">
                 {
                   Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
-                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeMember(salesRecord._id, member.userId, event)}>
+                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeMember(deal._id, member.userId, event)}>
                       <span className='fa fa-times pull-right'></span>
                     </a>
                   ) : ''
@@ -225,9 +225,9 @@ class SingleSalesRecord extends React.Component{
     )
   }
 
-  changeStage(salesRecordId, item) {
+  changeStage(dealId, item) {
     if (item) {
-      Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error)=> {
+      Meteor.call('changeStageOfDeal', dealId, item.value, (error)=> {
         if (error) return warning(error.reason ? error.reason : 'Change stage failed!');
         info('Change stage sucess');
       })
@@ -244,7 +244,7 @@ class SingleSalesRecord extends React.Component{
     const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
     const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
     const selectContactOptions = ContactStore.getContacts(1)
-      .filter(({ _id })=> !this.props.salesRecord.stakeholders.map(({ contactId })=> contactId).includes(_id))
+      .filter(({ _id })=> !this.props.deal.stakeholders.map(({ contactId })=> contactId).includes(_id))
       .map(({ _id, name, email }) => ({
           label: `${email}`,
           value: _id,
@@ -300,10 +300,10 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderAddMemberForm(){
-    const { salesRecord, users } = this.props;
+    const { deal, users } = this.props;
     const { member: { selectedUser, selectedCategory }} = this.state;
     const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
-    const membersIds = salesRecord.members.map(i=>i.userId);
+    const membersIds = deal.members.map(i=>i.userId);
     const selectOptions = users
       .filter(user => membersIds.indexOf(user._id)<0) // do not contain current user
       .filter(user => Roles.userIsInRole(user._id, [ EMPLOYEE_ROLE, ADMIN_ROLE ])) // must be admin or employee
@@ -346,7 +346,7 @@ class SingleSalesRecord extends React.Component{
 
   addStakeholder() {
     const { stakeholder: { selectedContact, selectedDesignation, selectedCategory, notify } } = this.state;
-    const { salesRecord } = this.props;
+    const { deal } = this.props;
     if(_.isNull(selectedContact)) return warning("Choose stakeholder");
     const stakeholder = {
       contactId: selectedContact.value,
@@ -354,7 +354,7 @@ class SingleSalesRecord extends React.Component{
       category: selectedCategory.map(item => item.value),
       notify,
     };
-    Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result)=> {
+    Meteor.call('addStakeholderToDeal', deal._id, stakeholder, (error, result)=> {
       if(error) return warning(error.reason? error.reason : 'Add member failed!');
       this.setState({
         stakeholder: {
@@ -364,13 +364,13 @@ class SingleSalesRecord extends React.Component{
           selectedCategory: [],
         }
       });
-      info("Add stakeholder to salesRecord success!");
+      info("Add stakeholder to deal success!");
     })
   }
 
   addMember(){
     const { member: { selectedUser, selectedCategory }} = this.state;
-    const { salesRecord } = this.props;
+    const { deal } = this.props;
     if(_.isNull(selectedUser)) return warning("Choose user");
 
     const member = {
@@ -379,7 +379,7 @@ class SingleSalesRecord extends React.Component{
       category: selectedCategory.map(i=>i.value)
     };
 
-    Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
+    Meteor.call('addMemberToProject', deal._id, member, err=>{
       if(err) return warning(err.reason? err.reason : "Add member failed!");
       this.setState({
         member: {
@@ -387,10 +387,10 @@ class SingleSalesRecord extends React.Component{
           selectedCategory: []
         }
       });
-      info("Add member to salesRecord success!");
+      info("Add member to deal success!");
     });
 
-    Meteor.call("addUserToSlackChannel", member.userId, salesRecord.slackChanel, err=>{
+    Meteor.call("addUserToSlackChannel", member.userId, deal.slackChanel, err=>{
       if(err) return warning(err.error);
       info("User success add to slack channel!");
     })
@@ -438,10 +438,10 @@ class SingleSalesRecord extends React.Component{
   }
 
   render() {
-    const { salesRecord } = this.props;
-    const sidebarTitle = "SalesRecord members";
-    const projectName = salesRecord.name;
-    const defaultStage = this.stageOptions.find(({ value })=> value === salesRecord.stage);
+    const { deal } = this.props;
+    const sidebarTitle = "Deal members";
+    const projectName = deal.name;
+    const defaultStage = this.stageOptions.find(({ value })=> value === deal.stage);
     return (
       <div className="page-container single-project">
         {this.renderPopup()}
@@ -455,7 +455,7 @@ class SingleSalesRecord extends React.Component{
                         value={defaultStage}
                         options={this.stageOptions}
                         clearable={false}
-                        onChange={(item)=> this.changeStage(salesRecord._id, item)}
+                        onChange={(item)=> this.changeStage(deal._id, item)}
                       />
                     </div>
                   </div>
@@ -504,4 +504,4 @@ class SingleSalesRecord extends React.Component{
     )
   }
 }
-export default SingleSalesRecord;
+export default SingleDeal;

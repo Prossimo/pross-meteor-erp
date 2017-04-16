@@ -14,7 +14,7 @@ class App extends React.Component{
         if(!currentUser) return null;
 
         return <Aside key="main-control-aside"
-                      salesRecords={this.props.salesRecords}
+                      deals={this.props.deals}
                       currentUser={currentUser}/>
 
     }

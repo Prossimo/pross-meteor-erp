@@ -9,16 +9,16 @@ import Switch from 'rc-switch';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import NumericInput from 'react-numeric-input';
-import SelectMembers from './salesRecord/SelectMembers';
-import SelectStakeholders from './salesRecord/SelectStakeholders';
+import SelectMembers from './deal/SelectMembers';
+import SelectStakeholders from './deal/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
 import MessageStore from '../../../api/nylas/message-store'
 import Contacts from '/imports/api/models/contacts/contacts'
 
-class CreateSalesRecord extends React.Component{
+class CreateDeal extends React.Component{
     static propTypes = {
         stage: React.PropTypes.string,
-        salesRecord: React.PropTypes.object,
+        deal: React.PropTypes.object,
         thread: React.PropTypes.object         // thread to be attached from email
     }
 
@@ -30,32 +30,32 @@ class CreateSalesRecord extends React.Component{
         this.stakeholders = [];
 
 
-        const {salesRecord} = props
+        const {deal} = props
         this.state = {
-            projectName: salesRecord ? salesRecord.name : '',
-            actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
-            productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) :  moment(),
-            startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) :  moment().subtract(29, 'days'),
-            endDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[1]) :  moment(),
+            projectName: deal ? deal.name : '',
+            actualDeliveryDate: deal ? moment(deal.actualDeliveryDate) : moment(),
+            productionStartDate: deal ? moment(deal.productionStartDate) :  moment(),
+            startDate: deal && deal.estDeliveryRange && deal.estDeliveryRange.length ? moment(deal.estDeliveryRange[0]) :  moment().subtract(29, 'days'),
+            endDate: deal && deal.estDeliveryRange && deal.estDeliveryRange.length ? moment(deal.estDeliveryRange[1]) :  moment(),
 
-            shippingContactPhone: salesRecord ? salesRecord.shippingContactPhone : '',
-            shippingContactName: salesRecord ? salesRecord.shippingContactName : '',
-            shippingContactEmail: salesRecord ? salesRecord.shippingContactEmail : '',
-            shippingAddress: salesRecord ? salesRecord.shippingAddress : '',
-            shippingNotes: salesRecord ? salesRecord.shippingNotes : '',
+            shippingContactPhone: deal ? deal.shippingContactPhone : '',
+            shippingContactName: deal ? deal.shippingContactName : '',
+            shippingContactEmail: deal ? deal.shippingContactEmail : '',
+            shippingAddress: deal ? deal.shippingAddress : '',
+            shippingNotes: deal ? deal.shippingNotes : '',
 
-            billingContactPhone: salesRecord ? salesRecord.billingContactPhone : '',
-            billingContactName: salesRecord ? salesRecord.billingContactName : '',
-            billingContactEmail: salesRecord ? salesRecord.billingContactEmail : '',
-            billingAddress: salesRecord ? salesRecord.billingAddress : '',
-            billingNotes: salesRecord ? salesRecord.billingNotes : '',
+            billingContactPhone: deal ? deal.billingContactPhone : '',
+            billingContactName: deal ? deal.billingContactName : '',
+            billingContactEmail: deal ? deal.billingContactEmail : '',
+            billingAddress: deal ? deal.billingAddress : '',
+            billingNotes: deal ? deal.billingNotes : '',
 
-            selectedShippingMode: salesRecord ? salesRecord.selectedShippingMode : this.shippingMode[0],
-            selectedStage: salesRecord ? salesRecord.selectedStage : this.stages[0],
-            supplier: salesRecord ? salesRecord.supplier : '',
-            shipper: salesRecord ? salesRecord.shipper : '',
-            estProductionTime: salesRecord ? salesRecord.estProductionTime : 0,
-            actProductionTime: salesRecord ? salesRecord.actProductionTime : 0
+            selectedShippingMode: deal ? deal.selectedShippingMode : this.shippingMode[0],
+            selectedStage: deal ? deal.selectedStage : this.stages[0],
+            supplier: deal ? deal.supplier : '',
+            shipper: deal ? deal.shipper : '',
+            estProductionTime: deal ? deal.estProductionTime : 0,
+            actProductionTime: deal ? deal.actProductionTime : 0
 
         };
 
@@ -121,11 +121,11 @@ class CreateSalesRecord extends React.Component{
             actProductionTime
         };
 
-        Meteor.call("insertSalesRecord", data, this.props.thread, (err, res)=>{
+        Meteor.call("insertDeal", data, this.props.thread, (err, res)=>{
             if(err) return warning(`Problems with creating new project. ${err.error}`);
 
             info(`Success add new project & integration with Slack`);
-            setTimeout(()=>{FlowRouter.go(FlowRouter.path("SalesRecord", {id: res}))},300)
+            setTimeout(()=>{FlowRouter.go(FlowRouter.path("Deal", {id: res}))},300)
         });
     }
 
@@ -152,7 +152,7 @@ class CreateSalesRecord extends React.Component{
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
         contacts} = this.state;
         const { shippingMode, stages } = this;
-        let submitBtnName = 'Add salesRecord';
+        let submitBtnName = 'Add deal';
         switch(this.props.stage) {
             case 'lead':
                 submitBtnName = 'Add lead';
@@ -388,4 +388,4 @@ class CreateSalesRecord extends React.Component{
     }
 }
 
-export default  CreateSalesRecord;
+export default  CreateDeal;

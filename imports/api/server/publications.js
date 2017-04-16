@@ -1,7 +1,7 @@
 import {Meteor} from 'meteor/meteor';
 import {Match} from 'meteor/check';
 import {
-    SalesRecords,
+    Deals,
     CreatedUsers,
     Quotes,
     Files,
@@ -53,8 +53,8 @@ Meteor.startup(() => {
     Meteor.publishComposite(GET_PROJECTS, function() {
       return {
         find() {
-          if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find();
-          return SalesRecords.find({'members.userId': this.userId})
+          if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Deals.find();
+          return Deals.find({'members.userId': this.userId})
         },
         children: [
           {
@@ -79,8 +79,8 @@ Meteor.startup(() => {
     Meteor.publish(GET_PROJECT, function (_id) {
         Match.test(_id, String);
 
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find({_id});
-        return SalesRecords.find({_id, "members.userId": this.userId});
+        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Deals.find({_id});
+        return Deals.find({_id, "members.userId": this.userId});
     });
 
     Meteor.publish(GET_ALL_USERS, function () {
@@ -110,12 +110,12 @@ Meteor.startup(() => {
         return Events.find({projectId});
     });
 
-    Meteor.publish(GET_SLACK_MSG, function (salesRecordId) {
-        Match.test(salesRecordId, String);
+    Meteor.publish(GET_SLACK_MSG, function (dealId) {
+        Match.test(dealId, String);
 
-        const salesRecord = SalesRecords.findOne(salesRecordId);
-        if (salesRecord.slackChanel) {
-            return SlackMessages.find({channel: salesRecord.slackChanel, subtype: {$ne: "bot_message"}})
+        const deal = Deals.findOne(dealId);
+        if (deal.slackChanel) {
+            return SlackMessages.find({channel: deal.slackChanel, subtype: {$ne: "bot_message"}})
         } else {
             return [];
         }
@@ -166,7 +166,7 @@ Meteor.startup(() => {
         if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Tasks.find({
             $or: [
                 { localProjectId: saleProjectId },
-                { localSalesRecordId: saleProjectId }
+                { localDealId: saleProjectId }
             ]
         });
         // should use publish composite
@@ -174,25 +174,25 @@ Meteor.startup(() => {
             return Tasks.find({ $or:
                 [
                     { localProjectId: saleProjectId },
-                    { localSalesRecordId: saleProjectId }
+                    { localDealId: saleProjectId }
                 ]
             });
         }
     });
 
-    Meteor.publish(GET_MESSAGES, function (salesRecordId) {
-        if (!Match.test(salesRecordId, String)) return this.ready();
+    Meteor.publish(GET_MESSAGES, function (dealId) {
+        if (!Match.test(dealId, String)) return this.ready();
 
-        //const threads = Threads.find({salesRecordId}).fetch()
+        //const threads = Threads.find({dealId}).fetch()
 
         //return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
         return Messages.find()
     });
 
-    Meteor.publish(GET_THREADS, function (salesRecordId) {
-        //if (!Match.test(salesRecordId, String)) return this.ready();
+    Meteor.publish(GET_THREADS, function (dealId) {
+        //if (!Match.test(dealId, String)) return this.ready();
 
-        //return Threads.find({salesRecordId})
+        //return Threads.find({dealId})
         return Threads.find({})
     });
 

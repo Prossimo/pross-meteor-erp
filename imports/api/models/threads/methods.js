@@ -5,7 +5,7 @@ import NylasAPI from '../../nylas/nylas-api'
 
 
 Meteor.methods({
-    insertOrUpdateThreadWithMessage(salesRecordId, thread, message)
+    insertOrUpdateThreadWithMessage(dealId, thread, message)
     {
         /*check(data, {
             id: Match.Maybe(String),
@@ -15,20 +15,20 @@ Meteor.methods({
             phone_numbers: Match.Maybe(Array)
         });*/
 
-        const existingThread = Threads.findOne({id:thread.id, salesRecordId:salesRecordId})
+        const existingThread = Threads.findOne({id:thread.id, dealId:dealId})
         if(existingThread && existingThread.version!=thread.version) {
-            Threads.update({_id:existingThread._id}, {$set:_.extend(thread, {salesRecordId})})
+            Threads.update({_id:existingThread._id}, {$set:_.extend(thread, {dealId})})
         } else {
-            Threads.insert(_.extend(thread, {salesRecordId}))
+            Threads.insert(_.extend(thread, {dealId}))
         }
 
         return Messages.insert(message)
     },
 
-    updateThreadAndMessages(salesRecordId, thread) {
-        const existingThread = Threads.findOne({id:thread.id, salesRecordId:salesRecordId})
+    updateThreadAndMessages(dealId, thread) {
+        const existingThread = Threads.findOne({id:thread.id, dealId:dealId})
         if(existingThread) {
-            Threads.update({_id:existingThread._id}, {$set:_.extend(thread, {salesRecordId})})
+            Threads.update({_id:existingThread._id}, {$set:_.extend(thread, {dealId})})
 
             const query = queryString.stringify({thread_id: thread.id});
             NylasAPI.makeRequest({

@@ -53,13 +53,13 @@ class AddQuoteForm extends React.Component{
     formSubmit(event){
         event.preventDefault();
         const { currentFile, totalCost, alertsActive, revisionNumber } = this.state;
-        const { salesRecord, usersArr, currentUser, quote } = this.props;
+        const { deal, usersArr, currentUser, quote } = this.props;
         if(!currentFile)return warning(`You must add PDF file`);
         if(totalCost === '')return warning(`Empty total cost field`);
         if(revisionNumber === '')return warning(`Empty revision number field`);
 
         const needUpdate = quote.revisions.some(revision=>revision.revisionNumber === revisionNumber);
-        const memberEmails = salesRecord.members.map(member=>getUserEmail(member.user));
+        const memberEmails = deal.members.map(member=>getUserEmail(member.user));
         const revisionData = {
             revisionNumber,
             quoteId: quote._id,
@@ -76,7 +76,7 @@ class AddQuoteForm extends React.Component{
             attachments: [
                 {
                     "color": "#36a64f",
-                    "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${salesRecord.name}>`
+                    "text": `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${deal.name}>`
                 }
             ]
         };
@@ -85,7 +85,7 @@ class AddQuoteForm extends React.Component{
         const file = new FS.File(currentFile);
         file.metadata = {
             userId: Meteor.userId(),
-            projectId: salesRecord._id,
+            projectId: deal._id,
         };
 
         const sendEmailCb = (err,res)=> {
@@ -98,16 +98,16 @@ class AddQuoteForm extends React.Component{
             info(`${needUpdate?"Update":"Add"} revision success!`);
             if(err) return warning(err.reason);
             //// step # 3 - notify slack/email
-            Meteor.call("sendBotMessage", salesRecord.slackChanel, slackText, slackMsgParans);
+            Meteor.call("sendBotMessage", deal.slackChanel, slackText, slackMsgParans);
 
             if(!alertsActive) return;
             Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
-                subject: `${needUpdate?"Update":"Add"} revision "${salesRecord.name}" project`,
+                subject: `${needUpdate?"Update":"Add"} revision "${deal.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
                 attachments: [revisionData.fileId],
-                html: generateEmailHtml(currentUser, `Go to project "${salesRecord.name}"`, FlowRouter.url(FlowRouter.current().path))
+                html: generateEmailHtml(currentUser, `Go to project "${deal.name}"`, FlowRouter.url(FlowRouter.current().path))
             },sendEmailCb);
         };
 

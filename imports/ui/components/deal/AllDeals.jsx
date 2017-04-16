@@ -8,7 +8,7 @@ import Select from 'react-select';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 
-class AllSalesRecords extends React.Component{
+class AllDeals extends React.Component{
     constructor(props){
         super(props);
         this.state = {
@@ -209,9 +209,9 @@ class AllSalesRecords extends React.Component{
     }
 
     updateProject() {
-        // TODO: update salesRecord at here
+        // TODO: update deal at here
         const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
-        const { _id } = this.props.salesRecords[this.state.edittingCell.rowIndex];
+        const { _id } = this.props.deals[this.state.edittingCell.rowIndex];
         let { key, value } = this.state.edittingCell;
         switch (type) {
             case 'date':
@@ -252,7 +252,7 @@ class AllSalesRecords extends React.Component{
 
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
-        return this.props.salesRecords.map((project, index)=> {
+        return this.props.deals.map((project, index)=> {
             return (
                 <tr key={project._id}>
                 {
@@ -362,12 +362,12 @@ class AllSalesRecords extends React.Component{
     }
 
     goToProject(project){
-        FlowRouter.go("SalesRecord", {id: project._id})
+        FlowRouter.go("Deal", {id: project._id})
     }
 
     componentDidMount() {
         const _this = this;
-        Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields)=> {
+        Meteor.call('getVisibleFields', 'deal', (error, selectedFields)=> {
             if (!error) {
                 const possibleColumns = _this.state.possibleColumns;
                 possibleColumns.forEach((column)=> {
@@ -405,7 +405,7 @@ class AllSalesRecords extends React.Component{
                         },
                         possibleColumns
                     });
-                    Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (error)=> {
+                    Meteor.call('updateVisibleFields', 'deal', selectedKeys, (error)=> {
 
                     });
                 })
@@ -428,4 +428,4 @@ class AllSalesRecords extends React.Component{
     }
 }
 
-export default  AllSalesRecords;
+export default  AllDeals;

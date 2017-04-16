@@ -21,10 +21,10 @@ fetchThreads = () => {
 
 setInterval(fetchThreads, 1 * 1000 * 6)
 
-fetchSalesRecordThreads = () => {
+fetchDealThreads = () => {
     if (Meteor.userId()) {
-        Actions.fetchSalesRecordThreads()
+        Actions.fetchDealThreads()
     }
 }
 
-setInterval(fetchSalesRecordThreads, 1 * 1000 * 6)
+setInterval(fetchDealThreads, 1 * 1000 * 6)

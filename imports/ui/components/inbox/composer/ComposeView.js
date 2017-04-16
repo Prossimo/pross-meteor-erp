@@ -7,7 +7,7 @@ import AccountSelect from './AccountSelect'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import Deal from '/imports/api/models/deals/deals'
 import TemplateSelect from '../../mailtemplates/TemplateSelect'
 
 
@@ -17,7 +17,7 @@ import ParticipantsInputField from './ParticipantsInputField'
 export default class ComposeView extends React.Component {
     static propTypes = {
         clientId: React.PropTypes.string,
-        salesRecordId: React.PropTypes.string
+        dealId: React.PropTypes.string
     }
 
     constructor(props) {
@@ -70,9 +70,9 @@ export default class ComposeView extends React.Component {
         const {from, to, cc, bcc, subject} = draft
 
         let contactOptions = [], onlyselect = false;
-        if (this.props.salesRecordId) {
-            const salesRecord = SalesRecord.findOne({_id: this.props.salesRecordId})
-            contactOptions = salesRecord.contactsForStakeholders()
+        if (this.props.dealId) {
+            const deal = Deal.findOne({_id: this.props.dealId})
+            contactOptions = deal.contactsForStakeholders()
             onlyselect = true
         }
 
@@ -159,7 +159,7 @@ export default class ComposeView extends React.Component {
                         draft={this.state.draft}
                         disabled={this._isUnableToSend}
                         isValidDraft={this._isValidDraft}
-                        salesRecordId={this.props.salesRecordId}
+                        dealId={this.props.dealId}
                     />
                 </div>
             </div>

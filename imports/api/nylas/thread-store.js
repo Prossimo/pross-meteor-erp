@@ -4,7 +4,7 @@ import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
-import SalesRecord from '../models/salesRecords/salesRecords'
+import Deal from '../models/deals/deals'
 
 const PAGE_SIZE = 100
 
@@ -13,7 +13,7 @@ class ThreadStore extends Reflux.Store {
         super();
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
-        this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
+        this.listenTo(Actions.fetchDealThreads, this.onFetchDealThreads)
 
         this.threads = [];
         this.currentThread = null;
@@ -63,11 +63,11 @@ class ThreadStore extends Reflux.Store {
         })
     }
 
-    onFetchSalesRecordThreads() {
+    onFetchDealThreads() {
         // For auto attach conversation
 
-        SalesRecord.find().fetch().forEach((sr) => {
-            const salesRecordId = sr._id
+        Deal.find().fetch().forEach((sr) => {
+            const dealId = sr._id
 
             sr.threads().forEach((thread) => {
 

@@ -17,7 +17,7 @@ import MessageList from '../components/inbox/MessageList';
 import Toolbar from '../components/inbox/Toolbar';
 import ComposeModal from '../components/inbox/composer/ComposeModal';
 import NylasSigninForm from '../components/inbox/NylasSigninForm';
-import CreateSalesRecord from '../components/admin/CreateSalesRecord';
+import CreateDeal from '../components/admin/CreateDeal';
 
 
 class InboxPage extends React.Component {
@@ -28,8 +28,8 @@ class InboxPage extends React.Component {
         this.state = {
             addingInbox: false,
             addingTeamInbox: false,
-            salesRecordModal: false,
-            bindingSalesRecord: false,
+            dealModal: false,
+            bindingDeal: false,
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory: currentCategory,
@@ -107,7 +107,7 @@ class InboxPage extends React.Component {
                 return (
                     <div style={{height: '100%'}}>
                         {this.renderInbox()}
-                        {this.renderSalesRecordModal()}
+                        {this.renderDealModal()}
                         <ComposeModal isOpen={composeState && composeState.show}
                                       clientId={composeState && composeState.clientId}
                                       onClose={this.onCloseComposeModal}/>
@@ -137,7 +137,7 @@ class InboxPage extends React.Component {
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
                 <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
-                         onSelectMenuSalesRecord={this.onSelectMenuSalesRecord}/>
+                         onSelectMenuDeal={this.onSelectMenuDeal}/>
 
                 <div className="content-panel">
                     <div className="column-panel" style={{
@@ -170,25 +170,25 @@ class InboxPage extends React.Component {
         )
     }
 
-    onSelectMenuSalesRecord = (option) => {
+    onSelectMenuDeal = (option) => {
         this.setState({
-            salesRecordModal: true,
-            bindingSalesRecord: option == 'bind'
+            dealModal: true,
+            bindingDeal: option == 'bind'
         })
     }
 
-    renderSalesRecordModal() {
-        const {salesRecordModal, bindingSalesRecord, currentThread} = this.state
+    renderDealModal() {
+        const {dealModal, bindingDeal, currentThread} = this.state
 
         if (!currentThread) return ''
 
 
-        const title = bindingSalesRecord ? 'Bind this thread to existing SalesRecord' : 'Create new SalesRecord from this thread'
+        const title = bindingDeal ? 'Bind this thread to existing Deal' : 'Create new Deal from this thread'
         return (
-            <Modal show={salesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
+            <Modal show={dealModal} onHide={this.onCloseDealModal} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <CreateSalesRecord
+                    <CreateDeal
                         {...this.props}
                         thread={currentThread}
                     />
@@ -197,10 +197,10 @@ class InboxPage extends React.Component {
         )
     }
 
-    onCloseSalesRecordModal = () => {
+    onCloseDealModal = () => {
         this.setState({
-            salesRecordModal: false,
-            bindingSalesRecord: false
+            dealModal: false,
+            bindingDeal: false
         })
     }
 

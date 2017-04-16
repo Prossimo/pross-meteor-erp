@@ -3,10 +3,10 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
 import { Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
-import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
+import Deals from '/imports/api/models/deals/deals'
 import Messages from '/imports/api/models/messages/messages'
 import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_THREADS, GET_MESSAGES } from '/imports/api/constants/collections';
-import SingleProject from '/imports/ui/components/salesRecord/SingleSalesRecord';
+import SingleProject from '/imports/ui/components/deal/SingleDeal';
 
 const options = {
     loadingHandler: () => (<p className="page-loader"/>)
@@ -31,8 +31,8 @@ const reactiveMapper = (props, onData)=> {
             return item;
         });
 
-        let salesRecord = SalesRecords.findOne(projectId);
-        salesRecord.members = salesRecord.members.map(member=>{
+        let deal = Deals.findOne(projectId);
+        deal.members = deal.members.map(member=>{
             member.user = props.usersArr[member.userId];
             return member;
         });
@@ -52,7 +52,7 @@ const reactiveMapper = (props, onData)=> {
         });
         const messages = msg.concat(events).sort((a,b)=>{return a.createAt > b.createAt ? -1 : 1});
 
-        onData(null, { messages, salesRecord, quotes})
+        onData(null, { messages, deal, quotes})
     }
 };
 

@@ -8,7 +8,7 @@ import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import Contacts from '../contacts/contacts'
 
-class SalesRecordsCollection extends Mongo.Collection {
+class DealsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc;
         ourDoc.createdAt = ourDoc.createdAt || new Date();
@@ -22,15 +22,15 @@ class SalesRecordsCollection extends Mongo.Collection {
     }
 }
 
-export default SalesRecords = new SalesRecordsCollection("SalesRecords");
+export default Deals = new DealsCollection("Deals");
 // Deny all client-side updates since we will be using methods to manage this collection
-/*salesRecords.deny({
+/*Deals.deny({
     insert() { return true; },
     update() { return true; },
     remove() { return true; }
 });*/
 
-SalesRecords.schema = new SimpleSchema({
+Deals.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true },
@@ -79,9 +79,9 @@ SalesRecords.schema = new SimpleSchema({
     folderId: { type: String, optional: true }
 });
 
-SalesRecords.attachSchema(SalesRecords.schema);
+Deals.attachSchema(Deals.schema);
 
-SalesRecords.publicFields = {
+Deals.publicFields = {
     name: 1,
     members: 1,
     slackChanel: 1,
@@ -108,23 +108,23 @@ SalesRecords.publicFields = {
     stage: 1
 };
 
-Factory.define('salesRecord', SalesRecords, {
+Factory.define('deal', Deals, {
     name: () => faker.name.jobTitle()
 });
 
 
-SalesRecords.before.insert(function (userId, doc) {
+Deals.before.insert(function (userId, doc) {
     doc.createdAt = new Date()
 });
 
-SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options) {
+Deals.before.update(function (userId, doc, fieldNames, modifier, options) {
     // modifier.$set = modifier.$set || {};
     doc.modifiedAt = Date.now();
 });
 
-SalesRecords.helpers({
+Deals.helpers({
     threads() {
-        return Threads.find({salesRecordId: this._id}).fetch()
+        return Threads.find({dealId: this._id}).fetch()
     },
     messages() {
         const threads = this.threads()

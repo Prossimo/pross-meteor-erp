@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import AllSalesRecords from '../components/salesRecord/AllSalesRecords';
-import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord';
+import AllDeals from '../components/deal/AllDeals';
+import CreateDeal from '/imports/ui/components/admin/CreateDeal';
 
 class ProjectsPage extends React.Component{
     constructor(props){
@@ -10,11 +10,11 @@ class ProjectsPage extends React.Component{
         this.tabs = [
             {
                 label: "All Projects",
-                component: <AllSalesRecords/>
+                component: <AllDeals/>
             },
             {
                 label: "Add Project",
-                component: <CreateSalesRecord/>
+                component: <CreateDeal/>
             }
         ];
         

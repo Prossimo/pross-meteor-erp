@@ -31,7 +31,7 @@ const Actions = Reflux.createActions([
     'queueTasks',
 
     'changedConversations',
-    'fetchSalesRecordThreads'
+    'fetchDealThreads'
 ]);
 
 module.exports = Actions;

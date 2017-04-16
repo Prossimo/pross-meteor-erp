@@ -15,7 +15,7 @@ export default class SendActionButton extends React.Component {
         style: React.PropTypes.object,
         isValidDraft: React.PropTypes.func,
         disabled: React.PropTypes.func,
-        salesRecordId: React.PropTypes.string
+        dealId: React.PropTypes.string
     };
 
     static defaultProps = {
@@ -88,7 +88,7 @@ export default class SendActionButton extends React.Component {
     _onSendWithAction = ({onSend}) => {
         if (this.props.isValidDraft()) {
             try {
-                onSend(this.props.clientId, {salesRecordId:this.props.salesRecordId});
+                onSend(this.props.clientId, {dealId:this.props.dealId});
             } catch (err) {
                 console.error(err)
             }
