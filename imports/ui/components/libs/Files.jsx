@@ -30,6 +30,19 @@ function update_fileview_data(node) {
     }
 }
 
+function getParentFolder(fileId) {
+    let i = 0, j;
+    for(; i<folder_ct; i++) {
+        if (fileview_data[i].data.id == fileId)
+            return fileview_data[i].data;
+        for(j=0; fileview_data[i].data.children && j<fileview_data[i].data.children.length; j++) {
+            if (fileview_data[i].data.children[j].id == fileId) {
+                return fileview_data[i].data;
+            }
+        }
+    }
+}
+
 function merge_fileview_data() {
     let i = folder_ct - 1, j;
     var parent_idx;
@@ -50,7 +63,6 @@ decorators.Header = (props) => {
     const iconClass = `fa fa-${iconType}`;
     const iconStyle = { marginRight: '5px' };
     style.title.display = 'inline-block';
-    console.log (props);
     return (
         <div style={style.base}>
             <div style={style.title}>
@@ -242,6 +254,12 @@ class Files extends Component {
         event.preventDefault();
         if (confirm('Are you sure you want to remove this file?')) {
             Meteor.call('drive.removeFiles', { fileId }, (err)=> {
+                let parentNode;
+                fileview_data = [];
+                folder_ct = 0;
+                extract(this.state.data, -1);
+                parentNode = getParentFolder(fileId);
+                this.setState({ cursor: parentNode, folderId: parentNode.id });
                 this.updateSelectedFolder();
                 if(typeof this.slackChannel === 'undefined') return;
 
@@ -353,6 +371,12 @@ class Files extends Component {
                     this.setState({ files: this.state.files });
                 },
                 onComplete: (remoteFile)=>  {
+                    let parentNode;
+                    fileview_data = [];
+                    folder_ct = 0;
+                    extract(this.state.data, -1);
+                    parentNode = getParentFolder(this.state.folderId);
+                    this.setState({ cursor: parentNode, folderId: parentNode.id });
                     this.updateSelectedFolder();
                     if(typeof this.slackChannel === 'undefined') return;
 
@@ -362,7 +386,7 @@ class Files extends Component {
                         attachments: [
                             {
                                 "color": "#36a64f",
-                                "text": `<Removed ${fileName}>`
+                                "text": `<Uploaded ${remoteFile}>`
                             }
                         ]
                     };
