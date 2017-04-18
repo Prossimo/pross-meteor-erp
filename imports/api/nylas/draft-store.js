@@ -27,14 +27,15 @@ class DraftStore extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = (salesRecordId) => {
+    _onComposeNew = ({salesRecordId, modal = true, show = true} = {}) => {
         DraftFactory.createDraft().then((draft) => {
+            draft.salesRecordId = salesRecordId
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
-                modal: true,
-                show: true
+                modal: modal,
+                show: show
             }
 
             this.trigger()
@@ -88,10 +89,25 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onSendDraft(clientId, options = {}) {
+    createDraftForQuoteEmail = (data = {}) => {
+        return new Promise((resolve, reject) => {
+            DraftFactory.createDraft(data).then((draft) => {
+
+                this._drafts.push(draft)
+
+                this._draftsViewState[draft.clientId] = {
+                    clientId: draft.clientId
+                }
+
+                resolve(draft)
+            })
+        })
+    }
+
+    _onSendDraft(clientId) {
         this._draftsSending[clientId] = true
 
-        Actions.queueTask(new SendDraftTask(clientId, options))
+        Actions.queueTask(new SendDraftTask(clientId))
 
         this._draftsViewState[clientId] = {
             modal: false,
@@ -100,11 +116,11 @@ class DraftStore extends Reflux.Store {
         this.trigger()
     }
 
-    _onSendDraftSuccess = ({message, clientId, salesRecordId} = {}) => {
-        console.log('_onSendDraftSuccess', message, clientId, salesRecordId)
-        this.removeDraftForClientId(clientId)
-        this.trigger()
+    _onSendDraftSuccess = ({message, clientId} = {}) => {
+        const draft = this.draftForClientId(clientId)
+        console.log('_onSendDraftSuccess', message, clientId, draft)
 
+        const salesRecordId = draft.salesRecordId
         if (salesRecordId) {
             NylasAPI.makeRequest({
                 path: `/threads/${message.thread_id}`,
@@ -119,6 +135,9 @@ class DraftStore extends Reflux.Store {
                 }
             })
         }
+
+        this.removeDraftForClientId(clientId)
+        this.trigger()
     }
 
     _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) => {

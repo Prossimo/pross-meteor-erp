@@ -1,15 +1,17 @@
 import React from 'react';
-import { ADMIN_ROLE_LIST, EMPLOYEE_ROLE } from '/imports/api/constants/roles';
+import {Modal} from 'react-bootstrap';
+import {ADMIN_ROLE_LIST, EMPLOYEE_ROLE} from '/imports/api/constants/roles';
 import Popup from '../popup/Popup';
 import classNames from 'classnames';
 import AddQuoteForm from './AddQuoteForm';
 import AddQuoteRevisionForm from './AddQuoteRevisionForm';
 import currencyFormatter from 'currency-formatter';
-import { info, warning } from '/imports/api/lib/alerts';
+import {info, warning} from '/imports/api/lib/alerts';
 import _ from 'underscore';
+import {DraftStore} from '/imports/api/nylas'
 
-class QuoteItem extends React.Component{
-    constructor(props){
+class QuoteItem extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -17,14 +19,14 @@ class QuoteItem extends React.Component{
         }
     }
 
-    renderQuoteName(quote){
-        const { editQuoteNameMode } = this.state;
+    renderQuoteName(quote) {
+        const {editQuoteNameMode} = this.state;
 
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])){
+        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
             return <p className="title">{quote.name}</p>;
         }
 
-        return(
+        return (
             <p className="title">
                 <span className={classNames("quote-name", {"hide": editQuoteNameMode})}
                       onClick={this.changeEditMode.bind(this)}>{quote.name}</span>
@@ -37,26 +39,26 @@ class QuoteItem extends React.Component{
         )
     }
 
-    changeEditMode(event){
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
+    changeEditMode(event) {
+        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
         event.persist();
         this.setState({editQuoteNameMode: true});
-        setTimeout(()=>{
+        setTimeout(() => {
             event.target.nextSibling.focus()
-        },0)
+        }, 0)
     }
 
-    blurInput(event){
+    blurInput(event) {
         event.target.velue = '';
         this.setState({editQuoteNameMode: false})
     }
 
-    changeQuoteName(event){
-        const { quote } = this.props;
+    changeQuoteName(event) {
+        const {quote} = this.props;
 
-        if(event.key === 'Enter'){
-            Meteor.call('editQuoteName', quote._id, event.target.value, (err)=>{
-                if(err) return warning('Change quote name failed');
+        if (event.key === 'Enter') {
+            Meteor.call('editQuoteName', quote._id, event.target.value, (err) => {
+                if (err) return warning('Change quote name failed');
 
                 info("Change quote name success!")
             });
@@ -65,34 +67,38 @@ class QuoteItem extends React.Component{
         }
     }
 
-    addRevision(){
-        const { quote, addRevision } = this.props;
+    addRevision() {
+        const {quote, addRevision} = this.props;
         addRevision(quote)
     }
 
-    render(){
-        const { quote } = this.props;
-        const lastRevisionNumber = Math.max(...quote.revisions.map(item=>item.revisionNumber));
+    render() {
+        const {quote} = this.props;
+        const lastRevisionNumber = Math.max(...quote.revisions.map(item => item.revisionNumber));
         const latest = _.findWhere(quote.revisions, {revisionNumber: lastRevisionNumber});
         const revisions = quote.revisions
-            .filter(revision=>revision!==latest)
-            .sort((a,b)=>a.revisionNumber>b.revisionNumber?-1:1)
-            .map(revision=>{
-            return(
-                <li className="revision-item"
-                    key={revision.fileId}>
-                    <p>Revision
-                        <span className="revision-label"> # {revision.revisionNumber}</span></p>
-                    <p>
-                        <i className="fa fa-calendar-o"/> {moment(revision.createAt).format("MMMM Do YYYY")}</p>
-                    <p>Total price {currencyFormatter.format(revision.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 1})}</p>
-                    <a href={revision.url}
-                       download={revision.fileName}
-                       className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
-                </li>
-            )
-        })
-        return(
+            .filter(revision => revision !== latest)
+            .sort((a, b) => a.revisionNumber > b.revisionNumber ? -1 : 1)
+            .map(revision => {
+                return (
+                    <li className="revision-item"
+                        key={revision.fileId}>
+                        <p>Revision
+                            <span className="revision-label"> # {revision.revisionNumber}</span></p>
+                        <p>
+                            <i className="fa fa-calendar-o"/> {moment(revision.createAt).format("MMMM Do YYYY")}</p>
+                        <p>Total price {currencyFormatter.format(revision.totalPrice, {
+                            code: 'USD',
+                            locale: 'en-US',
+                            decimalDigits: 1
+                        })}</p>
+                        <a href={revision.url}
+                           download={revision.fileName}
+                           className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
+                    </li>
+                )
+            })
+        return (
             <li className="single-quota">
                 <div className="flex-container">
                     <div className="desc-part">
@@ -103,12 +109,17 @@ class QuoteItem extends React.Component{
                         <p className="quote-info">
                             <i className="fa fa-calendar-o"/> {moment(latest.createAt).format("MMMM Do YYYY")}</p>
                         <p className="quote-info">
-                            Total price: {currencyFormatter.format(latest.totalPrice, {code: 'USD', locale: 'en-US', decimalDigits: 0})}</p>
+                            Total price: {currencyFormatter.format(latest.totalPrice, {
+                            code: 'USD',
+                            locale: 'en-US',
+                            decimalDigits: 0
+                        })}</p>
                     </div>
                     <div className="control-part">
                         <button onClick={this.addRevision.bind(this, quote)}
                                 className="btnn primary-btn">
-                            <i className="fa fa-plus"/> REVISION</button>
+                            <i className="fa fa-plus"/> REVISION
+                        </button>
                         <a href={latest.url}
                            download={latest.fileName}
                            className="btnn primary-btn">
@@ -124,8 +135,8 @@ class QuoteItem extends React.Component{
     }
 }
 
-class Quotes extends React.Component{
-    constructor(props){
+class Quotes extends React.Component {
+    constructor(props) {
         super(props);
 
         this.state = {
@@ -134,13 +145,13 @@ class Quotes extends React.Component{
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.slideToggle = function (event) {
             const quote = event.currentTarget;
-            if( $(quote).hasClass('up')){
+            if ($(quote).hasClass('up')) {
                 $(quote).removeClass('up');
                 $(quote).siblings('.revision-list').slideUp();
-            }else {
+            } else {
                 $(quote).addClass('up');
                 $(quote).siblings('.revision-list').slideDown();
                 $(quote).parents('.single-quota').siblings('.single-quota').find('.revision-list').slideUp();
@@ -151,37 +162,54 @@ class Quotes extends React.Component{
         $(document).on('click', '.show-revisions', this.slideToggle);
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         $(document).off('click', '.show-revisions', this.slideToggle);
     }
 
-    hidePopup(){
+    hidePopup() {
         this.setState({showPopup: false, popupData: null})
     }
 
-    showAddQuoteForm(){
-        const { salesRecord, usersArr, currentUser, quotes } = this.props;
-        this.setState({
-            showPopup: true,
-            popupTitle: 'Add new quote',
-            popupData: <AddQuoteForm hide={this.hidePopup.bind(this)}
-                                     currentUser={currentUser}
-                                     usersArr={usersArr}
-                                     quotes={quotes}
-                                     salesRecord={salesRecord}/>
+    showAddQuoteForm() {
+        const {salesRecord, usersArr, currentUser, quotes} = this.props; console.log(this.props)
+
+        const to = salesRecord.contactsForStakeholders().map((c)=>({name:c.name, email:c.email}))
+        const salesRecordId = salesRecord._id
+        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft)=>{
+            this.setState({
+                showPopup: true,
+                popupTitle: 'Add new quote',
+                popupData: <AddQuoteForm
+                    currentUser={currentUser}
+                    usersArr={usersArr}
+                    quotes={quotes}
+                    salesRecord={salesRecord}
+                    draftClientId={draft.clientId}
+                    saved={() => {
+                        this.setState({showPopup: false})
+                    }}
+                />
+            })
         })
     }
 
-    renderPopup(){
-        const { popupData, showPopup, popupTitle } = this.state;
-        return <Popup active={showPopup}
-                      title={popupTitle}
-                      hide={this.hidePopup.bind(this)}
-                      content={popupData}/>
+    renderPopup() {
+        const {popupData, showPopup, popupTitle} = this.state;
+
+        return (
+            <Modal show={showPopup} onHide={() => {
+                this.setState({showPopup: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>{popupTitle}</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    {popupData}
+                </Modal.Body>
+            </Modal>
+        )
     }
 
-    addRevision(quote){
-        const { salesRecord, usersArr, currentUser } = this.props;
+    addRevision(quote) {
+        const {salesRecord, usersArr, currentUser} = this.props;
         this.setState({
             showPopup: true,
             popupTitle: `Add revision to ${quote.name}`,
@@ -189,16 +217,16 @@ class Quotes extends React.Component{
                                              currentUser={currentUser}
                                              usersArr={usersArr}
                                              quote={quote}
-                                             project={salesRecord} />
+                                             project={salesRecord}/>
         })
     }
 
-    renderQuotes(){
-        const { quotes } = this.props;
+    renderQuotes() {
+        const {quotes} = this.props;
 
-        if(_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>;
+        if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>;
 
-        return <ul className="quotes-list">{quotes.map(quote=> {
+        return <ul className="quotes-list">{quotes.map(quote => {
             return <QuoteItem key={quote._id}
                               addRevision={this.addRevision.bind(this)}
                               quote={quote}/>
@@ -206,17 +234,18 @@ class Quotes extends React.Component{
         </ul>
     }
 
-    renderAddQuotes(){
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+    renderAddQuotes() {
+        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
 
-        return(
+        return (
             <div className="add-quotes">
                 <button onClick={this.showAddQuoteForm.bind(this)}
-                        className="btnn primary-btn">Add quote</button>
+                        className="btnn primary-btn">Add quote
+                </button>
             </div>
         )
     }
-    
+
     getDriveFileList(e) {
         e.preventDefault();
         Meteor.call('getDriveFileList', (err, filesList) => {
@@ -229,17 +258,17 @@ class Quotes extends React.Component{
             console.log('======================================');
         });
     }
-    
+
     saveDriveFile(e) {
         e.preventDefault();
-        if(e.target.files.length){
+        if (e.target.files.length) {
             let file = e.target.files[0];
             let fileInfo = {
                 name: file.name,
                 type: file.type
             };
             let reader = new FileReader();
-            reader.onload = function(fileLoadEvent) {
+            reader.onload = function (fileLoadEvent) {
                 Meteor.call('saveGoogleDriveFile', fileInfo, reader.result, (err, result) => {
                     if (err) {
                         console.log(err);
@@ -253,22 +282,23 @@ class Quotes extends React.Component{
             reader.readAsBinaryString(file);
         }
     }
-    
-    getGoogleDriveFileList(){
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
-        
-        return(
+
+    getGoogleDriveFileList() {
+        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+
+        return (
             <div className="add-quotes">
                 <button onClick={this.getDriveFileList.bind(this)}
-                        className="btnn primary-btn">Get google drive list of files</button>
+                        className="btnn primary-btn">Get google drive list of files
+                </button>
             </div>
         )
     }
-    
-    saveFileToGoogleDrive(){
-        if(!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
-        
-        return(
+
+    saveFileToGoogleDrive() {
+        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+
+        return (
             <div className="field-wrap">
                 <span className="label">Add file to google Drive</span>
                 <label htmlFor="quote-file"

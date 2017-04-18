@@ -16,6 +16,10 @@ class MailTemplatesCollection extends Mongo.Collection {
 }
 
 export default MailTemplates = new MailTemplatesCollection("MailTemplates");
+export const MailTemplatesType = {
+    QUOTE: 'quote',
+    CUSTOM: 'custom'
+}
 
 // Deny all client-side updates since we will be using methods to manage this collection
 MailTemplates.deny({

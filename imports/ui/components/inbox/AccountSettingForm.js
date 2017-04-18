@@ -21,7 +21,7 @@ export default class AccountSettingForm extends React.Component {
         return (
             <Form horizontal onSubmit={this.onSubmitUpdate}>
                 <FormGroup controlId="formHorizontalName">
-                    <Col componentClass={ControlLabel} sm={3}>
+                    <Col sm={3}>
                         Full Name
                     </Col>
                     <Col sm={9}>
@@ -30,18 +30,13 @@ export default class AccountSettingForm extends React.Component {
                 </FormGroup>
 
                 <FormGroup controlId="formHorizontalSignature">
-                    <Col componentClass={ControlLabel} sm={3}>
-                        Signature
-                    </Col>
-                    <Col sm={9}>
+                    <Col sm={12}>
                         {this.renderSignatureEditor()}
                     </Col>
                 </FormGroup>
 
-
-
                 <FormGroup>
-                    <Col smOffset={3} sm={10}>
+                    <Col sm={12} style={{textAlign:'right'}}>
                         <Button type="submit" bsStyle="primary">Update</Button>
                     </Col>
                 </FormGroup>

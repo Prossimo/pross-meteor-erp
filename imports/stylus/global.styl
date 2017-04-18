@@ -194,7 +194,7 @@ div.error-msg
       background alpha($grey, .7)
 
 .default-form
-  max-width 450px
+  //max-width 450px
   width 100%
 
   .form-group
@@ -356,6 +356,7 @@ div.error-msg
 .toolbar-panel {
   border-bottom 1px solid $border-color-divider
   padding 10px 5px
+  margin-bottom: 5px
   display flex
   flex-direction row
 }
@@ -861,3 +862,34 @@ div.error-msg
 .react-bs-insert-modal
   top: 70px !important
 
+.template-overview {
+  flex: 1
+
+  .template-view {
+    padding: 10px;
+    background: $background-primary;
+    border: 0;
+    box-shadow: 0 0 0.5px rgba(0, 0, 0, 0.28), 0 1px 1.5px rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+
+    .subject {
+      font-size: 17px;
+      padding: 10px;
+      border-bottom: solid 1px rgba(0, 0, 0, 0.28);
+    }
+
+    .body {
+      .iframe-container {
+        margin-top: 10px;
+        width: 100%;
+
+        iframe {
+          width: 100%;
+          border: 0;
+          padding: 0;
+          overflow: auto;
+        }
+      }
+    }
+  }
+}

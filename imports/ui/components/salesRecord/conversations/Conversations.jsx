@@ -41,16 +41,14 @@ export default class ConversationsView extends React.Component{
         const {salesRecord} = this.props
         return (
             <div className="conversations-tab">
-                <ComposeButton/>
+                <ComposeButton salesRecordId={salesRecord._id}/>
                 <ConversationList salesRecord={salesRecord}/>
                 <ComposeModal isOpen={composeState && composeState.show}
                               clientId={composeState && composeState.clientId}
-                              salesRecordId={salesRecord._id}
                               onClose={this.onCloseComposeModal}/>
             </div>
         )
     }
-
 
     onCloseComposeModal = () => {
         const {composeState} = this.state

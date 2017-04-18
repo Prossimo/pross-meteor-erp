@@ -13,7 +13,7 @@ export default class ComposeButton extends React.Component {
     }
 
     _onNewCompose = () => {
-        Actions.composeNew(this.props.salesRecordId)
+        Actions.composeNew({salesRecordId:this.props.salesRecordId})
     }
 
     render() {

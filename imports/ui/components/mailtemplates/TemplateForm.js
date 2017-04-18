@@ -45,6 +45,7 @@ export default class TemplateForm extends React.Component {
                         <Button type="submit" bsStyle="primary">Save</Button>
                     </Col>
                 </FormGroup>
+                {"* You can use <%template_variable_name%> for templating"}
             </Form>
         )
     }

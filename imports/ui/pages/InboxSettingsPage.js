@@ -1,5 +1,5 @@
 import React from 'react'
-import {Tabs, Tab, Panel, Button} from 'react-bootstrap'
+import {Tabs, Tab, PanelGroup, Panel, Button, Col} from 'react-bootstrap'
 import AccountStore from '../../api/nylas/account-store'
 import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
@@ -41,26 +41,29 @@ export default class InboxSettingsPage extends React.Component {
     render() {
         return (
             <div className="inbox-settings-page">
-                {Meteor.user().isAdmin() ? this.renderTabs() : this.renderInboxesComponent()}
+                <Tabs defaultActiveKey={1} id="inbox-settings-tab" style={{height:'100%'}}>
+                    <Tab eventKey={1} title="Inboxes" style={{height:'100%'}}>{this.renderInboxesTab()}</Tab>
+                    <Tab eventKey={2} title="Templates" style={{height:'100%'}}>{this.renderTemplatesTab()}</Tab>
+                </Tabs>
             </div>
         )
     }
 
-    renderTabs = () => {
+    renderInboxesTab() {
         return (
-            <Tabs defaultActiveKey={1} id="uncontrolled-tab-example">
-                <Tab eventKey={1} title="Team inboxes">{this.renderInboxesComponent(true)}</Tab>
-                <Tab eventKey={2} title="Individual inboxes">{this.renderInboxesComponent()}</Tab>
-                <Tab eventKey={3} title="Templates">{this.renderTemplatesComponent()}</Tab>
-            </Tabs>
+            <PanelGroup style={{height:'100%'}}>
+                {Meteor.user().isAdmin() &&
+                <Panel header="Team Inboxes" eventKey="1">{this.renderInboxesComponent(true)}</Panel>}
+                <Panel header="Individual Inboxes" eventKey="2">{this.renderInboxesComponent()}</Panel>
+            </PanelGroup>
         )
     }
 
     renderInboxesComponent = (isTeamAccount = false) => {
-        let accounts = this.state.accounts.filter((account)=>account.isTeamAccount==isTeamAccount)
+        let accounts = this.state.accounts.filter((account) => account.isTeamAccount == isTeamAccount)
 
         const {addingIndividualInbox, addingTeamInbox} = this.state
-        if (addingIndividualInbox&&!isTeamAccount || addingTeamInbox&&isTeamAccount) {
+        if (addingIndividualInbox && !isTeamAccount || addingTeamInbox && isTeamAccount) {
             return <NylasSigninForm isAddingTeamInbox={isTeamAccount}
                                     onCancel={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}
                                     onCompleted={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}/>
@@ -70,8 +73,9 @@ export default class InboxSettingsPage extends React.Component {
                     <div className="toolbar-panel">
                         <div style={{flex: 1}}>
                             <Button bsStyle="primary"
-                                    onClick={() => isTeamAccount ? this.setState({addingTeamInbox: true}) : this.setState({addingIndividualInbox: true})}>Add
-                                an inbox</Button>
+                                    onClick={() => isTeamAccount ? this.setState({addingTeamInbox: true}) : this.setState({addingIndividualInbox: true})}>
+                                Add an inbox
+                            </Button>
                         </div>
                     </div>
                     {
@@ -82,15 +86,20 @@ export default class InboxSettingsPage extends React.Component {
                                         {account.emailAddress}
                                     </div>
                                     <div>
-                                        <Button bsStyle="danger" bsSize="xsmall" onClick={()=>this.onClickRemoveAccount(account)}><i className="fa fa-trash"/></Button>
+                                        <Button bsStyle="danger" bsSize="xsmall"
+                                                onClick={() => this.onClickRemoveAccount(account)}>
+                                            <i className="fa fa-trash"/>
+                                        </Button>
                                     </div>
                                 </div>
                             )
 
                             return (
-                                <Panel key={account._id} header={header}>
-                                    <AccountSettingForm account={account}/>
-                                </Panel>
+                                <Col md={6} key={account._id}>
+                                    <Panel header={header}>
+                                        <AccountSettingForm account={account}/>
+                                    </Panel>
+                                </Col>
                             )
                         })
                     }
@@ -112,8 +121,8 @@ export default class InboxSettingsPage extends React.Component {
         }
     }
 
-    renderTemplatesComponent() {
-        return  <TemplatesView/>
+    renderTemplatesTab() {
+        return <TemplatesView/>
     }
 }
 

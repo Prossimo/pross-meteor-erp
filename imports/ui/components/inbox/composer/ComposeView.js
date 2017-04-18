@@ -1,6 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
-import {FormControl, FormGroup, Col} from 'react-bootstrap'
+import {FormControl, Button} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
 import AccountSelect from './AccountSelect'
@@ -17,7 +17,7 @@ import ParticipantsInputField from './ParticipantsInputField'
 export default class ComposeView extends React.Component {
     static propTypes = {
         clientId: React.PropTypes.string,
-        salesRecordId: React.PropTypes.string
+        lazySend: React.PropTypes.bool
     }
 
     constructor(props) {
@@ -50,7 +50,7 @@ export default class ComposeView extends React.Component {
     }
 
 
-    _changeDraftStore(data = {}, shouldIncludeSignature=null) {
+    _changeDraftStore(data = {}, shouldIncludeSignature = null) {
         DraftStore.changeDraftForClientId(this.props.clientId, data, shouldIncludeSignature)
     }
 
@@ -70,8 +70,8 @@ export default class ComposeView extends React.Component {
         const {from, to, cc, bcc, subject} = draft
 
         let contactOptions = [], onlyselect = false;
-        if (this.props.salesRecordId) {
-            const salesRecord = SalesRecord.findOne({_id: this.props.salesRecordId})
+        if (draft.salesRecordId) {
+            const salesRecord = SalesRecord.findOne({_id: draft.salesRecordId})
             contactOptions = salesRecord.contactsForStakeholders()
             onlyselect = true
         }
@@ -92,7 +92,7 @@ export default class ComposeView extends React.Component {
             const account = AccountStore.accountForAccountId(draft.account_id)
             fromSelector = <AccountSelect onChange={this._onChangeFrom} account={account}/>
         } else {
-            fromSelector = <span style={{padding:'5px 10px'}}>{from[0].email}</span>
+            fromSelector = <span style={{padding: '5px 10px'}}>{from[0].email}</span>
         }
         return (
             <div>
@@ -154,13 +154,14 @@ export default class ComposeView extends React.Component {
         return (
             <div className="composer-action-bar-wrap">
                 <div className="composer-action-bar-content">
-                    <SendActionButton
-                        clientId={this.props.clientId}
-                        draft={this.state.draft}
-                        disabled={this._isUnableToSend}
-                        isValidDraft={this._isValidDraft}
-                        salesRecordId={this.props.salesRecordId}
-                    />
+                    {
+                        !this.props.lazySend && <SendActionButton
+                            clientId={this.props.clientId}
+                            draft={this.state.draft}
+                            disabled={this._isUnableToSend}
+                            isValidDraft={this._isValidDraft}
+                        />
+                    }
                 </div>
             </div>
         )
@@ -206,7 +207,7 @@ export default class ComposeView extends React.Component {
     }
 
     _onChangeTemplate = (template) => {
-        this._changeDraftStore({subject:template ? template.subject : '', body:template ? template.body : ''}, true)
+        this._changeDraftStore({subject: template ? template.subject : '', body: template ? template.body : ''}, true)
         this.setState({draft: this._getDraftFromStore()})
     }
 
