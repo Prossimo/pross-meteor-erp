@@ -5,7 +5,6 @@ import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../.
 import config from '../../config/config';
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
-import {createTodoistSalesRecord} from '../../tasks';
 import NylasAPI from '../../nylas/nylas-api'
 import queryString from 'query-string'
 
@@ -128,9 +127,6 @@ Meteor.methods({
 
         // create folder in google drive
         prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
-
-        // create todoist project
-        createTodoistSalesRecord(data.name, salesRecordId);
 
         // Insert conversations attached
         if (thread) {
