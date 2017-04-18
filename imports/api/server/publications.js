@@ -29,7 +29,6 @@ import {
     GET_NEW_PROJECT,
     GET_CONTACTS,
     GET_MY_CONTACTS,
-    GET_TASKS,
     GET_MESSAGES,
     GET_THREADS,
     GET_MAILTEMPLATES,
@@ -159,25 +158,6 @@ Meteor.startup(() => {
         if (!Match.test(_id, String)) return this.ready();
         if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
         return Projects.find({_id, 'members.userId': this.userId});
-    });
-
-    Meteor.publish(GET_TASKS, function (saleProjectId) {
-        if (!Match.test(saleProjectId, String)) return this.ready();
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Tasks.find({
-            $or: [
-                { localProjectId: saleProjectId },
-                { localSalesRecordId: saleProjectId }
-            ]
-        });
-        // should use publish composite
-        if (Projects.findOne({_id: projectId, 'members.userId': this.userId})) {
-            return Tasks.find({ $or:
-                [
-                    { localProjectId: saleProjectId },
-                    { localSalesRecordId: saleProjectId }
-                ]
-            });
-        }
     });
 
     Meteor.publish(GET_MESSAGES, function (salesRecordId) {

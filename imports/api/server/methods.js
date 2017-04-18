@@ -11,7 +11,6 @@ import {
   Projects,
   SalesRecords
 } from '../lib/collections';
-import { createTodoistProject } from '../tasks';
 import {
   EMPLOYEE_ROLE,
   ADMIN_ROLE,
@@ -663,8 +662,6 @@ Meteor.methods({
       }],
     });
     const projectId = Projects.insert(project);
-    // create new todoist project to add/remove/update task
-    createTodoistProject(project.name, projectId);
     // create new project folder in google drive
     prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
     return projectId;
