@@ -2,16 +2,17 @@ import React from 'react'
 import {Button} from 'react-bootstrap'
 import EmailFrame from '../inbox/EmailFrame'
 
-
 export default class TemplateOverview extends React.Component {
     static propTypes = {
         template: React.PropTypes.object,
+        showToolbar: React.PropTypes.bool,
         onRemoveTemplate: React.PropTypes.func,
         onEditTemplate: React.PropTypes.func
     }
 
     constructor(props) {
         super(props)
+
     }
 
     componentDidMount() {
@@ -24,8 +25,8 @@ export default class TemplateOverview extends React.Component {
 
     render() {
         return (
-            <div className="template-overview">
-                {this.renderToolbar()}
+            <div className="template-overview" style={this.props.style}>
+                {this.props.showToolbar && this.renderToolbar()}
                 {this.renderContent()}
             </div>
         )

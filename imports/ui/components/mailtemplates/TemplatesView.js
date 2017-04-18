@@ -27,8 +27,9 @@ export default class TemplatesView extends React.Component {
                     selectedTemplate={this.state.selectedTemplate}
                     reloadData={this.state.reloadData}
                 />
-                <TemplateOverview
+                <TemplateOverview style={{padding:20}}
                     template={this.state.selectedTemplate}
+                    showToolbar={true}
                     onRemoveTemplate={this.onRemoveTemplate}
                     onEditTemplate={() => this.setState({showTemplateModal: true, creating:false})}
                 />

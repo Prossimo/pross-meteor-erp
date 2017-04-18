@@ -49,7 +49,6 @@ export default class AccountSelect extends React.Component {
 
     onChange = (item) => {
         const account = this.state.accounts.find((a)=>a._id===item._id)
-        console.log('Selected account', account)
         this.setState({account:account})
         this.props.onChange(account)
     }

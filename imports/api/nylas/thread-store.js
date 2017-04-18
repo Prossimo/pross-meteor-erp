@@ -76,7 +76,7 @@ class ThreadStore extends Reflux.Store {
                     method: 'GET',
                     accountId: thread.account_id
                 }).then((t) => {
-                    if (t.version != thread.version) {
+                    if (t && t.version != thread.version) {
                         Meteor.call('updateThreadAndMessages', sr._id, t, (err,res)=>{
 
                             setTimeout(()=>{

@@ -1,11 +1,24 @@
 import React from 'react';
-import Alert from 'react-s-alert';
+import {Alert} from 'react-bootstrap';
 import { Files } from '/imports/api/lib/collections';
 import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';
+import TemplateSelect from '../mailtemplates/TemplateSelect';
+import TemplateOverview from '../mailtemplates/TemplateOverview';
+
+import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
+import ComposeModal from '../inbox/composer/ComposeModal'
 
 class AddQuoteForm extends React.Component{
+    static propTypes = {
+        currentUser: React.PropTypes.object,
+        usersArr: React.PropTypes.object,
+        quotes: React.PropTypes.array,
+        salesRecord: React.PropTypes.object,
+        draftClientId: React.PropTypes.string,
+        saved: React.PropTypes.func
+    }
     constructor(props){
         super(props);
 
@@ -17,7 +30,19 @@ class AddQuoteForm extends React.Component{
         }
     }
 
-    changeFileInput(event){
+    componentDidMount() {
+        this.unsubscribe = DraftStore.listen(this.onDraftStoreChanged)
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe()
+    }
+
+    onDraftStoreChanged = () => {
+
+    }
+
+    changeFileInput = (event) => {
         if(event.target.files.length){
             if(event.target.files[0].type !== "application/pdf") {
                 return warning("You can add only PDF files!");
@@ -40,7 +65,7 @@ class AddQuoteForm extends React.Component{
         )
     }
 
-    inputChange(event){
+    onChangeTitle = (event) => {
         this.setState({quoteName: event.target.value})
     }
 
@@ -52,6 +77,8 @@ class AddQuoteForm extends React.Component{
         if(!currentFile)return warning(`You must add PDF file`);
         if(quoteName === '')return warning(`Empty quote name`);
         if(totalCost === '')return warning(`Empty total cost field`);
+
+        const draftClientId = this.props.draftClientId
 
         const quoteData = {
             name: quoteName,
@@ -86,21 +113,25 @@ class AddQuoteForm extends React.Component{
             info(res);
         };
 
-        const addQuoteCb = (err)=>{
+        const addQuoteCb = (err)=>{ console.log(this.props)
             if(err) return console.log(err);
-            this.hide();
+
+            if(this.props.saved) this.props.saved()
             info(`Add new quote`);
 
             if(!alertsActive) return;
 
-            Meteor.call("sendEmail", {
+            /*Meteor.call("sendEmail", {
                 to: memberEmails,
                 from: 'mail@prossimo.us',
                 subject: `Add new quote in "${salesRecord.name}" project`,
                 replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
                 attachments: [quoteData.revisions[0].fileId],
                 html: generateEmailHtml(currentUser, `Go to project "${salesRecord.name}"`, FlowRouter.url(FlowRouter.current().path))
-            },sendEmailCb);
+            },sendEmailCb);*/
+
+
+            Actions.sendDraft(draftClientId)
         };
 
         const fileInsertCb = (err, res)=>{
@@ -139,30 +170,42 @@ class AddQuoteForm extends React.Component{
         if(typeof hide === 'function') hide();
     }
 
-    totalChange(event){
+    onChangeCost = (event) => {
         this.setState({totalCost: event.target.value})
     }
 
-    toggleCheck(){
+    toggleAlertStakeholders = () => {
         const { alertsActive } = this.state;
         this.setState({alertsActive: !alertsActive});
     }
 
     render() {
-        const { quoteName, totalCost, alertsActive } = this.state;
+        const { quoteName, totalCost, alertsActive, showComposeModal, selectedMailTemplate, shouldBeCompileMailTemplate } = this.state;
+
+        let templateData
+
+        if(shouldBeCompileMailTemplate && selectedMailTemplate) {
+            templateData = this.compileTemplate(selectedMailTemplate)
+        } else {
+            const draft = DraftStore.draftForClientId(this.props.draftClientId)
+            templateData = {
+                subject: draft.subject,
+                body: draft.body
+            }
+        }
         return (
             <div className="add-quote-form">
                 <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
                     <div className="field-wrap">
                         <span className="label">Quote title</span>
                         <input type="text"
-                               onChange={this.inputChange.bind(this)}
+                               onChange={this.onChangeTitle}
                                value={quoteName}/>
                     </div>
                     <div className="field-wrap">
                         <span className="label">Total price ($)</span>
                         <input type="number"
-                               onChange={this.totalChange.bind(this)}
+                               onChange={this.onChangeCost}
                                value={totalCost}/>
                     </div>
                     <div className="field-wrap">
@@ -171,26 +214,82 @@ class AddQuoteForm extends React.Component{
 
                     <div className="field-wrap">
                         <span className="label">Add pdf file</span>
-                        <label htmlFor="quote-file"
+                        <label htmlFor="form-quote-file"
                                className="file-label"/>
                         <input type="file"
-                               id="quote-file"
-                               onChange={this.changeFileInput.bind(this)}/>
+                               id="form-quote-file"
+                               onChange={this.changeFileInput}/>
                         {this.renderAttachedFile()}
                     </div>
                     <input type="checkbox"
                            id="alert-checkbox"
-                           onChange={this.toggleCheck.bind(this)}
+                           onChange={this.toggleAlertStakeholders}
                            checked={alertsActive}
                            className="hidden-checkbox"/>
                     <label htmlFor="alert-checkbox"
                            className="check-label">Alert stakeholders</label>
+                    {alertsActive && (NylasUtils.hasNylasAccounts() ? <TemplateSelect onChange={this.onSelectMailTemplate} selectedTemplate={selectedMailTemplate}/> : <Alert bsStyle="warning">You need to set inbox to email!</Alert>)}
+                    {alertsActive && selectedMailTemplate && (
+                        <div style={{position:'relative'}}>
+                            <TemplateOverview template={templateData}/>
+                            <i className="fa fa-edit" style={{position:'absolute',top:5,right:5}} onClick={this.onClickEditMail}></i>
+                            <ComposeModal isOpen={showComposeModal}
+                                          clientId={this.props.draftClientId}
+                                          onClose={this.onCloseComposeModal}
+                                          lazySend={true}
+                            />
+                        </div>
+                    )}
                     <div className="submit-wrap">
                         <button className="btnn primary-btn">Add quote</button>
                     </div>
                 </form>
             </div>
         )
+    }
+
+    onSelectMailTemplate = (template) => {
+        this.setState({
+            selectedMailTemplate: template,
+            shouldBeCompileMailTemplate: true
+        })
+
+
+    }
+
+    compileTemplate = (template) => {
+        if(!template) return
+
+        const tplData = {
+            project: this.props.salesRecord.name,
+            quote: this.state.quoteName,
+            cost: this.state.totalCost
+        }
+
+        const compiledData = {
+            subject: RegExpUtils.compileTemplate(template.subject, tplData),
+            body: RegExpUtils.compileTemplate(template.body, tplData)
+        }
+
+        DraftStore.changeDraftForClientId(this.props.draftClientId, compiledData)
+
+        return compiledData
+    }
+
+    onClickEditMail = () => {
+        this.setState({showComposeModal:true})
+    }
+
+    onCloseComposeModal = () => {
+        this.setState({showComposeModal:false})
+
+        if(!this.props.draftClientId) return
+
+        const draft = DraftStore.draftForClientId(this.props.draftClientId)
+
+        this.setState({
+            shouldBeCompileMailTemplate: false
+        })
     }
 }
 
