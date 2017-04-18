@@ -60,6 +60,8 @@ class ThreadStore extends Reflux.Store {
             this.trigger();
 
             this.currentPage = page ? page : 1;
+
+            if(this.currentThread) Actions.loadMessages(this.currentThread);
         })
     }
 
