@@ -32,7 +32,18 @@ class TasksView extends Component {
       showModal: false,
       editName: false,
       editDescription: false,
+      employees: [],
     };
+  }
+
+  componentDidMount() {
+    Meteor.call('task.getEmployees', {}, (error, employees)=> {
+      if (!error) {
+        this.setState({
+          employees,
+        });
+      }
+    });
   }
 
   changeState(propElem, propKey, propValue) {
@@ -63,6 +74,27 @@ class TasksView extends Component {
   }
 
   render() {
+    const assigneeOptions = this
+      .state
+      .employees
+      .filter(({ _id })=> _id !== this.state.task.approver)
+      .map(({ _id, name })=> ({ label: name, value: _id }));
+
+    const approverOptions = this
+      .state
+      .employees
+      .filter(({ _id })=> _id !== this.state.task.assignee)
+      .map(({ _id, name })=> ({ label: name, value: _id }));
+
+    const statusOptions = [
+        'Idea',
+        'Planned',
+        'In Progress',
+        'Complete',
+        'Blocked',
+      ]
+      .map((item)=> ({ label: item, value: item }));
+
     return (
       <form onSubmit={this.openModal}>
         <FormGroup>
@@ -127,11 +159,21 @@ class TasksView extends Component {
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Assignee</ControlLabel>
-                <Select/>
+                <Select
+                  options={assigneeOptions}
+                  onChange={({ label, value })=> this.changeState(this.state.task, 'assignee', value)}
+                  value={this.state.task.assignee}
+                  clearable={false}
+                />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Approver</ControlLabel>
-                <Select/>
+                <Select
+                  options={approverOptions}
+                  onChange={({ label, value })=> this.changeState(this.state.task, 'approver', value)}
+                  value={this.state.task.approver}
+                  clearable={false}
+                />
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Due Date</ControlLabel>
@@ -144,7 +186,12 @@ class TasksView extends Component {
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Status</ControlLabel>
-                <Select/>
+                <Select
+                  options={statusOptions}
+                  value={this.state.task.status}
+                  onChange={({ label, value })=> this.changeState(this.state.task, 'status', value)}
+                  clearable={false}
+                />
               </FormGroup>
             </form>
           </Modal.Body>
