@@ -19,7 +19,6 @@ class TasksView extends Component {
     this.getValidationState = this.getValidationState.bind(this);
     this.changeState = this.changeState.bind(this);
     this.addTask = this.addTask.bind(this);
-    this.closeModal = this.closeModal.bind(this);
     this.openModal = this.openModal.bind(this);
     this.state = {
       task: {
@@ -34,6 +33,36 @@ class TasksView extends Component {
       editDescription: false,
       employees: [],
     };
+    const taskSchema = new SimpleSchema({
+      name: {
+        type: String,
+      },
+      assignee: {
+        type: String,
+      },
+      approver: {
+        type: String,
+        optional: true,
+      },
+      description: {
+        type: String,
+      },
+      dueDate: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        allowedValues: [
+          'Idea',
+          'Planned',
+          'In Progress',
+          'Complete',
+          'Blocked',
+        ],
+      },
+    });
+    this.state.taskSchema = taskSchema;
+    this.state.context = taskSchema.newContext();
   }
 
   componentDidMount() {
@@ -51,15 +80,10 @@ class TasksView extends Component {
     this.setState((prevState)=> prevState);
   }
 
-  addTask(event) {
-    event.preventDefault();
-    this.openModal();
-  }
-
-  closeModal() {
-    this.setState({
-      showModal: false,
-    });
+  addTask() {
+    const task = this.state.taskSchema.clean(this.state.task);
+    this.state.context.validate(task);
+    this.setState((prevState)=> prevState);
   }
 
   openModal(event) {
@@ -69,7 +93,9 @@ class TasksView extends Component {
     });
   }
 
-  getValidationState() {
+  getValidationState(key) {
+    const invalidKeys = this.state.context.invalidKeys().map(({ name })=> name);
+    if (invalidKeys.includes(key)) return 'error';
     return null;
   }
 
@@ -132,7 +158,7 @@ class TasksView extends Component {
           </Modal.Header>
           <Modal.Body>
             <form>
-              <FormGroup validationState={this.getValidationState()}>
+              <FormGroup validationState={this.getValidationState('description')}>
                 <ControlLabel>Description</ControlLabel>
                 {
                   (this.state.editDescription) ? (
@@ -153,11 +179,12 @@ class TasksView extends Component {
                         Edit the description
                       </a>
                       <p style={{ paddingLeft: '12px', whiteSpace: 'pre-wrap' }}>{ this.state.task.description }</p>
+                      <HelpBlock>{ this.state.context.keyErrorMessage('description') }</HelpBlock>
                     </div>
                   )
                 }
               </FormGroup>
-              <FormGroup>
+              <FormGroup validationState={this.getValidationState('assignee')}>
                 <ControlLabel>Assignee</ControlLabel>
                 <Select
                   options={assigneeOptions}
@@ -165,8 +192,9 @@ class TasksView extends Component {
                   value={this.state.task.assignee}
                   clearable={false}
                 />
+                <HelpBlock>{ this.state.context.keyErrorMessage('assignee') }</HelpBlock>
               </FormGroup>
-              <FormGroup>
+              <FormGroup validationState={this.getValidationState('approver')}>
                 <ControlLabel>Approver</ControlLabel>
                 <Select
                   options={approverOptions}
@@ -174,17 +202,20 @@ class TasksView extends Component {
                   value={this.state.task.approver}
                   clearable={false}
                 />
+                <HelpBlock>{ this.state.context.keyErrorMessage('approver') }</HelpBlock>
               </FormGroup>
-              <FormGroup>
+              <FormGroup validationState={this.getValidationState('dueDate')}>
                 <ControlLabel>Due Date</ControlLabel>
                 <div className='form-control'>
                   <DatePicker
                     selected={moment(this.state.task.dueDate)}
+                    minDate={moment()}
                     onChange={(date)=> this.changeState(this.state.task, 'dueDate', date.toDate())}
                   />
                 </div>
+                <HelpBlock>{ this.state.context.keyErrorMessage('dueDate') }</HelpBlock>
               </FormGroup>
-              <FormGroup>
+              <FormGroup validationState={this.getValidationState('status')}>
                 <ControlLabel>Status</ControlLabel>
                 <Select
                   options={statusOptions}
@@ -192,11 +223,12 @@ class TasksView extends Component {
                   onChange={({ label, value })=> this.changeState(this.state.task, 'status', value)}
                   clearable={false}
                 />
+                <HelpBlock>{ this.state.context.keyErrorMessage('status') }</HelpBlock>
               </FormGroup>
             </form>
           </Modal.Body>
           <Modal.Footer>
-            <Button onClick={this.closeModal}>Close</Button>
+            <Button onClick={this.addTask}>Save</Button>
           </Modal.Footer>
         </Modal>
       </form>
