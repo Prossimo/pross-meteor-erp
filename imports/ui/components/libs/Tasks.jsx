@@ -6,6 +6,7 @@ import {
   HelpBlock,
   Modal,
   Button,
+  Table,
 } from 'react-bootstrap';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -20,6 +21,9 @@ class TasksView extends Component {
     this.changeState = this.changeState.bind(this);
     this.addTask = this.addTask.bind(this);
     this.openModal = this.openModal.bind(this);
+    this.closeModal = this.closeModal.bind(this);
+    this.renderTasks = this.renderTasks.bind(this);
+    this.getEmployeeName = this.getEmployeeName.bind(this)
     this.state = {
       task: {
         name: '',
@@ -82,14 +86,33 @@ class TasksView extends Component {
 
   addTask() {
     const task = this.state.taskSchema.clean(this.state.task);
+    const parentId = FlowRouter.current().params.id;
     this.state.context.validate(task);
-    this.setState((prevState)=> prevState);
+    if (!this.state.context.invalidKeys().length) {
+      this.setState({
+        showModal: false,
+      });
+
+      // add task to server
+      task.parentId = parentId;
+      Meteor.call('task.create', task);
+    } else {
+      this.setState((prevState)=> prevState);
+    }
   }
 
   openModal(event) {
     event && event.preventDefault();
+    if (this.state.task.name) {
+      this.setState({
+        showModal: true,
+      });
+    }
+  }
+
+  closeModal() {
     this.setState({
-      showModal: true,
+      showModal: false,
     });
   }
 
@@ -97,6 +120,38 @@ class TasksView extends Component {
     const invalidKeys = this.state.context.invalidKeys().map(({ name })=> name);
     if (invalidKeys.includes(key)) return 'error';
     return null;
+  }
+
+  getEmployeeName(userId) {
+    const employee = this
+      .state
+      .employees
+      .find(({ _id, name })=> userId === _id);
+    if (employee) return employee.name.split(' ').reduce((r, n)=> r + n.charAt(0), '');
+  }
+
+  renderTasks() {
+    return this.props.tasks.map(({ _id, name, assignee, approver, dueDate })=> {
+      return (
+        <tr key={_id}>
+          <td>{ name }</td>
+          <td className='text-right'>
+            <span className='fa fa-user-o'/> &nbsp;
+              <span className='edit-link'>
+                { this.getEmployeeName(assignee) }
+              </span> &nbsp;
+            <span className='fa fa-check'/> &nbsp;
+              <span className='edit-link'>
+                { this.getEmployeeName(approver) }
+              </span> &nbsp;
+            <span className='fa fa-calendar-check-o'/> &nbsp;
+              <span className='edit-link'>
+                { moment(dueDate).format('YYYY/MM/DD') }
+              </span> &nbsp;
+          </td>
+        </tr>
+      );
+    });
   }
 
   render() {
@@ -131,6 +186,11 @@ class TasksView extends Component {
             onChange={(event) => this.changeState(this.state.task, 'name', event.target.value)}
           />
         </FormGroup>
+        <Table responsive>
+          <tbody>
+            { this.renderTasks() }
+          </tbody>
+        </Table>
         <Modal show={this.state.showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>
             <Modal.Title>
@@ -235,10 +295,15 @@ class TasksView extends Component {
     );
   }
 }
+
 export default createContainer(({ projectId })=> {
   const subscribers = [];
+  const parentId = FlowRouter.current().params.id;
+  subscribers.push(Meteor.subscribe('task.all', { parentId }));
   return {
     subscribers,
+    loading: subscribers.reduce((result, sub)=> result && sub.ready(), true),
+    tasks: Tasks.find().fetch(),
   };
 }, TasksView);
 

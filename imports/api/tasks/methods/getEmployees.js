@@ -18,6 +18,4 @@ const getEmployees = new ValidatedMethod({
   },
 });
 
-export {
-  getEmployees,
-};
+export default getEmployees;

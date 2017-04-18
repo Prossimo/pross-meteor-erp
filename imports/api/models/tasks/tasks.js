@@ -31,6 +31,9 @@ Tasks.schema = new SimpleSchema({
       'Blocked',
     ],
   },
+  parentId: {
+    type: String,
+  },
 });
 
 Tasks.attachSchema(Tasks.schema);
