@@ -30,6 +30,8 @@ class TasksView extends Component {
         approver: '',
       },
       showModal: false,
+      editName: false,
+      editDescription: false,
     };
   }
 
@@ -74,17 +76,54 @@ class TasksView extends Component {
         <Modal show={this.state.showModal} onHide={this.closeModal}>
           <Modal.Header closeButton>
             <Modal.Title>
-              <i className='fa fa-credit-card'> { this.state.task.name }</i>
+              <div onClick={()=> this.changeState(this.state, 'editName', true)}>
+                {
+                  (this.state.editName) ? (
+                    <div>
+                      <i className='fa fa-credit-card'/>&nbsp;
+                      <input
+                        type='text'
+                        autoFocus
+                        value={this.state.task.name}
+                        onChange={(event) => this.changeState(this.state.task, 'name', event.target.value)}
+                        onBlur={()=> this.changeState(this.state, 'editName', false)}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <i className='fa fa-credit-card'> { this.state.task.name }</i>
+                    </div>
+                  )
+                }
+              </div>
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <form>
               <FormGroup validationState={this.getValidationState()}>
                 <ControlLabel>Description</ControlLabel>
-                <FormControl
-                  componentClass='textarea'
-                  placeholder='description'
-                />
+                {
+                  (this.state.editDescription) ? (
+                    <FormControl
+                      componentClass='textarea'
+                      placeholder='description'
+                      autoFocus
+                      value={this.state.task.description}
+                      onChange={(event)=> this.changeState(this.state.task, 'description', event.target.value)}
+                      onBlur={()=> this.changeState(this.state, 'editDescription', false)}
+                    />
+                  ) : (
+                    <div>
+                      <a
+                        className='form-control task-description'
+                        onClick={()=> this.changeState(this.state, 'editDescription', true)}
+                      >
+                        Edit the description
+                      </a>
+                      <p style={{ paddingLeft: '12px', whiteSpace: 'pre-wrap' }}>{ this.state.task.description }</p>
+                    </div>
+                  )
+                }
               </FormGroup>
               <FormGroup>
                 <ControlLabel>Assignee</ControlLabel>
@@ -117,7 +156,6 @@ class TasksView extends Component {
     );
   }
 }
-
 export default createContainer(({ projectId })=> {
   const subscribers = [];
   return {
