@@ -9,6 +9,7 @@ import {
   Table,
   Tooltip,
   OverlayTrigger,
+  Checkbox,
 } from 'react-bootstrap';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -18,6 +19,8 @@ import { createContainer } from 'meteor/react-meteor-data';
 import { Tasks } from '/imports/api/lib/collections';
 
 const dateSort = new ReactiveVar(1);
+const assignToMeFilter = new ReactiveVar(false);
+const taskNameFilter = new ReactiveVar('');
 class TasksView extends Component {
   constructor(props) {
     super(props);
@@ -31,9 +34,10 @@ class TasksView extends Component {
     this.getEmployeeFullName = this.getEmployeeFullName.bind(this);
     this.editTask = this.editTask.bind(this);
     this.sortDate = this.sortDate.bind(this);
+    this.assignToMe = this.assignToMe.bind(this);
     this.state = {
       task: {
-        _id: null,
+        _id: '',
         name: '',
         dueDate: new Date(),
         description: '',
@@ -44,7 +48,6 @@ class TasksView extends Component {
       editName: false,
       editDescription: false,
       employees: [],
-      dateSort: 1,
     };
     const taskSchema = new SimpleSchema({
       _id: {
@@ -85,6 +88,8 @@ class TasksView extends Component {
   componentWillUnmout() {
     this.props.subscribers.forEach((subscribe)=> subscriber.stop());
     dateSort.set(1);
+    assignToMeFilter.set(false);
+    taskNameFilter.set('');
   }
 
   componentDidMount() {
@@ -100,6 +105,7 @@ class TasksView extends Component {
   changeState(propElem, propKey, propValue) {
     propElem[propKey] = propValue;
     this.setState((prevState)=> prevState);
+    if (propKey === 'name') taskNameFilter.set(propValue);
   }
 
   addTask() {
@@ -126,6 +132,7 @@ class TasksView extends Component {
           approver: '',
         },
       });
+      taskNameFilter.set('');
     } else {
       this.setState((prevState)=> prevState);
     }
@@ -144,7 +151,7 @@ class TasksView extends Component {
     this.setState({
       showModal: false,
       task: {
-        _id: null,
+        _id: '',
         name: '',
         dueDate: new Date(),
         description: '',
@@ -152,6 +159,7 @@ class TasksView extends Component {
         approver: '',
       },
     });
+    taskNameFilter.set('');
   }
 
   getValidationState(key) {
@@ -311,13 +319,15 @@ class TasksView extends Component {
   }
 
   sortDate() {
-    if (this.state.dateSort === 1) {
-      this.state.dateSort = -1;
+    if (dateSort.get() === 1) {
       dateSort.set(-1);
     } else {
-      this.state.dateSort = 1;
       dateSort.set(1);
     }
+  }
+
+  assignToMe() {
+    assignToMeFilter.set(!assignToMeFilter.get());
   }
 
   render() {
@@ -348,7 +358,7 @@ class TasksView extends Component {
           <FormControl
             type='text'
             value={this.state.task.name}
-            placeholder='Enter task name'
+            placeholder='Enter task name / search'
             style={{ borderRadius: '0px' }}
             onChange={(event) => this.changeState(this.state.task, 'name', event.target.value)}
           />
@@ -359,11 +369,15 @@ class TasksView extends Component {
               <th></th>
               <th></th>
               <th></th>
-              <th></th>
+              <th>
+                <Checkbox checked={assignToMeFilter.get()} onChange={this.assignToMe}>
+                  Assigned to me
+                </Checkbox>
+              </th>
               <th>
                 <Button onClick={this.sortDate}>
                   {
-                    (this.state.dateSort === 1) ? (
+                    (dateSort.get() === 1) ? (
                       <i className='fa fa-sort-numeric-asc'/>
                     ) : (
                       <i className='fa fa-sort-numeric-desc'/>
@@ -485,11 +499,19 @@ class TasksView extends Component {
 export default createContainer(({ projectId })=> {
   const subscribers = [];
   const parentId = FlowRouter.current().params.id;
+  const filter = {};
+  let tasks = [];
   subscribers.push(Meteor.subscribe('task.all', { parentId }));
+  if (assignToMeFilter.get()) {
+    filter.assignee = Meteor.userId();
+  };
+
+  filter.name = { $regex: new RegExp(taskNameFilter.get()) };
+  tasks = Tasks.find(filter, { sort: { dueDate: dateSort.get() } }).fetch();
   return {
     subscribers,
     loading: subscribers.reduce((result, sub)=> result && sub.ready(), true),
-    tasks: Tasks.find({}, { sort: { dueDate: dateSort.get() } }).fetch(),
+    tasks,
   };
 }, TasksView);
 
