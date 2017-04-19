@@ -5,6 +5,7 @@ import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
 import {DropdownButton, MenuItem} from 'react-bootstrap'
+import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 
 
 export default class Toolbar extends React.Component {
@@ -42,7 +43,11 @@ export default class Toolbar extends React.Component {
             <div style={{marginTop:12, float:'right'}}>
                 <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record" disabled={!thread}>
                     <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new SalesRecord from this thread</MenuItem>
-                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('bind')}>Bind this thread to existing SalesRecord</MenuItem>
+                    <MenuItem divider/>
+                    <MenuItem header>Bind this thread to existing SalesRecord</MenuItem>
+                    {
+                        SalesRecord.find().fetch().map((sr)=><MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
+                    }
                 </DropdownButton>
             </div>
         )
