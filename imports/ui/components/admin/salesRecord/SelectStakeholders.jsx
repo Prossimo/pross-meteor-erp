@@ -22,7 +22,8 @@ class SelectStakeHolders extends Component {
         this.categoryOptions = STAKEHOLDER_CATEGORY.map((category) => ({label: category, value: category}));
         this.designationOptions = DESIGNATION_LIST.map((designation) => ({label: designation, value: designation}));
 
-        const selectedMembers = this.getConvertedSelectedMembers(props.selectedMembers?props.selectedMembers.map(({name, email, _id}) => ({label: name, value: _id, email: email})):[])
+        console.log(props.selectedMembers)
+        const selectedMembers = this.getConvertedSelectedMembers(props.selectedMembers?props.selectedMembers.map(({name, email, _id, designation, categories, notify, isMainStakeholder}) => ({label: name, value: _id, email, designation, categories, notify, isMainStakeholder})):[])
         this.state = {
             selectedMembers: selectedMembers
         }
@@ -57,7 +58,7 @@ class SelectStakeHolders extends Component {
         })));
     }
 
-    changeMembers(selectedMembers) {
+    changeMembers(selectedMembers) {console.log(selectedMembers)
         selectedMembers = this.getConvertedSelectedMembers(selectedMembers)
         this.setState({selectedMembers: selectedMembers})
 

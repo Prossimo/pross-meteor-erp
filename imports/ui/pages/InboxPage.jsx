@@ -18,6 +18,7 @@ import Toolbar from '../components/inbox/Toolbar';
 import ComposeModal from '../components/inbox/composer/ComposeModal';
 import NylasSigninForm from '../components/inbox/NylasSigninForm';
 import CreateSalesRecord from '../components/admin/CreateSalesRecord';
+import SalesRecordSelect from '../components/admin/salesRecord/SalesRecordSelect'
 
 
 class InboxPage extends React.Component {
@@ -28,7 +29,7 @@ class InboxPage extends React.Component {
         this.state = {
             addingInbox: false,
             addingTeamInbox: false,
-            salesRecordModal: false,
+            showSalesRecordModal: false,
             bindingSalesRecord: false,
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
@@ -170,27 +171,30 @@ class InboxPage extends React.Component {
         )
     }
 
-    onSelectMenuSalesRecord = (option) => {
+    onSelectMenuSalesRecord = (option, salesRecord) => {
         this.setState({
-            salesRecordModal: true,
-            bindingSalesRecord: option == 'bind'
+            showSalesRecordModal: true,
+            bindingSalesRecord: option == 'bind',
+            selectedSalesRecord: salesRecord
         })
     }
 
     renderSalesRecordModal() {
-        const {salesRecordModal, bindingSalesRecord, currentThread} = this.state
+        const {showSalesRecordModal, bindingSalesRecord, currentThread, selectedSalesRecord} = this.state
 
         if (!currentThread) return ''
 
-
         const title = bindingSalesRecord ? 'Bind this thread to existing SalesRecord' : 'Create new SalesRecord from this thread'
         return (
-            <Modal show={salesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
-                <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
+            <Modal show={showSalesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
+                <Modal.Header closeButton>
+                    <Modal.Title>{title}</Modal.Title>
+                </Modal.Header>
                 <Modal.Body>
                     <CreateSalesRecord
                         {...this.props}
                         thread={currentThread}
+                        salesRecord={selectedSalesRecord}
                     />
                 </Modal.Body>
             </Modal>
@@ -199,7 +203,7 @@ class InboxPage extends React.Component {
 
     onCloseSalesRecordModal = () => {
         this.setState({
-            salesRecordModal: false,
+            showSalesRecordModal: false,
             bindingSalesRecord: false
         })
     }

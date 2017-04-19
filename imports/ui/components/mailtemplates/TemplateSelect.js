@@ -47,7 +47,7 @@ export default class TemplateSelect extends React.Component {
     onChange = (item) => {
         if(!item) {
             this.setState({selectedTemplate:null})
-            this.props.onChange(template)
+            this.props.onChange(null)
             return
         }
         const template = this.state.templates.find((t)=>t._id===item.value)

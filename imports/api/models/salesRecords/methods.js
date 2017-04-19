@@ -194,4 +194,86 @@ Meteor.methods({
         return salesRecordId;
     },
 
+    updateSalesRecord(id, data, thread){
+        if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
+            throw new Meteor.Error("Access denied");
+        }
+        check(data, {
+            name: String,
+            shippingMode: String,
+            members: [{
+                userId: String,
+                category: [String]
+            }],
+            stakeholders: [{
+                contactId: String,
+                destination: String,
+                category: [String],
+                isMainStakeholder: Boolean,
+                notify: Boolean,
+            }],
+            actualDeliveryDate: Date,
+            productionStartDate: Date,
+            estDeliveryRange: [Date],
+
+            shippingContactPhone: Match.Maybe(Match.phone),
+            shippingContactName: Match.Maybe(String),
+            shippingContactEmail: Match.Maybe(String),
+            shippingAddress: Match.Maybe(String),
+            shippingNotes: Match.Maybe(String),
+
+            billingContactPhone: Match.Maybe(Match.phone),
+            billingContactName: Match.Maybe(String),
+            billingContactEmail: Match.Maybe(String),
+            billingAddress: Match.Maybe(String),
+            billingNotes: Match.Maybe(String),
+
+            estProductionTime: Match.Maybe(Number),
+            actProductionTime: Match.Maybe(Number),
+            supplier: Match.Maybe(String),
+            shipper: Match.Maybe(String),
+            stage: Match.Maybe(String)
+        });
+
+
+        SalesRecords.update({_id:id}, {$set:data});
+
+
+        // Insert conversations attached
+        if (thread) {
+            //console.log("thread to be attached", thread)
+            thread.salesRecordId = id
+            const existingThread = Threads.findOne({id:thread.id, salesRecordId:id})
+            if(existingThread) {
+                Threads.update({_id:existingThread._id}, {$set:thread})
+            } else {
+                Threads.insert(thread)
+            }
+
+            const query = queryString.stringify({thread_id: thread.id});
+            NylasAPI.makeRequest({
+                path: `/messages?${query}`,
+                method: 'GET',
+                accountId: thread.account_id
+            }).then((messages) => {
+                if (messages && messages.length) {
+
+                    const Fiber = require('fibers')
+
+                    Fiber(() => {
+                        messages.forEach((message) => {
+                            const existingMessage = Messages.findOne({id:message.id})
+                            if(!existingMessage) {
+                                Messages.insert(message)
+                            } else {
+                                Messages.update({_id:existingMessage._id}, {$set:message})
+                            }
+                        })
+                    }).run()
+                }
+            })
+        }
+
+    },
+
 });
