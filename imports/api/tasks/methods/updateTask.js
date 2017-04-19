@@ -1,8 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { Tasks } from '../../lib/collections';
 
-const createNewTask = new ValidatedMethod({
-  name: 'task.create',
+const updateTask = new ValidatedMethod({
+  name: 'task.update',
   validate: new SimpleSchema({
     name: {
       type: String,
@@ -33,9 +33,14 @@ const createNewTask = new ValidatedMethod({
     parentId: {
       type: String,
     },
+    _id: {
+      type: String,
+    },
   }).validator(),
   run(task) {
     if (!this.userId) return;
-    return Tasks.insert(task);
+    return Tasks.update(task._id, {
+      $set: task,
+    });
   },
 });
