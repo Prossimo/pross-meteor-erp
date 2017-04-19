@@ -7,6 +7,8 @@ import {
   Modal,
   Button,
   Table,
+  Tooltip,
+  OverlayTrigger,
 } from 'react-bootstrap';
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
@@ -23,9 +25,12 @@ class TasksView extends Component {
     this.openModal = this.openModal.bind(this);
     this.closeModal = this.closeModal.bind(this);
     this.renderTasks = this.renderTasks.bind(this);
-    this.getEmployeeName = this.getEmployeeName.bind(this)
+    this.getEmployeeName = this.getEmployeeName.bind(this);
+    this.getEmployeeFullName = this.getEmployeeFullName.bind(this);
+    this.editTask = this.editTask.bind(this);
     this.state = {
       task: {
+        _id: null,
         name: '',
         dueDate: new Date(),
         description: '',
@@ -38,6 +43,10 @@ class TasksView extends Component {
       employees: [],
     };
     const taskSchema = new SimpleSchema({
+      _id: {
+        type: String,
+        optional: true,
+      },
       name: {
         type: String,
       },
@@ -95,7 +104,19 @@ class TasksView extends Component {
 
       // add task to server
       task.parentId = parentId;
-      Meteor.call('task.create', task);
+      if (task._id)
+        Meteor.call('task.update', task);
+      else
+        Meteor.call('task.create', task);
+      this.setState({
+        task: {
+          name: '',
+          dueDate: new Date(),
+          description: '',
+          assignee: '',
+          approver: '',
+        },
+      });
     } else {
       this.setState((prevState)=> prevState);
     }
@@ -113,6 +134,14 @@ class TasksView extends Component {
   closeModal() {
     this.setState({
       showModal: false,
+      task: {
+        _id: null,
+        name: '',
+        dueDate: new Date(),
+        description: '',
+        assignee: '',
+        approver: '',
+      },
     });
   }
 
@@ -120,6 +149,14 @@ class TasksView extends Component {
     const invalidKeys = this.state.context.invalidKeys().map(({ name })=> name);
     if (invalidKeys.includes(key)) return 'error';
     return null;
+  }
+
+  getEmployeeFullName(userId) {
+    const employee = this
+      .state
+      .employees
+      .find(({ _id, name })=> userId === _id);
+    if (employee) return employee.name;
   }
 
   getEmployeeName(userId) {
@@ -130,24 +167,72 @@ class TasksView extends Component {
     if (employee) return employee.name.split(' ').reduce((r, n)=> r + n.charAt(0), '');
   }
 
+  editTask(task, event) {
+    event.preventDefault();
+    this.state.task = _.clone(task);
+    this.openModal();
+  }
+
   renderTasks() {
-    return this.props.tasks.map(({ _id, name, assignee, approver, dueDate })=> {
+    const targetTooltip = (msg, target)=> (
+      <Tooltip id='tooltip'>
+        { msg }
+        {
+          ( target ) ? (
+            <strong>@{ this.getEmployeeFullName(target) }</strong>
+          ) : ''
+        }
+      </Tooltip>
+    );
+
+    return this.props.tasks.map((task)=> {
+      const { _id, name, assignee, approver, dueDate } = task;
       return (
         <tr key={_id}>
-          <td>{ name }</td>
+          <td><a href='#' className='task-name' onClick={(event)=> this.editTask(task, event)}>{ name }</a></td>
           <td className='text-right'>
-            <span className='fa fa-user-o'/> &nbsp;
-              <span className='edit-link'>
-                { this.getEmployeeName(assignee) }
-              </span> &nbsp;
-            <span className='fa fa-check'/> &nbsp;
-              <span className='edit-link'>
-                { this.getEmployeeName(approver) }
-              </span> &nbsp;
-            <span className='fa fa-calendar-check-o'/> &nbsp;
-              <span className='edit-link'>
-                { moment(dueDate).format('YYYY/MM/DD') }
-              </span> &nbsp;
+            {
+              (approver) ? (
+                <span className='task-component'>
+                  <span className='fa fa-check-circle-o'/>
+                  &nbsp;
+                  <OverlayTrigger placement='left' overlay={targetTooltip('Approver is ', approver)}>
+                    <span className='edit-link'>
+                      { this.getEmployeeName(approver) }
+                    </span>
+                  </OverlayTrigger>
+                  &nbsp;
+                </span>
+              ) : ''
+            }
+            {
+              (assignee) ? (
+                <span className='task-component'>
+                  <span className='fa fa-user-o'/>
+                  &nbsp;
+                  <OverlayTrigger placement='left' overlay={targetTooltip('Assigned to ', assignee)}>
+                    <span className='edit-link'>
+                      { this.getEmployeeName(assignee) }
+                    </span>
+                  </OverlayTrigger>
+                  &nbsp;
+                </span>
+              ) : ''
+            }
+            {
+              (dueDate) ? (
+                <span className='task-component'>
+                  <span className='fa fa-calendar-check-o'/>
+                  &nbsp;
+                  <OverlayTrigger placement='left' overlay={targetTooltip('Due date')}>
+                    <span className='edit-link'>
+                      { moment(dueDate).format('YYYY/MM/DD') }
+                    </span>
+                  </OverlayTrigger>
+                  &nbsp;
+                </span>
+              ) : ''
+            }
           </td>
         </tr>
       );
