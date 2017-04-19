@@ -13,6 +13,7 @@ import {
 import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
+import className from 'classnames';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Tasks } from '/imports/api/lib/collections';
 
@@ -173,12 +174,52 @@ class TasksView extends Component {
     this.openModal();
   }
 
+  statusIcon(status) {
+    const targetTooltip = (msg)=> (
+      <Tooltip id='tooltip'>
+        { msg }
+      </Tooltip>
+    );
+    switch (status) {
+      case 'Idea':
+        return (
+          <OverlayTrigger placement='left' overlay={targetTooltip('Task is an idea')}>
+            <i className='fa fa-lightbulb-o'/>
+          </OverlayTrigger>
+        );
+      case 'Planned':
+        return (
+          <OverlayTrigger placement='left' overlay={targetTooltip('Task is planned')}>
+            <i className='fa fa-tasks'/>
+          </OverlayTrigger>
+        );
+      case 'In Progress':
+        return (
+          <OverlayTrigger placement='left' overlay={targetTooltip('Task is in progress')}>
+            <i className='fa fa-play'/>
+          </OverlayTrigger>
+        );
+      case 'Complete':
+        return (
+          <OverlayTrigger placement='left' overlay={targetTooltip('Task is complete')}>
+            <i className='fa fa-check-square-o'/>
+          </OverlayTrigger>
+        );
+      case 'Blocked':
+        return (
+          <OverlayTrigger placement='left' overlay={targetTooltip('Task is blocked')}>
+            <i className='fa fa-ban'/>
+          </OverlayTrigger>
+        );
+    }
+  }
+
   renderTasks() {
     const targetTooltip = (msg, target)=> (
       <Tooltip id='tooltip'>
         { msg }
         {
-          ( target ) ? (
+          (target) ? (
             <strong>@{ this.getEmployeeFullName(target) }</strong>
           ) : ''
         }
@@ -186,11 +227,27 @@ class TasksView extends Component {
     );
 
     return this.props.tasks.map((task)=> {
-      const { _id, name, assignee, approver, dueDate } = task;
+      const { _id, name, assignee, approver, dueDate, status } = task;
+      let style = {};
+      if (status == 'Blocked') style = {
+        backgroundColor: 'red',
+        color: 'white',
+      };
       return (
-        <tr key={_id}>
-          <td><a href='#' className='task-name' onClick={(event)=> this.editTask(task, event)}>{ name }</a></td>
+        <tr key={_id} style={style}>
+          <td>
+            <a href='#' className='task-name' onClick={(event)=> this.editTask(task, event)} style={style}>
+              { name }
+            </a>
+          </td>
           <td className='text-right'>
+            {
+              (status) ? (
+                <span className='task-component'>
+                  { this.statusIcon(status) }
+                </span>
+              ) : ''
+            }
             {
               (approver) ? (
                 <span className='task-component'>
@@ -268,6 +325,7 @@ class TasksView extends Component {
             type='text'
             value={this.state.task.name}
             placeholder='Enter task name'
+            style={{ borderRadius: '0px' }}
             onChange={(event) => this.changeState(this.state.task, 'name', event.target.value)}
           />
         </FormGroup>
