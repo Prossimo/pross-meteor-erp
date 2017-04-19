@@ -17,6 +17,7 @@ import className from 'classnames';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Tasks } from '/imports/api/lib/collections';
 
+const dateSort = new ReactiveVar(1);
 class TasksView extends Component {
   constructor(props) {
     super(props);
@@ -29,6 +30,7 @@ class TasksView extends Component {
     this.getEmployeeName = this.getEmployeeName.bind(this);
     this.getEmployeeFullName = this.getEmployeeFullName.bind(this);
     this.editTask = this.editTask.bind(this);
+    this.sortDate = this.sortDate.bind(this);
     this.state = {
       task: {
         _id: null,
@@ -42,6 +44,7 @@ class TasksView extends Component {
       editName: false,
       editDescription: false,
       employees: [],
+      dateSort: 1,
     };
     const taskSchema = new SimpleSchema({
       _id: {
@@ -77,6 +80,11 @@ class TasksView extends Component {
     });
     this.state.taskSchema = taskSchema;
     this.state.context = taskSchema.newContext();
+  }
+
+  componentWillUnmout() {
+    this.props.subscribers.forEach((subscribe)=> subscriber.stop());
+    dateSort.set(1);
   }
 
   componentDidMount() {
@@ -240,17 +248,19 @@ class TasksView extends Component {
               { name }
             </a>
           </td>
-          <td className='text-right'>
+          <td style={{ width: '150px' }}>
             {
               (status) ? (
-                <span className='task-component'>
+                <span>
                   { this.statusIcon(status) }
                 </span>
               ) : ''
             }
+          </td>
+          <td style={{ width: '150px' }}>
             {
               (approver) ? (
-                <span className='task-component'>
+                <span>
                   <span className='fa fa-check-circle-o'/>
                   &nbsp;
                   <OverlayTrigger placement='left' overlay={targetTooltip('Approver is ', approver)}>
@@ -262,9 +272,11 @@ class TasksView extends Component {
                 </span>
               ) : ''
             }
+          </td>
+          <td style={{ width: '150px' }}>
             {
               (assignee) ? (
-                <span className='task-component'>
+                <span>
                   <span className='fa fa-user-o'/>
                   &nbsp;
                   <OverlayTrigger placement='left' overlay={targetTooltip('Assigned to ', assignee)}>
@@ -276,9 +288,11 @@ class TasksView extends Component {
                 </span>
               ) : ''
             }
+          </td>
+          <td style={{ width: '150px' }}>
             {
               (dueDate) ? (
-                <span className='task-component'>
+                <span>
                   <span className='fa fa-calendar-check-o'/>
                   &nbsp;
                   <OverlayTrigger placement='left' overlay={targetTooltip('Due date')}>
@@ -294,6 +308,16 @@ class TasksView extends Component {
         </tr>
       );
     });
+  }
+
+  sortDate() {
+    if (this.state.dateSort === 1) {
+      this.state.dateSort = -1;
+      dateSort.set(-1);
+    } else {
+      this.state.dateSort = 1;
+      dateSort.set(1);
+    }
   }
 
   render() {
@@ -330,6 +354,25 @@ class TasksView extends Component {
           />
         </FormGroup>
         <Table responsive>
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>
+                <Button onClick={this.sortDate}>
+                  {
+                    (this.state.dateSort === 1) ? (
+                      <i className='fa fa-sort-numeric-asc'/>
+                    ) : (
+                      <i className='fa fa-sort-numeric-desc'/>
+                    )
+                  }
+                </Button>
+              </th>
+            </tr>
+          </thead>
           <tbody>
             { this.renderTasks() }
           </tbody>
@@ -446,7 +489,7 @@ export default createContainer(({ projectId })=> {
   return {
     subscribers,
     loading: subscribers.reduce((result, sub)=> result && sub.ready(), true),
-    tasks: Tasks.find().fetch(),
+    tasks: Tasks.find({}, { sort: { dueDate: dateSort.get() } }).fetch(),
   };
 }, TasksView);
 
