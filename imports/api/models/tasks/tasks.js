@@ -34,6 +34,10 @@ Tasks.schema = new SimpleSchema({
   parentId: {
     type: String,
   },
+  isRemoved: {
+    type: Boolean,
+    defaultValue: false,
+  },
 });
 
 Tasks.attachSchema(Tasks.schema);

@@ -61,11 +61,12 @@
     "simpl-schema": "^0.2.2",
     "slackbots": "^1.0.2",
     "streamsaver": "^1.0.0",
+    "sweetalert2": "^6.6.0",
     "twilio": "^2.11.1",
     "underscore": "^1.8.3",
     "uuid": "^3.0.1",
-    "web-streams-polyfill": "^1.3.2",
-    "velocity-react": "^1.1.2"
+    "velocity-react": "^1.1.2",
+    "web-streams-polyfill": "^1.3.2"
   },
   "devDependencies": {
     "babel-plugin-transform-class-properties": "6.18.0",

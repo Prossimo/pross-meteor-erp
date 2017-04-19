@@ -15,8 +15,10 @@ import Select from 'react-select';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import className from 'classnames';
+import swal from 'sweetalert2';
 import { createContainer } from 'meteor/react-meteor-data';
 import { Tasks } from '/imports/api/lib/collections';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 const dateSort = new ReactiveVar(1);
 const assignToMeFilter = new ReactiveVar(false);
@@ -35,6 +37,7 @@ class TasksView extends Component {
     this.editTask = this.editTask.bind(this);
     this.sortDate = this.sortDate.bind(this);
     this.assignToMe = this.assignToMe.bind(this);
+    this.removeTask = this.removeTask.bind(this);
     this.state = {
       task: {
         _id: '',
@@ -230,6 +233,25 @@ class TasksView extends Component {
     }
   }
 
+  removeTask(_id) {
+    swal({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(()=> {
+      Meteor.call('task.remove', { _id });
+      swal(
+        'Deleted!',
+        'Your task has been deleted.',
+        'success'
+      );
+    }).catch(()=> {});
+  }
+
   renderTasks() {
     const targetTooltip = (msg, target)=> (
       <Tooltip id='tooltip'>
@@ -313,6 +335,11 @@ class TasksView extends Component {
               ) : ''
             }
           </td>
+          <td style={{ width: '50px' }}>
+            <a href='#' style={{ color: 'black' }} onClick={()=> this.removeTask(_id)}>
+              <span className='fa fa-times'/>
+            </a>
+          </td>
         </tr>
       );
     });
@@ -385,6 +412,7 @@ class TasksView extends Component {
                   }
                 </Button>
               </th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -506,7 +534,7 @@ export default createContainer(({ projectId })=> {
     filter.assignee = Meteor.userId();
   };
 
-  filter.name = { $regex: new RegExp(taskNameFilter.get()) };
+  filter.name = { $regex: new RegExp(taskNameFilter.get(), 'i') };
   tasks = Tasks.find(filter, { sort: { dueDate: dateSort.get() } }).fetch();
   return {
     subscribers,
