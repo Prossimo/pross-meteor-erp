@@ -16,6 +16,7 @@ class MessageStore extends Reflux.Store {
         if(salesRecord) {
             this.salesRecord = salesRecord
             this._messages = salesRecord.messages()
+            this._messages.sort((m1, m2) => m1.date - m2.date)
 
             this._expandMessagesToDefault()
         }
