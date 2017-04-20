@@ -60,7 +60,8 @@ class NylasAPIRequest {
                         response.statusCode = TimeoutErrorCodes[0];
                     }
                     const apiError = new APIError({error, response, body, requestOptions: this.options});
-                    this.options.error ? this.options.error : apiError;
+                    if(this.options.error) this.options.error(apiError);
+
                     reject(apiError);
                 } else {
                     if(this.options.success) this.options.success(body);

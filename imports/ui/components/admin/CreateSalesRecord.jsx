@@ -84,7 +84,7 @@ class CreateSalesRecord extends React.Component {
                 this.state.stakeholders = contacts;
         }
 
-        if (props.salesRecord) {
+        if (props.salesRecord && props.salesRecord.stakeholders) {
             props.salesRecord.stakeholders.forEach((stakeholder) => {
                 const contact = Contacts.findOne({_id: stakeholder.contactId})
                 if (contact) {
