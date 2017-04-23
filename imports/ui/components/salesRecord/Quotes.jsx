@@ -171,7 +171,7 @@ class Quotes extends React.Component {
     }
 
     showAddQuoteForm() {
-        const {salesRecord, usersArr, currentUser, quotes} = this.props; console.log(this.props)
+        const {salesRecord, usersArr, currentUser, quotes} = this.props;
 
         const to = salesRecord.contactsForStakeholders().map((c)=>({name:c.name, email:c.email}))
         const salesRecordId = salesRecord._id
@@ -210,15 +210,24 @@ class Quotes extends React.Component {
 
     addRevision(quote) {
         const {salesRecord, usersArr, currentUser} = this.props;
-        this.setState({
-            showPopup: true,
-            popupTitle: `Add revision to ${quote.name}`,
-            popupData: <AddQuoteRevisionForm hide={this.hidePopup.bind(this)}
-                                             currentUser={currentUser}
-                                             usersArr={usersArr}
-                                             quote={quote}
-                                             project={salesRecord}/>
+
+        const to = salesRecord.contactsForStakeholders().map((c)=>({name:c.name, email:c.email}))
+        const salesRecordId = salesRecord._id
+        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft)=>{
+            this.setState({
+                showPopup: true,
+                popupTitle: `Add revision to ${quote.name}`,
+                popupData: <AddQuoteRevisionForm currentUser={currentUser}
+                                                 usersArr={usersArr}
+                                                 quote={quote}
+                                                 salesRecord={salesRecord}
+                                                 draftClientId={draft.clientId}
+                                                 saved={() => {
+                                                     this.setState({showPopup: false})
+                                                 }}/>
+            })
         })
+
     }
 
     renderQuotes() {

@@ -4,8 +4,21 @@ import { getUserName, getUserEmail, getAvatarUrl, getSlackUsername } from '../..
 import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';
 import _ from 'underscore';
+import TemplateSelect from '../mailtemplates/TemplateSelect';
+import TemplateOverview from '../mailtemplates/TemplateOverview';
+import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
+import ComposeModal from '../inbox/composer/ComposeModal'
 
 class AddQuoteForm extends React.Component{
+    static propTypes = {
+        currentUser: React.PropTypes.object,
+        usersArr: React.PropTypes.object,
+        quote: React.PropTypes.object,
+        salesRecord: React.PropTypes.object,
+        draftClientId: React.PropTypes.string,
+        saved: React.PropTypes.func
+    }
+
     constructor(props){
         super(props);
 
@@ -19,7 +32,7 @@ class AddQuoteForm extends React.Component{
         }
     }
 
-    changeFileInput(event){
+    changeFileInput = (event) => {
         if(event.target.files.length){
             if(event.target.files[0].type !== "application/pdf") {
                 return  warning(`You can add only PDF files!`);
@@ -31,14 +44,6 @@ class AddQuoteForm extends React.Component{
         }
     }
 
-    revisionNumberChange(event){
-        const { quote } = this.props;
-        const { value: revisionNumber } = event.target;
-        if(revisionNumber > quote.revisions.length) return;
-
-        this.setState({revisionNumber: parseInt(revisionNumber)});
-    }
-
     renderAttachedFile(){
         const { currentFile } = this.state;
         if(currentFile){
@@ -48,6 +53,14 @@ class AddQuoteForm extends React.Component{
                 </div>
             )
         }
+    }
+
+    revisionNumberChange(event){
+        const { quote } = this.props;
+        const { value: revisionNumber } = event.target;
+        if(revisionNumber > quote.revisions.length) return;
+
+        this.setState({revisionNumber: parseInt(revisionNumber)});
     }
 
     formSubmit(event){
@@ -88,27 +101,18 @@ class AddQuoteForm extends React.Component{
             projectId: salesRecord._id,
         };
 
-        const sendEmailCb = (err,res)=> {
-            if(err) return warning("Email sending failed");
-            info(res);
-        };
 
+        const draftClientId = this.props.draftClientId
         const revisionCb = (err)=>{
-            this.hide();
+            if(this.props.saved) this.props.saved()
             info(`${needUpdate?"Update":"Add"} revision success!`);
             if(err) return warning(err.reason);
             //// step # 3 - notify slack/email
             Meteor.call("sendBotMessage", salesRecord.slackChanel, slackText, slackMsgParans);
 
             if(!alertsActive) return;
-            Meteor.call("sendEmail", {
-                to: memberEmails,
-                from: 'mail@prossimo.us',
-                subject: `${needUpdate?"Update":"Add"} revision "${salesRecord.name}" project`,
-                replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                attachments: [revisionData.fileId],
-                html: generateEmailHtml(currentUser, `Go to project "${salesRecord.name}"`, FlowRouter.url(FlowRouter.current().path))
-            },sendEmailCb);
+
+            Actions.sendDraft(draftClientId)
         };
 
         const fileInsertCb = (err, res)=>{
@@ -148,7 +152,20 @@ class AddQuoteForm extends React.Component{
     }
 
     render() {
-        const { totalCost, alertsActive, revisionNumber } = this.state;
+        const { totalCost, alertsActive, revisionNumber, showComposeModal, selectedMailTemplate, shouldBeCompileMailTemplate } = this.state;
+
+        let templateData
+
+        if(shouldBeCompileMailTemplate && selectedMailTemplate) {
+            templateData = this.compileTemplate(selectedMailTemplate)
+        } else {
+            const draft = DraftStore.draftForClientId(this.props.draftClientId)
+            templateData = {
+                subject: draft.subject,
+                body: draft.body
+            }
+        }
+
         const { quote } = this.props;
         return (
             <div className="add-quote-form">
@@ -172,11 +189,11 @@ class AddQuoteForm extends React.Component{
 
                     <div className="field-wrap">
                         <span className="label">Add pdf file</span>
-                        <label htmlFor="quote-file"
+                        <label htmlFor="form-revision-quote-file"
                                className="file-label"/>
                         <input type="file"
-                               id="quote-file"
-                               onChange={this.changeFileInput.bind(this)}/>
+                               id="form-revision-quote-file"
+                               onChange={this.changeFileInput}/>
                         {this.renderAttachedFile()}
                     </div>
                     <input type="checkbox"
@@ -186,12 +203,68 @@ class AddQuoteForm extends React.Component{
                            className="hidden-checkbox"/>
                     <label htmlFor="alert-checkbox"
                            className="check-label">Alert stakeholders</label>
+                    {alertsActive && (NylasUtils.hasNylasAccounts() ? <TemplateSelect onChange={this.onSelectMailTemplate} selectedTemplate={selectedMailTemplate}/> : <Alert bsStyle="warning">You need to set inbox to email!</Alert>)}
+                    {alertsActive && selectedMailTemplate && (
+                        <div style={{position:'relative'}}>
+                            <TemplateOverview template={templateData}/>
+                            <i className="fa fa-edit" style={{position:'absolute',top:5,right:5}} onClick={this.onClickEditMail}></i>
+                            <ComposeModal isOpen={showComposeModal}
+                                          clientId={this.props.draftClientId}
+                                          onClose={this.onCloseComposeModal}
+                                          lazySend={true}
+                            />
+                        </div>
+                    )}
                     <div className="submit-wrap">
                         <button className="btnn primary-btn">Add revision</button>
                     </div>
                 </form>
             </div>
         )
+    }
+
+    onSelectMailTemplate = (template) => {
+        this.setState({
+            selectedMailTemplate: template,
+            shouldBeCompileMailTemplate: true
+        })
+
+
+    }
+
+    compileTemplate = (template) => {
+        if(!template) return
+
+        const tplData = {
+            project: this.props.salesRecord.name,
+            quote: this.props.quote.name,
+            cost: this.state.totalCost
+        }
+
+        const compiledData = {
+            subject: RegExpUtils.compileTemplate(template.subject, tplData),
+            body: RegExpUtils.compileTemplate(template.body, tplData)
+        }
+
+        DraftStore.changeDraftForClientId(this.props.draftClientId, compiledData)
+
+        return compiledData
+    }
+
+    onClickEditMail = () => {
+        this.setState({showComposeModal:true})
+    }
+
+    onCloseComposeModal = () => {
+        this.setState({showComposeModal:false})
+
+        if(!this.props.draftClientId) return
+
+        const draft = DraftStore.draftForClientId(this.props.draftClientId)
+
+        this.setState({
+            shouldBeCompileMailTemplate: false
+        })
     }
 }
 

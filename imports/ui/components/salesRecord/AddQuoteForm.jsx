@@ -6,7 +6,6 @@ import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';
 import TemplateSelect from '../mailtemplates/TemplateSelect';
 import TemplateOverview from '../mailtemplates/TemplateOverview';
-
 import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
 import ComposeModal from '../inbox/composer/ComposeModal'
 
@@ -31,14 +30,10 @@ class AddQuoteForm extends React.Component{
     }
 
     componentDidMount() {
-        this.unsubscribe = DraftStore.listen(this.onDraftStoreChanged)
+
     }
 
     componentWillUnmount() {
-        this.unsubscribe()
-    }
-
-    onDraftStoreChanged = () => {
 
     }
 
@@ -78,8 +73,6 @@ class AddQuoteForm extends React.Component{
         if(quoteName === '')return warning(`Empty quote name`);
         if(totalCost === '')return warning(`Empty total cost field`);
 
-        const draftClientId = this.props.draftClientId
-
         const quoteData = {
             name: quoteName,
             createAt: new Date(),
@@ -113,6 +106,8 @@ class AddQuoteForm extends React.Component{
             info(res);
         };
 
+
+        const draftClientId = this.props.draftClientId
         const addQuoteCb = (err)=>{ console.log(this.props)
             if(err) return console.log(err);
 
@@ -120,16 +115,6 @@ class AddQuoteForm extends React.Component{
             info(`Add new quote`);
 
             if(!alertsActive) return;
-
-            /*Meteor.call("sendEmail", {
-                to: memberEmails,
-                from: 'mail@prossimo.us',
-                subject: `Add new quote in "${salesRecord.name}" project`,
-                replyTo: `[${getUserName(currentUser)}] from Prossimo <${getUserEmail(currentUser)}>`,
-                attachments: [quoteData.revisions[0].fileId],
-                html: generateEmailHtml(currentUser, `Go to project "${salesRecord.name}"`, FlowRouter.url(FlowRouter.current().path))
-            },sendEmailCb);*/
-
 
             Actions.sendDraft(draftClientId)
         };
@@ -163,11 +148,6 @@ class AddQuoteForm extends React.Component{
         };
 
         Files.insert(file, fileInsertCb);
-    }
-
-    hide(){
-        const { hide } = this.props;
-        if(typeof hide === 'function') hide();
     }
 
     onChangeCost = (event) => {
