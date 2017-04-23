@@ -13,7 +13,6 @@ import NumericInput from 'react-numeric-input';
 import SelectMembers from './salesRecord/SelectMembers';
 import SelectStakeholders from './salesRecord/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
-import MessageStore from '../../../api/nylas/message-store'
 import Contacts from '/imports/api/models/contacts/contacts'
 
 class CreateSalesRecord extends React.Component {
@@ -85,10 +84,11 @@ class CreateSalesRecord extends React.Component {
         }
 
         if (props.salesRecord && props.salesRecord.stakeholders) {
+            let stakeholders = []
             props.salesRecord.stakeholders.forEach((stakeholder) => {
                 const contact = Contacts.findOne({_id: stakeholder.contactId})
                 if (contact) {
-                    this.state.stakeholders.push({
+                    stakeholders.push({
                         _id: contact._id,
                         name: contact.name,
                         email: contact.email,
@@ -99,6 +99,7 @@ class CreateSalesRecord extends React.Component {
                     })
                 }
             })
+            this.state.stakeholders = _.uniq(stakeholders,(st)=>st._id)
         }
 
         this.changeState = this.changeState.bind(this);
@@ -149,7 +150,7 @@ class CreateSalesRecord extends React.Component {
 
                 info(`Success update SalesRecord`);
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path("SalesRecord", {id: res}))
+                    FlowRouter.go(FlowRouter.path("SalesRecord", {id: this.props.salesRecord._id}))
                 }, 300)
             });
 
