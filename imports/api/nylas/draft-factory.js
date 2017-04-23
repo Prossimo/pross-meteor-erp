@@ -8,7 +8,7 @@ class DraftFactory {
         const account = fields.account_id ? AccountStore.accountForAccountId(fields.account_id) : AccountStore.getSelectedAccount()
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        let body = fields.body || this.getBodyWithSignature('', account.accountId)
+        let body = fields.body || ''
         return Promise.resolve(_.extend({
             body: body,
             subject: '',
@@ -28,7 +28,7 @@ class DraftFactory {
 
         const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
 
-        let body = this.getBodyWithSignature('', message.account_id)
+        let body = ''
 
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Re:'),
@@ -52,7 +52,7 @@ class DraftFactory {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        let body = this.getBodyWithSignature('', message.account_id)
+        let body = ''
 
         const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c)=>NylasUtils.contactDisplayFullname(c)).join(', '));
         let fields = [];

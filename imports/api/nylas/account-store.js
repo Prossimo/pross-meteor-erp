@@ -68,6 +68,12 @@ class AccountStore extends Reflux.Store {
 
         return this.defaultAccount()
     }
+
+    signatureForAccountId(accountId) {
+        const account = this.accountForAccountId(accountId)
+
+        return account ? account.signature : null
+    }
 }
 
 module.exports = new AccountStore()

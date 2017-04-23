@@ -9,6 +9,7 @@ import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 import TemplateSelect from '../../mailtemplates/TemplateSelect'
+import EmailFrame from '../EmailFrame'
 
 
 import ParticipantsInputField from './ParticipantsInputField'
@@ -28,6 +29,7 @@ export default class ComposeView extends React.Component {
             draft: draft,
             expandedCc: draft.cc && draft.cc.length ? true : false,
             expandedBcc: draft.bcc && draft.bcc.length ? true : false
+
         }
     }
 
@@ -50,8 +52,8 @@ export default class ComposeView extends React.Component {
     }
 
 
-    _changeDraftStore(data = {}, shouldIncludeSignature = null) {
-        DraftStore.changeDraftForClientId(this.props.clientId, data, shouldIncludeSignature)
+    _changeDraftStore(data = {}) {
+        DraftStore.changeDraftForClientId(this.props.clientId, data)
     }
 
     render() {
@@ -59,6 +61,7 @@ export default class ComposeView extends React.Component {
             <div className="composer-inner-wrap">
                 {this._renderHeader()}
                 {this._renderEditor()}
+                {this._renderSignature()}
                 {this._renderActions()}
             </div>
         )
@@ -137,15 +140,30 @@ export default class ComposeView extends React.Component {
             'list', 'bullet', 'indent',
             'link', 'image'
         ]
+
         return (
             <div>
                 <ReactQuill placeholder="Write here..."
-                            value={this.state.draft ? this.state.draft.body : ""}
+                            value={this.state.draft.body}
                             theme="snow"
                             modules={modules}
                             formats={formats}
-                            onChange={this._onChangeBody}>
-                </ReactQuill>
+                            onChange={this._onChangeBody}/>
+            </div>
+        )
+    }
+
+    _renderSignature() {
+        const {hideSignature} = this.state.draft
+        if(hideSignature) return (<div></div>)
+
+        const signature = AccountStore.signatureForAccountId(this.state.draft.account_id)
+
+        return (
+            <div style={{position: 'relative'}}>
+                <i className="fa fa-close" style={{position: 'absolute', top: 0, left: 0, fontSize:10, color:'lightgray'}}
+                   onClick={this._onClickHideSignature}></i>
+                <div style={{paddingLeft:5}}><EmailFrame content={signature}/></div>
             </div>
         )
     }
@@ -175,9 +193,11 @@ export default class ComposeView extends React.Component {
         this.setState({draft: this._getDraftFromStore()})
     }
     _onChangeBody = (text) => {
-        this._changeDraftStore({body: text})
+        if (this.state.draft.body !== text) {
+            this._changeDraftStore({body: text})
 
-        this.setState({draft: this._getDraftFromStore()})
+            this.setState({draft: this._getDraftFromStore()})
+        }
     }
 
     _onChangeFrom = (account) => {
@@ -219,6 +239,10 @@ export default class ComposeView extends React.Component {
         this.setState({expandedBcc: true})
     }
 
+    _onClickHideSignature = () => {
+        this._changeDraftStore({hideSignature: true})
+        this.setState({draft: this._getDraftFromStore()})
+    }
     _isUnableToSend = () => {
         return !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0
     }

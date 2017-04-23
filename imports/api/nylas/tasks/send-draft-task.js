@@ -50,11 +50,14 @@ export default class SendDraftTask extends Task {
     }
 
     sendMessage = () => {
+        let draft = _.clone(this.draft)
+        if(!draft.hideSignature) draft.body += `<br><br><div class="gmail_quote">${AccountStore.signatureForAccountId(draft.account_id)}</div>`
+
         return NylasAPI.makeRequest({
             path: "/send",
             accountId: this.draft.account_id,
             method: 'POST',
-            body: this.draft,
+            body: draft,
             timeout: 1000 * 60 * 5, // We cannot hang up a send - won't know if it sent
             returnsModel: false,
         })
