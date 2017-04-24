@@ -170,6 +170,14 @@ class TaskDetail extends Component {
                   ) : ''
                 }
               </div>
+              <div className='form-group'>
+                <label style={{fontSize: '14px'}}>Due Date</label>
+                <div className='form-control'>
+                  <DatePicker
+                    selected={moment(new Date())}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </Modal.Body>
