@@ -81,9 +81,11 @@ class TaskBoard extends Component {
           {
             allowedStatus.map(allowedStatus => {
               const tasks = this.props.tasks.filter(({ status })=> status === allowedStatus);
+              const users = this.props.users;
               return <TaskList
                 listName={allowedStatus}
                 tasks={tasks}
+                users={users}
                 key={allowedStatus}
               />;
             })
@@ -106,5 +108,6 @@ export default createContainer(() => {
     subscribers,
     loading,
     tasks,
+    users: Meteor.users.find().fetch(),
   };
 }, TaskBoard);

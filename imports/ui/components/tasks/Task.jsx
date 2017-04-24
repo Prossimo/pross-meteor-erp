@@ -2,27 +2,19 @@ import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 
 class Task extends Component {
-  constructor() {
-    super();
-    this.state = {
-      assigneeName: '',
-      approverName: '',
-    };
-  }
+  constructor(props) {
+    super(props);
 
-  componentDidMount() {
-    const { assignee, approver } = this.props.task;
     const shortenName = ({ profile: { firstName, lastName } })=> {
       return `${firstName} ${lastName}`
         .split(' ')
         .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
     };
 
-    Meteor.call('task.getEmployee', { employeeId: assignee }, (error, user)=> {
-      this.setState({
-        assigneeName: shortenName(user),
-      });
-    });
+    this.state = {
+      assigneeName: shortenName(props.assignee),
+      approverName: shortenName(props.approver),
+    };
   }
 
   render() {
@@ -79,6 +71,8 @@ class Task extends Component {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
+  approver: PropTypes.object.isRequired,
+  assignee: PropTypes.object.isRequired,
 };
 
 export default Task;
