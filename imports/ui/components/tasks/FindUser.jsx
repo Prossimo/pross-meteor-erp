@@ -4,6 +4,24 @@ import styled from 'styled-components';
 class FindUser extends Component {
   constructor() {
     super();
+    this.changeState = this.changeState.bind(this);
+    this.changeKeyword = this.changeKeyword.bind(this);
+    this.state = {
+      users: [],
+      keyword: '',
+    };
+  }
+
+  changeKeyword(event) {
+    const keyword = event.target.value;
+    Meteor.call('task.findUsers', { keyword }, (error, users)=> {
+      if (!error) this.setState({ users, keyword });
+    });
+  }
+
+  changeState(prop, propName, propValue) {
+    prop[propName] = propValue;
+    this.setState(prevState => prevState);
   }
 
   render() {
@@ -20,9 +38,6 @@ class FindUser extends Component {
     const Header = styled.p `
       font-weight: 600;
       border-bottom: 1px solid lightgrey;
-    `;
-    const InputSearch = styled.input `
-      border-radius: 0px;
     `;
     const CloseButton = styled.a `
       color: black;
@@ -43,22 +58,29 @@ class FindUser extends Component {
           href='#'>
           <i className='fa fa-times'/>
         </CloseButton>
-        <Header className='text-center'>Assignees</Header>
+        <Header className='text-center'>{ this.props.title }</Header>
         <div>
           <div className='form-group'>
-            <InputSearch
+            <input
               type='text'
               className='form-control input-sm'
               placeholder='Search Assignees'
+              value={ this.state.keyword }
+              onChange={ this.changeKeyword }
+              autoFocus={true}
             />
           </div>
           <div className='form-group'>
-            <AssigneeElem>
-              Duy Tai Nguyen (duytai.cse@gmail.com)
-            </AssigneeElem>
-            <AssigneeElem>
-              Duy Tai Nguyen (duytai.cse@gmail.com)
-            </AssigneeElem>
+          {
+            this.state.users.map(({ username, emails, _id })=> {
+              const email = _.first(emails) ? `(${_.first(emails).address})` : ``;
+              return (
+                <AssigneeElem key={ _id }>
+                  { username } { email }
+                </AssigneeElem>
+              );
+            })
+          }
           </div>
         </div>
       </FindUserWrapper>
@@ -69,6 +91,7 @@ class FindUser extends Component {
 FindUser.propTypes = {
   close: PropTypes.func.isRequired,
   top: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
 };
 
 export default FindUser;

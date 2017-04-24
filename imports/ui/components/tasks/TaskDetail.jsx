@@ -95,6 +95,7 @@ class TaskDetail extends Component {
                 {
                   (this.state.findUser.assignee) ? (
                     <FindUser
+                      title={'Assignee'}
                       top={'50px'}
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'assignee', false) }/>
                   ) : ''
@@ -110,6 +111,7 @@ class TaskDetail extends Component {
                 {
                   (this.state.findUser.approver) ? (
                     <FindUser
+                      title={'Approver'}
                       top={'100px'}
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'approver', false) }/>
                   ) : ''
@@ -118,6 +120,9 @@ class TaskDetail extends Component {
             </div>
           </div>
         </Modal.Body>
+        <Modal.Footer>
+          <button className='btn btn-default'>Save</button>
+        </Modal.Footer>
       </Modal>
     );
   };
