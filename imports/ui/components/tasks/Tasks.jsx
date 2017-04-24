@@ -7,6 +7,10 @@ class TasksView extends Component {
   }
 
   render() {
+    const ColumnContainer = styled.div `
+      padding-left: 15px;
+      padding-right: 0px;
+    `;
     const ColumnWrapper = styled.div `
       background-color: #e2e4e6;
       padding: 10px;
@@ -14,7 +18,7 @@ class TasksView extends Component {
       border-radius: 2px;
     `;
     const ColumnHeader = styled.div `
-      font-weight: bold;
+      font-weight: 500;
     `;
     const TaskContainer = styled.div `
       background-color: white;
@@ -60,31 +64,47 @@ class TasksView extends Component {
       border-radius: 3px;
     `;
 
+    const allowedStatus = [
+      'Idea',
+      'To-Do',
+      'In Progress',
+      'Reviewing',
+      'Complete',
+      'Blocked',
+    ];
     return (
       <div>
         <div className='col-md-12'>
-          <ColumnWrapper className='col-md-2'>
-            <ColumnHeader>
-              Idea
-              <TaskAction>
-                <i className='fa fa-ellipsis-h'/>
-              </TaskAction>
-            </ColumnHeader>
-            <div>
-              <TaskContainer>
-                <p>Move Task 33 to 44</p>
-                <AssigneeIcon>
-                  IF
-                </AssigneeIcon>
-              </TaskContainer>
-              <TaskContainer>
-                Move Task 33 to 44
-              </TaskContainer>
-            </div>
-            <TaskAdding>
-              + Add a task ...
-            </TaskAdding>
-          </ColumnWrapper>
+          {
+            allowedStatus.map(status => {
+              return (
+                <ColumnContainer className='col-md-2' key={status}>
+                  <ColumnWrapper>
+                    <ColumnHeader>
+                      { status }
+                      <TaskAction>
+                        <i className='fa fa-ellipsis-h'/>
+                      </TaskAction>
+                    </ColumnHeader>
+                    <div>
+                      <TaskContainer draggable='true'>
+                        <p>Move Task 33 to 44</p>
+                        <AssigneeIcon>
+                          IF
+                        </AssigneeIcon>
+                      </TaskContainer>
+                      <TaskContainer draggable='true'>
+                        Move Task 33 to 44
+                      </TaskContainer>
+                    </div>
+                    <TaskAdding>
+                      + Add a task ...
+                    </TaskAdding>
+                  </ColumnWrapper>
+                </ColumnContainer>
+              );
+            })
+          }
         </div>
       </div>
     );
