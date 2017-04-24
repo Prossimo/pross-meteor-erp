@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Projects } from '/imports/api/lib/collections';
 import { GET_NEW_PROJECT } from '/imports/api/constants/collections';
 import Activities from './Activities';
-import Tasks from '../tasks/Tasks';
+import Tasks from '../tasks/TaskBoard.jsx';
 import Files from '../libs/Files';
 
 class SingleProject extends Component {

@@ -11,7 +11,7 @@ import ContactInfo from '../account/ContactInfo';
 import Quotes from './Quotes';
 import Details from './Details';
 import Activity from './Activity';
-import Tasks from '../tasks/Tasks';
+import Tasks from '../tasks/TaskBoard.jsx';
 import Files from '../libs/Files';
 import Invoices from './Invoices';
 import Documents from './Documents';
