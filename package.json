@@ -61,6 +61,7 @@
     "simpl-schema": "^0.2.2",
     "slackbots": "^1.0.2",
     "streamsaver": "^1.0.0",
+    "styled-components": "^1.4.5",
     "sweetalert2": "^6.6.0",
     "twilio": "^2.11.1",
     "underscore": "^1.8.3",
