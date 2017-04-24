@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import { Tasks } from '/imports/api/lib/collections';
+import { createContainer } from 'meteor/react-meteor-data';
+import TaskList from './TaskList.jsx';
 
-class TasksView extends Component {
+class TaskBoard extends Component {
   constructor() {
     super();
   }
@@ -76,33 +79,13 @@ class TasksView extends Component {
       <div>
         <div className='col-md-12'>
           {
-            allowedStatus.map(status => {
-              return (
-                <ColumnContainer className='col-md-2' key={status}>
-                  <ColumnWrapper>
-                    <ColumnHeader>
-                      { status }
-                      <TaskAction>
-                        <i className='fa fa-ellipsis-h'/>
-                      </TaskAction>
-                    </ColumnHeader>
-                    <div>
-                      <TaskContainer draggable='true'>
-                        <p>Move Task 33 to 44</p>
-                        <AssigneeIcon>
-                          IF
-                        </AssigneeIcon>
-                      </TaskContainer>
-                      <TaskContainer draggable='true'>
-                        Move Task 33 to 44
-                      </TaskContainer>
-                    </div>
-                    <TaskAdding>
-                      + Add a task ...
-                    </TaskAdding>
-                  </ColumnWrapper>
-                </ColumnContainer>
-              );
+            allowedStatus.map(allowedStatus => {
+              const tasks = this.props.tasks.filter(({ status })=> status === allowedStatus);
+              return <TaskList
+                listName={allowedStatus}
+                tasks={tasks}
+                key={allowedStatus}
+              />;
             })
           }
         </div>
@@ -111,4 +94,17 @@ class TasksView extends Component {
   }
 }
 
-export default TasksView;
+export default createContainer(() => {
+  const subscribers = [];
+  const parentId = FlowRouter.current().params.id;
+  let loading = true;
+  let tasks = [];
+  subscribers.push(Meteor.subscribe('task.all', { parentId }));
+  loading = subscribers.reduce((result, subscriber)=> result && subscriber.ready(), true);
+  tasks = Tasks.find().fetch();
+  return {
+    subscribers,
+    loading,
+    tasks,
+  };
+}, TaskBoard);

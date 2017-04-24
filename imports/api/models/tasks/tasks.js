@@ -25,6 +25,7 @@ Tasks.schema = new SimpleSchema({
     type: String,
     allowedValues: [
       'Idea',
+      'To-Do',
       'Planned',
       'In Progress',
       'Complete',
