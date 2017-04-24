@@ -15,7 +15,8 @@ class FindUser extends Component {
 
   changeKeyword(event) {
     const keyword = event.target.value;
-    Meteor.call('task.findUsers', { keyword }, (error, users)=> {
+    const ignore = this.props.ignore ? this.props.ignore._id : '';
+    Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
       if (!error) this.setState({ users, keyword });
     });
   }
@@ -103,6 +104,7 @@ FindUser.propTypes = {
   selectUser: PropTypes.func.isRequired,
   top: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
+  ignore: PropTypes.object,
 };
 
 export default FindUser;

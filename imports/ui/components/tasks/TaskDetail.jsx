@@ -14,8 +14,8 @@ class TaskDetail extends Component {
         approver: false,
       },
       selectedUser: {
-        assignee: '',
-        approver: '',
+        assignee: null,
+        approver: null,
       },
     };
     this.toggleFindUser = this.toggleFindUser.bind(this);
@@ -117,7 +117,7 @@ class TaskDetail extends Component {
                   (selectedUser.assignee) ? (
                     <UserElem>
                       { selectedUser.assignee.username }
-                      <div onClick={ ()=> this.toggleFindUser(selectedUser, 'assignee', '') }>
+                      <div onClick={ ()=> this.toggleFindUser(selectedUser, 'assignee', null) }>
                         <i className='fa fa-times'/>
                       </div>
                     </UserElem>
@@ -135,6 +135,7 @@ class TaskDetail extends Component {
                     <FindUser
                       title={'Assignee'}
                       top={'50px'}
+                      ignore={selectedUser.approver}
                       selectUser={ (assignee)=> this.toggleFindUser(this.state.selectedUser, 'assignee', assignee) }
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'assignee', false) }/>
                   ) : ''
@@ -145,7 +146,7 @@ class TaskDetail extends Component {
                   (selectedUser.approver) ? (
                     <UserElem>
                       { selectedUser.approver.username }
-                      <div onClick={()=> this.toggleFindUser(selectedUser, 'approver', '')}>
+                      <div onClick={()=> this.toggleFindUser(selectedUser, 'approver', null)}>
                         <i className='fa fa-times'/>
                       </div>
                     </UserElem>
@@ -163,6 +164,7 @@ class TaskDetail extends Component {
                     <FindUser
                       title={'Approver'}
                       top={'100px'}
+                      ignore={selectedUser.assignee}
                       selectUser={ (approver)=> this.toggleFindUser(this.state.selectedUser, 'approver', approver) }
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'approver', false) }/>
                   ) : ''
