@@ -13,6 +13,10 @@ class TaskDetail extends Component {
         assignee: false,
         approver: false,
       },
+      selectedUser: {
+        assignee: '',
+        approver: '',
+      },
     };
     this.toggleFindUser = this.toggleFindUser.bind(this);
   }
@@ -61,6 +65,29 @@ class TaskDetail extends Component {
         outline-width: 0;
       }
     `;
+    const UserElem = styled.div `
+      color: white;
+      position: relative;
+      background-color: #519839;
+      height: 38px;
+      line-height: 38px;
+      padding-left: 10px;
+      border-radius: 5px;
+      font-weight: 700;
+      overflow-x: hidden;
+      div {
+        position: absolute;
+        top: 0px;
+        right: 20px;
+        background-color: #519839;
+        color: white;
+        border: 0px;
+        outline: none;
+        cursor: pointer;
+      }
+    `;
+    const selectedUser = this.state.selectedUser;
+    const findUser = this.state.findUser;
 
     return (
       <Modal
@@ -86,33 +113,57 @@ class TaskDetail extends Component {
 
             <div className='col-md-3'>
               <div className='form-group'>
-                <TaskControl
-                  className='btn btn-default btn-sm'
-                  onClick={()=> this.toggleFindUser(this.state.findUser, 'assignee', !this.state.findUser.assignee)}
-                >
-                  <i className='fa fa-user-o'> Assignee</i>
-                </TaskControl>
                 {
-                  (this.state.findUser.assignee) ? (
+                  (selectedUser.assignee) ? (
+                    <UserElem>
+                      { selectedUser.assignee.username }
+                      <div onClick={ ()=> this.toggleFindUser(selectedUser, 'assignee', '') }>
+                        <i className='fa fa-times'/>
+                      </div>
+                    </UserElem>
+                  ) : (
+                    <TaskControl
+                      className='btn btn-default btn-sm'
+                      onClick={()=> this.toggleFindUser(this.state.findUser, 'assignee', !this.state.findUser.assignee)}
+                    >
+                      <i className='fa fa-user-o'> Assignee</i>
+                    </TaskControl>
+                  )
+                }
+                {
+                  (findUser.assignee) ? (
                     <FindUser
                       title={'Assignee'}
                       top={'50px'}
+                      selectUser={ (assignee)=> this.toggleFindUser(this.state.selectedUser, 'assignee', assignee) }
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'assignee', false) }/>
                   ) : ''
                 }
               </div>
               <div className='form-group'>
-                <TaskControl
-                  className='btn btn-default btn-sm'
-                  onClick={()=> this.toggleFindUser(this.state.findUser, 'approver', !this.state.findUser.approver)}
-                >
-                  <i className='fa fa-eye'> Approver</i>
-                </TaskControl>
                 {
-                  (this.state.findUser.approver) ? (
+                  (selectedUser.approver) ? (
+                    <UserElem>
+                      { selectedUser.approver.username }
+                      <div onClick={()=> this.toggleFindUser(selectedUser, 'approver', '')}>
+                        <i className='fa fa-times'/>
+                      </div>
+                    </UserElem>
+                  ) : (
+                    <TaskControl
+                      className='btn btn-default btn-sm'
+                      onClick={()=> this.toggleFindUser(this.state.findUser, 'approver', !this.state.findUser.approver)}
+                    >
+                      <i className='fa fa-eye'> Approver</i>
+                    </TaskControl>
+                  )
+                }
+                {
+                  (findUser.approver) ? (
                     <FindUser
                       title={'Approver'}
                       top={'100px'}
+                      selectUser={ (approver)=> this.toggleFindUser(this.state.selectedUser, 'approver', approver) }
                       close={ ()=> this.toggleFindUser(this.state.findUser, 'approver', false) }/>
                   ) : ''
                 }

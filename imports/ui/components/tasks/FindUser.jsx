@@ -6,6 +6,7 @@ class FindUser extends Component {
     super();
     this.changeState = this.changeState.bind(this);
     this.changeKeyword = this.changeKeyword.bind(this);
+    this.selectUser = this.selectUser.bind(this);
     this.state = {
       users: [],
       keyword: '',
@@ -24,8 +25,14 @@ class FindUser extends Component {
     this.setState(prevState => prevState);
   }
 
+  selectUser(user) {
+    this.props.selectUser(user);
+    this.props.close();
+  }
+
   render() {
     const FindUserWrapper = styled.div `
+      z-index: 1;
       width: 240px;
       min-height: 150px;
       background-color: white;
@@ -72,10 +79,13 @@ class FindUser extends Component {
           </div>
           <div className='form-group'>
           {
-            this.state.users.map(({ username, emails, _id })=> {
+            this.state.users.map((user)=> {
+              const { username, emails, _id } = user;
               const email = _.first(emails) ? `(${_.first(emails).address})` : ``;
               return (
-                <AssigneeElem key={ _id }>
+                <AssigneeElem
+                  key={ _id }
+                  onClick={ ()=> this.selectUser(user) }>
                   { username } { email }
                 </AssigneeElem>
               );
@@ -90,6 +100,7 @@ class FindUser extends Component {
 
 FindUser.propTypes = {
   close: PropTypes.func.isRequired,
+  selectUser: PropTypes.func.isRequired,
   top: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
 };
