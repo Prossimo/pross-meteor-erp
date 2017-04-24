@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 import Task from './Task.jsx';
+import TaskAdding from './TaskAdding.jsx';
 
 class TaskList extends Component {
   constructor() {
@@ -35,14 +36,6 @@ class TaskList extends Component {
         cursor: pointer;
       }
     `;
-    const TaskAdding = styled.div `
-      font-size: 13px;
-      padding: 5px;
-      &:hover {
-        background-color: #CDD2D4;
-        cursor: pointer;
-      }
-    `;
     return (
       <ColumnContainer className='col-md-2' key={ this.props.listName }>
         <ColumnWrapper>
@@ -55,16 +48,18 @@ class TaskList extends Component {
           <div>
             {
               this.props.tasks.map((task)=> {
+                const assignee = this.props.users.find(({ _id }) => task.assignee);
+                const approver = this.props.users.find(({ _id }) => task.approver);
                 return <Task
                   key={task._id}
                   task={task}
+                  assignee={assignee}
+                  approver={approver}
                 />;
               })
             }
           </div>
-          <TaskAdding>
-            + Add a task ...
-          </TaskAdding>
+          <TaskAdding/>
         </ColumnWrapper>
       </ColumnContainer>
     );
@@ -73,6 +68,7 @@ class TaskList extends Component {
 
 TaskList.propTypes = {
   tasks: PropTypes.array.isRequired,
+  users: PropTypes.array.isRequired,
   listName: PropTypes.string.isRequired,
 };
 

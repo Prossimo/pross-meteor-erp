@@ -1,6 +1,18 @@
 import { Tasks } from '../lib/collections';
 
-Meteor.publish('task.all', function ({ parentId }) {
+Meteor.publishComposite('task.all', function ({ parentId }) {
   if (!Match.test(parentId, String) || !this.userId) return this.ready();
-  return Tasks.find({ parentId , isRemoved: false});
+  return {
+    find() {
+      return Tasks.find({ parentId, isRemoved: false });
+    },
+
+    children: [
+      {
+        find({ assignee, approver }) {
+          return Meteor.users.find({ _id: { $in: [assignee, approver] } });
+        },
+      },
+    ],
+  };
 });
