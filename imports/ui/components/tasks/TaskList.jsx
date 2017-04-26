@@ -2,25 +2,10 @@ import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 import Task from './Task.jsx';
 import TaskAdding from './TaskAdding.jsx';
-import TaskModifying from './TaskModifying.jsx';
 
 class TaskList extends Component {
   constructor() {
     super();
-    this.state = {
-      modifyingTask: null,
-    };
-    this.modifyTask = this.modifyTask.bind(this);
-  }
-
-  modifyTask(task, assignee, approver) {
-    thise.setState({
-      modifyTask: {
-        task,
-        assignee,
-        approver,
-      },
-    });
   }
 
   render() {
@@ -70,17 +55,10 @@ class TaskList extends Component {
                   task={task}
                   assignee={assignee}
                   approver={approver}
-                  onClick={()=> this.modifyTask(task, assignee, approver)}
                 />;
               })
             }
           </div>
-          {
-            (this.state.modifyingTask) ? <TaskModifying
-              task={ this.state.modifyingTask }
-              close={ ()=> this.setState({ modifyingTask: null }) }
-            /> : ''
-          }
           <TaskAdding status={this.props.listName}/>
         </ColumnWrapper>
       </ColumnContainer>

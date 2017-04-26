@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
+import TaskModifying from './TaskModifying.jsx';
 
 class Task extends Component {
   constructor(props) {
@@ -64,6 +65,11 @@ class Task extends Component {
         <ApproverIcon>
           NCH
         </ApproverIcon>
+        <TaskModifying
+          task={this.props.task}
+          assignee={this.props.assignee}
+          approver={this.props.approver}
+        />
       </TaskContainer>
     );
   }

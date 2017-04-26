@@ -7,7 +7,7 @@ class TaskModifying extends Component {
     super();
     this.state = {
       task: {
-        showDetail: true,
+        showDetail: false,
       },
     };
 
@@ -29,7 +29,6 @@ class TaskModifying extends Component {
         showDetail: false,
       },
     });
-    this.props.close();
   }
 
   render() {
@@ -47,7 +46,8 @@ class TaskModifying extends Component {
 
 TaskModifying.propTypes = {
   task: PropTypes.object.isRequired,
-  close: PropTypes.func.isRequired,
+  assignee: PropTypes.object.isRequired,
+  approver: PropTypes.object.isRequired,
 };
 
 export default TaskModifying;
