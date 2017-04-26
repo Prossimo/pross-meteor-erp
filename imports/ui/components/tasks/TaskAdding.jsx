@@ -48,6 +48,7 @@ class TaskAdding extends Component {
           hideDetail={this.hideDetail}
           isShown={this.state.task.showDetail}
           status={this.props.status}
+          isNew={true}
         />
       </TaskAdding>
     );
