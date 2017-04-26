@@ -127,6 +127,7 @@ TaskDetail.propTypes = {
   hideDetail: PropTypes.func.isRequired,
   isShown: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
+  isNew: PropTypes.bool.isRequired,
 };
 
 export default TaskDetail;
