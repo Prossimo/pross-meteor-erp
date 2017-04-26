@@ -37,7 +37,7 @@ class TaskList extends Component {
       }
     `;
     return (
-      <ColumnContainer className='col-md-2' key={ this.props.listName }>
+      <ColumnContainer className='col-md-2'>
         <ColumnWrapper>
           <ColumnHeader>
             { this.props.listName }
@@ -59,7 +59,7 @@ class TaskList extends Component {
               })
             }
           </div>
-          <TaskAdding/>
+          <TaskAdding status={this.props.listName}/>
         </ColumnWrapper>
       </ColumnContainer>
     );

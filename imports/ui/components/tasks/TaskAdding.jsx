@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 import TaskDetail from './TaskDetail.jsx';
 
@@ -47,10 +47,15 @@ class TaskAdding extends Component {
           showDetail={this.showDetail}
           hideDetail={this.hideDetail}
           isShown={this.state.task.showDetail}
+          status={this.props.status}
         />
       </TaskAdding>
     );
   }
 }
+
+TaskAdding.propTypes = {
+  status: PropTypes.string.isRequired,
+};
 
 export default TaskAdding;
