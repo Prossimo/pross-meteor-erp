@@ -22,7 +22,7 @@ class CreateSalesRecord extends React.Component {
         thread: React.PropTypes.object         // thread to be attached from email
     }
 
-    constructor(props) { console.log(props)
+    constructor(props) {
         super(props);
         this.shippingMode = SHIPPING_MODE_LIST.map(item => ({label: item, value: item}));
         this.stages = STAGES.map(item => ({label: item.charAt(0).toUpperCase() + item.slice(1), value: item}));
@@ -78,7 +78,6 @@ class CreateSalesRecord extends React.Component {
 
                 return true
             })
-            //console.log(JSON.stringify(filter), contacts)
             if (contacts && contacts.length)
                 this.state.stakeholders = contacts;
         }
@@ -178,7 +177,7 @@ class CreateSalesRecord extends React.Component {
         this.members = members;
     }
 
-    updateStakeholders(stakeholders) { console.log(stakeholders)
+    updateStakeholders(stakeholders) {
         this.stakeholders = stakeholders;
     }
 

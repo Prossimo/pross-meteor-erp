@@ -4,7 +4,7 @@ import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
-import {DropdownButton, MenuItem} from 'react-bootstrap'
+import {DropdownButton, MenuItem, FormControl, InputGroup} from 'react-bootstrap'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 
 
@@ -15,7 +15,12 @@ export default class Toolbar extends React.Component {
     }
 
     constructor(props) {
-        super(props);
+        super(props)
+
+
+        this.state = {
+            salesRecords: SalesRecord.find({}, {sort:{name:1}}).fetch()
+        }
     }
 
     render() {
@@ -39,17 +44,40 @@ export default class Toolbar extends React.Component {
 
     renderSalesRecordMenu() {
         const {thread} = this.props
+        const {salesRecords} = this.state
+
         return (
             <div style={{marginTop:12, float:'right'}}>
                 <DropdownButton bsStyle="default" bsSize="small" title="SalesRecord" pullRight id="dropdown-sales-record" disabled={!thread}>
                     <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new SalesRecord from this thread</MenuItem>
                     <MenuItem divider/>
                     <MenuItem header>Bind this thread to existing SalesRecord</MenuItem>
+                    <MenuItem header>
+                        <InputGroup>
+                            <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
+                            <FormControl type="text" placeholder="Search..." onChange={this.onChangeSearchSalesRecord} />
+                        </InputGroup>
+                    </MenuItem>
                     {
-                        SalesRecord.find().fetch().map((sr)=><MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
+                        salesRecords.map((sr)=><MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
                     }
                 </DropdownButton>
             </div>
         )
+    }
+
+
+
+    onChangeSearchSalesRecord = (evt) => {
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+
+        const keyword = evt.target.value
+        this.searchTimeout = setTimeout(() => {
+            if(keyword.length) {
+                this.setState({salesRecords: SalesRecord.find({name:{$regex: keyword, $options: 'i'}}, {sort:{name:1}}).fetch()})
+            } else {
+                this.setState({salesRecords: SalesRecord.find({}, {sort:{name:1}}).fetch()})
+            }
+        }, 500)
     }
 }
