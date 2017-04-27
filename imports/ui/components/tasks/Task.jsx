@@ -30,12 +30,12 @@ class Task extends Component {
       height: 20px;
       background-color: #519839;
       text-align: center;
-      font-weight: 400;
+      font-weight: bold;
       border-radius: 3px;
       overflow-x: hidden;
       position: relative;
-      float: left;
-      margin-right: 2px;
+      float: right;
+      margin-left: 2px;
       color: white;
     `;
     const ApproverIcon = styled.div `
@@ -43,10 +43,18 @@ class Task extends Component {
       height: 20px;
       background-color: #ccc;
       text-align: center;
-      font-weight: 400;
+      font-weight: bold;
       border-radius: 3px;
       overflow-x: hidden;
       position: relative;
+      float: right;
+      margin-left: 2px;
+    `;
+    const DueDateIcon = styled(ApproverIcon) `
+      float: left;
+      width: 80px;
+      background-color: ${this.props.task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46'};
+      color: white;
     `;
     const TaskContainer = styled.div `
       background-color: white;
@@ -57,6 +65,8 @@ class Task extends Component {
       font-size: 13px;
       margin-bottom: 7px;
       position: relative;
+      display: inline-block;
+      width: 100%;
       &:hover {
         background-color: #f5f5f5;
         cursor: pointer;
@@ -77,6 +87,9 @@ class Task extends Component {
         <ApproverIcon>
           { this.state.approverName }
         </ApproverIcon>
+        <DueDateIcon>
+          { moment(this.props.task.dueDate).format('YYYY/MM/DD') }
+        </DueDateIcon>
         <TaskModifying
           ref='taskModifying'
           task={this.props.task}
