@@ -6,6 +6,7 @@ import moment from 'moment';
 import SelectUser from './SelectUser.jsx';
 import TextEditor from './TextEditor.jsx';
 import TaskName from './TaskName.jsx';
+import TaskError from './TaskError.jsx';
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -15,15 +16,22 @@ class TaskDetail extends Component {
         assignee: false,
         approver: false,
       },
-      task: {
+      errors: [],
+    };
+
+    if (props.isNew) {
+      this.state.task = {
         name: 'Task ###',
         assignee: null,
         approver: null,
         dueDate: new Date,
         description: 'This task is about ...',
         status: props.status,
-      },
+      };
+    } else {
+      this.state.task = props.task;
     };
+
     this.changeState = this.changeState.bind(this);
     this.saveTask = this.saveTask.bind(this);
   }
@@ -31,7 +39,7 @@ class TaskDetail extends Component {
   saveTask() {
     const parentId = FlowRouter.current().params.id;
     const { name, assignee, approver, dueDate, description, status } = this.state.task;
-    const task = {
+    let task = {
       name,
       assignee: assignee ? assignee._id : '',
       approver: approver ? approver._id : '',
@@ -40,7 +48,48 @@ class TaskDetail extends Component {
       status,
       parentId,
     };
-    console.log(task);
+
+    const taskSchema = new SimpleSchema({
+      name: {
+        type: String,
+      },
+      assignee: {
+        type: String,
+      },
+      approver: {
+        type: String,
+        optional: true,
+      },
+      description: {
+        type: String,
+      },
+      dueDate: {
+        type: Date,
+      },
+      status: {
+        type: String,
+        allowedValues: [
+          'Idea',
+          'To-Do',
+          'In Progress',
+          'Reviewing',
+          'Complete',
+          'Blocked',
+        ],
+      },
+      parentId: {
+        type: String,
+      },
+    });
+    const context = taskSchema.newContext();
+    task = taskSchema.clean(task);
+    context.validate(task);
+    const errors = context.invalidKeys().map(({ name })=> context.keyErrorMessage(name));
+    if (errors.length > 0) {
+      this.setState({
+        errors,
+      });
+    }
   }
 
   changeState(prop, propName, propValue) {
@@ -112,6 +161,9 @@ class TaskDetail extends Component {
                 </div>
               </div>
             </div>
+            <div className='col-md-12'>
+              <TaskError errors={ this.state.errors }/>
+            </div>
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -128,6 +180,7 @@ TaskDetail.propTypes = {
   isShown: PropTypes.bool.isRequired,
   status: PropTypes.string.isRequired,
   isNew: PropTypes.bool.isRequired,
+  task: PropTypes.object,
 };
 
 export default TaskDetail;
