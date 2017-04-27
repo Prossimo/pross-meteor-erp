@@ -16,6 +16,12 @@ class Task extends Component {
       assigneeName: shortenName(props.assignee),
       approverName: shortenName(props.approver),
     };
+
+    this.showDetail = this.showDetail.bind(this);
+  }
+
+  showDetail() {
+    this.refs.taskModifying.showDetail();
   }
 
   render() {
@@ -57,15 +63,19 @@ class Task extends Component {
       }
     `;
     return (
-      <TaskContainer draggable='true'>
+      <TaskContainer
+        onClick={ this.showDetail }
+        draggable='true'
+      >
         <p>{ this.props.task.name }</p>
         <AssigneeIcon>
           { this.state.assigneeName }
         </AssigneeIcon>
         <ApproverIcon>
-          NCH
+          { this.state.approverName }
         </ApproverIcon>
         <TaskModifying
+          ref='taskModifying'
           task={this.props.task}
           assignee={this.props.assignee}
           approver={this.props.approver}

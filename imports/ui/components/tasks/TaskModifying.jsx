@@ -32,13 +32,17 @@ class TaskModifying extends Component {
   }
 
   render() {
+    const task = _.clone(this.props.task);
+    task.assignee = this.props.assignee;
+    task.approver = this.props.approver;
     return (
       <TaskDetail
         showDetail={this.showDetail}
         hideDetail={this.hideDetail}
         isShown={this.state.task.showDetail}
-        status={''}
+        status={task.status}
         isNew={false}
+        task={task}
       />
     );
   }
