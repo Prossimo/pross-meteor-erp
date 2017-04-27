@@ -4,10 +4,30 @@ import { Tasks } from '/imports/api/lib/collections';
 import { createContainer } from 'meteor/react-meteor-data';
 import TaskList from './TaskList.jsx';
 import TaskFilter from './TaskFilter.jsx';
+import { ReactiveDict } from 'meteor/reactive-dict';
+
+const taskFilter = new ReactiveDict();
+taskFilter.set({
+  AssignToMe: false,
+  IamApprover: false,
+  DueDate: false,
+  Today: false,
+  Tomorrow: false,
+});
 
 class TaskBoard extends Component {
   constructor() {
     super();
+  }
+
+  componentWillUnmount() {
+    taskFilter.set({
+      AssignToMe: false,
+      IamApprover: false,
+      DueDate: false,
+      Today: false,
+      Tomorrow: false,
+    });
   }
 
   render() {
@@ -81,7 +101,7 @@ class TaskBoard extends Component {
     ];
     return (
       <TaskBoardContainer>
-        <TaskFilter/>
+        <TaskFilter taskFilter={taskFilter}/>
         <div className='col-md-12'>
           {
             allowedStatus.map(allowedStatus => {
@@ -106,7 +126,8 @@ export default createContainer(() => {
   const parentId = FlowRouter.current().params.id;
   let loading = true;
   let tasks = [];
-  subscribers.push(Meteor.subscribe('task.all', { parentId }));
+  const filter = taskFilter.all();
+  subscribers.push(Meteor.subscribe('task.all', { parentId, filter }));
   loading = subscribers.reduce((result, subscriber)=> result && subscriber.ready(), true);
   tasks = Tasks.find().fetch();
   return {
