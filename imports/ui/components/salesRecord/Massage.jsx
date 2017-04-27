@@ -24,7 +24,7 @@ class Massage extends React.Component{
 
     render() {
         const { message } = this.props;
-        message.text = message.text.replace(/\<\@(.)+\|/, '<@');
+        message.text = message.text ? message.text.replace(/\<\@(.)+\|/, '<@') : '';
         return (
             <li className="activity-msg">
                 <div className="avatar">

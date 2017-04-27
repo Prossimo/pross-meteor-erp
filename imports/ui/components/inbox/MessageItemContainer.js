@@ -9,7 +9,8 @@ export default class MessageItemContainer extends React.Component {
         collapsed: React.PropTypes.bool,
         isLastMsg: React.PropTypes.bool,
         isBeforeReplyArea: React.PropTypes.bool,
-        scrollTo: React.PropTypes.func
+        scrollTo: React.PropTypes.func,
+        salesRecordId: React.PropTypes.string
     }
 
     constructor(props) {
@@ -59,7 +60,9 @@ export default class MessageItemContainer extends React.Component {
             message={this.props.message}
             className={classnames}
             collapsed={this.props.collapsed}
-            isLastMsg={this.props.isLastMsg}/>
+            isLastMsg={this.props.isLastMsg}
+            salesRecordId={this.props.salesRecordId}
+        />
     }
 
     _renderComposer() {

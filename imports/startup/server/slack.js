@@ -10,20 +10,30 @@ Meteor.startup(() => {
 
     //todo add err ws connection cb
 
-    bot.on('message', Meteor.bindEnvironment(function(data) {
-        if(data.type === 'message'){
-            Meteor.call("parseSlackMessage",data)
+    bot.on('message', Meteor.bindEnvironment(function (data) {
+        if (data.type === 'message') {
+            Meteor.call("parseSlackMessage", data)
         }
     }));
 
     //todo replace
     Meteor.methods({
-        sendBotMessage(channel, msg, params){
-            if(params && params.username) params.as_user = false;
+        async sendBotMessage(channel, msg, params) {
+            if (params && params.username) params.as_user = false;
 
-            bot.postMessage(channel, msg, params, err=>{
-                console.log(err);
-            })
-        },
+
+            try {
+                return await bot.postMessage(channel, msg, params).then((body)=>{
+                    console.log(body)
+                    return body
+                }).catch((err)=>{
+                    console.log(err)
+                    throw Meteor.Error(err)
+                })
+            } catch (err) {
+                console.log(`ERROR: ${err.message}`);
+                throw err;
+            }
+        }
     })
 });
