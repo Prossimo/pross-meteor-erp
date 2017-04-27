@@ -49,45 +49,24 @@ class TaskDetail extends Component {
       parentId,
     };
 
-    const taskSchema = new SimpleSchema({
-      name: {
-        type: String,
-      },
-      assignee: {
-        type: String,
-      },
-      approver: {
-        type: String,
-        optional: true,
-      },
-      description: {
-        type: String,
-      },
-      dueDate: {
-        type: Date,
-      },
-      status: {
-        type: String,
-        allowedValues: [
-          'Idea',
-          'To-Do',
-          'In Progress',
-          'Reviewing',
-          'Complete',
-          'Blocked',
-        ],
-      },
-      parentId: {
-        type: String,
-      },
-    });
-    const context = taskSchema.newContext();
-    task = taskSchema.clean(task);
-    context.validate(task);
-    const errors = context.invalidKeys().map(({ name })=> context.keyErrorMessage(name));
-    if (errors.length > 0) {
-      this.setState({
-        errors,
+    if (this.props.isNew) {
+      Meteor.call('task.create', task, error => {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          this.setState({ errors: [msg] });
+        } else {
+          this.props.hideDetail();
+        }
+      });
+    } else {
+      task._id = this.props.task._id;
+      Meteor.call('task.update', task, error => {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          this.setState({ errors: [msg] });
+        } else {
+          this.props.hideDetail();
+        }
       });
     }
   }

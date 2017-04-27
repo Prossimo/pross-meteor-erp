@@ -14,7 +14,7 @@ class Task extends Component {
 
     this.state = {
       assigneeName: shortenName(props.assignee),
-      approverName: shortenName(props.approver),
+      approverName: props.approver ? shortenName(props.approver) : '?',
     };
 
     this.showDetail = this.showDetail.bind(this);
@@ -87,7 +87,7 @@ class Task extends Component {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
-  approver: PropTypes.object.isRequired,
+  approver: PropTypes.object,
   assignee: PropTypes.object.isRequired,
 };
 
