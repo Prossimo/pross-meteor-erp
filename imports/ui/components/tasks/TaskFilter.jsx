@@ -9,17 +9,11 @@ class TaskFilter extends Component {
     this.state = {
       assignToMe: false,
     };
-    this.changeState = this.changeState.bind(this);
+    this.changeFilter = this.changeFilter.bind(this);
   }
 
-  changeState(prop, propName, propValue) {
-    prop[propName] = propValue;
-    this.setState(prevState => prevState);
-  }
-
-  assignToMe(event) {
-    const checked = event.target.checked;
-    console.log(checked);
+  changeFilter(propName, propValue) {
+    this.props.taskFilter.set(propName, propValue);
   }
 
   render() {
@@ -48,41 +42,41 @@ class TaskFilter extends Component {
       <div className='col-md-12' style={{textAlign: 'center'}}>
         <ToggleButton>
           <Toggle
-            defaultChecked={this.state.assignToMe}
+            defaultChecked={this.props.taskFilter.get('AssignToMe')}
             icons={false}
-            onChange={this.assignToMe} />
+            onChange={event => this.changeFilter('AssignToMe', event.target.checked)} />
           <span>Assign to me</span>
         </ToggleButton>
 
         <ToggleButton>
           <Toggle
-            defaultChecked={this.state.assignToMe}
+            defaultChecked={this.props.taskFilter.get('IamApprover')}
             icons={false}
-            onChange={this.assignToMe} />
+            onChange={event => this.changeFilter('IamApprover', event.target.checked)} />
           <span>I am approver</span>
         </ToggleButton>
 
         <ToggleButton>
           <Toggle
-            defaultChecked={this.state.assignToMe}
+            defaultChecked={this.props.taskFilter.get('DueDate')}
             icons={false}
-            onChange={this.assignToMe} />
+            onChange={event => this.changeFilter('DueDate', event.target.checked)} />
           <span>Due date Tasks</span>
         </ToggleButton>
 
         <ToggleButton>
           <Toggle
-            defaultChecked={this.state.assignToMe}
+            defaultChecked={this.props.taskFilter.get('Today')}
             icons={false}
-            onChange={this.assignToMe} />
+            onChange={event => this.changeFilter('Today', event.target.checked)} />
           <span>Today tasks</span>
         </ToggleButton>
 
         <ToggleButton>
           <Toggle
-            defaultChecked={this.state.assignToMe}
+            defaultChecked={this.props.taskFilter.get('Tomorrow')}
             icons={false}
-            onChange={this.assignToMe} />
+            onChange={event => this.changeFilter('Tomorrow', event.target.checked)} />
           <span>Tomorrow tasks</span>
         </ToggleButton>
       </div>
