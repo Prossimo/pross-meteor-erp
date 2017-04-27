@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { Tasks } from '/imports/api/lib/collections';
 import { createContainer } from 'meteor/react-meteor-data';
 import TaskList from './TaskList.jsx';
+import TaskFilter from './TaskFilter.jsx';
 
 class TaskBoard extends Component {
   constructor() {
@@ -80,6 +81,7 @@ class TaskBoard extends Component {
     ];
     return (
       <TaskBoardContainer>
+        <TaskFilter/>
         <div className='col-md-12'>
           {
             allowedStatus.map(allowedStatus => {
