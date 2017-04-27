@@ -83,7 +83,9 @@ class ConversationList extends TrackerReact(React.Component) {
                                       collapsed={collapsed}
                                       isLastMsg={isLastMsg}
                                       isBeforeReplyArea={isBeforeReplyArea}
-                                      scrollTo={this._scrollTo}/>
+                                      scrollTo={this._scrollTo}
+                                      salesRecordId={this.props.salesRecord._id}
+                />
             )
         });
 

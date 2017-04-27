@@ -121,8 +121,8 @@ class MessageParticipants extends React.Component {
         )
     }
 
-    renderFullContacts(contacts = []) {console.log('MessageParticipants->renderFullContacts', contacts);
-        return _.map(contacts, (c, i) => {console.log('Contact', c, i)
+    renderFullContacts(contacts = []) {
+        return _.map(contacts, (c, i) => {
             if (contacts.length == 1) comma = ""
             else if (i == contacts.length - 1) comma = ""
             else comma = ","

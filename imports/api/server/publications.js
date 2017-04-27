@@ -11,10 +11,7 @@ import {
     Tasks
 } from '../lib/collections';
 import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
-import Contacts from '../models/contacts/contacts'
-import Threads from '../models/threads/threads'
-import Messages from '../models/messages/messages'
-import MailTemplates from '../models/mailtemplates/mailtemplates'
+import {Contacts, Threads, Messages, MailTemplates,SlackMails} from '../models'
 import {
     GET_PROJECTS,
     GET_USERS,
@@ -33,6 +30,7 @@ import {
     GET_THREADS,
     GET_MAILTEMPLATES,
     GET_ALL_USERS,
+    GET_SLACK_MAILS
 } from '../constants/collections';
 import {
   ADMIN_ROLE,
@@ -179,6 +177,11 @@ Meteor.startup(() => {
     Meteor.publish(GET_MAILTEMPLATES, function () {
 
         return MailTemplates.find({userId:this.userId})
+    });
+
+    Meteor.publish(GET_SLACK_MAILS, function () {
+
+        return SlackMails.find({})
     });
 });
 
