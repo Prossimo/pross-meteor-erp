@@ -6,6 +6,14 @@ import TaskAdding from './TaskAdding.jsx';
 class TaskList extends Component {
   constructor() {
     super();
+    this.handleDrop = this.handleDrop.bind(this);
+  }
+
+  handleDrop(event) {
+    const task = JSON.parse(event.dataTransfer.getData('task'));
+    task.dueDate = new Date(task.dueDate);
+    task.status = this.props.listName;
+    Meteor.call('task.update', task);
   }
 
   render() {
@@ -37,7 +45,11 @@ class TaskList extends Component {
       }
     `;
     return (
-      <ColumnContainer className='col-md-2'>
+      <ColumnContainer
+        className='col-md-2'
+        onDrop={ this.handleDrop }
+        onDragOver={event => event.preventDefault()}
+      >
         <ColumnWrapper>
           <ColumnHeader>
             { this.props.listName }
