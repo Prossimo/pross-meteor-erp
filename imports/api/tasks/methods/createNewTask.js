@@ -24,8 +24,9 @@ const createNewTask = new ValidatedMethod({
       type: String,
       allowedValues: [
         'Idea',
-        'Planned',
+        'To-Do',
         'In Progress',
+        'Reviewing',
         'Complete',
         'Blocked',
       ],

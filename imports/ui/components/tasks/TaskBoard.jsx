@@ -66,7 +66,10 @@ class TaskBoard extends Component {
       font-weight: 400;
       border-radius: 3px;
     `;
-
+    const TaskBoardContainer = styled.div `
+      display: inline-block;
+      width: 100%;
+    `;
     const allowedStatus = [
       'Idea',
       'To-Do',
@@ -76,7 +79,7 @@ class TaskBoard extends Component {
       'Blocked',
     ];
     return (
-      <div>
+      <TaskBoardContainer>
         <div className='col-md-12'>
           {
             allowedStatus.map(allowedStatus => {
@@ -91,7 +94,7 @@ class TaskBoard extends Component {
             })
           }
         </div>
-      </div>
+      </TaskBoardContainer>
     );
   }
 }

@@ -51,7 +51,7 @@ class TaskModifying extends Component {
 TaskModifying.propTypes = {
   task: PropTypes.object.isRequired,
   assignee: PropTypes.object.isRequired,
-  approver: PropTypes.object.isRequired,
+  approver: PropTypes.object,
 };
 
 export default TaskModifying;
