@@ -143,6 +143,11 @@ Meteor.startup(() => {
                 }
             },{
                 userId: this.userId
+            }],
+            $or: [{
+                removed: false
+            }, {
+                removed: null
             }]
         });
     });

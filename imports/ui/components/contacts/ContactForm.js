@@ -1,6 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
+import {Contacts} from '/imports/api/models'
 
 export default class ContactForm extends React.Component {
     static propTypes = {
@@ -69,7 +70,6 @@ export default class ContactForm extends React.Component {
         Meteor.call('insertOrUpdateContact', data, (err, contactId) => {
             if (err) return warning(err.message)
 
-            const Contacts = require('/imports/api/models/contacts/contacts')
             if (this.props.onSaved) this.props.onSaved(Contacts.findOne({_id:contactId}), this.props.contact != null)
         })
     }
