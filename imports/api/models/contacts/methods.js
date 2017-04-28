@@ -43,7 +43,7 @@ Meteor.methods({
         data.userId = Meteor.userId()
         const {_id} = data
         if(_id) {
-            const contact = Contacts.findOne({_id:_id})
+            const contact = Contacts.findOne({_id})
             if(!contact) throw new Meteor.Error(`Could not find the contact with _id:${_id}`)
 
             Contacts.update({_id:_id}, {$set:data})

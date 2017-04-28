@@ -3,6 +3,7 @@ import './users/users'
 import './settings/settings'
 import './projects/projects'
 import './tasks/tasks';
+import './contacts/contacts'
 
 
 export {default as Contacts} from './contacts/contacts'

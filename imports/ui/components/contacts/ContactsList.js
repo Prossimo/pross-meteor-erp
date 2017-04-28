@@ -1,9 +1,11 @@
 import React from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
-import ContactStore from '../../../api/nylas/contact-store'
 
+import {Contacts} from '/imports/api/models'
 
-export default class ContactsList extends React.Component {
+const PAGESIZE = 100
+export default class ContactsList extends TrackerReact(React.Component) {
     static propTypes = {
         onSelectContact: React.PropTypes.func,
         onCreateContact: React.PropTypes.func,
@@ -14,37 +16,58 @@ export default class ContactsList extends React.Component {
     constructor(props) {
         super(props)
 
+        this.contacts = []
+        this.fullyLoaded = false
         this.state = {
-            contacts: ContactStore.getContacts(1)
+            page: 1,
+            keyword: null
         }
     }
 
     componentDidMount() {
-        this.unlisten = ContactStore.listen(this.onContactStoreChanged)
+
     }
 
     componentWillUnmount() {
-        if (this.unlisten) this.unlisten()
+
     }
 
-
     componentWillReceiveProps(nextProps) {
-        const {updatedContact, removedContact} = nextProps
-        let {contacts} = this.state
-        if(updatedContact) {
-            contacts.splice(contacts.findIndex((c)=>c._id==updatedContact._id),1,updatedContact)
-            this.setState({contacts:contacts})
-        } else if(removedContact) {
-            contacts.splice(contacts.findIndex((c)=>c._id==removedContact._id),1)
-            this.setState({contacts:contacts})
+        const {removedContact} = nextProps
+
+        if(removedContact) {
+            this.setState({removedContact:removedContact})
         }
     }
 
-    onContactStoreChanged = () => {
-        this.setState({contacts: ContactStore.getContacts(1)})
+    loadContacts() {
+        const {keyword, page, removedContact} = this.state
+
+        let filters = {}
+        if(keyword && keyword.length) {
+            const regx = {$regex: keyword, $options: 'i'}
+            filters['$or'] = [{email: regx}, {name: regx}]
+        }
+
+        const result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
+        if(result.length!=PAGESIZE) this.fullyLoaded = true
+        const cids = _.pluck(this.contacts, '_id')
+        result.forEach((c)=>{
+            const index = this.contacts.findIndex((c1)=>c1._id==c._id)
+            if(index >= 0) {
+                this.contacts.splice(index, 1, c)
+            } else {
+                this.contacts.push(c)
+            }
+        })
+        this.contacts = _.uniq(this.contacts, (c)=>c.email.toLowerCase())
+        if(removedContact) {
+            this.contacts.splice(this.contacts.findIndex((c) => c._id == removedContact._id), 1)
+        }
+        return this.contacts
     }
 
-    render() {console.log('ContactsList->render()','1')
+    render() {
         return (
             <div className="contact-list">
                 {this.renderToolbar()}
@@ -92,8 +115,9 @@ export default class ContactsList extends React.Component {
         )
     }
     renderContacts() {
-        const {contacts, selectedContact} = this.state
+        const {selectedContact} = this.state
 
+        const contacts = this.loadContacts()
         if (!contacts || contacts.length == 0) return ''
 
 
@@ -107,7 +131,7 @@ export default class ContactsList extends React.Component {
             }
         }
         return contacts.sort(compare).map((contact, index) => (
-            <tr className={selectedContact===contact ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
+            <tr className={selectedContact && selectedContact._id===contact._id ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{contact.name}</td>
                 <td width="25%">{contact.email}</td>
@@ -126,34 +150,29 @@ export default class ContactsList extends React.Component {
     onScrollContactList = (evt) => {
         const el = evt.target
 
-        if (!ContactStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
+        if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
 
             if (this.scrollTimeout) {
                 clearTimeout(this.scrollTimeout);
             }
 
             this.scrollTimeout = setTimeout(() => {
-
-                this.setState({contacts: ContactStore.getContacts({page: ContactStore.currentPage + 1})})
-
+                const page = this.state.page
+                this.setState({page:page+1})
             }, 500)
 
             evt.preventDefault()
         }
     }
 
-    onChangeSearch = (evt) => { console.log('onChangeSearch', evt.target.value)
+    onChangeSearch = (evt) => {
         if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
-            if(keyword.length) {
-                ContactStore.searchContacts(keyword, {limit:100}).then((contacts)=> {
-                    this.setState({contacts: contacts})
-                })
-            } else {
-                this.setState({contacts: ContactStore.getContacts()})
-            }
+            this.contacts = []
+            this.setState({keyword:keyword,page:1})
+            this.fullyLoaded = false
         }, 500)
     }
 }
