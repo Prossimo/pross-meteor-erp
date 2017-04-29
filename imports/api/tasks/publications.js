@@ -36,7 +36,7 @@ Meteor.publishComposite('task.all', function (param) {
     const start = moment(moment().format('YYYY-MM-DD') + ' 00:00:00').toDate();
     const end = moment(moment().format('YYYY-MM-DD') + ' 23:59:59').toDate();
     selector.dueDate = { $gte: start, $lte: end };
-  };
+  }
 
   if (Tomorrow) {
     const start = moment(moment().add(1, 'd').format('YYYY-MM-DD') + ' 00:00:00').toDate();
