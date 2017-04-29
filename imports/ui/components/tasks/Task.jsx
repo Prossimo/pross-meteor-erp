@@ -26,7 +26,7 @@ class Task extends Component {
 
   render() {
     const AssigneeIcon = styled.div `
-      width: 50px;
+      width: 35px;
       height: 20px;
       background-color: #519839;
       text-align: center;
@@ -39,7 +39,7 @@ class Task extends Component {
       color: white;
     `;
     const ApproverIcon = styled.div `
-      width: 50px;
+      width: 35px;
       height: 20px;
       background-color: #ccc;
       text-align: center;
