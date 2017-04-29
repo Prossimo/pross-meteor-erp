@@ -44,7 +44,7 @@ class TaskDetail extends Component {
       assignee: assignee ? assignee._id : '',
       approver: approver ? approver._id : '',
       description,
-      dueDate,
+      dueDate: moment(moment(dueDate).format('YYYY-MM-DD') + ' 23:59:59').toDate(),
       status,
       parentId,
     };
