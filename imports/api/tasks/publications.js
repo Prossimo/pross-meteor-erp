@@ -23,11 +23,27 @@ Meteor.publishComposite('task.all', function (param) {
       Tomorrow,
     },
   } = param;
-  console.log(param);
+
   const selector = {
     parentId,
     isRemoved: false,
   };
+
+  if (AssignToMe) selector.assignee = this.userId;
+  if (IamApprover) selector.approver = this.userId;
+  if (DueDate) selector.dueDate = { $lt: new Date() };
+  if (Today) {
+    const start = moment(moment().format('YYYY-MM-DD') + ' 00:00:00').toDate();
+    const end = moment(moment().format('YYYY-MM-DD') + ' 23:59:59').toDate();
+    selector.dueDate = { $gte: start, $lte: end };
+  };
+
+  if (Tomorrow) {
+    const start = moment(moment().add(1, 'd').format('YYYY-MM-DD') + ' 00:00:00').toDate();
+    const end = moment(moment().add(1, 'd').format('YYYY-MM-DD') + ' 23:59:59').toDate();
+    selector.dueDate = { $gte: start, $lte: end };
+  }
+
   return {
     find() {
       return Tasks.find(selector, {
