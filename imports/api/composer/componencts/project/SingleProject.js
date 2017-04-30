@@ -3,7 +3,7 @@ import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
 import { Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
-import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
+import {SalesRecords} from '/imports/api/models'
 import Messages from '/imports/api/models/messages/messages'
 import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_THREADS, GET_MESSAGES } from '/imports/api/constants/collections';
 import SingleProject from '/imports/ui/components/salesRecord/SingleSalesRecord';
@@ -32,10 +32,12 @@ const reactiveMapper = (props, onData)=> {
         });
 
         let salesRecord = SalesRecords.findOne(projectId);
-        salesRecord.members = salesRecord.members.map(member=>{
-            member.user = props.usersArr[member.userId];
-            return member;
-        });
+        if(salesRecord) {
+            salesRecord.members = salesRecord.members.map(member => {
+                member.user = props.usersArr[member.userId];
+                return member;
+            });
+        }
 
         const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch().map(item=>{
             item.revisions.map(revision=>{

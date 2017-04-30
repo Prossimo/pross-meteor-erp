@@ -1,5 +1,6 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import {NylasAccounts} from '../../models'
 
 class TodosCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -57,7 +58,6 @@ Todos.publicFields = {
 
 Todos.helpers({
     account() {
-        const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
 
         return NylasAccounts.findOne({accountId: this.account_id})
     }

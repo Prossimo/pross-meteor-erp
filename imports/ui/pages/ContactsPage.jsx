@@ -31,7 +31,7 @@ export default class ContactsPage extends React.Component {
                 <ContactOverview
                     contact={this.state.selectedContact}
                     onRemoveContact={this.onRemoveContact}
-                    onEditContact={() => this.setState({showContactModal: true})}
+                    onEditContact={() => this.setState({showContactModal: true, creating:false})}
                 />
                 {this.renderContactModal()}
             </div>

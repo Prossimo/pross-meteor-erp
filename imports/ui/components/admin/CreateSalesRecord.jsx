@@ -173,7 +173,7 @@ class CreateSalesRecord extends React.Component {
         }
     }
 
-    updateMembers(members) {
+    updateMembers(members) {console.log('CreateSalesRecord updateMembers', members)
         this.members = members;
     }
 
@@ -235,7 +235,7 @@ class CreateSalesRecord extends React.Component {
                     </div>
                     <SelectMembers
                         members={this.props.users.filter(({_id}) => Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}
-                        selectedMembers={this.updateMembers}
+                        onSelectMembers={this.updateMembers}
                     />
                     <SelectStakeholders
                         members={ this.props.thread ? stakeholders : contacts }

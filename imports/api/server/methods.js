@@ -8,9 +8,9 @@ import {
   Quotes,
   SlackMessages,
   Settings,
-  Projects,
-  SalesRecords
+  Projects
 } from '../lib/collections';
+import {SlackMails, SalesRecords} from '../models'
 import {
   EMPLOYEE_ROLE,
   ADMIN_ROLE,
@@ -57,8 +57,10 @@ oauth2Client.setCredentials({
 
 const googleDrive = google.drive({ version: 'v3', auth: oauth2Client });
 
-const SLACK_API_KEY = config.slack.SLACK_API_KEY;
-const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
+const SLACK_API_ROOT = config.slack.apiRoot;
+const SLACK_API_KEY = config.slack.apiKey;
+const SLACK_BOT_ID = config.slack.botId;
+const SLACK_BOT_TOKEN = config.slack.botToken;
 
 Meteor.methods({
   userRegistration(userData){
@@ -201,7 +203,7 @@ Meteor.methods({
 
     if (!user) throw new Meteor.Error("User don`t integrate with slack");
 
-    const res = HTTP.post('https://slack.com/api/channels.invite', {
+    const res = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
       params: {
         token: SLACK_API_KEY,
         channel,
@@ -445,7 +447,7 @@ Meteor.methods({
 
 
   postSlackMessage(channel, message){
-    HTTP.post('https://slack.com/api/chat.postMessage', {
+    HTTP.post(`${SLACK_API_ROOT}/chat.postMessage`, {
       params: {
         token: SLACK_API_KEY,
         channel: channel,
@@ -472,10 +474,98 @@ Meteor.methods({
     SlackMessages.insert(data);
   },
 
+  sendMailToSlack(message, threadId, salesRecordId) {
+      const salesRecord = SalesRecords.findOne({_id:salesRecordId})
+
+      let threadable = false
+      let slackChannelId = salesRecord ? salesRecord.slackChanel : null
+
+      if(!slackChannelId) {
+          const channelsListRes = HTTP.get(`${SLACK_API_ROOT}/channels.list`, {
+              params: {
+                  token: SLACK_API_KEY,
+              }
+          })
+
+          if(channelsListRes.statusCode!=200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
+
+          const channels = channelsListRes.data.channels
+          let inboxChannel = _.find(channels, {name:'inbox'})
+          if(!inboxChannel) {
+              const channelsCreateRes = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
+                params: {
+                  token: SLACK_API_KEY,
+                  name: 'inbox',
+                  validate: true
+                }
+              })
+              if(channelsCreateRes.statusCode!=200 || !channelsCreateRes.data.ok) throw new Meteor.Error('Could not create inbox slack channel')
+              slackChannelId = channelsCreateRes.data.channel.id
+          } else {
+            slackChannelId = inboxChannel.id
+          }
+          threadable = true
+      }
+
+      if(!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')
+
+      let thread_ts = null
+      if(threadId) {
+          const slackMail = SlackMails.findOne({thread_id: threadId})
+          if(slackMail) thread_ts = slackMail.thread_ts
+      }
+
+      const { getSlackUsername, getAvatarUrl } = require('../lib/filters')
+
+
+      const from = message.from[0].email
+      let to = []
+      message.to.forEach((c)=>{to.push(c.email)})
+      message.cc.forEach((c)=>{to.push(c.email)})
+      message.bcc.forEach((c)=>{to.push(c.email)})
+      const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`;
+
+      const slackify = require('slackify-html')
+      const text = slackify(message.body)
+      const params = {
+          username: "prossimobot",//getSlackUsername(Meteor.user()),
+          //icon_url: getAvatarUrl(Meteor.user()),
+          attachments: [
+              {
+                  "fallback": message.snippet,
+                  "color": "#36a64f",
+                  //"pretext": "Optional text that appears above the attachment block",
+                  //"author_name": "Bobby Tables",
+                  //"author_link": "http://flickr.com/bobby/",
+                  //"author_icon": "http://flickr.com/icons/bobby.jpg",
+                  "title": message.subject,
+                  //"title_link": "https://api.slack.com/",
+                  "text": text,
+                  // "fields": [
+                  //     {
+                  //         "title": "Priority",
+                  //         "value": "High",
+                  //         "short": false
+                  //     }
+                  // ],
+                  "image_url": "http://my-website.com/path/to/image.jpg",
+                  "thumb_url": "http://example.com/path/to/thumb.png",
+                  "footer": "Prossimo CRM",
+                  "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                  "ts": new Date().getTime()/1000
+              }
+          ],
+          as_user: false
+      };
+      if(threadable && thread_ts) params.thread_ts = thread_ts
+
+
+      return Meteor.call('sendBotMessage', slackChannelId, slackText, params)
+  },
   getPublicPermalink(fileId){
     check(fileId, String);
 
-    const response = HTTP.get('https://slack.com/api/files.sharedPublicURL', {
+    const response = HTTP.get(`${SLACK_API_ROOT}/files.sharedPublicURL`, {
       params: {
         token: SLACK_API_KEY,
         file: fileId
@@ -493,7 +583,7 @@ Meteor.methods({
   },
 
   getSlackUsers(){
-    HTTP.get('https://slack.com/api/users.list', {
+    HTTP.get(`${SLACK_API_ROOT}/users.list`, {
       params: {
         token: SLACK_API_KEY,
       }

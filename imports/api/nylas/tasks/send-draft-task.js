@@ -51,7 +51,10 @@ export default class SendDraftTask extends Task {
 
     sendMessage = () => {
         let draft = _.clone(this.draft)
-        if(!draft.hideSignature) draft.body += `<br><br><div class="gmail_quote">${AccountStore.signatureForAccountId(draft.account_id)}</div>`
+        if(!draft.hideSignature){
+            const signature = AccountStore.signatureForAccountId(draft.account_id)
+            if(signature) draft.body += `<br><br><div class="gmail_quote">${signature}</div>`
+        }
 
         return NylasAPI.makeRequest({
             path: "/send",

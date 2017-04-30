@@ -159,6 +159,7 @@ export default class ComposeView extends React.Component {
 
         const signature = AccountStore.signatureForAccountId(this.state.draft.account_id)
 
+        if(!signature || signature.length==0) return (<div></div>)
         return (
             <div style={{position: 'relative'}}>
                 <i className="fa fa-close" style={{position: 'absolute', top: 0, left: 0, fontSize:10, color:'lightgray'}}

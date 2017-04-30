@@ -27,8 +27,10 @@ module.exports = {
         phoneNumber: '+19142905527'
     },
     slack: {
-        SLACK_API_KEY: "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666",
-        SLACK_BOT_ID: "U477F4M6Y"
+        apiRoot: "https://slack.com/api",
+        apiKey: "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666",
+        botToken: "xoxb-143253157236-cBzs3iNbCDuxCOIHTPnI2LHG",
+        botId: "U477F4M6Y"
     },
     prossDocDrive: {
         clientId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',

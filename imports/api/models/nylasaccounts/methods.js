@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import NylasAPI from '../../nylas/nylas-api';
 import config from '../../config/config';
-import {NylasAccounts} from './nylas-accounts';
+import NylasAccounts from './nylas-accounts';
 import {ADMIN_ROLE_LIST} from '../../constants/roles';
 
 
