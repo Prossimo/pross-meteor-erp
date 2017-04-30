@@ -191,18 +191,23 @@ class CreateSalesRecord extends React.Component {
         } = this.state;
         const {shippingMode, stages} = this;
         let submitBtnName = this.props.salesRecord ? 'Save SalesRecord' : 'Add SalesRecord';
+        let dealTitle = '';
         switch (this.props.stage) {
             case 'lead':
                 submitBtnName = this.props.salesRecord ? 'Save Lead' : 'Add Lead';
+                dealTitle = 'Lead Name'
                 break;
             case 'opportunity':
                 submitBtnName = this.props.salesRecord ? 'Save Opportunity' : 'Add Opportunity';
+                 dealTitle = 'Opportunity Name'
                 break;
             case 'order':
                 submitBtnName = this.props.salesRecord ? 'Save Order' : 'Add Order';
+                dealTitle = 'Order Name'
                 break;
             case 'ticket':
                 submitBtnName = this.props.salesRecord ? 'Save Ticket' : 'Add Ticket';
+                dealTitle = 'Ticket Name'
                 break;
         }
 
@@ -227,7 +232,7 @@ class CreateSalesRecord extends React.Component {
                         ) : ''
                     }
                     <div className="form-group">
-                        <label>Project Name</label>
+                        <label>{dealTitle}</label>
                         <input type="text"
                                className='form-control'
                                onChange={this.changeState('projectName')}
