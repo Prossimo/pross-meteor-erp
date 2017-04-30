@@ -1,5 +1,6 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import {NylasAccounts} from '../../models'
 
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -147,8 +148,6 @@ Messages.publicFields = {
 
 Messages.helpers({
     account() {
-        const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
-
         return NylasAccounts.findOne({accountId: this.account_id})
     }
 });

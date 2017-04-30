@@ -10,8 +10,8 @@ import {
     Projects,
     Tasks
 } from '../lib/collections';
-import {NylasAccounts} from '../models/nylasaccounts/nylas-accounts'
-import {Contacts, Threads, Messages, MailTemplates,SlackMails} from '../models'
+
+import {NylasAccounts, Contacts, Threads, Messages, MailTemplates,SlackMails} from '../models'
 import {
     GET_PROJECTS,
     GET_USERS,

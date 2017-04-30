@@ -1,5 +1,6 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import {NylasAccounts} from '../../models'
 
 class ContactsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -66,8 +67,6 @@ Contacts.publicFields = {
 
 Contacts.helpers({
     account() {
-        const {NylasAccounts} = require('../nylasaccounts/nylas-accounts')
-
         return NylasAccounts.findOne({accountId: this.account_id})
     }
 });

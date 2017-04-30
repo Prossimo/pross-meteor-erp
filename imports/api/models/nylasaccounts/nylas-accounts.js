@@ -1,5 +1,6 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import {Contacts} from '../../models'
 
 class NylasAccountsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -10,12 +11,18 @@ class NylasAccountsCollection extends Mongo.Collection {
     }
 
     remove(selector) {
+        const accounts = this.find(selector).fetch()
+        if(accounts && accounts.length) {
+            const ids = _.pluck(accounts, 'accountId')
+
+            Contacts.remove({account_id:{$in:ids}, edited:{$ne:true}})
+        }
         const result = super.remove(selector);
         return result;
     }
 }
 
-export const NylasAccounts = new NylasAccountsCollection("NylasAccounts");
+export default NylasAccounts = new NylasAccountsCollection("NylasAccounts");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 NylasAccounts.deny({

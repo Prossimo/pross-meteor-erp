@@ -93,7 +93,7 @@ class MessageControls extends React.Component {
     }
 
     _onReplyAll = () => {
-        const {message} = this.props
+        const {message, salesRecordId} = this.props
         Actions.composeReply({message, type: 'reply-all', modal: true, salesRecordId})
     }
 

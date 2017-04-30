@@ -116,7 +116,7 @@ class NylasAPI {
             return Promise.resolve(body);
         }
 
-        const error = (err) => { console.error("=========NyalsAPIRequest error", err);
+        const error = (err) => { //console.error("=========NyalsAPIRequest error", err);
             /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {

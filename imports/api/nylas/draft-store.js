@@ -5,8 +5,6 @@ import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
-import {SalesRecords, SlackMails} from '../models'
-import { getSlackUsername, getAvatarUrl } from '../lib/filters'
 
 ComposeType = {
     Creating: 'creating',
@@ -138,42 +136,11 @@ class DraftStore extends Reflux.Store {
                     })
                 }
             })
-
-            const salesRecord = SalesRecords.findOne({_id:salesRecordId})
-            if(!salesRecord || typeof salesRecord.slackChanel === 'undefined') return;
-
-            let thread_ts = null
-            if(draft.thread_id) {
-                const slackMail = SlackMails.findOne({thread_id: draft.thread_id})
-                if(slackMail) thread_ts = slackMail.thread_ts
-            }
-            const params = {
-                username: getSlackUsername(Meteor.user()),
-                icon_url: getAvatarUrl(Meteor.user()),
-                attachments: [
-                    {
-                        "color": "#36a64f",
-                        "text": `${message.body}`
-                    }
-                ],
-                thread_ts: thread_ts
-            };
-
-            console.log(params)
-            const from = message.from[0].email
-            let to = []
-            message.to.forEach((c)=>{to.push(c.email)})
-            message.cc.forEach((c)=>{to.push(c.email)})
-            message.bcc.forEach((c)=>{to.push(c.email)})
-            const slackText = `Email ${message.subject} was sent from ${message.from[0].email} to ${to.join(', ')}`;
-
-            Meteor.call("sendBotMessage", salesRecord.slackChanel, slackText, params, (err,res)=>{
-                console.log(err,res)
-                if(!err && res.ts) {
-                    Meteor.call("insertSlackMail", {thread_id:message.thread_id,thread_ts:res.ts})
-                }
-            });
         }
+
+        Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res)=>{
+            console.log('======sendMailToSlack', err, res)
+        })
 
         this.removeDraftForClientId(clientId)
         this.trigger()

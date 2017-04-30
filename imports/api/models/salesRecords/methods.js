@@ -11,8 +11,9 @@ import queryString from 'query-string'
 
 import {prossDocDrive} from '../../drive';
 
-const SLACK_API_KEY = config.slack.SLACK_API_KEY;
-const SLACK_BOT_ID = config.slack.SLACK_BOT_ID;
+const SLACK_API_ROOT = config.slack.apiRoot;
+const SLACK_API_KEY = config.slack.apiKey;
+const SLACK_BOT_ID = config.slack.botId;
 
 Meteor.methods({
     changeStageOfSalesRecord(salesRecordId, stage) {
@@ -83,7 +84,7 @@ Meteor.methods({
             stage: Match.Maybe(String)
         });
 
-        let responseCreateChannel = HTTP.post('https://slack.com/api/channels.create', {
+        let responseCreateChannel = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
             params: {
                 token: SLACK_API_KEY,
                 name: data.name
@@ -101,7 +102,7 @@ Meteor.methods({
 
         data.slackChanel = responseCreateChannel.data.channel.id;
 
-        const responseInviteBot = HTTP.post('https://slack.com/api/channels.invite', {
+        const responseInviteBot = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
             params: {
                 token: SLACK_API_KEY,
                 channel: responseCreateChannel.data.channel.id,
@@ -113,7 +114,7 @@ Meteor.methods({
 
         Meteor.users.find({_id: {$in: data.members.map(item => item.userId)}, slack: {$exists: true}})
             .forEach(user => {
-                HTTP.post('https://slack.com/api/channels.invite', {
+                HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
                     params: {
                         token: SLACK_API_KEY,
                         channel: responseCreateChannel.data.channel.id,

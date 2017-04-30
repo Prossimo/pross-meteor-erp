@@ -12,14 +12,23 @@ class SelectMembers extends Component{
         this.renderMembers = this.renderMembers.bind(this);
         this.changeState = this.changeState.bind(this);
         this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
-        this.state = {
-          selectedMembers: [
+
+        const selectedMembers = [
             {
-              label: getUserName(Meteor.user(), true),
-              value: Meteor.userId(),
-              categories: [this.categoryOptions[0]],
+                label: getUserName(Meteor.user(), true),
+                value: Meteor.userId(),
+                categories: [this.categoryOptions[0]],
             }
-          ],
+        ]
+        this.state = {
+          selectedMembers
+        }
+
+        if(this.props.onSelectMembers) {
+            this.props.onSelectMembers(selectedMembers.map(({ label, value, categories })=> ({
+                userId: value,
+                category: categories.map(({ label, value })=> value),
+            })));
         }
     }
 
@@ -28,7 +37,7 @@ class SelectMembers extends Component{
         this.setState({
             selectedMembers: this.state.selectedMembers,
         });
-        this.props.selectedMembers(this.state.selectedMembers.map(({ label, value, categories })=> ({
+        this.props.onSelectMembers(this.state.selectedMembers.map(({ label, value, categories })=> ({
             userId: value,
             category: categories.map(({ label, value })=> value),
         })));
@@ -42,7 +51,7 @@ class SelectMembers extends Component{
             }
         });
         this.setState({ selectedMembers});
-        this.props.selectedMembers(selectedMembers.map(({ label, value, categories })=> ({
+        this.props.onSelectMembers(selectedMembers.map(({ label, value, categories })=> ({
             userId: value,
             category: categories.map(({ label, value })=> value),
         })));
@@ -109,6 +118,6 @@ class SelectMembers extends Component{
 
 SelectMembers.propTypes = {
     members: PropTypes.array.isRequired,
-    selectedMembers: PropTypes.func.isRequired,
+    onSelectMembers: PropTypes.func.isRequired,
 }
 export default SelectMembers;
