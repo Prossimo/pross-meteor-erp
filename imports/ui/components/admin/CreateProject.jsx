@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import { info, warning } from '/imports/api/lib/alerts';
+import BlockUi from 'react-block-ui';
+import 'react-block-ui/style.css';
+import { Loader, Types } from 'react-loaders';
+import 'loaders.css/loaders.min.css';
 import {
     DESIGNATION_LIST,
     STAKEHOLDER_CATEGORY
@@ -17,7 +21,8 @@ export default class CreateProject extends Component {
                     label: curUserName,
                     value: props.currentUser._id
                 }
-            ]
+            ],
+            blocking: false
         }
         this.changeMembers = this.changeMembers.bind(this);
         this.changeState = this.changeState.bind(this);
@@ -33,8 +38,10 @@ export default class CreateProject extends Component {
                 isAdmin: !!checked,
             })),
         }
+        this.setState({blocking: true})
         Meteor.call('createNewProject', project, (error, projectId)=> {
             //info(`Success add new project & integration with Slack`);
+            this.setState({blocking: false})
             if (error) {
                 warning(`Problems with creating new project. ${error.error}`);
             } else {
@@ -83,7 +90,7 @@ export default class CreateProject extends Component {
             }
         });
         return (
-            <div>
+            <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
                 <div className='form'>
                     <div className='form-group'>
                         <label> Project Name </label>
@@ -136,7 +143,7 @@ export default class CreateProject extends Component {
                         <button className='btn btn-primary' onClick={this.addProject}>Add Project</button>
                     </div>
                 </div>
-            </div>
+            </BlockUi>
         );
     }
 }

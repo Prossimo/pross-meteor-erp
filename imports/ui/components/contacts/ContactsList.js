@@ -176,4 +176,3 @@ export default class ContactsList extends TrackerReact(React.Component) {
         }, 500)
     }
 }
-
