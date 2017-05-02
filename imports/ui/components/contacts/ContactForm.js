@@ -2,6 +2,12 @@ import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
 import {Contacts} from '/imports/api/models'
+import BlockUi from 'react-block-ui';
+import 'react-block-ui/style.css';
+import { Loader, Types } from 'react-loaders';
+import 'loaders.css/loaders.min.css';
+
+
 
 export default class ContactForm extends React.Component {
     static propTypes = {
@@ -16,13 +22,15 @@ export default class ContactForm extends React.Component {
             name: props.contact ? props.contact.name : '',
             email: props.contact ? props.contact.email : '',
             description: props.contact ? props.contact.description : '',
-            phone_numbers: props.contact ? props.contact.phone_numbers : []
+            phone_numbers: props.contact ? props.contact.phone_numbers : [],
+            blocking: false
         }
     }
 
     render() {
         const {name, email, description, phone_numbers} = this.state
         return (
+          <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
             <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
                 <FormGroup controlId="formHorizontalName">
                     <Col sm={3}>
@@ -57,6 +65,8 @@ export default class ContactForm extends React.Component {
                     </Col>
                 </FormGroup>
             </Form>
+          </BlockUi>
+
         )
     }
 
@@ -66,8 +76,10 @@ export default class ContactForm extends React.Component {
         let data = {name, email, description, phone_numbers} = this.state
 
         if (this.props.contact) data._id = this.props.contact._id
-
+        this.setState({blocking: true});
+        delete data.blocking
         Meteor.call('insertOrUpdateContact', data, (err, contactId) => {
+            this.setState({blocking: false});
             if (err) return warning(err.message)
 
             if (this.props.onSaved) this.props.onSaved(Contacts.findOne({_id:contactId}), this.props.contact != null)

@@ -2,6 +2,10 @@ import React from 'react';
 import classNames from 'classnames';
 import { getUserRoles, getUserEmail } from '../../../api/lib/filters';
 import Alert from 'react-s-alert';
+import BlockUi from 'react-block-ui';
+import 'react-block-ui/style.css';
+import { Loader, Types } from 'react-loaders';
+import 'loaders.css/loaders.min.css';
 
 class ContactInfo extends React.Component{
     constructor(props){
@@ -23,14 +27,15 @@ class ContactInfo extends React.Component{
             editTwitter: false,
             editUsername: false,
             editFirstName: false,
-            editLastName: false
+            editLastName: false,
+            blocking: false
         }
 
     }
 
     toggleEditMode(stateName, event){
         if(!this.props.editable) return;
-        
+
         event.persist();
         this.setState({[stateName]: true});
         //focus after click
@@ -73,8 +78,9 @@ class ContactInfo extends React.Component{
             companyName,
             companyPosition
         };
-
+        this.setState({blocking: true});
         Meteor.call("updateUserInfo", userData, (err)=>{
+            this.setState({blocking: false});
             if(!err) {
                 Alert.info(`Contact data successful updated!`, {
                     position: 'bottom-right',
@@ -109,7 +115,7 @@ class ContactInfo extends React.Component{
         const { user, editable } = this.props;
 
         return (
-           <div className="contact-info">
+           <BlockUi className="contact-info" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
                <div className={classNames("field-wrap", {"non-edit": !editable})}>
                    <span className="label">Username</span>
                    <input value={username}
@@ -228,7 +234,7 @@ class ContactInfo extends React.Component{
                </div>
 
                {this.renderUpdateBtn()}
-           </div>
+           </BlockUi>
         )
     }
 }
