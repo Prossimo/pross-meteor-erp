@@ -109,7 +109,15 @@ FlowRouter.route('/salesrecord/:id', {
         })
     }
 });
-
+FlowRouter.route('/deals', {
+    name: 'Deals',
+    action(){
+      checkAuth();
+      mount(App, {
+            content: <SalesRecordPage />
+      })
+    }
+})
 FlowRouter.route('/leads', {
     name: 'Leads',
     action(){

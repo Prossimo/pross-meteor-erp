@@ -6,23 +6,23 @@ import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord';
 class ProjectsPage extends React.Component{
     constructor(props){
         super(props);
-        
+
         this.tabs = [
             {
-                label: "All Projects",
+                label: "All Deals",
                 component: <AllSalesRecords/>
             },
             {
-                label: "Add Project",
+                label: "Add Deal",
                 component: <CreateSalesRecord/>
             }
         ];
-        
+
         this.state ={
             activeTab: this.tabs[0]
         }
     }
-    
+
      getTabs(){
         const { activeTab } = this.state;
 
@@ -37,11 +37,11 @@ class ProjectsPage extends React.Component{
             })}
         </ul>
     }
-    
+
     toggleTab(activeTab){
         this.setState({activeTab})
     }
-    
+
     getContent(){
         const { activeTab } = this.state;
         if(!activeTab.component) return null;
@@ -59,8 +59,8 @@ class ProjectsPage extends React.Component{
               		<div className="tab-content">
                 		{this.getContent()}
               		</div>
-             	</div>                
-            </div>                
+             	</div>
+            </div>
         )
     }
 }
