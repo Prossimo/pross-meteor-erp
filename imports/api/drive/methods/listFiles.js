@@ -8,6 +8,7 @@ export default new ValidatedMethod({
     }).validator(),
     run({ query, parent }) {
         const params = query ? { q: query } : {};
+        params.fields = 'files';
         return Meteor.wrapAsync(drive.files.list)(params);
     }
 })

@@ -288,15 +288,7 @@ class Files extends Component {
     onToggle(node, toggled){
         if(this.state.cursor){this.state.cursor.active = false;}
         node.active = true;
-        if (node.mimeType == 'application/vnd.google-apps.document') {
-            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.wordprocessingml.document&alt=media&access_token='+this.token, '_blank');
-        } else if (node.mimeType == 'application/vnd.google-apps.spreadsheet') {
-            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&alt=media&access_token='+this.token, '_blank');
-        } else if (node.mimeType == 'application/vnd.google-apps.presentation') {
-            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/vnd.openxmlformats-officedocument.presentationml.presentation&alt=media&access_token='+this.token, '_blank');
-        } else if (node.mimeType == 'application/vnd.google-apps.drawing') {
-            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'/export?mimeType=application/pdf&alt=media&access_token='+this.token, '_blank');
-        } else if (node.mimeType == 'application/vnd.google-apps.folder') {
+        if (node.mimeType == 'application/vnd.google-apps.folder') {
             if (node.loading == true) {
                 Meteor.call('drive.listFiles', {query: `'${node.id}' in parents and trashed = false`}, (error, result)=> {
                     if (error) {
@@ -321,7 +313,7 @@ class Files extends Component {
                 })
             }
         } else {
-            window.open('https://www.googleapis.com/drive/v3/files/'+node.id+'?alt=media&access_token='+this.token, '_blank');
+            window.open(node.webViewLink, '_blank');
         }
         if(node.children){ node.toggled = toggled; }
         this.setState({ cursor: node, folderId: node.id });
