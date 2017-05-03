@@ -14,10 +14,12 @@ class NavigationItem extends React.Component{
 
     toggleTopMenu(event) {
         const { subMenu } = this.refs;
+        const { item } = this.props;
         $(subMenu).parent().siblings('.top-nav-item').find('.sub-nav-items').slideUp();
         $(subMenu).parent().siblings('.top-nav-item').removeClass('active');
         $(subMenu).slideToggle();
         $(subMenu).parent().toggleClass('active');
+        this.goToRoute(item.route);
     }
 
     goToRoute(route){
@@ -31,8 +33,9 @@ class NavigationItem extends React.Component{
 
         return (
             <li className="top-nav-item">
-                <div onClick={this.toggleTopMenu.bind(this)}
-                      className={classNames("nav-item-label",{"active": routesList.indexOf(FlowRouter.getRouteName())>-1})}>{item.label}</div>
+                <div
+                  onClick={this.toggleTopMenu.bind(this)}
+                  className={classNames("nav-item-label",{"active": routesList.indexOf(FlowRouter.getRouteName())>-1})}>{item.label}</div>
                 <ul className="sub-nav-items" ref="subMenu">{subItemList}</ul>
             </li>
         )
@@ -83,6 +86,7 @@ class Aside extends React.Component{
             {
                 label: "Deals",
                 topLevel: true,
+                route: 'Deals',
                 subItems: [
                     {
                         label: "Leads",
