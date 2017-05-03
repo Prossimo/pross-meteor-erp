@@ -128,7 +128,7 @@ class Files extends Component {
             if (error) {
                 return warning('could not list files from google drive');
             }
-            data.children = result.files;
+            data.children = _.sortBy(result.files, ({ name }) => name);
             data.children.forEach(function(item, index) {
                if (item.mimeType == 'application/vnd.google-apps.folder') {
                    data.children[index].loading = true;
@@ -148,7 +148,7 @@ class Files extends Component {
             if (error) {
                 return warning('could not list files from google drive');
             }
-            curnode.children = result.files;
+            curnode.children = _.sortBy(result.files, ({ name }) => name);
             curnode.children.forEach(function (item, index) {
                 if (item.mimeType == "application/vnd.google-apps.folder") {
                     curnode.children[index].loading = true;
@@ -302,7 +302,7 @@ class Files extends Component {
                     if (error) {
                         return warning('could not list files from google drive');
                     }
-                    node.children = result.files;
+                    node.children = _.sortBy(result.files, ({ name }) => name);
                     node.children.forEach(function (item, index) {
                         if (item.mimeType == 'application/vnd.google-apps.folder') {
                             node.children[index].loading = true;
