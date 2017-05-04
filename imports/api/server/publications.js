@@ -9,7 +9,7 @@ import {
     SlackMessages,
     Projects,
     Tasks
-} from '../lib/collections';
+} from '../models';
 
 import {NylasAccounts, Contacts, Threads, Messages, MailTemplates,SlackMails} from '../models'
 import {

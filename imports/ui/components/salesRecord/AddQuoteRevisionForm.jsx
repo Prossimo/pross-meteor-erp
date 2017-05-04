@@ -1,5 +1,5 @@
 import React from 'react';
-import { Files } from '/imports/api/lib/collections';
+import Files from '/imports/api/models/files/files';
 import { getUserName, getUserEmail, getAvatarUrl, getSlackUsername } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';

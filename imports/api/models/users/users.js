@@ -2,7 +2,7 @@ import { Factory } from 'meteor/dburles:factory';
 import SimpleSchema from 'simpl-schema';
 import faker from 'faker';
 import { Accounts } from 'meteor/accounts-base';
-import {NylasAccounts} from '../../models';
+import NylasAccounts from '../nylasaccounts/nylas-accounts';
 import {ADMIN_ROLE_LIST} from '../../constants/roles';
 
 Schema = {};
@@ -137,3 +137,4 @@ if(Meteor.isServer) {
     });
 }
 
+export default Meteor.users;

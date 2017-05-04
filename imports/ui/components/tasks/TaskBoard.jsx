@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import { Tasks } from '/imports/api/lib/collections';
+import Tasks from '/imports/api/models/tasks/tasks';
 import { createContainer } from 'meteor/react-meteor-data';
 import TaskList from './TaskList.jsx';
 import TaskFilter from './TaskFilter.jsx';

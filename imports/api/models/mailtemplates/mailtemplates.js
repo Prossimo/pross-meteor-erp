@@ -1,4 +1,4 @@
-import {Mongo} from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 
 class MailTemplatesCollection extends Mongo.Collection {
@@ -15,7 +15,7 @@ class MailTemplatesCollection extends Mongo.Collection {
     }
 }
 
-export default MailTemplates = new MailTemplatesCollection("MailTemplates");
+const MailTemplates = new MailTemplatesCollection("MailTemplates");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 MailTemplates.deny({
@@ -52,3 +52,5 @@ MailTemplates.publicFields = {
 MailTemplates.helpers({
 
 });
+
+export default MailTemplates;

@@ -1,5 +1,7 @@
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import { Settings } from '../../lib/collections';
+
+const Settings = new Mongo.Collection('Settings');
 
 Settings.schema = new SimpleSchema({
     _id: {
@@ -18,3 +20,5 @@ Settings.schema = new SimpleSchema({
 });
 
 Settings.attachSchema(Settings.schema);
+
+export default Settings;

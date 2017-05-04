@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createContainer  } from 'meteor/react-meteor-data';
 import classNames from 'classnames';
-import { Projects } from '/imports/api/lib/collections';
+import Projects from '/imports/api/models/projects/projects';
 import { GET_NEW_PROJECT } from '/imports/api/constants/collections';
 import Activities from './Activities';
 import Tasks from '../tasks/TaskBoard.jsx';

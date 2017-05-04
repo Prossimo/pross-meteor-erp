@@ -1,6 +1,6 @@
-import {Mongo} from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import {Contacts} from '../../models'
+import Contacts from '../contacts/contacts';
 
 class NylasAccountsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -22,7 +22,7 @@ class NylasAccountsCollection extends Mongo.Collection {
     }
 }
 
-export default NylasAccounts = new NylasAccountsCollection("NylasAccounts");
+const NylasAccounts = new NylasAccountsCollection("NylasAccounts");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 NylasAccounts.deny({
@@ -94,3 +94,5 @@ NylasAccounts.publicFields = {
     createdAt: 1,
     modifiedAt: 1
 };
+
+export default NylasAccounts;

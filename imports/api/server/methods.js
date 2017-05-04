@@ -9,7 +9,7 @@ import {
   SlackMessages,
   Settings,
   Projects
-} from '../lib/collections';
+} from '../models';
 import {SlackMails, SalesRecords} from '../models'
 import {
   EMPLOYEE_ROLE,

@@ -1,4 +1,4 @@
-import {Mongo} from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 
 class SlackMailsCollection extends Mongo.Collection {
@@ -15,7 +15,7 @@ class SlackMailsCollection extends Mongo.Collection {
     }
 }
 
-export default SlackMails = new SlackMailsCollection("SlackMails");
+const SlackMails = new SlackMailsCollection("SlackMails");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 SlackMails.deny({
@@ -56,3 +56,5 @@ SlackMails.helpers({
         return NylasAccounts.findOne({accountId: this.account_id})
     }*/
 });
+
+export default SlackMails;

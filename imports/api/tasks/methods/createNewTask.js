@@ -1,5 +1,5 @@
 import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../lib/collections';
+import { Tasks } from '../../models';
 
 const createNewTask = new ValidatedMethod({
   name: 'task.create',
