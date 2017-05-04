@@ -2,7 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { compose } from 'react-komposer';
 import getTrackerLoader from '../../traker';
-import { Quotes, Files, Events, SlackMessages } from '/imports/api/lib/collections';
+import { Quotes, Files, Events, SlackMessages } from '/imports/api/models';
 import {SalesRecords} from '/imports/api/models'
 import Messages from '/imports/api/models/messages/messages'
 import { GET_PROJECT, GET_QUOTES, GET_PROJECT_FILES, GET_SLACK_MSG, GET_PROJECT_EVENTS, GET_THREADS, GET_MESSAGES } from '/imports/api/constants/collections';

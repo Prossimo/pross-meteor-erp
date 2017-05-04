@@ -1,5 +1,7 @@
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../lib/collections';
+
+const Tasks = new Mongo.Collection('Tasks');
 
 Tasks.schema = new SimpleSchema({
   _id: {
@@ -43,3 +45,4 @@ Tasks.schema = new SimpleSchema({
 
 Tasks.attachSchema(Tasks.schema);
 
+export default Tasks;

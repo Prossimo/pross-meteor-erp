@@ -1,5 +1,5 @@
 import _ from 'underscore'
-import {Mongo} from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
 import { Factory } from 'meteor/dburles:factory';
 import faker from 'faker';
@@ -22,7 +22,7 @@ class SalesRecordsCollection extends Mongo.Collection {
     }
 }
 
-export default SalesRecords = new SalesRecordsCollection("SalesRecords");
+SalesRecords = new SalesRecordsCollection("SalesRecords");
 // Deny all client-side updates since we will be using methods to manage this collection
 /*salesRecords.deny({
     insert() { return true; },
@@ -136,3 +136,5 @@ SalesRecords.helpers({
         return Contacts.find({_id:{$in:contactIds}}).fetch()
     }
 })
+
+export default SalesRecords;

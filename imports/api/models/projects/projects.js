@@ -1,5 +1,7 @@
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import { Projects } from '../../lib/collections';
+
+const Projects = new Mongo.Collection('Projects');
 
 Projects.schema = new SimpleSchema({
     _id: { type: String },
@@ -29,3 +31,5 @@ Projects.schema = new SimpleSchema({
 });
 
 Projects.attachSchema(Projects.schema);
+
+export default Projects;

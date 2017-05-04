@@ -1,6 +1,7 @@
-import {Mongo} from 'meteor/mongo';
+import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import {NylasAccounts, Messages} from '../../models';
+import NylasAccounts from '../nylasaccounts/nylas-accounts';
+import Messages from '../messages/messages';
 
 class ThreadsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -16,7 +17,7 @@ class ThreadsCollection extends Mongo.Collection {
     }
 }
 
-export default Threads = new ThreadsCollection("Threads");
+const Threads = new ThreadsCollection("Threads");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Threads.deny({
@@ -108,3 +109,5 @@ Threads.helpers({
         return messages
     }
 });
+
+export default Threads;

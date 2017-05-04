@@ -1,4 +1,4 @@
-import { Tasks } from '../lib/collections';
+import { Tasks } from '../models';
 
 Meteor.publishComposite('task.all', function (param) {
   if (!Match.test(param, {

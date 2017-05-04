@@ -2,7 +2,10 @@
 import { Factory } from 'meteor/dburles:factory';
 import _ from 'underscore';
 import {SUPER_ADMIN_ROLE, EMPLOYEE_ROLE} from '../../api/constants/roles'
-import {SalesRecords, Quotes} from '../../api/lib/collections';
+import {
+  SalesRecords,
+  Quotes
+} from '../../api/models';
 
 import '../../api/models'
 

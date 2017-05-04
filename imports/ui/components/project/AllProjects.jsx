@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { createContainer  } from 'meteor/react-meteor-data';
 import { GET_NEW_PROJECTS } from '/imports/api/constants/collections';
-import { Projects } from '/imports/api/lib/collections';
+import Projects from '/imports/api/models/projects/projects';
 import Sheets from '/imports/ui/components/libs/Sheets';
 
 class AllProjects extends Component {

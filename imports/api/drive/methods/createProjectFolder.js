@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import createFolder from './createFolder';
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
-import { Projects } from '../../lib/collections';
+import { Projects } from '../../models';
 import { prossDocDrive } from '../../config/config';
 
 const { projectParentFolderId }  = prossDocDrive;

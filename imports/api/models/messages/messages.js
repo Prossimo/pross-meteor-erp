@@ -1,6 +1,6 @@
 import {Mongo} from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
-import {NylasAccounts} from '../../models'
+import NylasAccounts from '../nylasaccounts/nylas-accounts';
 
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -16,7 +16,7 @@ class MessagesCollection extends Mongo.Collection {
     }
 }
 
-export default Messages = new MessagesCollection("Messages");
+const Messages = new MessagesCollection("Messages");
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Messages.deny({
@@ -151,3 +151,5 @@ Messages.helpers({
         return NylasAccounts.findOne({accountId: this.account_id})
     }
 });
+
+export default Messages;

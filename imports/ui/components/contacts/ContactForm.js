@@ -1,7 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
-import {Contacts} from '/imports/api/models'
+import Contacts from '/imports/api/models/contacts/contacts'
 import BlockUi from 'react-block-ui';
 import 'react-block-ui/style.css';
 import { Loader, Types } from 'react-loaders';

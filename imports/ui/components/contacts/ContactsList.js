@@ -2,7 +2,7 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
-import {Contacts} from '/imports/api/models'
+import Contacts from '/imports/api/models/contacts/contacts'
 
 const PAGESIZE = 100
 export default class ContactsList extends TrackerReact(React.Component) {

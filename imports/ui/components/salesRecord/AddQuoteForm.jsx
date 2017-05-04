@@ -1,6 +1,6 @@
 import React from 'react';
 import {Alert} from 'react-bootstrap';
-import { Files } from '/imports/api/lib/collections';
+import Files from '/imports/api/models/files/files';
 import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
 import { generateEmailHtml } from '/imports/api/lib/functions';
 import { warning, info } from '/imports/api/lib/alerts';
