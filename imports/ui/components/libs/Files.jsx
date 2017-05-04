@@ -4,6 +4,8 @@ import { info, warning } from '/imports/api/lib/alerts';
 import MediaUploader from '../libs/MediaUploader';
 import {Treebeard, decorators} from './accordionview';
 import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters';
+import swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 var fileview_data = [];
 var folder_ct = 0;
@@ -252,37 +254,46 @@ class Files extends Component {
 
     removeFile(fileId, fileName, event) {
         event.preventDefault();
-        if (confirm('Are you sure you want to remove this file?')) {
-            Meteor.call('drive.removeFiles', { fileId }, (err)=> {
-                let parentNode;
-                fileview_data = [];
-                folder_ct = 0;
-                extract(this.state.data, -1);
-                parentNode = getParentFolder(fileId);
-                this.setState({ cursor: parentNode, folderId: parentNode.id });
-                this.updateSelectedFolder();
-                if(typeof this.slackChannel === 'undefined') return;
+        swal({
+          title: 'Are you sure?',
+          text: "You won't be able to revert this!",
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Yes, delete it!'
 
-                const params = {
-                    username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
-                    icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
-                    attachments: [
-                        {
-                            "color": "#36a64f",
-                            "text": `<Removed ${fileName}>`
-                        }
-                    ]
-                };
+        }).then(()=> {
+          Meteor.call('drive.removeFiles', { fileId }, (err)=> {
+            swal(
+              'Deleted!',
+              'Your file has been deleted.',
+              'success'
+            )
+            let parentNode;
+            fileview_data = [];
+            folder_ct = 0;
+            extract(this.state.data, -1);
+            parentNode = getParentFolder(fileId);
+            this.setState({ cursor: parentNode, folderId: parentNode.id });
+            this.updateSelectedFolder();
+            if(typeof this.slackChannel === 'undefined') return;
 
-                const slackText = `I just removed the file named as "${fileName}"`;
-                Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
-            });
+            const params = {
+              username: getSlackUsername(this.props.usersArr[Meteor.userId()]),
+              icon_url: getAvatarUrl(this.props.usersArr[Meteor.userId()]),
+              attachments: [
+                {
+                  "color": "#36a64f",
+                  "text": `<Removed ${fileName}>`
+                }
+              ]
+            };
 
-            /*this.setState((prevState)=> {
-                prevState.remoteFiles = prevState.remoteFiles.filter(({ id })=> id !== fileId);
-                return prevState;
-            })*/
-        }
+            const slackText = `I just removed the file named as "${fileName}"`;
+            Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
+          });
+        })
     }
 
     onToggle(node, toggled){
