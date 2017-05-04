@@ -4,6 +4,7 @@ import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
 import Contacts from '/imports/api/models/contacts/contacts'
 
+import {GET_MY_CONTACTS} from '/imports/api/constants/collections';
 const PAGESIZE = 100
 export default class ContactsList extends TrackerReact(React.Component) {
     static propTypes = {
@@ -43,7 +44,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
     loadContacts() {
         const {keyword, page, removedContact} = this.state
 
-        let filters = {}
+        let filters = {removed:{$ne:true}}
         if(keyword && keyword.length) {
             const regx = {$regex: keyword, $options: 'i'}
             filters['$or'] = [{email: regx}, {name: regx}]
@@ -51,7 +52,6 @@ export default class ContactsList extends TrackerReact(React.Component) {
 
         const result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
         if(result.length!=PAGESIZE) this.fullyLoaded = true
-        const cids = _.pluck(this.contacts, '_id')
         result.forEach((c)=>{
             const index = this.contacts.findIndex((c1)=>c1._id==c._id)
             if(index >= 0) {
@@ -60,10 +60,11 @@ export default class ContactsList extends TrackerReact(React.Component) {
                 this.contacts.push(c)
             }
         })
-        this.contacts = _.uniq(this.contacts, (c)=>c.email.toLowerCase())
+        //this.contacts = _.uniq(this.contacts, (c)=>c.email.toLowerCase())
         if(removedContact) {
             this.contacts.splice(this.contacts.findIndex((c) => c._id == removedContact._id), 1)
         }
+
         return this.contacts
     }
 
@@ -118,7 +119,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
         const {selectedContact} = this.state
 
         const contacts = this.loadContacts()
-        if (!contacts || contacts.length == 0) return ''
+        if (!contacts || contacts.length == 0) return
 
 
         compare = (c1, c2) => {
@@ -151,7 +152,6 @@ export default class ContactsList extends TrackerReact(React.Component) {
         const el = evt.target
 
         if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
-
             if (this.scrollTimeout) {
                 clearTimeout(this.scrollTimeout);
             }
@@ -171,8 +171,8 @@ export default class ContactsList extends TrackerReact(React.Component) {
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
             this.contacts = []
-            this.setState({keyword:keyword,page:1})
             this.fullyLoaded = false
+            this.setState({keyword:keyword,page:1})
         }, 500)
     }
 }
