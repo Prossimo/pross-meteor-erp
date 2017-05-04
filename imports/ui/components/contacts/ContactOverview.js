@@ -34,6 +34,7 @@ export default class ContactOverview extends React.Component {
     renderToolbar() {
         const contact = this.props.contact
         const account = contact ? contact.account() : null
+
         const disabled = !contact || account && !Meteor.user().isAdmin() && account.isTeamAccount
         return (
             <div className="toolbar-panel">

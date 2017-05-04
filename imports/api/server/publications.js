@@ -123,13 +123,7 @@ Meteor.startup(() => {
     });
 
     Meteor.publish(GET_CONTACTS, function () {
-        return Contacts.find({
-            $or: [{
-                removed: false
-            }, {
-                removed: null
-            }]
-        });
+        return Contacts.find();
     });
 
     Meteor.publish(GET_MY_CONTACTS, function () {
@@ -143,11 +137,6 @@ Meteor.startup(() => {
                 }
             },{
                 userId: this.userId
-            }],
-            $or: [{
-                removed: false
-            }, {
-                removed: null
             }]
         });
     });
