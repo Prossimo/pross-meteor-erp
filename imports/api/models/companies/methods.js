@@ -1,67 +1,57 @@
+import {_} from 'meteor/underscore'
+import { Meteor } from 'meteor/meteor'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import SimpleSchema from 'simpl-schema'
 import Companies from './companies'
 
-Meteor.methods({
-    insertCompany(data)
-    {
-        check(data, {
-            id: Match.Maybe(String),
-            name: String,
-            website: String,
-            type: String,
-            phone_numbers: Match.Maybe(Array),
-            addresses: Match.Maybe(Array)
-        });
 
-        data.user_id = Meteor.userId()
-        return Companies.insert(data)
-    },
+export const insertCompany = new ValidatedMethod({
+    name: 'companies.insert',
+    validate: Companies.schema.pick('name','website','type','phone_numbers','addresses').validator({clean:true}),
+    run({name, website, type, phone_numbers, addresses}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-    updateCompany(id, data)
-    {
-        check(data, {
-            name: Match.Maybe(String),
-            website: Match.Maybe(String),
-            type: Match.Maybe(String),
-            phone_numbers: Match.Maybe(Array),
-            addresses: Match.Maybe(Array)
-        });
-
-        return Companies.update({id}, data)
-    },
-
-    insertOrUpdateCompany(data)
-    {
-        check(data, {
-            _id: Match.Maybe(String),
-            name: Match.Maybe(String),
-            website: Match.Maybe(String),
-            type: Match.Maybe(String),
-            phone_numbers: Match.Maybe(Array),
-            addresses: Match.Maybe(Array)
-        });
-
-        data.user_id = Meteor.userId()
-        const {_id} = data
-        if(_id) {
-            const company = Companies.findOne({_id})
-            if(!company) throw new Meteor.Error(`Could not find the company with _id:${_id}`)
-
-            Companies.update({_id:_id}, {$set:data})
-            return _id
-        } else {
-            return Companies.insert(data)
+        const data = {
+            name,
+            website,
+            type,
+            phone_numbers,
+            addresses,
+            user_id: this.userId
         }
-    },
 
-    removeCompany(_id)
-    {
+        return Companies.insert(data)
+    }
+})
+
+export const updateCompany = new ValidatedMethod({
+    name: 'companies.update',
+    validate: Companies.schema.pick('_id','name','website','type','phone_numbers','addresses').validator({clean:true}),
+    run({_id, name, website, type, phone_numbers, addresses}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
         const company = Companies.findOne({_id})
+        if(!company) throw new Meteor.Error(`Not found company with _id ${_id}`)
 
-        if(!company)
-            throw new Meteor.Error('Could not find entity')
-        if(company.user_id != Meteor.userId())
-            throw new Meteor.Error('You can not remove company of others')
+        const data = {
+            name: _.isUndefined(name) ? null : name,
+            website: _.isUndefined(website) ? null : website,
+            type: _.isUndefined(type) ? null : type,
+            phone_numbers: _.isUndefined(phone_numbers) ? [] : phone_numbers,
+            addresses: _.isUndefined(addresses) ? [] : addresses,
+            user_id: this.userId
+        }
 
-        Companies.remove({_id})
-    },
-});
+        return Companies.update({_id}, {$set:data})
+    }
+})
+
+export const removeCompany = new ValidatedMethod({
+    name: 'companies.remove',
+    validate: new SimpleSchema({_id:Companies.schema.schema('_id')}).validator({clean:true}),
+    run({_id}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        Companies.remove(_id)
+    }
+})

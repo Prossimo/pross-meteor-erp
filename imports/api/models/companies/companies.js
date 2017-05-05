@@ -1,5 +1,8 @@
 import { Mongo } from 'meteor/mongo';
 import SimpleSchema from 'simpl-schema';
+import {Factory} from 'meteor/dburles:factory';
+import {_} from 'meteor/underscore';
+import faker from 'faker';
 
 class CompaniesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -18,6 +21,8 @@ class CompaniesCollection extends Mongo.Collection {
 const Companies = new CompaniesCollection("Companies");
 
 Companies.TYPES = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultat', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
+Companies.PHONE_TYPES = ['Work', 'Home', 'Mobile', 'Other']
+Companies.ADDRESS_TYPES = ['Billing', 'Mail', 'Home', 'Other']
 // Deny all client-side updates since we will be using methods to manage this collection
 Companies.deny({
     insert() {
@@ -35,8 +40,8 @@ Companies.Address = new SimpleSchema({
     address: {type: String},
     type: {type: String},
     is_default: {type: Boolean},
-    is_billing: {type: Boolean},
-    is_mail: {type: Boolean}
+    //is_billing: {type: Boolean},
+    //is_mail: {type: Boolean}
 })
 
 Companies.PhoneNumber = new SimpleSchema({
@@ -72,6 +77,22 @@ Companies.publicFields = {
     created_at: 1,
     modified_at: 1
 };
+
+Factory.define('company', Companies, {
+    name: faker.company.companyName(),
+    website: faker.internet.url(),
+    type: _.sample(Companies.TYPES),
+    phone_numbers: [{
+        number: faker.phone.phoneNumber(),
+        type: _.sample(Companies.PHONE_TYPES),
+        is_default: true
+    }],
+    addresses: [{
+        address: faker.address.streetAddress(),
+        type: _.sample(Companies.ADDRESS_TYPES),
+        is_default: true
+    }]
+})
 
 Companies.helpers({
 
