@@ -1,4 +1,3 @@
-import _ from 'underscore';
 import Contacts from './contacts'
 
 Meteor.methods({

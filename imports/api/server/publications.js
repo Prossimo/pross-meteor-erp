@@ -38,6 +38,8 @@ import {
   ADMIN_ROLE_LIST
 } from '../constants/roles';
 
+import '/imports/api/models/companies/publications'
+
 Meteor.startup(() => {
     Meteor.publish(GET_USERS, function () {
         return Meteor.users.find({}, {
