@@ -2,21 +2,22 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
-import Contacts from '/imports/api/models/contacts/contacts'
-
+import {Companies} from '/imports/api/models'
+const {Address, PhoneNumber} = Companies
 const PAGESIZE = 100
-export default class ContactsList extends TrackerReact(React.Component) {
+
+export default class CompaniesList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelectContact: React.PropTypes.func,
-        onCreateContact: React.PropTypes.func,
-        updatedContact: React.PropTypes.object,
-        removedContact: React.PropTypes.object
+        onSelectCompany: React.PropTypes.func,
+        onCreateCompany: React.PropTypes.func,
+        updatedCompany: React.PropTypes.object,
+        removedCompany: React.PropTypes.object
     }
 
     constructor(props) {
         super(props)
 
-        this.contacts = []
+        this.companies = []
         this.fullyLoaded = false
         this.state = {
             page: 1,
@@ -33,15 +34,15 @@ export default class ContactsList extends TrackerReact(React.Component) {
     }
 
     componentWillReceiveProps(nextProps) {
-        const {removedContact} = nextProps
+        const {removedCompany} = nextProps
 
-        if(removedContact) {
-            this.setState({removedContact:removedContact})
+        if(removedCompany) {
+            this.setState({removedCompany:removedCompany})
         }
     }
 
-    loadContacts() {
-        const {keyword, page, removedContact} = this.state
+    loadCompanies() {
+        const {keyword, page, removedCompany} = this.state
 
         let filters = {removed:{$ne:true}}
         if(keyword && keyword.length) {
@@ -49,27 +50,27 @@ export default class ContactsList extends TrackerReact(React.Component) {
             filters['$or'] = [{email: regx}, {name: regx}]
         }
 
-        const result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
+        const result = Companies.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
         if(result.length!=PAGESIZE) this.fullyLoaded = true
         result.forEach((c)=>{
-            const index = this.contacts.findIndex((c1)=>c1._id==c._id)
+            const index = this.companies.findIndex((c1)=>c1._id==c._id)
             if(index >= 0) {
-                this.contacts.splice(index, 1, c)
+                this.companies.splice(index, 1, c)
             } else {
-                this.contacts.push(c)
+                this.companies.push(c)
             }
         })
-        //this.contacts = _.uniq(this.contacts, (c)=>c.email.toLowerCase())
-        if(removedContact) {
-            this.contacts.splice(this.contacts.findIndex((c) => c._id == removedContact._id), 1)
+
+        if(removedCompany) {
+            this.companies.splice(this.companies.findIndex((c) => c._id == removedCompany._id), 1)
         }
 
-        return this.contacts
+        return this.companies
     }
 
     render() {
         return (
-            <div className="contact-list">
+            <div className="company-list">
                 {this.renderToolbar()}
 
                 {this.renderContent()}
@@ -81,7 +82,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>
+                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateCompany&&this.props.onCreateCompany()}}><i className="fa fa-user-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -101,24 +102,24 @@ export default class ContactsList extends TrackerReact(React.Component) {
                     <tr>
                         <th width="5%">#</th>
                         <th width="20%">Name</th>
-                        <th width="25%">Email</th>
-                        <th width="15%">Phone Numbers</th>
-                        <th width="25%">Description</th>
-                        <th width="10%">Inbox</th>
+                        <th width="25%">Phone Numbers</th>
+                        <th width="25%">Addresses</th>
+                        <th width="15%">People</th>
+                        <th width="10%"></th>
                     </tr>
                     </thead>
-                    <tbody onScroll={this.onScrollContactList}>
-                    {this.renderContacts()}
+                    <tbody onScroll={this.onScrollCompanyList}>
+                    {this.renderCompanys()}
                     </tbody>
                 </Table>
             </div>
         )
     }
-    renderContacts() {
-        const {selectedContact} = this.state
+    renderCompanys() {
+        const {selectedCompany} = this.state
 
-        const contacts = this.loadContacts()
-        if (!contacts || contacts.length == 0) return
+        const companies = this.loadCompanies()
+        if (!companies || companies.length == 0) return
 
 
         compare = (c1, c2) => {
@@ -130,24 +131,24 @@ export default class ContactsList extends TrackerReact(React.Component) {
                 return 0
             }
         }
-        return contacts.sort(compare).map((contact, index) => (
-            <tr className={selectedContact && selectedContact._id===contact._id ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
+        return companies.sort(compare).map((company, index) => (
+            <tr className={selectedCompany && selectedCompany._id===company._id ? 'focused' : ''} key={company._id} onClick={() => this.onClickCompany(company)}>
                 <td width="5%">{index + 1}</td>
-                <td width="20%">{contact.name}</td>
-                <td width="25%">{contact.email}</td>
-                <td width="15%">{contact.phone_numbers}</td>
-                <td width="25%">{contact.description}</td>
-                <td width="10%">{contact.account() ? contact.account().name : ''}</td>
+                <td width="20%">{company.name}</td>
+                <td width="25%">{company.phone_numbers}</td>
+                <td width="25%">{company.addresses}</td>
+                <td width="15%">{company.people()}</td>
+                <td width="10%"></td>
             </tr>
         ))
     }
 
-    onClickContact = (contact) => {
-        this.setState({selectedContact: contact})
-        if(this.props.onSelectContact) this.props.onSelectContact(contact)
+    onClickCompany = (company) => {
+        this.setState({selectedCompany: company})
+        if(this.props.onSelectCompany) this.props.onSelectCompany(company)
     }
 
-    onScrollContactList = (evt) => {
+    onScrollCompanyList = (evt) => {
         const el = evt.target
 
         if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
@@ -169,7 +170,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
-            this.contacts = []
+            this.companies = []
             this.fullyLoaded = false
             this.setState({keyword:keyword,page:1})
         }, 500)

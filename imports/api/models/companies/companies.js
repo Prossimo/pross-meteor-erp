@@ -31,6 +31,19 @@ Companies.deny({
     }
 });
 
+Companies.Address = new SimpleSchema({
+    address: {type: String},
+    type: {type: String},
+    is_default: {type: Boolean},
+    is_billing: {type: Boolean},
+    is_mail: {type: Boolean}
+})
+
+Companies.PhoneNumber = new SimpleSchema({
+    number: {type: String},
+    type: {type: String},
+    is_default: {type: Boolean}
+})
 
 Companies.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
@@ -38,17 +51,9 @@ Companies.schema = new SimpleSchema({
     website: {type: String, optional: true},
     type: {type: String, optional: true},
     phone_numbers: {type: Array, optional: true},
-    "phone_numbers.$": {type: Object},
-    "phone_numbers.$.number": {type: String},
-    "phone_numbers.$.is_default": {type: Boolean},
-    "phone_numbers.$.type": {type: String},
+    'phone_numbers.$': {type: Companies.PhoneNumber},
     addresses: {type: Array, optional: true},
-    "addresses.$": {type: Object},
-    "addresses.$.address": {type: String},
-    "addresses.$.type": {type: String},
-    "addresses.$.is_default": {type: Boolean},
-    "addresses.$.is_billing": {type: Boolean},
-    "addresses.$.is_mail": {type: Boolean},
+    'addresses.$': {type: Companies.Address},
     user_id: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}

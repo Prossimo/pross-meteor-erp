@@ -158,8 +158,18 @@ FlowRouter.route('/tickets', {
     }
 });
 
-FlowRouter.route('/contacts', {
-    name: 'Contacts',
+FlowRouter.route('/people', {
+    name: 'People',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <ContactsPage/>,
+        })
+    }
+});
+
+FlowRouter.route('/companies', {
+    name: 'Companies',
     action(){
         checkAuth();
         mount(App, {
