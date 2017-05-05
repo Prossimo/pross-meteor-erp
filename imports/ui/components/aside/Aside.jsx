@@ -108,7 +108,17 @@ class Aside extends React.Component{
             },
             {
                 label: "Contacts",
-                route: "Contacts"
+                topLevel: true,
+                subItems: [
+                    {
+                        label: "People",
+                        route: "People"
+                    },
+                    {
+                        label: "Companies",
+                        route: "Companies"
+                    }
+                ]
             },
             {
                 label: "Financial",
