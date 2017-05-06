@@ -7,6 +7,12 @@ class SelectUser extends Component {
     super();
   }
 
+  shortenName({ profile: { firstName, lastName } }) {
+    return `${firstName} ${lastName}`
+      .split(' ')
+      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+  }
+
   render() {
     let SelectUserButton = null;
     const TaskControl = styled.button `
@@ -27,6 +33,12 @@ class SelectUser extends Component {
         border: 0px;
         outline: none;
         cursor: pointer;
+      }
+      p {
+        width: 73px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0 0;
       }
     `;
     const SelectedAssignee = styled(UserElem) `
@@ -55,7 +67,7 @@ class SelectUser extends Component {
         {
           (this.props.user) ? (
             <SelectUserButton>
-              { this.props.user.username }
+              <p>{ this.shortenName(this.props.user) }</p>
               <div onClick={this.props.removeUser}>
                 <i className='fa fa-times'/>
               </div>
