@@ -229,7 +229,7 @@ class SingleSalesRecord extends React.Component{
     if (item) {
       Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error)=> {
         if (error) return warning(error.reason ? error.reason : 'Change stage failed!');
-        info('Change stage sucess');
+        info('Change stage success');
       })
     }
   }
