@@ -361,6 +361,8 @@ class Files extends Component {
     }
 
     uploadFiles(files) {
+        let nCompleteFiles = 0;
+        const nFiles = files.length;
         files.forEach((file)=> {
             const uploader = new MediaUploader({
                 file,
@@ -396,10 +398,10 @@ class Files extends Component {
 
                     const slackText = 'I just uploaded new file';
                     Meteor.call("sendBotMessage", this.slackChannel, slackText, params);
-                    /*this.setState((prevState)=> {
-                        prevState.remoteFiles.push(JSON.parse(remoteFile));
-                        return prevState;
-                    });*/
+                    nCompleteFiles ++;
+                    if (nCompleteFiles === nFiles) {
+                      this.refs.file.value = '';
+                    }
                 }
             });
             uploader.upload();
@@ -438,10 +440,11 @@ class Files extends Component {
                         <div className='text-center'>
                             <span className='label'>Add pdf file</span>
                             <label htmlFor='quote-file'
-                               className='file-label'/>
+                              className='file-label'/>
                             <input type='file'
-                               id='quote-file'
-                               onChange={this.addFile}/>
+                              ref='file'
+                              id='quote-file'
+                              onChange={this.addFile}/>
                         </div>
                         <div className='text-center'>
                             <span className='label'>Add Google Docs file</span>
