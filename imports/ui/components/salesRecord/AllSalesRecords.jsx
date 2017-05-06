@@ -252,7 +252,8 @@ class AllSalesRecords extends React.Component{
 
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
-        return this.props.salesRecords.map((project, index)=> {
+        const salesRecords =_.sortBy( this.props.salesRecords, ({ productionStartDate }) => -productionStartDate.getTime());
+        return salesRecords.map((project, index)=> {
             return (
                 <tr key={project._id}>
                 {
