@@ -21,7 +21,7 @@ export default new ValidatedMethod({
         },
       ],
     }, {
-      fields: { username: 1, emails: 1 },
+      fields: { username: 1, emails: 1, profile: 1 },
       limit: 3,
     }).fetch();
   },
