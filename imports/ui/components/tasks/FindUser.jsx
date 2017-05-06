@@ -72,7 +72,7 @@ class FindUser extends Component {
             <input
               type='text'
               className='form-control input-sm'
-              placeholder='Search Assignees'
+              placeholder={`Search ${this.props.title}s`}
               value={ this.state.keyword }
               onChange={ this.changeKeyword }
               autoFocus={true}
