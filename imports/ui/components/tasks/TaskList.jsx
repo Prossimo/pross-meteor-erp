@@ -9,6 +9,10 @@ class TaskList extends Component {
     this.handleDrop = this.handleDrop.bind(this);
   }
 
+  componentDidMount() {
+    console.log('MOUNT');
+  }
+
   handleDrop(event) {
     const task = JSON.parse(event.dataTransfer.getData('task'));
     task.dueDate = new Date(task.dueDate);

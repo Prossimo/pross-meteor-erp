@@ -43,6 +43,7 @@ class TaskModifying extends Component {
         status={task.status}
         isNew={false}
         task={task}
+        key={task._id}
       />
     );
   }
