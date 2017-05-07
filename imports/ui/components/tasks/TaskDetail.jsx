@@ -150,8 +150,12 @@ class TaskDetail extends Component {
             <div className='col-md-12'>
               <TaskError errors={ this.state.errors }/>
             </div>
-            <div className='col-md-9'>
-              <TaskComment/>
+            <div className='col-md-12'>
+              {
+                (this.props.task) ? (
+                  <TaskComment taskId={this.props.task._id}/>
+                ) : ''
+              }
             </div>
           </div>
         </Modal.Body>

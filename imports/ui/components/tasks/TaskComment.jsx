@@ -6,6 +6,23 @@ import CommentIcon from './comments/CommentIcon.jsx';
 class TaskComment extends Component {
   constructor() {
     super();
+    this.state = {
+      comment: {
+        content: '',
+      }
+    }
+    this.addComment = this.addComment.bind(this);
+  }
+
+  addComment(event) {
+    event.preventDefault();
+    const commentElem = event.target.previousSibling;
+    const content = commentElem.value;
+    Meteor.call('task.addComment', { content, _id: this.props.taskId  }, error=> {
+      if (!error) {
+        //commentElem.value = '';
+      }
+    })
   }
 
   render() {
@@ -50,7 +67,11 @@ class TaskComment extends Component {
             <TextArea
               placeholder={'Write a comment ...'}
             />
-            <SendButon className='btn btn-default btn-sm'>Send</SendButon>
+            <SendButon
+              onClick={this.addComment}
+              className='btn btn-default btn-sm'>
+              Send
+            </SendButon>
           </CommentContent>
         </CommentBox>
         <Separator>
@@ -60,6 +81,10 @@ class TaskComment extends Component {
       </div>
     );
   }
+}
+
+TaskComment.propTypes = {
+  taskId: PropTypes.string.isRequired,
 }
 
 export default TaskComment;

@@ -41,6 +41,25 @@ Tasks.schema = new SimpleSchema({
     type: Boolean,
     defaultValue: false,
   },
+  comments: {
+    type: Array,
+    optional: true,
+  },
+  'comments.$': {
+    type: Object,
+  },
+  'comments.$.userId': {
+    type: String,
+  },
+  'comments.$.content': {
+    type: String,
+  },
+  'comments.$.createdAt': {
+    type: Date,
+    autoValue() {
+      return this.operator === '$push' ? new Date() : null;
+    }
+  }
 });
 
 Tasks.attachSchema(Tasks.schema);
