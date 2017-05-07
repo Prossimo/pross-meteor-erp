@@ -32,6 +32,7 @@ class TextEditor extends Component {
       transition: background-color 0.2s ease 0s;
       background: none repeat scroll 0 0 #FFFFFF;
       border-left-color: green;
+      resize: none;
       &:focus {
         background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
         outline-width: 0;

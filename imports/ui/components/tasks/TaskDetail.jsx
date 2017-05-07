@@ -92,6 +92,12 @@ class TaskDetail extends Component {
         label: 'Approver',
       },
     ];
+
+    if (this.props.isShown) {
+      Meteor.setTimeout(()=> {
+        $('.modal-content').css({ backgroundColor: '#e2e4e6' });
+      });
+    }
     return (
       <Modal
         show={this.props.isShown}
@@ -144,7 +150,7 @@ class TaskDetail extends Component {
             <div className='col-md-12'>
               <TaskError errors={ this.state.errors }/>
             </div>
-            <div className='col-md-12'>
+            <div className='col-md-9'>
               <TaskComment/>
             </div>
           </div>
