@@ -34,6 +34,7 @@ Meteor.methods({
             account_id: Match.Maybe(String),
             email: String,
             name: Match.Maybe(String),
+            company_id: Match.Maybe(String),
             phone_numbers: Match.Maybe(Array),
             description: Match.Maybe(String)
         });

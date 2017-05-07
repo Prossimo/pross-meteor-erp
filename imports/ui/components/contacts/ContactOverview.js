@@ -57,8 +57,9 @@ export default class ContactOverview extends React.Component {
                     <div className="title">{contact.name}</div>
                     <div className="info">
                         <div><label>Email:</label><span>{contact.email}</span></div>
-                        {contact.phone_numbers && contact.phone_numbers.length>0 &&
-                        <div><label>Phone:</label><span>{contact.phone_numbers}</span></div>}
+                        <div><label>Company:</label><span>{contact.company() ? contact.company().name : ''}</span></div>
+                        <div><label>Inbox:</label><span>{contact.account() ? contact.account().name : ''}</span></div>
+                        <div><label>Phone:</label><span>{contact.phone_numbers}</span></div>
                         {contact.description && <div><span>{contact.description}</span></div>}
                     </div>
                 </div>

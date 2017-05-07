@@ -46,7 +46,7 @@ export default class ContactsPage extends React.Component {
             <Modal show={showContactModal} onHide={() => {
                 this.setState({showContactModal: false})
             }}>
-                <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> {title}</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <ContactForm contact={!creating?selectedContact:null} onSaved={this.onSavedContact}/>
                 </Modal.Body>

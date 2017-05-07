@@ -47,7 +47,7 @@ export default class CompaniesPage extends React.Component {
             <Modal show={showCompanyModal} onHide={() => {
                 this.setState({showCompanyModal: false})
             }}>
-                <Modal.Header closeButton><Modal.Title><i className="fa fa-building"/>&nbsp;{title}</Modal.Title></Modal.Header>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-building-o"/>&nbsp;{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <CompanyForm company={!creating?selectedCompany:null} onSaved={this.onSavedCompany}/>
                 </Modal.Body>
