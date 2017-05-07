@@ -13,6 +13,7 @@ import LeadsPage from '/imports/ui/pages/LeadsPage';
 import OrdersPage from '/imports/ui/pages/OrdersPage';
 import TicketsPage from '/imports/ui/pages/TicketsPage';
 import ContactsPage from '/imports/ui/pages/ContactsPage';
+import CompaniesPage from '/imports/ui/pages/CompaniesPage';
 import FinancialPage from '/imports/ui/pages/FinancialPage';
 import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
 import ProjectsPage from '/imports/ui/pages/ProjectsPage';
@@ -173,7 +174,7 @@ FlowRouter.route('/companies', {
     action(){
         checkAuth();
         mount(App, {
-            content: <ContactsPage/>,
+            content: <CompaniesPage/>,
         })
     }
 });

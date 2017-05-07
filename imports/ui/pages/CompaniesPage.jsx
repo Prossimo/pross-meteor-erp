@@ -1,5 +1,6 @@
 import React from 'react'
 import {Modal} from 'react-bootstrap'
+import {removeCompany} from '/imports/api/models/companies/methods'
 import CompaniesList from '../components/companies/CompaniesList'
 import CompanyOverview from '../components/companies/CompanyOverview'
 import CompanyForm from '../components/companies/CompanyForm'
@@ -46,7 +47,7 @@ export default class CompaniesPage extends React.Component {
             <Modal show={showCompanyModal} onHide={() => {
                 this.setState({showCompanyModal: false})
             }}>
-                <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-building"/>&nbsp;{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <CompanyForm company={!creating?selectedCompany:null} onSaved={this.onSavedCompany}/>
                 </Modal.Body>
@@ -57,17 +58,18 @@ export default class CompaniesPage extends React.Component {
     onRemoveCompany = (company) => {
 
         if (confirm(`Are you sure to remove ${company.name}?`)) {
-            Meteor.call('removeCompany', company._id, (err, res) => {
-                if (err) {
-                    console.log(err)
-                    return warning(err.message);
-                }
+            try {
+                const _id = company._id
+                removeCompany.call({_id})
 
                 this.setState({
                     selectedCompany: null,
                     removedCompany: company
                 })
-            })
+            } catch(e) {
+                console.log(e)
+                return warning(e.message);
+            }
         }
     }
 

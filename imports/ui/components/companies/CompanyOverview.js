@@ -33,9 +33,8 @@ export default class CompanyOverview extends React.Component {
 
     renderToolbar() {
         const company = this.props.company
-        const account = company ? company.account() : null
 
-        const disabled = !company || account && !Meteor.user().isAdmin() && account.isTeamAccount
+        const disabled = !company
         return (
             <div className="toolbar-panel">
                 <div>
@@ -53,13 +52,13 @@ export default class CompanyOverview extends React.Component {
         return (
             <div style={{marginTop:20}}>
                 <div className="thumbnail-view">
-                    <div className="picture"></div>
                     <div className="title">{company.name}</div>
                     <div className="info">
-                        <div><label>Email:</label><span>{company.email}</span></div>
-                        {company.phone_numbers && company.phone_numbers.length>0 &&
-                        <div><label>Phone:</label><span>{company.phone_numbers}</span></div>}
-                        {company.description && <div><span>{company.description}</span></div>}
+                        <div><label>Website:</label><span>{company.website}</span></div>
+                        <div><label>Type:</label><span>{company.type}</span></div>
+                        <div><label>Phone Number:</label><span>{company.phone_numbers.map((phone)=>`${phone.number}(${phone.type})`).join(', ')}</span></div>
+                        <div><label>Addresses:</label><span>{company.addresses.map((address)=>`${address.address}(${address.type})`).join(', ')}</span></div>
+                        <div><label>People:</label><span>{company.contacts().map((contact)=>`${contact.name}`).join(', ')}</span></div>
                     </div>
                 </div>
             </div>

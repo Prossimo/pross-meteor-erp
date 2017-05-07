@@ -61,7 +61,8 @@ export default class ContactsList extends TrackerReact(React.Component) {
         })
         //this.contacts = _.uniq(this.contacts, (c)=>c.email.toLowerCase())
         if(removedContact) {
-            this.contacts.splice(this.contacts.findIndex((c) => c._id == removedContact._id), 1)
+            const index = this.contacts.findIndex((c) => c._id == removedContact._id)
+            if(index>-1) this.contacts.splice(index, 1)
         }
 
         return this.contacts

@@ -4,7 +4,8 @@ import { SUPER_ADMIN_ROLE } from '../../constants/roles';
 
 export const createAdminUser = () => {
     if(Meteor.isServer) {
-        let admin = Meteor.users.findOne({username:'root', email:'root@admin.com'})
+        let admin = Meteor.users.findOne({username:'root'})
+
         if(!admin){
             const superAdminId = Accounts.createUser({
                 username: "root",
@@ -19,7 +20,7 @@ export const createAdminUser = () => {
                 }
             });
 
-            Roles.addUsersToRoles(superAdminId, [SUPER_ADMIN_ROLE], Roles.GLOBAL_GROUP);
+            Roles.addUsersToRoles(superAdminId, [SUPER_ADMIN_ROLE]);
 
             return superAdminId
         }

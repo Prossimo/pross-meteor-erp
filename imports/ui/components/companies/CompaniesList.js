@@ -62,7 +62,9 @@ export default class CompaniesList extends TrackerReact(React.Component) {
         })
 
         if(removedCompany) {
-            this.companies.splice(this.companies.findIndex((c) => c._id == removedCompany._id), 1)
+            const index = this.companies.findIndex((c) => c._id == removedCompany._id)
+
+            if(index>-1) this.companies.splice(index, 1)
         }
 
         return this.companies
@@ -82,7 +84,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateCompany&&this.props.onCreateCompany()}}><i className="fa fa-user-plus"/></Button>
+                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateCompany&&this.props.onCreateCompany()}}><i className="fa fa-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -102,20 +104,21 @@ export default class CompaniesList extends TrackerReact(React.Component) {
                     <tr>
                         <th width="5%">#</th>
                         <th width="20%">Name</th>
-                        <th width="25%">Phone Numbers</th>
-                        <th width="25%">Addresses</th>
-                        <th width="15%">People</th>
-                        <th width="10%"></th>
+                        <th width="15%">Website</th>
+                        <th width="10%">Type</th>
+                        <th width="20%">Phone Numbers</th>
+                        <th width="20%">Addresses</th>
+                        <th width="10%">People</th>
                     </tr>
                     </thead>
                     <tbody onScroll={this.onScrollCompanyList}>
-                    {this.renderCompanys()}
+                    {this.renderCompanies()}
                     </tbody>
                 </Table>
             </div>
         )
     }
-    renderCompanys() {
+    renderCompanies() {
         const {selectedCompany} = this.state
 
         const companies = this.loadCompanies()
@@ -135,10 +138,11 @@ export default class CompaniesList extends TrackerReact(React.Component) {
             <tr className={selectedCompany && selectedCompany._id===company._id ? 'focused' : ''} key={company._id} onClick={() => this.onClickCompany(company)}>
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{company.name}</td>
-                <td width="25%">{company.phone_numbers}</td>
-                <td width="25%">{company.addresses}</td>
-                <td width="15%">{company.people()}</td>
-                <td width="10%"></td>
+                <td width="15%">{company.website}</td>
+                <td width="10%">{company.type}</td>
+                <td width="20%">{company.phone_numbers.map((phone)=>`${phone.number}(${phone.type})`).join(', ')}</td>
+                <td width="20%">{company.addresses.map((address)=>`${address.address}(${address.type})`).join(', ')}</td>
+                <td width="10%">{company.contacts().length}</td>
             </tr>
         ))
     }

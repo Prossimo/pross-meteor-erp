@@ -37,10 +37,11 @@ import {
   SUPER_ADMIN_ROLE,
   ADMIN_ROLE_LIST
 } from '../constants/roles';
-
 import '/imports/api/models/companies/publications'
 
 Meteor.startup(() => {
+    //
+
     Meteor.publish(GET_USERS, function () {
         return Meteor.users.find({}, {
             fields: {
@@ -176,7 +177,10 @@ Meteor.startup(() => {
     });
 
     Meteor.publish(GET_SLACK_MAILS, function () {
-
+        if(!this.userId) {
+            this.ready()
+            return
+        }
         return SlackMails.find({})
     });
 });
