@@ -9,7 +9,8 @@ const removeTask = new ValidatedMethod({
     },
   }).validator(),
   run({ _id }) {
-    if (!this.userId) return;
+    if (!this.userId)
+      throw new Meteor.Error('You are not allowed to remove this task');
     return Tasks.update(_id, {
       $set: {
         isRemoved: true,

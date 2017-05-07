@@ -55,7 +55,7 @@ class TaskFilter extends Component {
             defaultChecked={this.state.filters.AssignToMe}
             icons={false}
             onChange={event => this.changeState(this.state.filters, 'AssignToMe', event.target.checked)}/>
-          <span>Assign to me</span>
+          <span>Assigned to me</span>
         </ToggleButton>
 
         <ToggleButton>
