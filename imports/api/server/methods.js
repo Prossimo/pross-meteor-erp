@@ -99,15 +99,19 @@ Meteor.methods({
     Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
 
     userData.validation = validation;
+
+    if (userId) Meteor.call('initVisiableFields', userId);
+
     return userData;
   },
 
-  initVisiableFields() {
-    const salesRecord = Settings.findOne({key: 'salesRecord'});
-    const newProject = Settings.findOne({key: 'newProject'});
+  initVisiableFields(userId) {
+    const salesRecord = Settings.findOne({key: 'salesRecord', userId: userId});
+    const newProject = Settings.findOne({key: 'newProject', userId: userId});
     if (!salesRecord) {
       Settings.insert({
         key: 'salesRecord',
+        userId: userId,
         show: [
           'name',
           'productionStartDate',
@@ -118,6 +122,7 @@ Meteor.methods({
     }
     if (!newProject) {
       Settings.insert({
+        userId: userId,
         key: 'newProject',
         show: [
           '_id',
@@ -129,15 +134,22 @@ Meteor.methods({
 
   getVisibleFields(key) {
     check(key, String);
-    const {show}  = Settings.findOne({ key });
-    return show;
+    const userId = this.userId;
+    let setting  = Settings.findOne({ key, userId });
+    if (!setting) {
+      Meteor.call('initVisiableFields', userId);
+      return Settings.findOne({key, userId}).show;
+    } else
+
+    return setting.show;
   },
 
   updateVisibleFields(key, visibleFields) {
     if (!this.userId) return;
     check(visibleFields, [String]);
     check(key, String);
-    Settings.update({ key }, {
+    const userId = this.userId;
+    Settings.update({ key, userId }, {
       $set: {
         show: visibleFields,
       }
@@ -289,6 +301,9 @@ Meteor.methods({
         roles: [role],
       }
     })
+
+    if (userId) Meteor.call('initVisiableFields', userId);
+
     Meteor.defer(()=> Accounts.sendEnrollmentEmail(createdUserId));
     return createdUserId;
   },

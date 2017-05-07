@@ -1,3 +1,4 @@
+import { SUPER_ADMIN_ROLE } from '../constants/roles';
 import config from '../config/config';
 
 /**
