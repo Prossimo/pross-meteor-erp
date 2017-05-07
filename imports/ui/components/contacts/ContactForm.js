@@ -1,11 +1,12 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
-import Contacts from '/imports/api/models/contacts/contacts'
+import {Contacts} from '/imports/api/models'
 import BlockUi from 'react-block-ui';
 import 'react-block-ui/style.css';
 import { Loader, Types } from 'react-loaders';
 import 'loaders.css/loaders.min.css';
+import CompanySelect from '../companies/CompanySelect'
 
 
 
@@ -21,6 +22,7 @@ export default class ContactForm extends React.Component {
         this.state = {
             name: props.contact ? props.contact.name : '',
             email: props.contact ? props.contact.email : '',
+            company_id: props.contact ? props.contact.company_id : '',
             description: props.contact ? props.contact.description : '',
             phone_numbers: props.contact ? props.contact.phone_numbers : [],
             blocking: false
@@ -28,7 +30,8 @@ export default class ContactForm extends React.Component {
     }
 
     render() {
-        const {name, email, description, phone_numbers} = this.state
+        const {name, email, company_id, description, phone_numbers} = this.state
+
         return (
           <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
             <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
@@ -48,6 +51,14 @@ export default class ContactForm extends React.Component {
                     <Col sm={9}>
                         <FormControl type="email" placeholder="Email" value={email}
                                      onChange={(evt) => this.setState({email: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalCompany">
+                    <Col sm={3}>
+                        Company
+                    </Col>
+                    <Col sm={9}>
+                        <CompanySelect companyId={company_id} onChange={(company)=>{console.log('CompanySelect onChange', company);this.setState({company_id: company ? company._id : null})}}/>
                     </Col>
                 </FormGroup>
 
@@ -73,7 +84,7 @@ export default class ContactForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        let data = {name, email, description, phone_numbers} = this.state
+        let data = {name, email, company_id, description, phone_numbers} = this.state
 
         if (this.props.contact) data._id = this.props.contact._id
         this.setState({blocking: true});
