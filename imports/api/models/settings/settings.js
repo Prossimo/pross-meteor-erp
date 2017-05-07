@@ -7,6 +7,9 @@ Settings.schema = new SimpleSchema({
     _id: {
         type: String,
     },
+    userId: {
+      type: String,
+    }
     key: {
         type: String,
         allowedValues: ['salesRecord', 'newProject']
