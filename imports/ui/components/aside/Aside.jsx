@@ -23,6 +23,8 @@ class NavigationItem extends React.Component{
     }
 
     goToRoute(route){
+        if(!route) return
+
         if(typeof route === 'string') FlowRouter.go(FlowRouter.path(route));
         else FlowRouter.go(FlowRouter.path(route.name, route.params));
     }

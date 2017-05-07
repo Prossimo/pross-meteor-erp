@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import {Factory} from 'meteor/dburles:factory';
 import {_} from 'meteor/underscore';
 import faker from 'faker';
+import Contacts from '../contacts/contacts'
 
 class CompaniesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -95,7 +96,9 @@ Factory.define('company', Companies, {
 })
 
 Companies.helpers({
-
+    contacts: function() {
+        return Contacts.find({company_id:this._id}).fetch()
+    }
 });
 
 export default Companies;
