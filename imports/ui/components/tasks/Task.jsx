@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 import TaskModifying from './TaskModifying.jsx';
+import swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 class Task extends Component {
   constructor(props) {
@@ -18,10 +20,37 @@ class Task extends Component {
     };
 
     this.showDetail = this.showDetail.bind(this);
+    this.closeTask = this.closeTask.bind(this);
   }
 
   showDetail() {
     this.refs.taskModifying.showDetail();
+  }
+
+  closeTask(_id, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    swal({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it!'
+    }).then(function () {
+      Meteor.call('task.remove', { _id }, (error, result)=> {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          swal('Delete task failed',  msg, 'warning');
+        }
+      });
+      swal(
+        'Removed!',
+        'Your task has been removed.',
+        'success'
+      );
+    });
   }
 
   render() {
@@ -72,6 +101,13 @@ class Task extends Component {
         cursor: pointer;
       }
     `;
+    const CloseButton = styled.a `
+      position: absolute;
+      top: 0px;
+      right: 5px;
+      font-size: 1.5em;
+      color: black;
+    `;
     return (
       <TaskContainer
         onClick={ this.showDetail }
@@ -81,6 +117,9 @@ class Task extends Component {
         }
       >
         <p>{ this.props.task.name }</p>
+        <CloseButton onClick={event => this.closeTask(this.props.task._id, event)}>
+          <i className='fa fa-times'/>
+        </CloseButton>
         <AssigneeIcon>
           { this.state.assigneeName }
         </AssigneeIcon>
