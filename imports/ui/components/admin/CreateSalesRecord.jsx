@@ -197,7 +197,7 @@ class CreateSalesRecord extends React.Component {
             contacts, stakeholders
         } = this.state;
         const {shippingMode, stages} = this;
-        let submitBtnName = this.props.salesRecord ? 'Save SalesRecord' : 'Add SalesRecord';
+        let submitBtnName = this.props.salesRecord ? 'Save Deal' : 'Add Deal';
         let dealTitle = '';
         switch (this.props.stage) {
             case 'lead':
