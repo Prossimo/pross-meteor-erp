@@ -1,5 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
+import CommentList from './comments/CommentList.jsx';
+import CommentIcon from './comments/CommentIcon.jsx';
 
 class TaskComment extends Component {
   constructor() {
@@ -7,62 +9,54 @@ class TaskComment extends Component {
   }
 
   render() {
-    const CommentContainer = styled.div `
-    `;
-    const CommentIcon = styled.div `
-      text-align: center;
-      line-height: 30px;
-      border-radius: 5px;
-      background-color: #0079BF;
-      font-size: 10px;
-      color: white;
-      margin-right: 10px;
-      width: 30px;
-      height: 30px;
-      float: left;
+    const CommentBox = styled.div `
+      position: relative;
+      display: inline-block;
+      width: 100%;
     `;
     const CommentContent = styled.div `
-      width: calc(100% - 100px);
+      width: calc(100% - 45px);
       float: left;
     `;
     const TextArea = styled.textarea `
-      font-size: 14px;
-      width: calc(100% - 15px);
+      width: 100%;
       min-height: 50px;
-      border-image: none;
-      border-radius: 6px 6px 6px 6px;
-      border-style: none none none solid;
-      border-width: medium 1px 1px medium;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) inset;
-      color: #555555;
+      border: 1px solid #CDD2D4;
+      border-radius: 3px;
       font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-      font-size: 1em;
-      line-height: 1.4em;
       padding: 5px 8px;
-      transition: background-color 0.2s ease 0s;
-      background: none repeat scroll 0 0 #FFFFFF;
-      border-left-color: green;
+      color: #4d4d4d;
+      resize: none;
+      font-size: 14px;
       &:focus {
         background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
         outline-width: 0;
       }
     `;
+    const SendButon = styled.button `
+      border-radius: 0px;
+    `;
+    const Separator = styled.p `
+
+    `
     return (
       <div>
-        <p>
-          <i className='fa fa-comment-o'/> Add Comment
-        </p>
-        <CommentContainer>
-          <CommentIcon>
-            DTN
-          </CommentIcon>
+        <Separator>
+          <strong><i className='fa fa-comment-o'/>&nbsp;&nbsp; Add Comment</strong>
+        </Separator>
+        <CommentBox>
+          <CommentIcon name={'DTN'}/>
           <CommentContent>
             <TextArea
               placeholder={'Write a comment ...'}
             />
-            <button className='btn btn-default'>Send</button>
+            <SendButon className='btn btn-default btn-sm'>Send</SendButon>
           </CommentContent>
-        </CommentContainer>
+        </CommentBox>
+        <Separator>
+          <strong><i className='fa fa-align-left'/>&nbsp;&nbsp; Activity</strong>
+        </Separator>
+        <CommentList/>
       </div>
     );
   }
