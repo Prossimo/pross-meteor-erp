@@ -9,7 +9,7 @@ Settings.schema = new SimpleSchema({
     },
     userId: {
       type: String,
-    }
+    },
     key: {
         type: String,
         allowedValues: ['salesRecord', 'newProject']

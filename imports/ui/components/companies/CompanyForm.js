@@ -36,8 +36,7 @@ export default class CompanyForm extends React.Component {
     render() {
         const {name, website, type, addresses, phone_numbers} = this.state
         return (
-            <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>}
-                     blocking={this.state.blocking}>
+            <div>
                 <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
                     <FormGroup controlId="formHorizontalName">
                         <Col sm={3}>
@@ -80,7 +79,7 @@ export default class CompanyForm extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
-            </BlockUi>
+            </div>
 
         )
     }
@@ -90,7 +89,7 @@ export default class CompanyForm extends React.Component {
 
         let data = {name, website, type, addresses, phone_numbers} = this.state
 
-        this.setState({blocking: true});
+        this.props.toggleLoader(true);
         delete data.blocking
 
         try{
@@ -108,7 +107,7 @@ export default class CompanyForm extends React.Component {
             if (this.props.onSaved) this.props.onSaved(Companies.findOne({_id: companyId}), this.props.company != null)
         }catch(e){
             console.log(e)
-            this.setState({blocking: false});
+            this.props.toggleLoader(false)
             warning(e.message)
         }
     }
