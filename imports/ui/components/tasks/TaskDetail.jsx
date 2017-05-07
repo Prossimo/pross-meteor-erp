@@ -7,6 +7,7 @@ import SelectUser from './SelectUser.jsx';
 import TextEditor from './TextEditor.jsx';
 import TaskName from './TaskName.jsx';
 import TaskError from './TaskError.jsx';
+import TaskComment from './TaskComment.jsx';
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -142,6 +143,9 @@ class TaskDetail extends Component {
             </div>
             <div className='col-md-12'>
               <TaskError errors={ this.state.errors }/>
+            </div>
+            <div className='col-md-12'>
+              <TaskComment/>
             </div>
           </div>
         </Modal.Body>
