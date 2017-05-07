@@ -78,9 +78,9 @@ class ContactInfo extends React.Component{
             companyName,
             companyPosition
         };
-        this.setState({blocking: true});
+        this.props.toggleLoader(true);
         Meteor.call("updateUserInfo", userData, (err)=>{
-            this.setState({blocking: false});
+            this.props.toggleLoader(false)
             if(!err) {
                 Alert.info(`Contact data successful updated!`, {
                     position: 'bottom-right',
@@ -115,7 +115,7 @@ class ContactInfo extends React.Component{
         const { user, editable } = this.props;
 
         return (
-           <BlockUi className="contact-info" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+           <div className="contact-info">
                <div className={classNames("field-wrap", {"non-edit": !editable})}>
                    <span className="label">Username</span>
                    <input value={username}
@@ -234,7 +234,7 @@ class ContactInfo extends React.Component{
                </div>
 
                {this.renderUpdateBtn()}
-           </BlockUi>
+           </div>
         )
     }
 }

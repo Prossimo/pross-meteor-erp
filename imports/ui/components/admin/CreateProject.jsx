@@ -38,7 +38,7 @@ export default class CreateProject extends Component {
                 isAdmin: !!checked,
             })),
         }
-        this.setState({blocking: true})
+        this.props.toggleLoader(true)
         Meteor.call('createNewProject', project, (error, projectId)=> {
             //info(`Success add new project & integration with Slack`);
             this.setState({blocking: false})
@@ -90,7 +90,7 @@ export default class CreateProject extends Component {
             }
         });
         return (
-            <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+            <div>
                 <div className='form'>
                     <div className='form-group'>
                         <label> Project Name </label>
@@ -143,7 +143,7 @@ export default class CreateProject extends Component {
                         <button className='btn btn-primary' onClick={this.addProject}>Add Project</button>
                     </div>
                 </div>
-            </BlockUi>
+            </div>
         );
     }
 }

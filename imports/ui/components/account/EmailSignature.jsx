@@ -1,10 +1,7 @@
 import React from 'react';
 import Textarea from 'react-textarea-autosize';
 import Alert from 'react-s-alert';
-import BlockUi from 'react-block-ui';
-import 'react-block-ui/style.css';
-import { Loader, Types } from 'react-loaders';
-import 'loaders.css/loaders.min.css';
+
 
 class EmailSignature extends React.Component{
     constructor(props){
@@ -38,7 +35,7 @@ class EmailSignature extends React.Component{
             }
         }
         if(text){
-            this.setState({blocking: true})
+            this.props.toggleLoader(true)
             Meteor.call("updateUserProfileField", 'signature', encodeURI(text), updateUserCustomFieldCb)
         }
     }
@@ -46,7 +43,7 @@ class EmailSignature extends React.Component{
     render() {
         const { text } = this.state;
         return (
-            <BlockUi className="email-signature" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+            <div className="email-signature">
                 <Textarea rows={3}
                           placeholder="Enter text or html"
                           className="signature-textarea"
@@ -54,7 +51,7 @@ class EmailSignature extends React.Component{
                           onChange={this.changeText.bind(this)}/>
                 <button onClick={this.updateSignature.bind(this)}
                         className="btnn primary-btn">Update signature</button>
-            </BlockUi>
+            </div>
         )
     }
 }

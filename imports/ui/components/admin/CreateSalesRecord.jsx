@@ -14,10 +14,7 @@ import SelectMembers from './salesRecord/SelectMembers';
 import SelectStakeholders from './salesRecord/SelectStakeholders';
 import ContactStore from '../../../api/nylas/contact-store'
 import Contacts from '/imports/api/models/contacts/contacts'
-import BlockUi from 'react-block-ui';
-import 'react-block-ui/style.css';
-import { Loader, Types } from 'react-loaders';
-import 'loaders.css/loaders.min.css';
+
 
 class CreateSalesRecord extends React.Component {
     static propTypes = {
@@ -147,10 +144,10 @@ class CreateSalesRecord extends React.Component {
             estProductionTime,
             actProductionTime
         };
-        this.setState({blocking: true})
+        this.props.toggleLoader(true);
         if(this.props.salesRecord) {
             Meteor.call("updateSalesRecord", this.props.salesRecord._id, data, this.props.thread, (err, res) => {
-                this.setState({blocking: false});
+                this.props.toggleLoader(false);
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`);
 
                 info(`Success update SalesRecord`);
@@ -161,7 +158,7 @@ class CreateSalesRecord extends React.Component {
 
         } else {
             Meteor.call("insertSalesRecord", data, this.props.thread, (err, res) => {
-                this.setState({blocking: false});
+                this.props.toggleLoader(false);
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`);
 
                 info(`Success add new SalesRecord & integration with Slack`);
@@ -219,7 +216,7 @@ class CreateSalesRecord extends React.Component {
         }
 
         return (
-            <BlockUi className="create-project"  tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+            <div className="create-project" >
                 <form onSubmit={this.submitForm.bind(this)}
                       className="">
                     {
@@ -433,7 +430,7 @@ class CreateSalesRecord extends React.Component {
                         <button className="btnn primary-btn">{ submitBtnName }</button>
                     </div>
                 </form>
-            </BlockUi>
+            </div>
         )
     }
 }

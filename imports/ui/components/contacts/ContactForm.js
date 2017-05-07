@@ -33,7 +33,7 @@ export default class ContactForm extends React.Component {
         const {name, email, company_id, description, phone_numbers} = this.state
 
         return (
-          <BlockUi tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+          <div>
             <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
                 <FormGroup controlId="formHorizontalName">
                     <Col sm={3}>
@@ -76,7 +76,7 @@ export default class ContactForm extends React.Component {
                     </Col>
                 </FormGroup>
             </Form>
-          </BlockUi>
+          </div>
 
         )
     }
@@ -87,10 +87,10 @@ export default class ContactForm extends React.Component {
         let data = {name, email, company_id, description, phone_numbers} = this.state
 
         if (this.props.contact) data._id = this.props.contact._id
-        this.setState({blocking: true});
+        this.props.toggleLoader(true);
         delete data.blocking
         Meteor.call('insertOrUpdateContact', data, (err, contactId) => {
-            this.setState({blocking: false});
+            this.props.toggleLoader(false)
             if (err) return warning(err.message)
 
             if (this.props.onSaved) this.props.onSaved(Contacts.findOne({_id:contactId}), this.props.contact != null)
