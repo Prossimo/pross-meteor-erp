@@ -15,6 +15,12 @@ $ meteor npm run full-test
 | test         | test@test.com | 12345678 |
 | prossimo1     | quotes@prossimo.us | P4ssiveH0use |
 
+### Help links:
+- [deploy tutorial](https://www.phusionpassenger.com/library/walkthroughs/deploy/meteor/digital_ocean/apache/oss/xenial/install_passenger.html)
+- Link to a process diagram: https://drive.google.com/open?id=0B-guFXEigZ5pR2lwOXc1Q3dQQUU
+- User Stories https://docs.google.com/spreadsheets/d/1ZOcEC-EGrV52NcyFLXONuiL6XBQHvOIT5w9V2MGAMRo/edit?usp=sharing
+- Schema Spreadsheet: https://docs.google.com/spreadsheets/d/1eRJnumg0CAMA79zud0k4TbK1YEZsTTrYCPlsBrNt7X0/edit?usp=sharing
+
 ### Deploy 
 #### Passenger + Apache2 server, Ubuntu 16.04
 #### root@159.203.107.170
@@ -97,3 +103,5 @@ $ apache2ctl restart
 18. Help links:
 - [deploy tutorial](https://www.phusionpassenger.com/library/walkthroughs/deploy/meteor/digital_ocean/apache/oss/xenial/install_passenger.html)
 - Link to a process diagram: https://drive.google.com/open?id=0B-guFXEigZ5pR2lwOXc1Q3dQQUU
+- User Stories https://docs.google.com/spreadsheets/d/1ZOcEC-EGrV52NcyFLXONuiL6XBQHvOIT5w9V2MGAMRo/edit?usp=sharing
+- Schema Spreadsheet: https://docs.google.com/spreadsheets/d/1eRJnumg0CAMA79zud0k4TbK1YEZsTTrYCPlsBrNt7X0/edit?usp=sharing
