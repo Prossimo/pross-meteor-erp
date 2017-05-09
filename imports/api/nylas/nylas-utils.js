@@ -97,7 +97,7 @@ module.exports = NylasUtils = {
         if (NylasUtils.isFromMe(message)) {
             to = message.to
         } else if (message.reply_to.length) {
-            to = this.reply_to
+            to = message.reply_to
         } else {
             to = message.from
         }

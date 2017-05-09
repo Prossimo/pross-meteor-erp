@@ -98,7 +98,7 @@ class MessageControls extends React.Component {
     }
 
     _onForward = () => {
-        const {message} = this.props
+        const {message, salesRecordId} = this.props
         Actions.composeForward({message, modal: true, salesRecordId})
     }
 

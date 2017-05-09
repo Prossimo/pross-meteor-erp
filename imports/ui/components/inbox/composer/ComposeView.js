@@ -3,15 +3,19 @@ import React from 'react'
 import {FormControl, Button} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
 import SendActionButton from './SendActionButton'
+import AttachActionButton from './AttachActionButton'
 import AccountSelect from './AccountSelect'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
+import FileUploadStore from '../../../../api/nylas/file-upload-store'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 import TemplateSelect from '../../mailtemplates/TemplateSelect'
 import EmailFrame from '../EmailFrame'
-
-
+import AttachmentComponent from '../../attachment/attachment-component'
+import ImageAttachmentComponent from '../../attachment/image-attachment-component'
+import FileUpload from './FileUpload'
+import ImageFileUpload from './ImageFileUpload'
 import ParticipantsInputField from './ParticipantsInputField'
 
 
@@ -24,7 +28,7 @@ export default class ComposeView extends React.Component {
     constructor(props) {
         super(props)
 
-        draft = this._getDraftFromStore()
+        const draft = this._getDraftFromStore()
         this.state = {
             draft: draft,
             expandedCc: draft.cc && draft.cc.length ? true : false,
@@ -35,6 +39,8 @@ export default class ComposeView extends React.Component {
 
     componentDidMount() {
         this.unsubscribes = [];
+
+        this.unsubscribes.push(DraftStore.listen(this._onChangeDraftStore))
     }
 
     componentWillUnmount() {
@@ -43,6 +49,15 @@ export default class ComposeView extends React.Component {
         });
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.clientId!=null && nextState.draft!=null && nextState.draft!==this.state.draft
+    }
+
+    _onChangeDraftStore = () => {
+        const draft = this._getDraftFromStore()
+        if(draft && draft !== this.state.draft)
+            this.setState({draft: this._getDraftFromStore()})
+    }
 
     _getDraftFromStore() {
         let draft = _.clone(DraftStore.draftForClientId(this.props.clientId))
@@ -60,8 +75,7 @@ export default class ComposeView extends React.Component {
         return (
             <div className="composer-inner-wrap">
                 {this._renderHeader()}
-                {this._renderEditor()}
-                {this._renderSignature()}
+                {this._renderBody()}
                 {this._renderActions()}
             </div>
         )
@@ -123,6 +137,16 @@ export default class ComposeView extends React.Component {
         )
     }
 
+    _renderBody() {
+        return (
+            <div>
+                {this._renderEditor()}
+                {this._renderAttachments()}
+                {this._renderSignature()}
+            </div>
+        )
+    }
+
     _renderEditor() {
         const modules = {
             toolbar: [
@@ -142,10 +166,10 @@ export default class ComposeView extends React.Component {
         ]
 
         return (
-            <div>
+            <div style={{marginBottom:40}}>
                 <ReactQuill placeholder="Write here..."
                             value={this.state.draft.body}
-                            theme="snow"
+                            theme="bubble"
                             modules={modules}
                             formats={formats}
                             onChange={this._onChangeBody}/>
@@ -153,23 +177,102 @@ export default class ComposeView extends React.Component {
         )
     }
 
+    _renderAttachments() {
+        return (
+            <div className="attachments-area">
+                {this._renderFileAttachments()}
+                {/*{this._renderDownloadAttachments()}*/}
+                {this._renderUploadAttachments()}
+            </div>
+        );
+    }
+    _renderFileAttachments() {
+        const {files} = this.state.draft;
+        const nonImageFiles = this._nonImageFiles(files).map(file =>
+            this._renderFileAttachment(file, "Attachment")
+        );
+        const imageFiles = this._imageFiles(files).map(file =>
+            this._renderFileAttachment(file, "Attachment:Image")
+        );
+        return nonImageFiles.concat(imageFiles);
+    }
+
+    _renderDownloadAttachments() {
+        const {downloads} = this.props.draft;
+        const nonImageFiles = this._nonImageFiles(downloads).map(file =>
+            this._renderFileAttachment(file, "Attachment")
+        );
+        const imageFiles = this._imageFiles(downloads).map(file =>
+            this._renderFileAttachment(file, "Attachment:Image")
+        );
+        return nonImageFiles.concat(imageFiles);
+    }
+
+
+    _renderFileAttachment(file, role) {
+        console.log("ComposerView->_renderFileAttachment");
+        console.log(file);
+        console.log(this.state.downloads[file.id]);
+        //console.log(role)
+        const props = {
+            file: file,
+            removable: true,
+            targetPath: FileDownloadStore.pathForFile(file),
+            messageClientId: this.props.draft.clientId,
+            download: this.state.downloads[file.id]
+        };
+
+        if(role === 'Attachment') {
+            return (
+                <AttachmentComponent className="file-wrap" {...props}/>
+            )
+        } else {
+            return (
+                <ImageAttachmentComponent className="file-wrap file-image-wrap" {...props}/>
+            )
+        }
+
+    }
+
+    _renderUploadAttachments() {
+        const {uploads} = this.state.draft;
+
+        const nonImageUploads = this._nonImageFiles(uploads).map((upload, index) =>
+            <FileUpload key={`file-upload-${index}`} upload={upload} clientId={this.props.clientId} />
+        );
+        const imageUploads = this._imageFiles(uploads).map((upload, index) =>
+            <ImageFileUpload key={`image-file-upload-${index}`} upload={upload} clientId={this.props.clientId} />
+        );
+        return nonImageUploads.concat(imageUploads);
+    }
+
+    _imageFiles(files) {
+        return _.filter(files, NylasUtils.shouldDisplayAsImage);
+    }
+
+    _nonImageFiles(files) {
+        return _.reject(files, NylasUtils.shouldDisplayAsImage);
+    }
+
     _renderSignature() {
         const {hideSignature} = this.state.draft
-        if(hideSignature) return (<div></div>)
+        if (hideSignature) return (<div></div>)
 
         const signature = AccountStore.signatureForAccountId(this.state.draft.account_id)
 
-        if(!signature || signature.length==0) return (<div></div>)
+        if (!signature || signature.length == 0) return (<div></div>)
         return (
             <div style={{position: 'relative'}}>
-                <i className="fa fa-close" style={{position: 'absolute', top: 0, left: 0, fontSize:10, color:'lightgray'}}
+                <i className="fa fa-close"
+                   style={{position: 'absolute', top: 0, left: 0, fontSize: 10, color: 'lightgray'}}
                    onClick={this._onClickHideSignature}></i>
-                <div style={{paddingLeft:5}}><EmailFrame content={signature}/></div>
+                <div style={{paddingLeft: 5}}><EmailFrame content={signature}/></div>
             </div>
         )
     }
 
     _renderActions() {
+
         return (
             <div className="composer-action-bar-wrap">
                 <div className="composer-action-bar-content">
@@ -181,13 +284,19 @@ export default class ComposeView extends React.Component {
                             isValidDraft={this._isValidDraft}
                         />
                     }
+                    <div style={{order: 0, flex: 1}}/>
+                    <AttachActionButton
+                        tabIndex={-1}
+                        ref="attachActionButton"
+                        clientId={this.props.clientId}
+                    />
                 </div>
             </div>
         )
     }
 
     _onChangeSubject = (e) => {
-        subject = e.target.value
+        const subject = e.target.value
 
         this._changeDraftStore({subject: subject})
 
