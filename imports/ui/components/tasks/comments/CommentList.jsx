@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
 import CommentIcon from './CommentIcon.jsx';
 
 class CommentList extends Component {
@@ -47,41 +48,36 @@ class CommentList extends Component {
 
     return (
       <div>
-        <div>
-          <CommentIcon name={'RA'}/>
-          <CommentBox>
-            <CommentTitle>
-              Duy Tai Nguyen
-            </CommentTitle>
-            <CommentContent>
-              For security purposes all actions that merchants use are based on this ID and we must verify that we have the correct user using his ID in such actions (this happens in later stages).
-            </CommentContent>
-            <CommentControls>
-              <p className='pull-right'>
-                <small>Apr 3 at 8:25 PM</small> - <a href='#'>Reply</a>
-              </p>
-            </CommentControls>
-          </CommentBox>
-        </div>
-        <div>
-          <CommentIcon name={'RA'}/>
-          <CommentBox>
-            <CommentTitle>
-              Duy Tai Nguyen
-            </CommentTitle>
-            <CommentContent>
-              For security purposes all actions that merchants use are based on this ID and we must verify that we have the correct user using his ID in such actions (this happens in later stages).
-            </CommentContent>
-            <CommentControls>
-              <p className='pull-right'>
-                <small>Apr 3 at 8:25 PM</small> - <a href='#'>Reply</a>
-              </p>
-            </CommentControls>
-          </CommentBox>
-        </div>
+        {
+          _.sortBy(this.props.comments, ({ createdAt })=> -createdAt.getTime())
+          .map(({ content, createdAt })=> {
+            return (
+              <div key={createdAt}>
+                <CommentIcon name={'RA'}/>
+                <CommentBox>
+                  <CommentTitle>
+                    Duy Tai Nguyen
+                  </CommentTitle>
+                  <CommentContent>
+                    { content }
+                  </CommentContent>
+                  <CommentControls>
+                    <p className='pull-right'>
+                      <small>{ moment(createdAt).format('YYYY MMM D hh:mm:ss A') }</small> - <a href='#'>Reply</a>
+                    </p>
+                  </CommentControls>
+                </CommentBox>
+              </div>
+            );
+          })
+        }
       </div>
     )
   }
+}
+
+CommentList.propTypes = {
+  comments: PropTypes.array.isRequired,
 }
 
 export default CommentList;

@@ -153,7 +153,7 @@ class TaskDetail extends Component {
             <div className='col-md-12'>
               {
                 (this.props.task) ? (
-                  <TaskComment taskId={this.props.task._id}/>
+                  <TaskComment task={this.props.task}/>
                 ) : ''
               }
             </div>

@@ -83,8 +83,11 @@ Meteor.publishComposite('task.details', function({ _id }) {
     },
     children: [
       {
-        find({ assignee, approver }) {
-          return Meteor.users.find({ _id: { $in: [assignee, approver] } });
+        find({ comments }) {
+          if (comments) {
+            const userIds = comments.map(({ userId })=> userId);
+            return Meteor.users.find({ _id: { $in: userIds } });
+          }
         },
       },
     ],
