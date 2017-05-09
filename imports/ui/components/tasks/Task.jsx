@@ -85,22 +85,6 @@ class Task extends Component {
       background-color: ${this.props.task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46'};
       color: white;
     `;
-    const TaskContainer = styled.div `
-      background-color: white;
-      padding: 8px;
-      border-radius: 2px;
-      color: #4d4d4d;
-      font-weight: 400;
-      font-size: 13px;
-      margin-bottom: 7px;
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      &:hover {
-        background-color: #f5f5f5;
-        cursor: pointer;
-      }
-    `;
     const CloseButton = styled.a `
       position: absolute;
       top: 0px;
@@ -109,7 +93,8 @@ class Task extends Component {
       color: black;
     `;
     return (
-      <TaskContainer
+      <div
+        className='task-container'
         onClick={ this.showDetail }
         draggable='true'
         onDragStart={ event =>
@@ -135,7 +120,7 @@ class Task extends Component {
           assignee={this.props.assignee}
           approver={this.props.approver}
         />
-      </TaskContainer>
+      </div>
     );
   }
 }

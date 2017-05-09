@@ -5,6 +5,7 @@ import { createContainer } from 'meteor/react-meteor-data';
 import TaskList from './TaskList.jsx';
 import TaskFilter from './TaskFilter.jsx';
 import { ReactiveDict } from 'meteor/reactive-dict';
+import './TaskBoard.scss';
 
 const taskFilter = new ReactiveDict();
 taskFilter.set({
@@ -31,66 +32,6 @@ class TaskBoard extends Component {
   }
 
   render() {
-    const ColumnContainer = styled.div `
-      padding-left: 15px;
-      padding-right: 0px;
-    `;
-    const ColumnWrapper = styled.div `
-      background-color: #e2e4e6;
-      padding: 10px;
-      color: #4d4d4d;
-      border-radius: 2px;
-    `;
-    const ColumnHeader = styled.div `
-      font-weight: 500;
-    `;
-    const TaskContainer = styled.div `
-      background-color: white;
-      padding: 8px;
-      border-radius: 2px;
-      color: #4d4d4d;
-      font-weight: 400;
-      font-size: 13px;
-      margin-bottom: 7px;
-      &:hover {
-        background-color: #f5f5f5;
-        cursor: pointer;
-      }
-    `;
-    const TaskAction = styled.div `
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 20px;
-      height: 20px;
-      text-align: center;
-      color: #999;
-      &:hover {
-        background-color: #CDD2D4;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-    `;
-    const TaskAdding = styled.div `
-      font-size: 13px;
-      padding: 5px;
-      &:hover {
-        background-color: #CDD2D4;
-        cursor: pointer;
-      }
-    `;
-    const AssigneeIcon = styled.div `
-      width: 25px;
-      height: 20px;
-      background-color: #ccc;
-      text-align: center;
-      font-weight: 400;
-      border-radius: 3px;
-    `;
-    const TaskBoardContainer = styled.div `
-      display: inline-block;
-      width: 100%;
-    `;
     const allowedStatus = [
       'Idea',
       'To-Do',
@@ -100,7 +41,7 @@ class TaskBoard extends Component {
       'Blocked',
     ];
     return (
-      <TaskBoardContainer>
+      <div className='task-board-container'>
         <TaskFilter taskFilter={taskFilter}/>
         <div className='col-md-12'>
           {
@@ -116,7 +57,7 @@ class TaskBoard extends Component {
             })
           }
         </div>
-      </TaskBoardContainer>
+      </div>
     );
   }
 }
