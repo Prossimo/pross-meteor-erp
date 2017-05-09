@@ -9,8 +9,8 @@ class TaskList extends Component {
     this.handleDrop = this.handleDrop.bind(this);
   }
 
-  componentDidMount() {
-    console.log('MOUNT');
+  componentWillUnmount() {
+    console.log('UNMOUNT');
   }
 
   handleDrop(event) {
@@ -21,46 +21,19 @@ class TaskList extends Component {
   }
 
   render() {
-    const ColumnContainer = styled.div `
-      padding-left: 15px;
-      padding-right: 0px;
-    `;
-    const ColumnWrapper = styled.div `
-      background-color: #e2e4e6;
-      padding: 10px;
-      color: #4d4d4d;
-      border-radius: 2px;
-    `;
-    const ColumnHeader = styled.div `
-      font-weight: 500;
-    `;
-    const TaskAction = styled.div `
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      width: 20px;
-      height: 20px;
-      text-align: center;
-      color: #999;
-      &:hover {
-        background-color: #CDD2D4;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-    `;
     return (
-      <ColumnContainer
-        className='col-md-2'
+      <div
+        className='col-md-2 column-container'
         onDrop={ this.handleDrop }
         onDragOver={event => event.preventDefault()}
       >
-        <ColumnWrapper>
-          <ColumnHeader>
+        <div className='column-wrapper'>
+          <div className='column-header'>
             { this.props.listName }
-            <TaskAction>
+            <div className='task-action'>
               <i className='fa fa-ellipsis-h'/>
-            </TaskAction>
-          </ColumnHeader>
+            </div>
+          </div>
           <div>
             {
               this.props.tasks.map((task)=> {
@@ -76,8 +49,8 @@ class TaskList extends Component {
             }
           </div>
           <TaskAdding status={this.props.listName}/>
-        </ColumnWrapper>
-      </ColumnContainer>
+        </div>
+      </div>
     );
   }
 }

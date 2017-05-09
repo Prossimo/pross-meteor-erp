@@ -49,6 +49,7 @@ Meteor.publishComposite('task.all', function (param) {
       return Tasks.find(selector, {
         fields: {
           isRemoved: 0,
+          comments: 0,
         },
       });
     },
@@ -62,3 +63,30 @@ Meteor.publishComposite('task.all', function (param) {
     ],
   };
 });
+
+/*
+* publish detail of a task
+* */
+
+Meteor.publishComposite('task.details', function({ _id }) {
+  if (!Match.test(_id, String)) return this.ready();
+  return {
+    find() {
+      return Tasks.find({
+        _id,
+        isRemoved: false,
+      }, {
+        fields: {
+          isRemoved: 0,
+        }
+      });
+    },
+    children: [
+      {
+        find({ assignee, approver }) {
+          return Meteor.users.find({ _id: { $in: [assignee, approver] } });
+        },
+      },
+    ],
+  }
+})
