@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
+import { createContainer } from 'meteor/react-meteor-data';
 import CommentList from './comments/CommentList.jsx';
 import CommentIcon from './comments/CommentIcon.jsx';
 
@@ -14,13 +15,17 @@ class TaskComment extends Component {
     this.addComment = this.addComment.bind(this);
   }
 
+  componentWillUnmount() {
+    this.props.subscribers.map(subscriber => subscriber.stop());
+  }
+
   addComment(event) {
     event.preventDefault();
     const commentElem = event.target.previousSibling;
     const content = commentElem.value;
-    Meteor.call('task.addComment', { content, _id: this.props.taskId  }, error=> {
+    Meteor.call('task.addComment', { content, _id: this.props.task._id  }, error=> {
       if (!error) {
-        //commentElem.value = '';
+        commentElem.value = '';
       }
     })
   }
@@ -77,14 +82,20 @@ class TaskComment extends Component {
         <Separator>
           <strong><i className='fa fa-align-left'/>&nbsp;&nbsp; Activity</strong>
         </Separator>
-        <CommentList/>
+        <CommentList comments={this.props.task.comments || []}/>
       </div>
     );
   }
 }
 
 TaskComment.propTypes = {
-  taskId: PropTypes.string.isRequired,
+  task: PropTypes.object.isRequired,
 }
 
-export default TaskComment;
+export default createContainer(({ task: { _id } })=> {
+  const subscribers = [];
+  subscribers.push(Meteor.subscribe('task.details', { _id }));
+  return {
+    subscribers,
+  }
+}, TaskComment);
