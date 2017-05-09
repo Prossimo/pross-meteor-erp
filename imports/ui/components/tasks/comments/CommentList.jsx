@@ -1,4 +1,5 @@
 import React, { Component, PropTypes } from 'react';
+import { createContainer } from 'meteor/react-meteor-data';
 import styled from 'styled-components';
 import moment from 'moment';
 import CommentIcon from './CommentIcon.jsx';
@@ -6,6 +7,12 @@ import CommentIcon from './CommentIcon.jsx';
 class CommentList extends Component {
   constructor() {
     super();
+  }
+
+  shortenName({ profile: { firstName, lastName } }) {
+    return `${firstName} ${lastName}`
+      .split(' ')
+      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
   }
 
   render() {
@@ -20,6 +27,7 @@ class CommentList extends Component {
       font-size: 14px;
       color: #4d4d4d;
       margin-top: 5px;
+      white-space: pre;
     `;
     const CommentTitle = styled.div `
       font-size: 14px;
@@ -50,13 +58,15 @@ class CommentList extends Component {
       <div>
         {
           _.sortBy(this.props.comments, ({ createdAt })=> -createdAt.getTime())
-          .map(({ content, createdAt })=> {
+          .map(({ content, createdAt, user })=> {
+            let username = user ? user.username : 'loading ...';
+            let shortName = user ? this.shortenName(user) : 'loading ...';
             return (
               <div key={createdAt}>
-                <CommentIcon name={'RA'}/>
+                <CommentIcon name={shortName}/>
                 <CommentBox>
                   <CommentTitle>
-                    Duy Tai Nguyen
+                    {username}
                   </CommentTitle>
                   <CommentContent>
                     { content }
@@ -80,4 +90,14 @@ CommentList.propTypes = {
   comments: PropTypes.array.isRequired,
 }
 
-export default CommentList;
+export default createContainer(({ comments })=> {
+  return {
+    comments: comments.map(({ content, createdAt, userId })=> {
+      return {
+        content,
+        createdAt,
+        user: Meteor.users.find(userId).fetch()[0],
+      };
+    })
+  }
+}, CommentList);
