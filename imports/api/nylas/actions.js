@@ -13,6 +13,10 @@ const Actions = Reflux.createActions([
     'toggleAllMessagesExpanded',
     'toggleHiddenMessages',
 
+    'selectAttachment',
+    'addAttachment',
+    'removeAttachment',
+
     'downloadFile',
     'downloadFiles',
     'abortDownloadFile',

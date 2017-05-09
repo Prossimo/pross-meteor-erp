@@ -3,6 +3,7 @@ import Reflux from 'reflux'
 import Actions from './actions'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
+import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
 
@@ -107,8 +108,14 @@ class DraftStore extends Reflux.Store {
     }
 
     _onSendDraft(clientId) {
+        const draft = this.draftForClientId(clientId)
+        if(!draft) return
+
         this._draftsSending[clientId] = true
 
+        if(draft.files.length > 0 || draft.uploads.length > 0) {
+            Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
+        }
         Actions.queueTask(new SendDraftTask(clientId))
 
         this._draftsViewState[clientId] = {
@@ -163,6 +170,26 @@ class DraftStore extends Reflux.Store {
         let draft = this.draftForClientId(clientId)
 
         draft = _.extend(draft, data)
+    }
+
+    addUploadToDraftForClientId(clientId, upload) {
+        let draft = this.draftForClientId(clientId)
+        if(draft) {
+            if(!draft.uploads) draft.uploads = []
+            draft.uploads.push(upload)
+
+            this.trigger()
+        }
+    }
+
+    removeUploadFromDraftForClientId(clientId, upload) {
+        let draft = this.draftForClientId(clientId)
+        if(draft && draft.uploads) {
+            const index = _.indexOf(draft.uploads, upload)
+
+            draft.uploads.splice(index,1)
+            this.trigger()
+        }
     }
 
     removeDraftForClientId(clientId) {
