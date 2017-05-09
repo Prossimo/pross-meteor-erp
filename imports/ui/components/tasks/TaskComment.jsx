@@ -15,6 +15,12 @@ class TaskComment extends Component {
     this.addComment = this.addComment.bind(this);
   }
 
+  shortenName({ profile: { firstName, lastName } }) {
+    return `${firstName} ${lastName}`
+      .split(' ')
+      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+  }
+
   componentWillUnmount() {
     this.props.subscribers.map(subscriber => subscriber.stop());
   }
@@ -67,7 +73,7 @@ class TaskComment extends Component {
           <strong><i className='fa fa-comment-o'/>&nbsp;&nbsp; Add Comment</strong>
         </Separator>
         <CommentBox>
-          <CommentIcon name={'DTN'}/>
+          <CommentIcon name={this.shortenName(Meteor.user())}/>
           <CommentContent>
             <TextArea
               placeholder={'Write a comment ...'}
