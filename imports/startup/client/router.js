@@ -208,7 +208,8 @@ FlowRouter.notFound = {
 FlowRouter.route('/auth/google/callback', {
     name: 'GoogleCallback',
     action() {
-        window.close();
+        console.log('Meteor absoluteUrl', Meteor.absoluteUrl())
+        //window.close();
         window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.absoluteUrl());
     }
 })

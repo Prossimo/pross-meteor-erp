@@ -127,7 +127,7 @@ export default class NylasSigninForm extends React.Component {
             isTeamAccount: this.props.isAddingTeamInbox
         };
 
-        if(provider == 'gmail') {
+        if(provider == 'gmail') {console.log('gmail inbox redirectUri', config.google.redirectUri)
             const url = require('url');
             googleUrl = url.format({
                 protocol: 'https',
