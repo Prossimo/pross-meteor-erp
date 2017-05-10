@@ -3,6 +3,7 @@ import updateTask from './methods/updateTask';
 import removeTask from './methods/removeTask';
 import findUsers from './methods/findUsers';
 import addComment from './methods/addComment';
+import updateComment from './methods/updateComment';
 import './publications';
 
 export {
@@ -10,6 +11,7 @@ export {
   updateTask,
   removeTask,
   findUser,
+  updateComment,
 };
 
 
