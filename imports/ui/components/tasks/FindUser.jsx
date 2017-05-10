@@ -15,8 +15,7 @@ class FindUser extends Component {
 
   changeKeyword(keyword) {
     const ignore = this.props.ignore ? this.props.ignore._id : '';
-    const parentId = FlowRouter.current().params.id;
-    Meteor.call('task.findUsers', { keyword, ignore, parentId }, (error, users)=> {
+    Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
       if (!error) this.setState({ users, keyword });
     });
   }
