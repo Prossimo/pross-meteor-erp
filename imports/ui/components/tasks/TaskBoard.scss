@@ -1,3 +1,34 @@
+.task-details {
+  .modal-content {
+    background-color: #e2e4e6;
+  }
+  .find-user-wrapper {
+    z-index: 1;
+    width: 240px;
+    min-height: 150px;
+    background-color: white;
+    position: fixed;
+    padding: 5px;
+    font-size: 13px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.15);
+    .find-user-header {
+      font-weight: 600;
+      border-bottom: 1px solid lightgrey;
+    }
+    .find-user-close-button {
+      color: black;
+    }
+    .assignee-elem {
+      background-color: #298FCA;
+      padding: 3px;
+      border-radius: 3px;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 3px;
+    }
+  }
+}
+
 .task-board-container {
   display: inline-block;
   width: 100%;

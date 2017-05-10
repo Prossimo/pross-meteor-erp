@@ -13,12 +13,15 @@ class FindUser extends Component {
     };
   }
 
-  changeKeyword(event) {
-    const keyword = event.target.value;
+  changeKeyword(keyword) {
     const ignore = this.props.ignore ? this.props.ignore._id : '';
     Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
       if (!error) this.setState({ users, keyword });
     });
+  }
+
+  componentDidMount() {
+    this.changeKeyword('');
   }
 
   changeState(prop, propName, propValue) {
@@ -32,41 +35,15 @@ class FindUser extends Component {
   }
 
   render() {
-    const FindUserWrapper = styled.div `
-      z-index: 1;
-      width: 240px;
-      min-height: 150px;
-      background-color: white;
-      position: fixed;
-      padding: 5px;
-      font-size: 13px;
-      top: ${this.props.top};
-      box-shadow: 0 1px 6px rgba(0,0,0,.15);
-    `;
-    const Header = styled.p `
-      font-weight: 600;
-      border-bottom: 1px solid lightgrey;
-    `;
-    const CloseButton = styled.a `
-      color: black;
-    `;
-    const AssigneeElem = styled.div `
-      background-color: #298FCA;
-      padding: 3px;
-      border-radius: 3px;
-      color: white;
-      cursor: pointer;
-      margin-bottom: 3px;
-    `;
     return (
-      <FindUserWrapper>
-        <CloseButton
+      <div className='find-user-wrapper' style={{ top: `${this.props.top}px` }}>
+        <a
           onClick={ this.props.close }
-          className='pull-right'
+          className='pull-right find-user-close-button'
           href='#'>
           <i className='fa fa-times'/>
-        </CloseButton>
-        <Header className='text-center'>{ this.props.title }</Header>
+        </a>
+        <p className='text-center'>{ this.props.title }</p>
         <div>
           <div className='form-group'>
             <input
@@ -74,7 +51,7 @@ class FindUser extends Component {
               className='form-control input-sm'
               placeholder={`Search ${this.props.title}s`}
               value={ this.state.keyword }
-              onChange={ this.changeKeyword }
+              onChange={ (event) => this.changeKeyword(event.target.value) }
               autoFocus={true}
             />
           </div>
@@ -84,17 +61,18 @@ class FindUser extends Component {
               const { username, emails, _id } = user;
               const email = _.first(emails) ? `(${_.first(emails).address})` : ``;
               return (
-                <AssigneeElem
+                <div
+                  className='assignee-elem'
                   key={ _id }
                   onClick={ ()=> this.selectUser(user) }>
                   { username } { email }
-                </AssigneeElem>
+                </div>
               );
             })
           }
           </div>
         </div>
-      </FindUserWrapper>
+      </div>
     );
   };
 }

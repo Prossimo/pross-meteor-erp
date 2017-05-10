@@ -93,13 +93,9 @@ class TaskDetail extends Component {
       },
     ];
 
-    if (this.props.isShown) {
-      Meteor.setTimeout(()=> {
-        $('.modal-content').css({ backgroundColor: '#e2e4e6' });
-      });
-    }
     return (
       <Modal
+        dialogClassName='task-details'
         show={this.props.isShown}
         onHide={this.props.hideDetail}
       >
