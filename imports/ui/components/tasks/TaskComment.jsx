@@ -10,8 +10,8 @@ class TaskComment extends Component {
     this.state = {
       comment: {
         content: '',
-      }
-    }
+      },
+    };
     this.addComment = this.addComment.bind(this);
   }
 
@@ -21,8 +21,20 @@ class TaskComment extends Component {
       .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
   }
 
-  componentWillUnmount() {
-    this.props.subscribers.map(subscriber => subscriber.stop());
+  componentDidMount() {
+    setTimeout(()=> {
+      this.subscriber = Meteor.subscribe(
+        'task.details', {
+          _id: this.props.task._id,
+        }
+      );
+    }, 1000);
+  }
+
+  componentWillUnmout() {
+    setTimeout(()=> {
+      this.subscriber && this.subscriber.stop();
+    }, 1000);
   }
 
   addComment(event) {
@@ -33,7 +45,7 @@ class TaskComment extends Component {
       if (!error) {
         commentElem.value = '';
       }
-    })
+    });
   }
 
   render() {
@@ -96,12 +108,6 @@ class TaskComment extends Component {
 
 TaskComment.propTypes = {
   task: PropTypes.object.isRequired,
-}
+};
 
-export default createContainer(({ task: { _id } })=> {
-  const subscribers = [];
-  subscribers.push(Meteor.subscribe('task.details', { _id }));
-  return {
-    subscribers,
-  }
-}, TaskComment);
+export default TaskComment;
