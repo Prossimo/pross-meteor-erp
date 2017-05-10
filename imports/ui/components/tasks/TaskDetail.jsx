@@ -29,9 +29,7 @@ class TaskDetail extends Component {
         description: 'This task is about ...',
         status: props.status,
       };
-    } else {
-      this.state.task = props.task;
-    };
+    }
 
     this.changeState = this.changeState.bind(this);
     this.saveTask = this.saveTask.bind(this);
@@ -80,6 +78,7 @@ class TaskDetail extends Component {
   }
 
   render() {
+    !this.props.isNew && (this.state.task = this.props.task);
     const selectUsers = [
       {
         name: 'assignee',
