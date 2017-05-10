@@ -48,6 +48,12 @@ Tasks.schema = new SimpleSchema({
   'comments.$': {
     type: Object,
   },
+  'comments.$._id': {
+    type: String,
+    autoValue() {
+      return this.operator === '$push' ? Random.id() : null;
+    },
+  },
   'comments.$.userId': {
     type: String,
   },
