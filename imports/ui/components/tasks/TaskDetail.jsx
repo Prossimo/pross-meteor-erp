@@ -65,7 +65,6 @@ class TaskDetail extends Component {
           const msg = error.reason ? error.reason : error.message;
           this.setState({ errors: [msg] });
         } else {
-          this.props.hideDetail();
           this.setState({ errors: [] });
         }
       });
