@@ -57,6 +57,7 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.props.hideDetail();
+          this.setState({ errors: [] });
         }
       });
     } else {
@@ -67,6 +68,7 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.props.hideDetail();
+          this.setState({ errors: [] });
         }
       });
     }
@@ -143,6 +145,9 @@ class TaskDetail extends Component {
                 </div>
               </div>
             </div>
+            <div className='col-md-3 col-md-offset-9'>
+              <button className='btn btn-primary full-width' onClick={ this.saveTask }>Save</button>
+            </div>
             <div className='col-md-12'>
               <TaskError errors={ this.state.errors }/>
             </div>
@@ -155,9 +160,6 @@ class TaskDetail extends Component {
             </div>
           </div>
         </Modal.Body>
-        <Modal.Footer>
-          <button className='btn btn-default' onClick={ this.saveTask }>Save</button>
-        </Modal.Footer>
       </Modal>
     );
   };
