@@ -1,4 +1,5 @@
 import SimpleSchema from 'simpl-schema';
+import inviteUsers from './inviteUsers';
 import { Tasks } from '../../models';
 
 const updateTask = new ValidatedMethod({
@@ -40,6 +41,11 @@ const updateTask = new ValidatedMethod({
   }).validator(),
   run(task) {
     if (!this.userId) return;
+    const { assignee, approver, parentId } = task;
+    inviteUsers.call({
+      parentId,
+      taskOperators: [assignee, approver],
+    });
     return Tasks.update(task._id, {
       $set: task,
     });
