@@ -2,27 +2,21 @@ import SimpleSchema from 'simpl-schema';
 import { Tasks } from '../../models';
 
 export default new ValidatedMethod({
-  name: 'task.addComment',
+  name: 'task.removeComment',
   validate: new SimpleSchema({
     _id: {
       type: String,
     },
-    content: {
-      type: String,
-      min: 1,
-    },
   }).validator(),
-  run({ _id, content }) {
+  run({ _id }) {
     if (!this.userId) throw new Error('User is not allowed to add comment');
-    return Tasks.update(_id, {
-      $push: {
+    return Tasks.update({}, {
+      $pull: {
         comments: {
           userId: this.userId,
-          content,
-          _id: Random.id(),
-          createdAt: new Date(),
+          _id,
         },
       },
-    });
+    }, { multi: true });
   },
 });

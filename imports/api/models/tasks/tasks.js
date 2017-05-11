@@ -50,9 +50,6 @@ Tasks.schema = new SimpleSchema({
   },
   'comments.$._id': {
     type: String,
-    autoValue() {
-      return this.operator === '$push' ? Random.id() : null;
-    },
   },
   'comments.$.userId': {
     type: String,
@@ -62,10 +59,7 @@ Tasks.schema = new SimpleSchema({
   },
   'comments.$.createdAt': {
     type: Date,
-    autoValue() {
-      return this.operator === '$push' ? new Date() : null;
-    }
-  }
+  },
 });
 
 Tasks.attachSchema(Tasks.schema);

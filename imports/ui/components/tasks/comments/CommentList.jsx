@@ -2,6 +2,8 @@ import React, { Component, PropTypes } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
 import styled from 'styled-components';
 import moment from 'moment';
+import swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import CommentIcon from './CommentIcon.jsx';
 
 class CommentList extends Component {
@@ -11,6 +13,7 @@ class CommentList extends Component {
       comments: {},
     };
     this.editComment = this.editComment.bind(this);
+    this.removeComment = this.removeComment.bind(this);
     this.changeState = this.changeState.bind(this);
     this.updateComment = this.updateComment.bind(this);
   }
@@ -24,6 +27,31 @@ class CommentList extends Component {
     return `${firstName} ${lastName}`
       .split(' ')
       .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+  }
+
+  removeComment(_id, event) {
+    event.preventDefault();
+    swal({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, remove it!'
+    }).then(function () {
+      Meteor.call('task.removeComment', { _id }, (error, result)=> {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          swal('Delete task failed',  msg, 'warning');
+        }
+      });
+      swal(
+        'Removed!',
+        'Your comment has been removed.',
+        'success'
+      );
+    });
   }
 
   updateComment(_id, event) {
@@ -74,7 +102,10 @@ class CommentList extends Component {
                             <small>{ moment(createdAt).format('YYYY MMM D hh:mm:ss A') }</small> -&nbsp;
                             {
                               (user._id === Meteor.userId()) ? (
-                                <span><a href='#' onClick={(event)=> this.editComment(_id, event)}>Edit</a> - </span>
+                                <span>
+                                  <a href='#' onClick={(event)=> this.editComment(_id, event)}>Edit</a> -
+                                  <a href='#' onClick={(event)=> this.removeComment(_id, event)}> Remove </a> -&nbsp;
+                                </span>
                               ) : ''
                             }
                             <a href='#'>Reply</a>
