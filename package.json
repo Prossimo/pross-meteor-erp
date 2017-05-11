@@ -70,6 +70,7 @@
     "streamsaver": "^1.0.0",
     "styled-components": "^1.4.5",
     "sweetalert2": "^6.6.0",
+    "textcomplete": "^0.8.0",
     "twilio": "^2.11.1",
     "underscore": "^1.8.3",
     "uuid": "^3.0.1",

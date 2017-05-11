@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 import { createContainer } from 'meteor/react-meteor-data';
+import Textcomplete from 'textcomplete/lib/textcomplete';
+import Textarea from 'textcomplete/lib/textarea';
 import CommentList from './comments/CommentList.jsx';
 import CommentIcon from './comments/CommentIcon.jsx';
 
@@ -28,13 +30,36 @@ class TaskComment extends Component {
           _id: this.props.task._id,
         }
       );
-    }, 1000);
+    }, 500);
+    const editor = new Textarea(this.refs.comment);
+    const textComplete = new Textcomplete(editor);
+    textComplete.register([
+      {
+        match: /(^|\s)@(.*)$/,
+        search(term, callback) {
+          Meteor.call('task.findUsers', {
+            keyword: term,
+            ignore: '',
+          }, (error, users)=> {
+            if (!error) {
+              callback(
+                users.map(({ username })=> username)
+              );
+            }
+          });
+          //callback(_.range(0, 10));
+        },
+        replace(value) {
+          return `@${value}`;
+        },
+      },
+    ]);
   }
 
   componentWillUnmout() {
     setTimeout(()=> {
       this.subscriber && this.subscriber.stop();
-    }, 1000);
+    }, 500);
   }
 
   addComment(event) {
@@ -49,57 +74,29 @@ class TaskComment extends Component {
   }
 
   render() {
-    const CommentBox = styled.div `
-      position: relative;
-      display: inline-block;
-      width: 100%;
-    `;
-    const CommentContent = styled.div `
-      width: calc(100% - 45px);
-      float: left;
-    `;
-    const TextArea = styled.textarea `
-      width: 100%;
-      min-height: 50px;
-      border: 1px solid #CDD2D4;
-      border-radius: 3px;
-      font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-      padding: 5px 8px;
-      color: #4d4d4d;
-      resize: none;
-      font-size: 14px;
-      &:focus {
-        background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
-        outline-width: 0;
-      }
-    `;
-    const SendButon = styled.button `
-      border-radius: 0px;
-    `;
-    const Separator = styled.p `
-
-    `
     return (
       <div>
-        <Separator>
+        <p>
           <strong><i className='fa fa-comment-o'/>&nbsp;&nbsp; Add Comment</strong>
-        </Separator>
-        <CommentBox>
+        </p>
+        <div className='task-comment-box'>
           <CommentIcon name={this.shortenName(Meteor.user())}/>
-          <CommentContent>
-            <TextArea
+          <div className='task-comment-content'>
+            <textarea
+              ref='comment'
+              className='comment-textarea'
               placeholder={'Write a comment ...'}
             />
-            <SendButon
+            <button
               onClick={this.addComment}
-              className='btn btn-default btn-sm'>
+              className='btn btn-default btn-sm send-button'>
               Send
-            </SendButon>
-          </CommentContent>
-        </CommentBox>
-        <Separator>
+            </button>
+          </div>
+        </div>
+        <p>
           <strong><i className='fa fa-align-left'/>&nbsp;&nbsp; Activity</strong>
-        </Separator>
+        </p>
         <CommentList comments={this.props.task.comments || []}/>
       </div>
     );
