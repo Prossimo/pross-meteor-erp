@@ -8,19 +8,14 @@ class Task extends Component {
   constructor(props) {
     super(props);
 
-    const shortenName = ({ profile: { firstName, lastName } })=> {
-      return `${firstName} ${lastName}`
-        .split(' ')
-        .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
-    };
-
-    this.state = {
-      assigneeName: shortenName(props.assignee),
-      approverName: props.approver ? shortenName(props.approver) : '?',
-    };
-
     this.showDetail = this.showDetail.bind(this);
     this.closeTask = this.closeTask.bind(this);
+  }
+
+  shortenName({ profile: { firstName, lastName } }) {
+    return `${firstName} ${lastName}`
+      .split(' ')
+      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
   }
 
   showDetail() {
@@ -106,10 +101,10 @@ class Task extends Component {
           <i className='fa fa-times'/>
         </CloseButton>
         <AssigneeIcon>
-          { this.state.assigneeName }
+          { this.shortenName(this.props.assignee) }
         </AssigneeIcon>
         <ApproverIcon>
-          { this.state.approverName }
+          { this.props.approver ? this.shortenName(this.props.approver) : '?' }
         </ApproverIcon>
         <DueDateIcon>
           { moment(this.props.task.dueDate).format('YYYY/MM/DD') }
