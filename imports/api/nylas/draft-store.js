@@ -22,6 +22,7 @@ class DraftStore extends Reflux.Store {
         this.listenTo(Actions.sendDraft, this._onSendDraft)
         this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess)
         this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
+        this.listenTo(Actions.removeFile, this._onRemoveFile)
 
         this._drafts = []
         this._draftsSending = {}
@@ -113,8 +114,8 @@ class DraftStore extends Reflux.Store {
 
         this._draftsSending[clientId] = true
 
-        if(draft.files.length > 0 || draft.uploads.length > 0) {
-            Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
+        if(draft.files && draft.files.length > 0 || draft.uploads && draft.uploads.length > 0) {
+            //Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
         }
         Actions.queueTask(new SendDraftTask(clientId))
 
@@ -158,6 +159,9 @@ class DraftStore extends Reflux.Store {
         this.trigger()
     }
 
+    _onRemoveFile = ({file,clientId}) => {
+        this.removeFileFromDraftForClientId(clientId, file)
+    }
     draftForClientId(clientId) {
         return _.findWhere(this._drafts, {clientId})
     }
@@ -173,7 +177,7 @@ class DraftStore extends Reflux.Store {
     }
 
     addUploadToDraftForClientId(clientId, upload) {
-        let draft = this.draftForClientId(clientId)
+        const draft = this.draftForClientId(clientId)
         if(draft) {
             if(!draft.uploads) draft.uploads = []
             draft.uploads.push(upload)
@@ -183,20 +187,48 @@ class DraftStore extends Reflux.Store {
     }
 
     removeUploadFromDraftForClientId(clientId, upload) {
-        let draft = this.draftForClientId(clientId)
+        const draft = this.draftForClientId(clientId)
         if(draft && draft.uploads) {
             const index = _.indexOf(draft.uploads, upload)
 
             draft.uploads.splice(index,1)
             this.trigger()
+
+            upload.cancel()
         }
     }
+
+    addFileToDraftForClientId(clientId, file) {
+        const draft = this.draftForClientId(clientId)
+        if(draft) {
+            if(!draft.files) draft.files = []
+            draft.files.push(file)
+
+            this.trigger()
+        }
+    }
+
+    removeFileFromDraftForClientId(clientId, file) {
+        const draft = this.draftForClientId(clientId)
+        if(draft && draft.files) {
+            const index = _.indexOf(draft.files, file)
+
+            draft.files.splice(index,1)
+            this.trigger()
+        }
+    }
+
 
     removeDraftForClientId(clientId) {
         const draft = this.draftForClientId(clientId)
 
         if (!draft) return
 
+        if(draft.uploads) {
+            draft.uploads.forEach((upload)=>{
+                upload.cancel()
+            })
+        }
         const index = _.indexOf(this._drafts, draft)
 
         if (index > -1)
@@ -219,7 +251,11 @@ class DraftStore extends Reflux.Store {
         return stateForModal
     }
 
+    isUploadingDraftFiles(clientId) {
+        const draft = this.draftForClientId(clientId)
 
+        return draft.uploads && draft.uploads.some(upload=>upload.isUploading())
+    }
 }
 
 module.exports = new DraftStore()

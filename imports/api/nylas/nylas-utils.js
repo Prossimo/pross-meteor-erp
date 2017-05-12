@@ -172,6 +172,7 @@ module.exports = NylasUtils = {
             (!draft.body || draft.body.length == 0) &&
             (!draft.files || draft.files.length == 0) &&
             (!draft.downloads || draft.downloads.length == 0)
+            (!draft.uploads || draft.uploads.length == 0)
 
     },
 

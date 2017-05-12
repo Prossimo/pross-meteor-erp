@@ -9,6 +9,7 @@ import NylasUtils from '../../../../api/nylas/nylas-utils'
 import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
 import FileUploadStore from '../../../../api/nylas/file-upload-store'
+import FileDownloadStore from '../../../../api/nylas/file-download-store'
 import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
 import TemplateSelect from '../../mailtemplates/TemplateSelect'
 import EmailFrame from '../EmailFrame'
@@ -32,8 +33,8 @@ export default class ComposeView extends React.Component {
         this.state = {
             draft: draft,
             expandedCc: draft.cc && draft.cc.length ? true : false,
-            expandedBcc: draft.bcc && draft.bcc.length ? true : false
-
+            expandedBcc: draft.bcc && draft.bcc.length ? true : false,
+            downloads: FileDownloadStore.downloadDataForFiles(_.pluck(draft.downloads, 'id'))
         }
     }
 
@@ -210,25 +211,20 @@ export default class ComposeView extends React.Component {
 
 
     _renderFileAttachment(file, role) {
-        console.log("ComposerView->_renderFileAttachment");
-        console.log(file);
-        console.log(this.state.downloads[file.id]);
-        //console.log(role)
         const props = {
             file: file,
             removable: true,
-            targetPath: FileDownloadStore.pathForFile(file),
-            messageClientId: this.props.draft.clientId,
+            clientId: this.props.clientId,
             download: this.state.downloads[file.id]
         };
 
         if(role === 'Attachment') {
             return (
-                <AttachmentComponent className="file-wrap" {...props}/>
+                <AttachmentComponent key={file.id} className="file-wrap" {...props}/>
             )
         } else {
             return (
-                <ImageAttachmentComponent className="file-wrap file-image-wrap" {...props}/>
+                <ImageAttachmentComponent key={file.id} className="file-wrap file-image-wrap" {...props}/>
             )
         }
 
@@ -272,14 +268,15 @@ export default class ComposeView extends React.Component {
     }
 
     _renderActions() {
-
+        const {clientId} = this.props
+        const {draft} = this.state
         return (
             <div className="composer-action-bar-wrap">
                 <div className="composer-action-bar-content">
                     {
                         !this.props.lazySend && <SendActionButton
-                            clientId={this.props.clientId}
-                            draft={this.state.draft}
+                            clientId={clientId}
+                            draft={draft}
                             disabled={this._isUnableToSend}
                             isValidDraft={this._isValidDraft}
                         />
@@ -288,7 +285,8 @@ export default class ComposeView extends React.Component {
                     <AttachActionButton
                         tabIndex={-1}
                         ref="attachActionButton"
-                        clientId={this.props.clientId}
+                        clientId={clientId}
+                        draft={draft}
                     />
                 </div>
             </div>
@@ -354,7 +352,7 @@ export default class ComposeView extends React.Component {
         this.setState({draft: this._getDraftFromStore()})
     }
     _isUnableToSend = () => {
-        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0
+        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0 || DraftStore.isUploadingDraftFiles(this.props.clientId)
     }
 
 
@@ -365,9 +363,14 @@ export default class ComposeView extends React.Component {
 
         if (!this.state.draft) return false
 
+        let dealbreaker = null;
+
+        if(DraftStore.isUploadingDraftFiles(this.props.clientId)) {
+            dealbreaker = 'Some attachments is uploading now. please wait for uploading'
+        }
+
         const {to, cc, bcc, subject, body, files, uploads} = this.state.draft;
         const allRecipients = [].concat(to, cc, bcc);
-        let dealbreaker = null;
 
 
         for (const contact of allRecipients) {
