@@ -1,7 +1,10 @@
+import request from 'request'
 import Task from './task'
 import NylasAPI from '../nylas-api'
 import {APIError} from '../errors'
 import DraftStore from '../draft-store'
+import FormData from 'form-data'
+import AccountStore from '../account-store'
 
 export default class SyncbackDraftFilesTask extends Task {
     constructor(clientId) {
@@ -21,7 +24,7 @@ export default class SyncbackDraftFilesTask extends Task {
             .then(this.applyChangesToDraft)
             .thenReturn(Task.Status.Success)
             .catch((err) => {
-                if (err instanceof BaseDraftTask.DraftNotFoundError) {
+                if (err instanceof Error) {
                     return Promise.resolve(Task.Status.Continue);
                 }
                 if (err instanceof APIError && !NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
@@ -43,16 +46,44 @@ export default class SyncbackDraftFilesTask extends Task {
     }
 
     uploadAttachment = (upload) => {
-        const formData = {
-            file: upload
-        }
+        console.log('Started uploadAttachment', upload)
+        /*const formData = {
+         file: upload
+         }
+         return NylasAPI.makeRequest({
+         path: "/files",
+         accountId: this.draft.account_id,
+         method: "POST",
+         json: false,
+         formData,
+         started: (req) =>{},
+         timeout: 20 * 60 * 1000,
+         })
+         .finally(() => {
 
-        return NylasAPI.makeRequest({
+         })
+         .then((rawResponseString) => {
+         const file = JSON.parse(rawResponseString);
+         console.log(file)
+         return Promise.resolve(file);
+         })*/
+        const filename = upload.name;
+        const accountId = this.draft.account_id
+        /*return NylasAPI.makeRequest({
             path: "/files",
-            accountId: this.draft.accountId,
+            accountId,
             method: "POST",
             json: false,
-            formData,
+            headers: { 'Content-Type': 'multipart/form-data'},
+            multipart: {
+                chunked: false,
+                data: [
+                    {
+                        'Content-Disposition': `form-data; name="filedata"; filename="${filename}"`,
+                        body: binary
+                    }
+                ]
+            },
             started: (req) =>{},
             timeout: 20 * 60 * 1000,
         })
@@ -63,7 +94,19 @@ export default class SyncbackDraftFilesTask extends Task {
                 const file = JSON.parse(rawResponseString);
                 console.log(file)
                 return Promise.resolve(file);
-            })
+            })*/
+        const token = AccountStore.tokenForAccountId(this.draft.account_id)
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', 'https://api.nylas.com/files', true);
+        xhr.setRequestHeader("Authorization", "Basic " + btoa(`${token}:`))
+        xhr.upload.onprogress = function (e) {
+            console.log(e)
+        };
+        xhr.onloadend = function (e) {
+            console.log(e)
+        };
+        xhr.send(file.slice(0,file.size));
+
     }
 
     applyChangesToDraft = () => {

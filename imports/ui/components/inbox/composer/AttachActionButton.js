@@ -1,17 +1,20 @@
 import React, {Component, PropTypes} from 'react'
 import {DropdownButton, MenuItem} from 'react-bootstrap'
 import Actions from '../../../../api/nylas/actions'
+import AccountStore from '/imports/api/nylas/account-store'
 
 export default class AttachActionButton extends React.Component {
     static displayName = "AttachActionButton";
 
     static propTypes = {
         clientId: PropTypes.string.isRequired,
+        draft: PropTypes.object
     };
 
     constructor(props) {
         super(props)
         this.state = {};
+
     }
 
     componentDidMount() {
@@ -34,9 +37,11 @@ export default class AttachActionButton extends React.Component {
         const {files} = e.target
 
         for(let i=0; i<files.length; i++) {
-            const file = files[i]
-            Actions.addAttachment({clientId: this.props.clientId, file: file})
-        }
+         const file = files[i]
+         Actions.addAttachment({clientId: this.props.clientId, file: file})
+         }
+
+
     }
 
     _onSelectGoogleDrive = () => {
@@ -61,7 +66,8 @@ export default class AttachActionButton extends React.Component {
 
         return (
             <div style={{order: 50}}>
-                <input type="file" id="file" ref="fileUploader" style={{display: "none"}} multiple={true} onChange={this._onChangeFiles}/>
+                <input type="file" id="file" ref="fileUploader" style={{display: "none"}} multiple={true}
+                       onChange={this._onChangeFiles}/>
                 <DropdownButton bsStyle="default" bsSize="small" id="dropdown-attach-file"
                                 title={<img src="/icons/inbox/icon-composer-attachment.png" width={16}/> }>
                     {

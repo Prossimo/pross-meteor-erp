@@ -51,6 +51,16 @@ class ImageAttachmentComponent extends AttachmentComponent {
         )
     }
 
+    _onLoadImage = (e) => {
+        if(this.refs.previewImageAttachment) this.refs.previewImageAttachment.src = e.target.result
+    }
+    _renderBlobImage() {
+        const imageReader = new FileReader()
+        imageReader.onload = this._onLoadImage
+        imageReader.readAsDataURL(this.props.file.blob)
+
+        return <img id={`image-${this.props.file.id}`} ref="previewImageAttachment"/>
+    }
     render() {
         const {download, file} = this.props
         const state = download ? download.state || "" : ""
@@ -66,7 +76,8 @@ class ImageAttachmentComponent extends AttachmentComponent {
                     <div className="file-name-container">
                         <div className="file-name">{displayName}</div>
                     </div>
-                    {this._imgOrLoader()}
+                    {file.blob && this._renderBlobImage()}
+                    {!file.blob && this._imgOrLoader()}
                 </div>
             </div>
         )

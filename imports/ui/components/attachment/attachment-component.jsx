@@ -14,7 +14,7 @@ class AttachmentComponent extends Component {
         download: PropTypes.object,
         removable: PropTypes.bool,
         targetPath: PropTypes.string,
-        messageClientId: PropTypes.string,
+        clientId: PropTypes.string,
     };
 
     constructor() {
@@ -69,7 +69,7 @@ class AttachmentComponent extends Component {
     _onClickRemove = (event) => {
         Actions.removeFile({
             file: this.props.file,
-            messageClientId: this.props.messageClientId,
+            clientId: this.props.clientId,
         })
         event.stopPropagation() // Prevent 'onClickView'
     };
@@ -129,10 +129,10 @@ class AttachmentComponent extends Component {
             <div className={this.props.className}>
                 <div className="inner" onDoubleClick={this._onClickView} onDragStart={this._onDragStart}
                      draggable="true">
-        <span className={`progress-bar-wrap state-${downloadState}`}>
-          <span className="progress-background"/>
-          <span className="progress-foreground" style={this._downloadProgressStyle()}/>
-        </span>
+                    <span className={`progress-bar-wrap state-${downloadState}`}>
+                      <span className="progress-background"/>
+                      <span className="progress-foreground" style={this._downloadProgressStyle()}/>
+                    </span>
 
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', height:'100%'}}>
                         <div className="file-info-wrap">

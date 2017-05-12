@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import Task from './task'
 import Actions from '../actions'
 import NylasAPI from '../nylas-api'
@@ -43,7 +44,7 @@ export default class SendDraftTask extends Task {
         if (this.draft.account_id !== account.accountId) {
             return Promise.reject(new Error("The from address has changed since you started sending this draft. Double-check the draft and click 'Send' again."));
         }
-        if (this.draft.uploads && (this.draft.uploads.length > 0)) {
+        if (this.draft.uploads && (this.draft.uploads.length > 0)) { console.log("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again..")
             return Promise.reject(new Error("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again.."));
         }
         return Promise.resolve();
@@ -56,6 +57,9 @@ export default class SendDraftTask extends Task {
             if(signature) draft.body += `<br><br><div class="gmail_quote">${signature}</div>`
         }
 
+        if(draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
+
+        console.log('Started sendMessage', draft)
         return NylasAPI.makeRequest({
             path: "/send",
             accountId: this.draft.account_id,
@@ -95,6 +99,10 @@ export default class SendDraftTask extends Task {
     }
 
     onError = (err) => {
+        if(err instanceof Error) {
+            return Promise.resolve(Task.Status.Continue)
+        }
+
         let message = err.message;
 
         if (err instanceof APIError) {

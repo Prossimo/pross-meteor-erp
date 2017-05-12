@@ -13,18 +13,31 @@ export default class FileUpload extends React.Component {
 
     _onClickRemove = (event) => {
         event.preventDefault();
-        Actions.removeAttachment({clientId:this.props.clientId, file:this.props.upload});
+        Actions.removeAttachment({clientId:this.props.clientId, upload:this.props.upload});
+    }
+
+
+    _uploadProgressStyle() {
+        const {upload} = this.props
+        const percent = upload ? upload.percent || 0 : 0;
+        return {
+            width: `${percent}%`,
+        }
     }
 
     render() {
         return (
             <div className="file-wrap file-upload">
                 <div className="inner">
+                    <span className={`progress-bar-wrap state-${this.props.upload.status}`}>
+                      <span className="progress-background"/>
+                      <span className="progress-foreground" style={this._uploadProgressStyle()}/>
+                    </span>
                     <div style={{display:'flex', flexDirection: 'row', alignItems: 'center', height:'100%'}}>
                         <div className="file-info-wrap">
                             <img
                                 className="file-icon"
-                                src={`/icons/attachments/${NylasUtils.fileIcon(file)}`}
+                                src={`/icons/attachments/${NylasUtils.fileIcon(this.props.upload)}`}
                             />
                             <span className="file-name">
                                 <span className="uploading">

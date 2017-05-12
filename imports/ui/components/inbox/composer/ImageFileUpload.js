@@ -16,7 +16,7 @@ export default class ImageFileUpload extends FileUpload {
     componentDidMount() {
     }
     onLoadImage = (e) => {
-        this.refs.preview.src = e.target.result
+        if(this.refs.previewImageFileUpload) this.refs.previewImageFileUpload.src = e.target.result
     }
     _onDragStart = (event) => {
         event.preventDefault();
@@ -25,7 +25,7 @@ export default class ImageFileUpload extends FileUpload {
     render() {
         const imageReader = new FileReader()
         imageReader.onload = this.onLoadImage
-        imageReader.readAsDataURL(this.props.upload)
+        imageReader.readAsDataURL(this.props.upload.file)
 
         return (
             <div className="file-wrap file-image-wrap file-upload">
@@ -38,7 +38,7 @@ export default class ImageFileUpload extends FileUpload {
                         <div className="file-name">{this.props.upload.name}</div>
                     </div>
 
-                    <img id={`image-${this.props.upload.id}`} ref="preview" onDragStart={this._onDragStart}/>
+                    <img id={`image-${this.props.upload.id}`} ref="previewImageFileUpload" onDragStart={this._onDragStart}/>
                 </div>
             </div>
         );
