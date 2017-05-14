@@ -4,7 +4,7 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import {SalesRecords} from '/imports/api/models'
 
 class MessageStore extends Reflux.Store {
     constructor(salesRecord=null) {
@@ -83,7 +83,7 @@ class MessageStore extends Reflux.Store {
 
     _onLoadConversations(salesRecordId) {
         if(this.salesRecord && this.salesRecord._id==salesRecordId) {
-            this._messages = SalesRecord.findOne({_id: salesRecordId}).messages()
+            this._messages = SalesRecords.findOne({_id: salesRecordId}).messages()
             this._messages.sort((m1, m2) => m1.date - m2.date)
 
             this._loading = false;
