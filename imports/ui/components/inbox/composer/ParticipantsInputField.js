@@ -34,6 +34,7 @@ export default class ParticipantsInputField extends React.Component {
             onChange={this._onChange}
             onInputChange={this._onInputChange}
             clearable={true}
+            placeholder="Input email address here..."
         />)
         const select = (<Select
             className="select-wrap"
@@ -43,6 +44,7 @@ export default class ParticipantsInputField extends React.Component {
             valueRenderer={(item)=>item.value}
             onChange={this._onChange}
             clearable={true}
+            placeholder="Select email address in the list..."
         />)
 
         return (

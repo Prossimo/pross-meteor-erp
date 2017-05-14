@@ -51,7 +51,7 @@ export default class ComposeView extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.clientId!=null && nextState.draft!=null && nextState.draft!==this.state.draft
+        return nextProps.clientId!=null && nextState.draft!=null && nextState!==this.state
     }
 
     _onChangeDraftStore = () => {
