@@ -8,6 +8,7 @@ import TextEditor from './TextEditor.jsx';
 import TaskName from './TaskName.jsx';
 import TaskError from './TaskError.jsx';
 import TaskComment from './TaskComment.jsx';
+import UploadFrom from './upload/uploadFrom.jsx';
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -141,6 +142,13 @@ class TaskDetail extends Component {
                     onChange={date => this.changeState(this.state.task, 'dueDate', date.toDate())}
                   />
                 </div>
+              </div>
+              <div className='form-group'>
+                <button className='btn btn-default full-width'>
+                  <i className='fa fa-paperclip'/>
+                  <small> Attachment</small>
+                </button>
+                <UploadFrom/>
               </div>
             </div>
             <div className='col-md-3 col-md-offset-9'>
