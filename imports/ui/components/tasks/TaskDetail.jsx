@@ -9,6 +9,7 @@ import TaskName from './TaskName.jsx';
 import TaskError from './TaskError.jsx';
 import TaskComment from './TaskComment.jsx';
 import UploadFrom from './upload/UploadFrom.jsx';
+import UploadOverlay from './upload/UploadOverlay.jsx';
 import Attachments from './upload/Attachments.jsx';
 
 class TaskDetail extends Component {
@@ -176,6 +177,7 @@ class TaskDetail extends Component {
               }
             </div>
           </div>
+          <UploadOverlay/>
         </Modal.Body>
       </Modal>
     );
