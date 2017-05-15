@@ -18,7 +18,7 @@ class TextEditor extends Component {
       margin-top: 15px;
       margin-left: 15px;
       width: 100%;
-      min-height: 100px;
+      min-height: 215px;
       border-image: none;
       border-radius: 6px 6px 6px 6px;
       border-style: none none none solid;
