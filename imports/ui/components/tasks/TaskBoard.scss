@@ -1,4 +1,40 @@
 .task-details {
+  .attachments {
+    .attachment {
+      display: flex;
+      padding-bottom: 10px;
+      .attachment-icon {
+        width: 60px;
+        height: 60px;
+        background-color: #cecece;
+        padding: 10px;
+        font-weight: bold;
+        line-height: 40px;
+        text-align: center;
+        border-radius: 3px;
+        -webkit-box-shadow: 1px 1px 5px 0px rgba(50, 50, 50, 0.75);
+        -moz-box-shadow: 1px 1px 5px 0px rgba(50, 50, 50, 0.75);
+        box-shadow: 1px 1px 5px 0px rgba(50, 50, 50, 0.75);
+      }
+      .attachment-payload {
+        padding-left: 20px;
+        font-size: 15px;
+      }
+      .attachment-time {
+        font-size: 13px;
+        padding: 2px 0px;
+        color: #8c8c8c;
+      }
+      .attachment-controls {
+        .attachment-control {
+          padding: 0 10px;
+        }
+        a {
+          color: #8c8c8c;
+        }
+      }
+    }
+  }
   .upload-from {
     background-color: white;
     width: 200px;

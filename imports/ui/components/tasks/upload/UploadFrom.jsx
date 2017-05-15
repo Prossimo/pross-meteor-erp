@@ -10,7 +10,9 @@ class UploadFrom extends Component {
       <div className='upload-from'>
         <p className='text-center'>
           Upload From ...
-          <a href='#' className='pull-right'><i className='fa fa-times'/></a>
+          <a href='#' className='pull-right' onClick={event => this.props.close()}>
+            <i className='fa fa-times'/>
+          </a>
         </p>
         <div className='form'>
           <div className='form-group'>
@@ -23,6 +25,7 @@ class UploadFrom extends Component {
             <input
               className='form-control input-sm'
               autoFocus={true}
+              placeholder='paste any link here ...'
             />
           </div>
           <button className='btn btn-default btn-sm attach'>Attach</button>
