@@ -10,17 +10,12 @@ class FileDownloadStore extends Reflux.Store {
     constructor() {
         super()
 
+        this.listenTo(Actions.fetchImage, this.onFetchImage)
         this.listenTo(Actions.downloadFile, this.onDownloadFile)
         this.listenTo(Actions.downloadFiles, this.onDownloadFiles)
         this.listenTo(Actions.abortDownloadFile, this.onAbortDownloadFile)
 
         this._downloads = {}
-    }
-
-    pathForFile = (file) => {
-        if(!file) return undefined
-
-        return ''
     }
 
     downloadDataForFile = (fileId) => {
@@ -36,25 +31,19 @@ class FileDownloadStore extends Reflux.Store {
         return downloadData
     }
 
-    onDownloadFile = (file, provider='email') => {
-
-        /*if(NylasUtils.shouldDisplayAsImage(file)) {
+    onFetchImage = (file) => {
+        if(NylasUtils.shouldDisplayAsImage(file)) {
             this._runDownload(file)
-        } else {*/
-            const token = AccountStore.tokenForAccountId(file.account_id)
-            const QueryString = require('query-string')
-            const query = QueryString.stringify({
-                access_token: token,
-                file_id: file.id
-            })
-            window.open(`/api/download?${query}`)
-        //}
+        }
     }
-
-    onDownloadFiles = (files) => {
-        /*files.forEach((file)=>{
-            this.onDownloadFile(file)
-        })*/
+    onDownloadFile = (file, provider='email') => {
+        const token = AccountStore.tokenForAccountId(file.account_id)
+        const QueryString = require('query-string')
+        const query = QueryString.stringify({
+            access_token: token,
+            file_id: file.id
+        })
+        window.open(`/api/download?${query}`)
     }
 
     onAbortDownloadFile = (file) => {
@@ -71,15 +60,15 @@ class FileDownloadStore extends Reflux.Store {
                     fileId: file.id,
                     filename: file.name || file.filename,
                     filesize: file.size,
-                    progressCallback: ()=>this.trigger(),
-                    accountId: file.account_id
+                    accountId: file.account_id,
+                    contentType: file.content_type
                 })
 
                 this._downloads[file.id] = download
                 this.trigger()
 
                 return download.run().finally(()=>{
-                    download.ensureClosed()
+                    //download.ensureClosed()
                     if(download.state == Download.State.Failed)
                         delete this._downloads[file.id]
                     this.trigger()

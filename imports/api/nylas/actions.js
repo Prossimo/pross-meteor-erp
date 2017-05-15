@@ -17,6 +17,7 @@ const Actions = Reflux.createActions([
     'addAttachment',
     'removeAttachment',
 
+    'fetchImage',
     'downloadFile',
     'downloadFiles',
     'abortDownloadFile',

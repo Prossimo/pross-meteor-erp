@@ -10,7 +10,7 @@ const State = {
 class Download {
     static State = State
 
-    constructor({fileId, filename, filesize, progressCallback}) {
+    constructor({fileId, filename, filesize, contentType, progressCallback}) {
         if(!filename || filename.length==0)
             throw new Error('Download.cnstructor: You must provide a non-empty filename.')
         if(!fileId)
@@ -19,6 +19,7 @@ class Download {
         this.fileId = fileId
         this.filename = filename
         this.filesize = filesize
+        this.contentType = contentType
         this.progressCallback = progressCallback
 
         this.percent = 0
@@ -26,7 +27,7 @@ class Download {
         this.state = State.Unstarted
     }
 
-    data = () => {
+    /*data() {
         return Object.freeze(_.clone({
             state: this.state,
             fileId: this.fileId,
@@ -34,7 +35,7 @@ class Download {
             filename: this.filename,
             filesize: this.filesize
         }))
-    }
+    }*/
 
     run = () => {}
 
