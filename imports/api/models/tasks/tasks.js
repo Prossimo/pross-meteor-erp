@@ -60,6 +60,22 @@ Tasks.schema = new SimpleSchema({
   'comments.$.createdAt': {
     type: Date,
   },
+  attachments: {
+    type: Array,
+    optional: true,
+  },
+  'attachments.$': {
+    type: Object,
+  },
+  'attachments.$._id': {
+    type: String,
+  },
+  'attachments.$.mimeType': {
+    type: String,
+  },
+  'attachments.$.name': {
+    type: String,
+  },
 });
 
 Tasks.attachSchema(Tasks.schema);
