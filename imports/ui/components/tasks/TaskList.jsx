@@ -44,11 +44,12 @@ class TaskList extends Component {
                   task={task}
                   assignee={assignee}
                   approver={approver}
+                  taskFolderId={this.props.taskFolderId}
                 />;
               })
             }
           </div>
-          <TaskAdding status={this.props.listName}/>
+          <TaskAdding status={this.props.listName} taskFolderId={this.props.taskFolderId}/>
         </div>
       </div>
     );
@@ -59,6 +60,7 @@ TaskList.propTypes = {
   tasks: PropTypes.array.isRequired,
   users: PropTypes.array.isRequired,
   listName: PropTypes.string.isRequired,
+  taskFolderId: PropTypes.string,
 };
 
 export default TaskList;

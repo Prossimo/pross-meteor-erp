@@ -44,6 +44,7 @@ class TaskModifying extends Component {
         isNew={false}
         task={task}
         key={task._id}
+        taskFolderId={this.props.taskFolderId}
       />
     );
   }
@@ -53,6 +54,7 @@ TaskModifying.propTypes = {
   task: PropTypes.object.isRequired,
   assignee: PropTypes.object.isRequired,
   approver: PropTypes.object,
+  taskFolderId: PropTypes.string,
 };
 
 export default TaskModifying;

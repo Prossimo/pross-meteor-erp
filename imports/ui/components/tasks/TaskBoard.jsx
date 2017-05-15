@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import Tasks from '/imports/api/models/tasks/tasks';
+import SaleRecords from '/imports/api/models/salesRecords/salesRecords';
+import Projects from '/imports/api/models/projects/projects';
 import { createContainer } from 'meteor/react-meteor-data';
 import TaskList from './TaskList.jsx';
 import TaskFilter from './TaskFilter.jsx';
@@ -48,11 +50,13 @@ class TaskBoard extends Component {
             allowedStatus.map(allowedStatus => {
               const tasks = this.props.tasks.filter(({ status })=> status === allowedStatus);
               const users = this.props.users;
+              const taskFolderId = this.props.taskFolderId;
               return <TaskList
                 listName={allowedStatus}
                 tasks={tasks}
                 users={users}
                 key={allowedStatus}
+                taskFolderId={taskFolderId}
               />;
             })
           }
@@ -68,6 +72,7 @@ export default createContainer(() => {
   let loading = true;
   let tasks = [];
   const filter = taskFilter.all();
+  const { taskFolderId } = SaleRecords.findOne(parentId) || Projects.findOne(parentId);
   subscribers.push(Meteor.subscribe('task.all', { parentId, filter }));
   loading = subscribers.reduce((result, subscriber)=> result && subscriber.ready(), true);
   tasks = Tasks.find().fetch();
@@ -76,5 +81,6 @@ export default createContainer(() => {
     loading,
     tasks,
     users: Meteor.users.find().fetch(),
+    taskFolderId,
   };
 }, TaskBoard);
