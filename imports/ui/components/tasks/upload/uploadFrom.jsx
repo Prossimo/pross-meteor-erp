@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 
 class UploadFrom extends Component {
   constructor() {
@@ -20,7 +20,10 @@ class UploadFrom extends Component {
           </div>
           <div className='form-group link'>
             Attach a link
-            <input className='form-control input-sm'/>
+            <input
+              className='form-control input-sm'
+              autoFocus={true}
+            />
           </div>
           <button className='btn btn-default btn-sm attach'>Attach</button>
         </div>
@@ -28,5 +31,9 @@ class UploadFrom extends Component {
     );
   }
 }
+
+UploadFrom.propTypes = {
+  close: PropTypes.func.isRequired,
+};
 
 export default UploadFrom;
