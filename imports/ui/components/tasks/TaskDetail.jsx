@@ -177,7 +177,13 @@ class TaskDetail extends Component {
               }
             </div>
           </div>
-          <UploadOverlay taskFolderId={this.props.taskFolderId}/>
+              {
+                (this.props.task) ? (
+                  <UploadOverlay
+                    taskFolderId={this.props.taskFolderId}
+                    taskId={this.props.task._id}/>
+                ) : ''
+              }
         </Modal.Body>
       </Modal>
     );
