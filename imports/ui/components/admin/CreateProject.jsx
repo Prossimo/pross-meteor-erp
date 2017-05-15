@@ -41,7 +41,7 @@ export default class CreateProject extends Component {
         this.props.toggleLoader(true)
         Meteor.call('createNewProject', project, (error, projectId)=> {
             //info(`Success add new project & integration with Slack`);
-            this.setState({blocking: false})
+            this.props.toggleLoader(false)
             if (error) {
                 warning(`Problems with creating new project. ${error.error}`);
             } else {
