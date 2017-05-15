@@ -3,6 +3,8 @@ import { createContainer } from 'meteor/react-meteor-data';
 import styled from 'styled-components';
 import moment from 'moment';
 import swal from 'sweetalert2';
+import Textcomplete from 'textcomplete/lib/textcomplete';
+import Textarea from 'textcomplete/lib/textarea';
 import 'sweetalert2/dist/sweetalert2.min.css';
 import CommentIcon from './CommentIcon.jsx';
 
@@ -66,6 +68,31 @@ class CommentList extends Component {
     this.changeState(this.state.comments, _id, true);
   }
 
+  componentDidMount() {
+    //const editor = new Textarea(this.refs.comment);
+    //const textComplete = new Textcomplete(editor);
+    //textComplete.register([
+      //{
+        //match: /(^|\s)@(.*)$/,
+        //search(term, callback) {
+          //Meteor.call('task.findUsers', {
+            //keyword: term,
+            //ignore: '',
+          //}, (error, users)=> {
+            //if (!error) {
+              //callback(
+                //users.map(({ username })=> username)
+              //);
+            //}
+          //});
+        //},
+        //replace(value) {
+          //return `@${value}`;
+        //},
+      //},
+    //]);
+  }
+
   render() {
     return (
       <div>
@@ -85,6 +112,7 @@ class CommentList extends Component {
                     (this.state.comments[_id]) ? (
                       <div>
                         <textarea
+                          ref='comment'
                           className='edit-comment-editor'
                           autoFocus={true}
                           onBlur={(event) => this.updateComment(_id, event)}

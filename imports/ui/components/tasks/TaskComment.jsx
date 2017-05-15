@@ -47,7 +47,6 @@ class TaskComment extends Component {
               );
             }
           });
-          //callback(_.range(0, 10));
         },
         replace(value) {
           return `@${value}`;

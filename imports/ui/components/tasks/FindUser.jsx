@@ -15,8 +15,8 @@ class FindUser extends Component {
 
   changeKeyword(keyword) {
     const ignore = this.props.ignore ? this.props.ignore._id : '';
-    meteor.call('task.findusers', { keyword, ignore }, (error, users)=> {
-      if (!error) this.setstate({ users, keyword });
+    Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
+      if (!error) this.setState({ users, keyword });
     });
   }
 
