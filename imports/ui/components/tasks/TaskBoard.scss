@@ -1,4 +1,50 @@
 .task-details {
+  .upload-from {
+    background-color: white;
+    width: 200px;
+    height: 155px;
+    position: absolute;
+    z-index: 1;
+    margin-top: 5px;
+    font-size: 14px;
+    p {
+      padding: 10px;
+      border-bottom: 1px solid #cecece;
+      margin: 0px;
+      line-height: 11px;
+      color: #8c8c8c;
+    }
+    a {
+      color: #8c8c8c;
+    }
+    .form {
+      .attach {
+        margin-left: 5px;
+      }
+      .form-group {
+        margin-bottom: 2px;
+      }
+      .form-group.link {
+        padding: 0 5px;
+        .input-sm {
+          border-radius: 0px;
+        }
+      }
+      .upload-option {
+        width: 100%;
+        background-color: white;
+        border: 0px;
+        outline-width: 0px;
+        padding: 5px;
+        cursor: pointer;
+        text-align: left;
+        &:hover {
+          background-color: #298fca;
+          color: white;
+        }
+      }
+    }
+  }
   .task-comment-box {
     position: relative;
     display: inline-block;
