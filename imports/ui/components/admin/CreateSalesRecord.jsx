@@ -161,7 +161,7 @@ class CreateSalesRecord extends React.Component {
                 this.props.toggleLoader(false);
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`);
 
-                info(`Success add new SalesRecord & integration with Slack`);
+                info(`Success add new Deal & integration with Slack`);
                 setTimeout(() => {
                     FlowRouter.go(FlowRouter.path("SalesRecord", {id: res}))
                 }, 300)
