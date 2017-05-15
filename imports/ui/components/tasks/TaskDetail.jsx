@@ -19,6 +19,7 @@ class TaskDetail extends Component {
         approver: false,
       },
       errors: [],
+      isAttach: false,
     };
 
     if (props.isNew) {
@@ -144,11 +145,17 @@ class TaskDetail extends Component {
                 </div>
               </div>
               <div className='form-group'>
-                <button className='btn btn-default full-width'>
+                <button
+                  className='btn btn-default full-width'
+                  onClick={event => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
                   <i className='fa fa-paperclip'/>
                   <small> Attachment</small>
                 </button>
-                <UploadFrom/>
+                {
+                  (this.state.isAttach) ? (
+                    <UploadFrom close={event => this.changeState(this.state, 'isAttach', false)}/>
+                  ) : ''
+                }
               </div>
             </div>
             <div className='col-md-3 col-md-offset-9'>
