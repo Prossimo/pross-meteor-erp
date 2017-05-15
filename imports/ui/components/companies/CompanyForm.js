@@ -103,7 +103,7 @@ export default class CompanyForm extends React.Component {
                 console.log(companyId)
             }
 
-            this.setState({blocking: false})
+            this.props.toggleLoader(false);
             if (this.props.onSaved) this.props.onSaved(Companies.findOne({_id: companyId}), this.props.company != null)
         }catch(e){
             console.log(e)
