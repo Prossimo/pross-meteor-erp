@@ -48,7 +48,11 @@ export default class ContactsPage extends React.Component {
             }}>
                 <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> {title}</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <ContactForm contact={!creating?selectedContact:null} onSaved={this.onSavedContact}/>
+                    <ContactForm
+                        contact={!creating?selectedContact:null}
+                        onSaved={this.onSavedContact}
+                        toggleLoader={this.props.toggleLoader}
+                    />
                 </Modal.Body>
             </Modal>
         )
@@ -81,4 +85,3 @@ export default class ContactsPage extends React.Component {
         }
     }
 }
-

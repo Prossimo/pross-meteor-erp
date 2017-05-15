@@ -35,7 +35,6 @@ class EmailSignature extends React.Component{
             }
         }
         if(text){
-            this.props.toggleLoader(true)
             Meteor.call("updateUserProfileField", 'signature', encodeURI(text), updateUserCustomFieldCb)
         }
     }

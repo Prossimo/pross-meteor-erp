@@ -11,7 +11,7 @@ class UserAccount extends React.Component{
         this.tabs = [
             {
                 label: "Contact info",
-                component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser}/>
+                component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser} toggleLoader={props.toggleLoader}/>
             }
         ];
         if(Roles.userIsInRole(props.currentUser._id, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){

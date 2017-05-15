@@ -49,7 +49,11 @@ export default class CompaniesPage extends React.Component {
             }}>
                 <Modal.Header closeButton><Modal.Title><i className="fa fa-building-o"/>&nbsp;{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <CompanyForm company={!creating?selectedCompany:null} onSaved={this.onSavedCompany}/>
+                    <CompanyForm
+                        company={!creating?selectedCompany:null}
+                        onSaved={this.onSavedCompany}
+                        toggleLoader={this.props.toggleLoader}
+                    />
                 </Modal.Body>
             </Modal>
         )
@@ -83,4 +87,3 @@ export default class CompaniesPage extends React.Component {
         }
     }
 }
-
