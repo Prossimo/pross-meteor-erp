@@ -2,6 +2,7 @@ import React, {PropTypes} from 'react'
 import Spinner from '../utils/spinner'
 import DraggableImg from '../utils/DraggableImg'
 import AttachmentComponent from './attachment-component'
+import Download from '/imports/api/nylas/downloads/download'
 
 
 class ImageAttachmentComponent extends AttachmentComponent {
@@ -10,7 +11,6 @@ class ImageAttachmentComponent extends AttachmentComponent {
     static propTypes = {
         file: PropTypes.object.isRequired,
         download: PropTypes.object,
-        targetPath: PropTypes.string,
     };
 
     static containerRequired = false;
@@ -19,20 +19,24 @@ class ImageAttachmentComponent extends AttachmentComponent {
         return false
     }
 
-    _imgOrLoader() {
-        const {download, targetPath} = this.props
-        if (!download || download.percent <= 5) {
+    _renderImage() {
+        const {download, file} = this.props
+
+        if(file && file.blob) {
+            const imageReader = new FileReader()
+            imageReader.onload = this._onLoadImage
+            imageReader.readAsDataURL(file.blob)
+
+            return <img id={`image-${this.props.file.id}`} ref="previewImageAttachment"/>
+        } else if(download && download.blob) {
+            return <img id={`image-${this.props.download.fileId}`} ref="previewImageAttachment" src={download.blob}/>
+        } else {
             return (
                 <div style={{width: "100%", height: "100px"}}>
                     <Spinner visible/>
                 </div>
             )
-        } else if (download && download.percent < 100) {
-            return (
-                <DraggableImg src={`${targetPath}?percent=${download.percent}`}/>
-            )
         }
-        return <DraggableImg src={targetPath}/>
     }
 
     _renderRemoveIcon() {
@@ -54,13 +58,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
     _onLoadImage = (e) => {
         if(this.refs.previewImageAttachment) this.refs.previewImageAttachment.src = e.target.result
     }
-    _renderBlobImage() {
-        const imageReader = new FileReader()
-        imageReader.onload = this._onLoadImage
-        imageReader.readAsDataURL(this.props.file.blob)
 
-        return <img id={`image-${this.props.file.id}`} ref="previewImageAttachment"/>
-    }
     render() {
         const {download, file} = this.props
         const state = download ? download.state || "" : ""
@@ -76,8 +74,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
                     <div className="file-name-container">
                         <div className="file-name">{displayName}</div>
                     </div>
-                    {file.blob && this._renderBlobImage()}
-                    {!file.blob && this._imgOrLoader()}
+                    {this._renderImage()}
                 </div>
             </div>
         )

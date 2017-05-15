@@ -201,9 +201,9 @@ class ItemMessage extends React.Component {
         for(let file of this.props.message.files||[]) {
             if(!this._isRealFile(file)) continue
 
-            /*if(NylasUtils.shouldDisplayAsImage(file))
+            if(NylasUtils.shouldDisplayAsImage(file))
                 imageAttachments.push(file)
-            else*/
+            else
                 otherAttachments.push(file)
         }
 
@@ -222,7 +222,6 @@ class ItemMessage extends React.Component {
                 className="file-wrap file-image-wrap"
                 file={_.extend(file, {account_id:this.props.message.account_id})}
                 download={this.state.downloads[file.id]}
-                targetPath={FileDownloadStore.pathForFile(file)}
             />
         ))
 

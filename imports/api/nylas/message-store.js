@@ -61,6 +61,7 @@ class MessageStore extends Reflux.Store {
                 this._loading = false;
 
                 this._expandMessagesToDefault();
+                this._fetchExpandedAttachments(this._messages);
 
 
                 if(this._currentThread.unread) {
@@ -88,6 +89,7 @@ class MessageStore extends Reflux.Store {
 
             this._loading = false;
             this._expandMessagesToDefault();
+            this._fetchExpandedAttachments(this._messages);
 
             this.trigger()
         }
@@ -144,10 +146,13 @@ class MessageStore extends Reflux.Store {
         /*policy = PlanckEnv.config.get('core.attachments.downloadPolicy')
          if(policy === 'manually') return;*/
 
-        for (message of messages) {
+        for (let message of messages) {
             if (!this._messagesExpanded[message.id]) continue;
-            /*for (file of message.files)
-                Actions.downloadFile(file)*/
+            for (let file of message.files) {
+                if(NylasUtils.shouldDisplayAsImage(file)) {
+                    Actions.fetchImage(_.extend(_.clone(file), {account_id: message.account_id}))
+                }
+            }
         }
     }
 
