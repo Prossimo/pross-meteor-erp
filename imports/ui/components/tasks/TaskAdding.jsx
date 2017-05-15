@@ -49,6 +49,7 @@ class TaskAdding extends Component {
           isShown={this.state.task.showDetail}
           status={this.props.status}
           isNew={true}
+          taskFolderId={this.props.taskFolderId}
         />
       </TaskAdding>
     );
@@ -57,6 +58,7 @@ class TaskAdding extends Component {
 
 TaskAdding.propTypes = {
   status: PropTypes.string.isRequired,
+  taskFolderId: PropTypes.string,
 };
 
 export default TaskAdding;

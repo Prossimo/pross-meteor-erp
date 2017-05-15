@@ -177,7 +177,7 @@ class TaskDetail extends Component {
               }
             </div>
           </div>
-          <UploadOverlay/>
+          <UploadOverlay taskFolderId={this.props.taskFolderId}/>
         </Modal.Body>
       </Modal>
     );
@@ -191,6 +191,7 @@ TaskDetail.propTypes = {
   status: PropTypes.string.isRequired,
   isNew: PropTypes.bool.isRequired,
   task: PropTypes.object,
+  taskFolderId: PropTypes.string,
 };
 
 export default TaskDetail;
