@@ -8,19 +8,27 @@ import { prossDocDrive } from '../../config/config';
 const { salesRecordParentFolderId }  = prossDocDrive;
 
 export default new ValidatedMethod({
-    name: 'drive.createSalesRecordFolder',
-    validate: new SimpleSchema({
-        name: { type: String },
-        salesRecordId: { type: String },
-    }).validator(),
-    run({ name, salesRecordId }) {
-        const salesRecordName = `##### ${name}`;
-        const { id } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
-        SalesRecords.update(salesRecordId, { $set: { folderId: id }});
-        // copy template to new created folder
-        const { files } = listFiles.call({ query: `'${prossDocDrive.templateFolderId}' in parents` });
-        files.forEach((file)=> {
-            copyFiles.call({ fileId: file.id, parentId: id });
-        });
-    },
-})
+  name: 'drive.createSalesRecordFolder',
+  validate: new SimpleSchema({
+    name: { type: String },
+    salesRecordId: { type: String },
+  }).validator(),
+  run({ name, salesRecordId }) {
+    const salesRecordName = `##### ${name}`;
+    const taskName = `Tasks`;
+    const { id: folderId } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
+    const { id: taskFolderId } = createFolder.call({ name: taskName, parent: folderId });
+    SalesRecords.update(salesRecordId, {
+      $set: {
+        folderId,
+        taskFolderId,
+      },
+    });
+
+    // copy template to new created folder
+    const { files } = listFiles.call({ query: `'${prossDocDrive.templateFolderId}' in parents` });
+    files.forEach((file)=> {
+      copyFiles.call({ fileId: file.id, parentId: folderId });
+    });
+  },
+});
