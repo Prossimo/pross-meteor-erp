@@ -24,6 +24,7 @@ export default new ValidatedMethod({
     },
   }).validator(),
   run({ _id, attachments }) {
+    attachments.forEach(attachment => attachment.createdAt = new Date());
     return Tasks.update(_id, {
       $push: {
         attachments: {

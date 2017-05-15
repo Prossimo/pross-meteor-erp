@@ -78,7 +78,7 @@ Meteor.publishComposite('task.details', function({ _id }) {
       }, {
         fields: {
           isRemoved: 0,
-        }
+        },
       });
     },
     children: [

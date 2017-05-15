@@ -28,7 +28,7 @@ class UploadOverlay extends Component {
           let hasShowError = false;
           let willUploadFiles = _.toArray(files).filter(f =>!(!f.type && f.size % 4096 == 0));
           if (willUploadFiles.length === 0) {
-            return this.setState({ overlay: 'none' });
+            return this.setState({ overlay: 'none', loadedPercentage: 10 });
           }
 
           _.forEach(willUploadFiles, (file, index) => {
@@ -51,7 +51,7 @@ class UploadOverlay extends Component {
                 completedSize++;
                 completedFiles.push(JSON.parse(remoteFile));
                 if (completedSize === willUploadFiles.length) {
-                  this.setState({ overlay: 'none' });
+                  this.setState({ overlay: 'none', loadedPercentage: 10 });
                   Meteor.call('task.attachFiles', {
                     _id: this.props.taskId,
                     attachments: completedFiles.map(({ id, name, mimeType })=> ({ _id: id, name, mimeType })),
@@ -72,7 +72,7 @@ class UploadOverlay extends Component {
                 if (!hasShowError) {
                   hasShowError = true;
                   swal('Attachment', message, 'error');
-                  this.setState({ overlay: 'none' });
+                  this.setState({ overlay: 'none', loadedPercentage: 10 });
                 }
               },
             });
@@ -89,6 +89,7 @@ class UploadOverlay extends Component {
     taskElem.ondragenter = (event)=> {
       this.setState({
         overlay: '',
+        loadedPercentage: 10,
       });
     };
 

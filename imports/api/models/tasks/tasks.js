@@ -76,6 +76,9 @@ Tasks.schema = new SimpleSchema({
   'attachments.$.name': {
     type: String,
   },
+  'attachments.$.createdAt': {
+    type: Date,
+  },
 });
 
 Tasks.attachSchema(Tasks.schema);

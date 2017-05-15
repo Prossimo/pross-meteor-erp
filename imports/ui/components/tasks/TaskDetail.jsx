@@ -167,7 +167,11 @@ class TaskDetail extends Component {
               <TaskError errors={ this.state.errors }/>
             </div>
             <div className='col-md-12'>
-              <Attachments/>
+              {
+                (this.props.task) ? (
+                  <Attachments attachments={this.props.task.attachments || []}/>
+                ) : ''
+              }
             </div>
             <div className='col-md-12'>
               {
