@@ -59,12 +59,7 @@ if(Meteor.isServer) {
         })
 
         it('should update company correctly by method', () => {
-            let company = Factory.create('company')
-
-            const _id = company._id
-
-            const companyData = {
-                _id,
+            let data = {
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
                 type_id: Factory.create('companytype')._id,
@@ -82,30 +77,66 @@ if(Meteor.isServer) {
                 }]
             }
 
-            const results = updateCompany._execute({userId:adminId}, companyData)
+            const _id = insertCompany._execute({userId:adminId}, data)
+
+            data = {
+                _id,
+                name: faker.company.companyName(),
+                website: faker.internet.url(),
+                type_id: Factory.create('companytype')._id,
+                phone_numbers: [{
+                    number: faker.phone.phoneNumber(),
+                    type: faker.random.word(),
+                    is_default: true
+                }],
+                addresses: [{
+                    address: faker.address.streetAddress(),
+                    type: faker.random.word(),
+                    is_default: true,
+                    is_billing: true,
+                    is_mail: true
+                }]
+            }
+            const results = updateCompany._execute({userId:adminId}, data)
 
             assert.equal(results, 1)
 
-            company = Companies.findOne({_id})
-            assert.equal(company.name, companyData.name)
-            assert.equal(company.website, companyData.website)
-            assert.equal(company.type_id, companyData.type_id)
+            const company = Companies.findOne({_id})
+            assert.equal(company.name, data.name)
+            assert.equal(company.website, data.website)
+            assert.equal(company.type_id, data.type_id)
             assert.typeOf(company.phone_numbers, 'array')
             assert.equal(company.phone_numbers.length, 1)
-            assert.deepEqual(company.phone_numbers[0], companyData.phone_numbers[0])
+            assert.deepEqual(company.phone_numbers[0], data.phone_numbers[0])
             assert.typeOf(company.addresses, 'array')
             assert.equal(company.addresses.length, 1)
-            assert.deepEqual(company.addresses[0], companyData.addresses[0])
+            assert.deepEqual(company.addresses[0], data.addresses[0])
         })
 
         it('should remove company correctly by method', () => {
-            let company = Factory.create('company')
+            let data = {
+                name: faker.company.companyName(),
+                website: faker.internet.url(),
+                type_id: Factory.create('companytype')._id,
+                phone_numbers: [{
+                    number: faker.phone.phoneNumber(),
+                    type: faker.random.word(),
+                    is_default: true
+                }],
+                addresses: [{
+                    address: faker.address.streetAddress(),
+                    type: faker.random.word(),
+                    is_default: true,
+                    is_billing: true,
+                    is_mail: true
+                }]
+            }
 
-            const _id = company._id
+            const _id = insertCompany._execute({userId:adminId}, data)
 
             removeCompany._execute({userId:adminId}, {_id})
 
-            company = Companies.findOne({_id})
+            const company = Companies.findOne({_id})
             assert.equal(company, null)
         })
     })
