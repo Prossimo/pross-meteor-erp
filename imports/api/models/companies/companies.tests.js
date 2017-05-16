@@ -22,12 +22,12 @@ if(Meteor.isServer) {
             assert.typeOf(company, 'object')
             assert.typeOf(company.created_at, 'date')
 
-            const type_id = Factory.create('companytype')._id
+            const type_ids = [Factory.create('companytype')._id]
             console.log(type_id)
             const companyData = {
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
-                type_id,
+                type_ids,
                 phone_numbers: [{
                     number: faker.phone.phoneNumber(),
                     type:faker.random.word(),
@@ -49,7 +49,7 @@ if(Meteor.isServer) {
             company = Companies.findOne({_id:companyId})
             assert.equal(company.name, companyData.name)
             assert.equal(company.website, companyData.website)
-            assert.equal(company.type_id, companyData.type_id)
+            assert.deepEqual(company.type_ids, companyData.type_ids)
             assert.typeOf(company.phone_numbers, 'array')
             assert.equal(company.phone_numbers.length, 1)
             assert.deepEqual(company.phone_numbers[0], companyData.phone_numbers[0])
@@ -62,7 +62,7 @@ if(Meteor.isServer) {
             let data = {
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
-                type_id: Factory.create('companytype')._id,
+                type_ids: [Factory.create('companytype')._id],
                 phone_numbers: [{
                     number: faker.phone.phoneNumber(),
                     type: faker.random.word(),
@@ -83,7 +83,7 @@ if(Meteor.isServer) {
                 _id,
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
-                type_id: Factory.create('companytype')._id,
+                type_ids: [Factory.create('companytype')._id],
                 phone_numbers: [{
                     number: faker.phone.phoneNumber(),
                     type: faker.random.word(),
@@ -104,7 +104,7 @@ if(Meteor.isServer) {
             const company = Companies.findOne({_id})
             assert.equal(company.name, data.name)
             assert.equal(company.website, data.website)
-            assert.equal(company.type_id, data.type_id)
+            assert.deepEqual(company.type_ids, data.type_ids)
             assert.typeOf(company.phone_numbers, 'array')
             assert.equal(company.phone_numbers.length, 1)
             assert.deepEqual(company.phone_numbers[0], data.phone_numbers[0])
@@ -117,7 +117,7 @@ if(Meteor.isServer) {
             let data = {
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
-                type_id: Factory.create('companytype')._id,
+                type_ids: [Factory.create('companytype')._id],
                 phone_numbers: [{
                     number: faker.phone.phoneNumber(),
                     type: faker.random.word(),

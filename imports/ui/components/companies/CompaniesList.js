@@ -3,7 +3,6 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
 import {Companies} from '/imports/api/models'
-const {Address, PhoneNumber} = Companies
 const PAGESIZE = 100
 
 export default class CompaniesList extends TrackerReact(React.Component) {
@@ -105,7 +104,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
                         <th width="5%">#</th>
                         <th width="20%">Name</th>
                         <th width="15%">Website</th>
-                        <th width="10%">Type</th>
+                        <th width="10%">Types</th>
                         <th width="20%">Phone Numbers</th>
                         <th width="20%">Addresses</th>
                         <th width="10%">People</th>
@@ -139,7 +138,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{company.name}</td>
                 <td width="15%">{company.website}</td>
-                <td width="10%">{company.type}</td>
+                <td width="10%">{company.types().map(t=>t.name).join(',')}</td>
                 <td width="20%">{company.phone_numbers.map((phone)=>`${phone.number}(${phone.type})`).join(', ')}</td>
                 <td width="20%">{company.addresses.map((address)=>`${address.address}(${address.type})`).join(', ')}</td>
                 <td width="10%">{company.contacts().length}</td>
