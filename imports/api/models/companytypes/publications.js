@@ -8,6 +8,5 @@ Meteor.publish(GET_COMPANYTYPES, function() {
         return
     }
 
-    console.log('GET_COMPANYTYPES publication')
-    return CompanyTypes.find({})
+    return CompanyTypes.find({$or:[{user_id:null},{user_id:this.userId}]})
 })

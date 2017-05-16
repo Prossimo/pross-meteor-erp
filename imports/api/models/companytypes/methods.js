@@ -12,12 +12,14 @@ export const insertCompanyType = new ValidatedMethod({
     run({name}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
+        const type = CompanyTypes.findOne({name})
+        if(type) throw new Meteor.Error('Duplicated type name')
+
         const data = {
             name
         }
 
         if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) data.user_id = this.userId
-
         return CompanyTypes.insert(data)
     }
 })
@@ -33,6 +35,9 @@ export const updateCompanyType = new ValidatedMethod({
 
         if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST]) && (!companyType.user_id || companyType.user_id!==this.userId))
             throw new Meteor.Error('Permission denied')
+
+        const type = CompanyTypes.findOne({name})
+        if(type && type._id !== companyType._id) throw new Meteor.Error('Duplicated type name')
 
         const data = {
             name: _.isUndefined(name) ? null : name
