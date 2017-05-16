@@ -1,4 +1,4 @@
-var bodyParser = Meteor.npmRequire('body-parser');
+import bodyParser from 'body-parser'
 
 Picker.middleware(bodyParser.json());
 Picker.middleware(bodyParser.urlencoded({extended: false}));
