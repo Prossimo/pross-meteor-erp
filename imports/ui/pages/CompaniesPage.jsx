@@ -44,7 +44,7 @@ export default class CompaniesPage extends React.Component {
         const title = selectedCompany&&!creating ? 'Edit Company' : 'Create Company'
 
         return (
-            <Modal show={showCompanyModal} onHide={() => {
+            <Modal show={showCompanyModal} bsSize="large" onHide={() => {
                 this.setState({showCompanyModal: false})
             }}>
                 <Modal.Header closeButton><Modal.Title><i className="fa fa-building-o"/>&nbsp;{title}</Modal.Title></Modal.Header>

@@ -7,14 +7,14 @@ import Companies from './companies'
 
 export const insertCompany = new ValidatedMethod({
     name: 'companies.insert',
-    validate: Companies.schema.pick('name','website','type_id','phone_numbers','addresses').validator({clean:true}),
-    run({name, website, type_id, phone_numbers, addresses}) {
+    validate: Companies.schema.pick('name','website','type_ids','phone_numbers','addresses').validator({clean:true}),
+    run({name, website, type_ids, phone_numbers, addresses}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const data = {
             name,
             website,
-            type_id,
+            type_ids,
             phone_numbers,
             addresses,
             user_id: this.userId
@@ -26,8 +26,8 @@ export const insertCompany = new ValidatedMethod({
 
 export const updateCompany = new ValidatedMethod({
     name: 'companies.update',
-    validate: Companies.schema.pick('_id','name','website','type_id','phone_numbers','addresses').validator({clean:true}),
-    run({_id, name, website, type_id, phone_numbers, addresses}) {
+    validate: Companies.schema.pick('_id','name','website','type_ids','phone_numbers','addresses').validator({clean:true}),
+    run({_id, name, website, type_ids, phone_numbers, addresses}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const company = Companies.findOne({_id})
@@ -38,7 +38,7 @@ export const updateCompany = new ValidatedMethod({
         const data = {
             name: _.isUndefined(name) ? null : name,
             website: _.isUndefined(website) ? null : website,
-            type_id: _.isUndefined(type_id) ? null : type_id,
+            type_ids: _.isUndefined(type_ids) ? [] : type_ids,
             phone_numbers: _.isUndefined(phone_numbers) ? [] : phone_numbers,
             addresses: _.isUndefined(addresses) ? [] : addresses,
             user_id: this.userId

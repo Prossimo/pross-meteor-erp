@@ -55,7 +55,7 @@ export default class CompanyOverview extends React.Component {
                     <div className="title">{company.name}</div>
                     <div className="info">
                         <div><label>Website:</label><span>{company.website}</span></div>
-                        <div><label>Type:</label><span>{company.type}</span></div>
+                        <div><label>Types:</label><span>{company.types().map(t=>t.name).join(',')}</span></div>
                         <div><label>Phone Number:</label><span>{company.phone_numbers.map((phone)=>`${phone.number}(${phone.type})`).join(', ')}</span></div>
                         <div><label>Addresses:</label><span>{company.addresses.map((address)=>`${address.address}(${address.type})`).join(', ')}</span></div>
                         <div><label>People:</label><span>{company.contacts().map((contact)=>`${contact.name}`).join(', ')}</span></div>

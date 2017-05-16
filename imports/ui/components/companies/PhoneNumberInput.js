@@ -25,10 +25,18 @@ export default class PhoneNumberInput extends React.Component {
         let {phoneNumbers} = this.state
         const phoneNumber = {
             number: '',
-            type: Companies.PHONE_TYPES[0],
+            type: '',
             is_default: phoneNumbers.length==0
         }
         phoneNumbers.push(phoneNumber)
+        this.setState({phoneNumbers})
+
+        if(this.props.onChange) this.props.onChange(phoneNumbers)
+    }
+
+    onClickRemovePhoneNumber = (index) => {
+        const {phoneNumbers} = this.state
+        phoneNumbers.splice(index, 1)
         this.setState({phoneNumbers})
 
         if(this.props.onChange) this.props.onChange(phoneNumbers)
@@ -68,9 +76,10 @@ export default class PhoneNumberInput extends React.Component {
                 <table className='table table-condensed'>
                     <thead>
                     <tr>
-                        <th>Number</th>
-                        <th>Is Default</th>
-                        <th>Type</th>
+                        <th width="50%">Number</th>
+                        <th width="35%">Type</th>
+                        <th width="10%">Default</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -78,13 +87,9 @@ export default class PhoneNumberInput extends React.Component {
                         phoneNumbers.map((phoneNumber, index)=>(
                             <tr key={index}>
                                 <td><FormControl type="text" value={phoneNumber.number} onChange={(e)=>this.changeState(phoneNumber, 'number', e.target.value)}/></td>
+                                <td><FormControl type="text" value={phoneNumber.type} onChange={(e)=>this.changeState(phoneNumber, 'type', e.target.value)}/></td>
                                 <td><input type="checkbox" checked={phoneNumber.is_default} onChange={(e)=>this.changeState(phoneNumber, 'is_default', e.target.checked)}/> </td>
-                                <td><Select
-                                    options={phoneTypeOptions}
-                                    value={{value:phoneNumber.type,label:phoneNumber.type}}
-                                    onChange={(item)=>this.changeState(phoneNumber, 'type', item.value)}
-                                    clearable={false}
-                                /></td>
+                                <td><Button bsSize="xsmall" onClick={()=>this.onClickRemovePhoneNumber(index)}><i className="fa fa-trash"/></Button></td>
                             </tr>
                         ))
                     }

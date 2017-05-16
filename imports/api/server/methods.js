@@ -28,6 +28,7 @@ import google from 'googleapis';
 import config from '../config/config';
 import '../models/nylasaccounts/methods';
 import '../models/companies/methods';
+import '../models/companytypes/methods';
 import '../models/contacts/methods';
 import '../models/salesRecords/methods';
 import '../models/mailtemplates/methods';

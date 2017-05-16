@@ -53,7 +53,8 @@ Companies.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
     website: {type: String, optional: true},
-    type_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    type_ids: {type: Array, optional: true},
+    'type_ids.$': {type: String},
     phone_numbers: {type: Array, optional: true},
     'phone_numbers.$': {type: Companies.PhoneNumber},
     addresses: {type: Array, optional: true},
@@ -68,7 +69,7 @@ Companies.attachSchema(Companies.schema);
 Companies.publicFields = {
     name: 1,
     website: 1,
-    type_id: 1,
+    type_ids: 1,
     phone_numbers: 1,
     addresses: 1,
     user_id: 1,
@@ -79,7 +80,7 @@ Companies.publicFields = {
 Factory.define('company', Companies, {
     name: faker.company.companyName(),
     website: faker.internet.url(),
-    type_id: Factory.get('companytype'),
+    type_ids: [Factory.get('companytype')],
     phone_numbers: [{
         number: faker.phone.phoneNumber(),
         type: faker.random.word(),
@@ -97,6 +98,10 @@ Factory.define('company', Companies, {
 Companies.helpers({
     contacts: function() {
         return Contacts.find({company_id:this._id}).fetch()
+    },
+    types: function() {
+        if(!this.type_ids || this.type_ids.length==0) return []
+        return CompanyTypes.find({_id:{$in:this.type_ids}}).fetch()
     }
 });
 

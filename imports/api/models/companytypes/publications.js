@@ -8,5 +8,6 @@ Meteor.publish(GET_COMPANYTYPES, function() {
         return
     }
 
+    console.log('GET_COMPANYTYPES publication')
     return CompanyTypes.find({})
 })
