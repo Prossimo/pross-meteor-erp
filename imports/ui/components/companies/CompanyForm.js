@@ -11,7 +11,7 @@ import 'loaders.css/loaders.min.css';
 import AddressInput from './AddressInput'
 import PhoneNumberInput from './PhoneNumberInput'
 
-const companyTypeOptions = Companies.TYPES.map((t) => ({value: t, label: t}))
+const companyTypeOptions = []//Companies.TYPES.map((t) => ({value: t, label: t}))
 
 export default class CompanyForm extends React.Component {
     static propTypes = {

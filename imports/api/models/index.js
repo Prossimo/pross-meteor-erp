@@ -1,6 +1,7 @@
 import NylasAccounts from './nylasaccounts/nylas-accounts';
 import Contacts from './contacts/contacts';
 import Companies from './companies/companies';
+import CompanyTypes from './companytypes/companytypes';
 import Threads from './threads/threads';
 import Messages from './messages/messages';
 import SlackMails from './slackmails/slackmails';
@@ -20,6 +21,7 @@ export {
     NylasAccounts,
     Contacts,
     Companies,
+    CompanyTypes,
     Threads,
     Messages,
     SlackMails,

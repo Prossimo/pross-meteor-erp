@@ -5,7 +5,7 @@ import Select from 'react-select'
 import {Companies} from '/imports/api/models'
 
 
-const phoneTypeOptions = Companies.PHONE_TYPES.map((t) => ({value: t, label: t}))
+const phoneTypeOptions = []
 
 export default class PhoneNumberInput extends React.Component {
     static propTypes = {
