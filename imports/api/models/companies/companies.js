@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import {Factory} from 'meteor/dburles:factory';
 import {_} from 'meteor/underscore';
 import faker from 'faker';
+import CompanyTypes from '../companytypes/companytypes'
 import Contacts from '../contacts/contacts'
 
 class CompaniesCollection extends Mongo.Collection {
@@ -21,9 +22,6 @@ class CompaniesCollection extends Mongo.Collection {
 
 const Companies = new CompaniesCollection("Companies");
 
-Companies.TYPES = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultat', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
-Companies.PHONE_TYPES = ['Work', 'Home', 'Mobile', 'Other']
-Companies.ADDRESS_TYPES = ['Billing', 'Mail', 'Home', 'Other']
 // Deny all client-side updates since we will be using methods to manage this collection
 Companies.deny({
     insert() {
@@ -39,15 +37,15 @@ Companies.deny({
 
 Companies.Address = new SimpleSchema({
     address: {type: String},
-    type: {type: String},
+    type: {type: String, optional: true},
     is_default: {type: Boolean},
-    //is_billing: {type: Boolean},
-    //is_mail: {type: Boolean}
+    is_billing: {type: Boolean},
+    is_mail: {type: Boolean}
 })
 
 Companies.PhoneNumber = new SimpleSchema({
     number: {type: String},
-    type: {type: String},
+    type: {type: String, optional: true},
     is_default: {type: Boolean}
 })
 
@@ -55,7 +53,7 @@ Companies.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
     website: {type: String, optional: true},
-    type: {type: String, optional: true},
+    type_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     phone_numbers: {type: Array, optional: true},
     'phone_numbers.$': {type: Companies.PhoneNumber},
     addresses: {type: Array, optional: true},
@@ -68,10 +66,9 @@ Companies.schema = new SimpleSchema({
 Companies.attachSchema(Companies.schema);
 
 Companies.publicFields = {
-    id: 1,
     name: 1,
     website: 1,
-    type: 1,
+    type_id: 1,
     phone_numbers: 1,
     addresses: 1,
     user_id: 1,
@@ -82,16 +79,18 @@ Companies.publicFields = {
 Factory.define('company', Companies, {
     name: faker.company.companyName(),
     website: faker.internet.url(),
-    type: _.sample(Companies.TYPES),
+    type_id: Factory.get('companytype'),
     phone_numbers: [{
         number: faker.phone.phoneNumber(),
-        type: _.sample(Companies.PHONE_TYPES),
+        type: faker.random.word(),
         is_default: true
     }],
     addresses: [{
         address: faker.address.streetAddress(),
-        type: _.sample(Companies.ADDRESS_TYPES),
-        is_default: true
+        type: faker.random.word(),
+        is_default: true,
+        is_billing: true,
+        is_mail: true
     }]
 })
 

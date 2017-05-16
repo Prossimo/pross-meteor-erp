@@ -37,7 +37,9 @@ import {
   SUPER_ADMIN_ROLE,
   ADMIN_ROLE_LIST
 } from '../constants/roles';
+
 import '/imports/api/models/companies/publications'
+import '/imports/api/models/companytypes/publications'
 
 Meteor.startup(() => {
     //
