@@ -4,7 +4,7 @@ import Select from 'react-select'
 
 import {Companies} from '/imports/api/models'
 
-const addressTypeOptions = Companies.ADDRESS_TYPES.map((t) => ({value: t, label: t}))
+const addressTypeOptions = []
 
 export default class AddressInput extends React.Component {
     static propTypes = {
