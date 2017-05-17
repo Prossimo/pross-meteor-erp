@@ -17,6 +17,8 @@ class TaskList extends Component {
     const task = JSON.parse(event.dataTransfer.getData('task'));
     task.dueDate = new Date(task.dueDate);
     task.status = this.props.listName;
+    delete task.attachments;
+    delete task.comments;
     Meteor.call('task.update', task);
   }
 
