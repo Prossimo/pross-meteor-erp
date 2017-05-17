@@ -5,6 +5,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import App from '../../api/composer/App';
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
 import SingleProjectPage from '/imports/ui/components/project/SingleProject';
+import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage';
 
 import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, LeadsPage, OrdersPage, TicketsPage, ContactsPage, CompaniesPage, FinancialPage, OpportunitiesPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage} from '/imports/ui/pages'
 
@@ -195,6 +196,16 @@ FlowRouter.route('/financial', {
         })
     }
 });
+
+FlowRouter.route('/drive_settings', {
+    name: 'GoogleDriveSettings',
+    action() {
+        checkAuth();
+        mount(App, {
+            content: <DriveSettingsPage/>
+        });
+    }
+})
 
 FlowRouter.notFound = {
     action() {
