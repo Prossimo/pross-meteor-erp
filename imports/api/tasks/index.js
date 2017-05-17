@@ -7,6 +7,7 @@ import updateComment from './methods/updateComment';
 import inviteUsers from './methods/inviteUsers';
 import removeComment from './methods/removeComment';
 import attachFiles from './methods/attachFiles';
+import removeAttachment from './methods/removeAttachment';
 import './publications';
 
 export {
@@ -18,6 +19,7 @@ export {
   inviteUsers,
   removeComment,
   attachFiles,
+  removeAttachment,
 };
 
 
