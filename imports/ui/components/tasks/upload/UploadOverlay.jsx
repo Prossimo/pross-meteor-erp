@@ -19,9 +19,32 @@ class UploadOverlay extends Component {
       if (error) {
         return swal('Google Drive', 'could not connect to google drive to attach files to current task', 'error');
       } else {
+        taskElem.onpaste = (event)=> {
+          let files = [];
+          const items = event.clipboardData.items;
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            if (item.kind === 'file') {
+              files.push(item.getAsFile());
+            }
+          }
+
+          const dropEvent = new $.Event({ type: 'drop', files });
+          $(taskElem).trigger('dragenter');
+          $(taskElem).trigger(dropEvent);
+        };
+
         taskElem.ondrop = (event)=> {
-          event.preventDefault();
-          const files = event.dataTransfer.files;
+          let files = null;
+          if (event.dataTransfer) {
+            // original upload file
+            event.preventDefault();
+            files = event.dataTransfer.files;
+          } else {
+            // trigger upload file from other component
+            files = event.originalEvent.files;
+          }
+
           const percentages = [];
           const completedFiles = [];
           let completedSize = 0;
@@ -101,7 +124,7 @@ class UploadOverlay extends Component {
         className='attachment-overlay'
         style={{ display: this.state.overlay }}
         onDrop={event => event.preventDefault()}>
-        <p>Drop Files to Upload.</p>
+        <p>Upload Files</p>
         <ProgressBar bsStyle='success' now={this.state.loadedPercentage}/>
       </div>
     );

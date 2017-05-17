@@ -147,12 +147,16 @@ class TaskDetail extends Component {
                 </div>
               </div>
               <div className='form-group'>
-                <button
-                  className='btn btn-default full-width'
-                  onClick={event => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
-                  <i className='fa fa-paperclip'/>
-                  <small> Attachment</small>
-                </button>
+                {
+                  (!this.props.isNew) ? (
+                    <button
+                      className='btn btn-default full-width'
+                      onClick={event => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
+                      <i className='fa fa-paperclip'/>
+                      <small> Attachment</small>
+                    </button>
+                  ) : ''
+                }
                 {
                   (this.state.isAttach) ? (
                     <UploadFrom close={event => this.changeState(this.state, 'isAttach', false)}/>
@@ -168,21 +172,21 @@ class TaskDetail extends Component {
             </div>
             <div className='col-md-12'>
               {
-                (this.props.task) ? (
+                (!this.props.isNew) ? (
                   <Attachments attachments={this.props.task.attachments || []} taskId={this.props.task._id}/>
                 ) : ''
               }
             </div>
             <div className='col-md-12'>
               {
-                (this.props.task) ? (
+                (!this.props.isNew) ? (
                   <TaskComment task={this.props.task}/>
                 ) : ''
               }
             </div>
           </div>
               {
-                (this.props.task) ? (
+                (!this.props.isNew) ? (
                   <UploadOverlay
                     taskFolderId={this.props.taskFolderId}
                     taskId={this.props.task._id}/>
