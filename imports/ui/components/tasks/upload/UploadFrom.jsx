@@ -3,6 +3,21 @@ import React, { Component, PropTypes } from 'react';
 class UploadFrom extends Component {
   constructor() {
     super();
+    this.pickLocalFile = this.pickLocalFile.bind(this);
+    this.uploadFromLocal = this.uploadFromLocal.bind(this);
+  }
+
+  uploadFromLocal(event) {
+    const modalElem = $('.task-details .modal-content');
+    const dropEvent = new $.Event({ type: 'drop', files: event.target.files });
+    this.props.close();
+    modalElem.trigger('dragenter');
+    modalElem.trigger(dropEvent);
+  }
+
+  pickLocalFile() {
+    event.preventDefault();
+    this.refs.file.click();
   }
 
   render() {
@@ -16,19 +31,22 @@ class UploadFrom extends Component {
         </p>
         <div className='form'>
           <div className='form-group'>
-            <button className='upload-option'>
+            <input type='file' className='hide' ref='file' onChange={this.uploadFromLocal}/>
+            <button className='upload-option' onClick={this.pickLocalFile}>
               Computer
             </button>
           </div>
-          <div className='form-group link'>
-            Attach a link
-            <input
-              className='form-control input-sm'
-              autoFocus={true}
-              placeholder='paste any link here ...'
-            />
-          </div>
+          {/*
+            <div className='form-group link'>
+              Attach a link
+              <input
+                className='form-control input-sm'
+                autoFocus={true}
+                placeholder='paste any link here ...'
+              />
+            </div>
           <button className='btn btn-default btn-sm attach'>Attach</button>
+          */}
         </div>
       </div>
     );
