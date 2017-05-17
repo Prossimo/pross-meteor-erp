@@ -17,7 +17,7 @@ class UploadOverlay extends Component {
     const taskElem = $('.task-details .modal-content')[0];
     Meteor.call('drive.getAccessToken', {}, (error, token)=> {
       if (error) {
-        return warning('could not connect to google drive to attach files to current task');
+        return swal('Google Drive', 'could not connect to google drive to attach files to current task', 'error');
       } else {
         taskElem.ondrop = (event)=> {
           event.preventDefault();

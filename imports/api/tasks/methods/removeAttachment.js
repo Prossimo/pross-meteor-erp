@@ -9,7 +9,6 @@ export default new ValidatedMethod({
     fileId: String,
   }).validator(),
   run({ _id, fileId }) {
-    console.log('LOL');
     Tasks.update(_id, {
       $pull: {
         attachments: {
@@ -17,6 +16,8 @@ export default new ValidatedMethod({
         },
       },
     });
-    prossDocDrive.removeFiles({ fileId: fileId });
+    Meteor.defer(()=> {
+      prossDocDrive.removeFiles.call({ fileId: fileId });
+    });
   },
 });
