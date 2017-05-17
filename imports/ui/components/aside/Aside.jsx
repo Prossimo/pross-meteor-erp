@@ -142,6 +142,10 @@ class Aside extends React.Component{
                     {
                         label: "Inbox",
                         route: "InboxSettings"
+                    },
+                    {
+                        label: "Google Drive",
+                        route: "GoogleDriveSettings"
                     }
                 ]
             }
