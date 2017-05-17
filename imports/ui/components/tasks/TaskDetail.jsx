@@ -169,7 +169,7 @@ class TaskDetail extends Component {
             <div className='col-md-12'>
               {
                 (this.props.task) ? (
-                  <Attachments attachments={this.props.task.attachments || []}/>
+                  <Attachments attachments={this.props.task.attachments || []} taskId={this.props.task._id}/>
                 ) : ''
               }
             </div>

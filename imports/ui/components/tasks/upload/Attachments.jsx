@@ -1,9 +1,51 @@
 import React, { Component, PropTypes } from 'react';
+import swal from 'sweetalert2';
 import moment from 'moment';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 class Attachments extends Component {
   constructor() {
     super();
+    this.downloadFile = this.downloadFile.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
+  }
+
+  downloadFile(fileId, event) {
+    event.preventDefault();
+    Meteor.call('drive.getFiles', { fileId }, (error, result)=> {
+      if (error) {
+        const msg = error.reason ? error.reason : error.message;
+        swal('Attachments', msg, 'error');
+      } else {
+        window.open(result.webContentLink, '_blank');
+      };
+    });
+  }
+
+  deleteFile(fileId, event) {
+    event.preventDefault();
+    swal({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!',
+    }).then(function () {
+      Meteor.call('task.removeAttachment', { fileId, _id: this.props.taskId }, (error, result)=> {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          swal('Attachments', msg, 'error');
+        } else {
+          swal(
+            'Deleted!',
+            'Your file has been deleted.',
+            'success'
+          );
+        };
+      });
+    });
   }
 
   render() {
@@ -14,7 +56,7 @@ class Attachments extends Component {
         </p>
         <div className='attachments'>
           {
-            this.props.attachments.map(({ mimeType, name, _id })=> {
+            this.props.attachments.map(({ mimeType, name, _id, createdAt })=> {
               return (
                 <div className='attachment' key={_id}>
                   <div className='attachment-icon'>
@@ -25,14 +67,14 @@ class Attachments extends Component {
                     { name }
                     </div>
                     <div className='attachment-time'>
-                      Added At 14/01/2016
+                      Added At { moment(createdAt).format('MMM DD YYYY HH:mm:ss') }
                     </div>
                     <div className='attachment-controls'>
                       <button className='attachment-control'>
-                        <a href='#'><i className='fa fa-download'/> Download</a>
+                        <a href='#' onClick={event => this.downloadFile(_id, event)}><i className='fa fa-download'/> Download</a>
                       </button>
                       <button className='attachment-control'>
-                        <a href='#'><i className='fa fa-times'/> Delete</a>
+                        <a href='#' onClick={event => this.deleteFile(_id, event)}><i className='fa fa-times'/> Delete</a>
                       </button>
                     </div>
                   </div>
@@ -48,6 +90,7 @@ class Attachments extends Component {
 
 Attachments.propTypes = {
   attachments: PropTypes.array,
+  taskId: PropTypes.string.isRequired,
 };
 
 export default Attachments;
