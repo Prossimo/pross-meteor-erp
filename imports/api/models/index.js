@@ -16,6 +16,8 @@ import Quotes from './quotes/quotes';
 import Events from './events/events';
 import SlackMessages from './slackMessages/slackMessages';
 import SlackUsers from './slackUsers/slackUsers';
+import People from './people/people';
+import PeopleDesignations from './people/designations';
 
 export {
     NylasAccounts,
@@ -36,4 +38,6 @@ export {
     Tasks,
     Users,
     Projects,
+    People,
+    PeopleDesignations
 };

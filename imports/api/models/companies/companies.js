@@ -52,14 +52,14 @@ Companies.PhoneNumber = new SimpleSchema({
 Companies.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
-    website: {type: String, optional: true},
+    website: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
     type_ids: {type: Array, optional: true},
     'type_ids.$': {type: String},
     phone_numbers: {type: Array, optional: true},
     'phone_numbers.$': {type: Companies.PhoneNumber},
     addresses: {type: Array, optional: true},
     'addresses.$': {type: Companies.Address},
-    user_id: {type: String, optional: true},
+    user_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
