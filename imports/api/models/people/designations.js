@@ -4,7 +4,7 @@ import {Factory} from 'meteor/dburles:factory'
 import {_} from 'meteor/underscore'
 import faker from 'faker'
 
-class CompanyTypesCollection extends Mongo.Collection {
+class DesignationsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc;
         ourDoc.created_at = ourDoc.created_at || new Date();
@@ -18,10 +18,10 @@ class CompanyTypesCollection extends Mongo.Collection {
     }
 }
 
-const CompanyTypes = new CompanyTypesCollection("CompanyTypes");
+const Designations = new DesignationsCollection("PeopleDesignations");
 
 // Deny all client-side updates since we will be using methods to manage this collection
-CompanyTypes.deny({
+Designations.deny({
     insert() {
         return true;
     },
@@ -33,28 +33,32 @@ CompanyTypes.deny({
     }
 });
 
-CompanyTypes.schema = new SimpleSchema({
+Designations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
-    user_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    role_addable: {type: String, optional: true},
+    roles: {type: Array},
+    'roles.$': {type: String},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
 
-CompanyTypes.attachSchema(CompanyTypes.schema);
+Designations.attachSchema(Designations.schema);
 
-CompanyTypes.publicFields = {
+Designations.publicFields = {
     name: 1,
-    user_id: 1,
+    role_addable: 1,
     created_at: 1,
     modified_at: 1
 };
 
-Factory.define('companytype', CompanyTypes, {
-    name: faker.name.jobType()
+Factory.define('designation', Designations, {
+    name: faker.name.jobType(),
+    role_addable: _.sample([true,false]),
+    roles: []
 })
 
-CompanyTypes.helpers({
+Designations.helpers({
 });
 
-export default CompanyTypes;
+export default Designations;

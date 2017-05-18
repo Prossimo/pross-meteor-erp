@@ -2,7 +2,6 @@ import {_} from 'meteor/underscore'
 import {Meteor} from 'meteor/meteor'
 import {chai, assert} from 'meteor/practicalmeteor:chai'
 import {resetDatabase} from 'meteor/xolvio:cleaner'
-import faker from 'faker'
 import {Factory} from 'meteor/dburles:factory'
 import { createAdminUser } from '/imports/api/models/users/methods'
 import { insertCompanyType, updateCompanyType, removeCompanyType } from './methods'
@@ -22,7 +21,7 @@ if(Meteor.isServer) {
             assert.typeOf(companyType.created_at, 'date')
 
             const data = {
-                name: faker.name.jobType()
+                name: 'Freight Forwarder'
             }
 
             const companyTypeId = insertCompanyType._execute({userId:adminId}, data)
@@ -40,7 +39,7 @@ if(Meteor.isServer) {
 
             const data = {
                 _id,
-                name: faker.name.jobType()
+                name: 'Freight Forwarder'
             }
 
             const results = updateCompanyType._execute({userId:adminId}, data)

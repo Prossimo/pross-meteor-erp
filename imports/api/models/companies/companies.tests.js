@@ -23,7 +23,6 @@ if(Meteor.isServer) {
             assert.typeOf(company.created_at, 'date')
 
             const type_ids = [Factory.create('companytype')._id]
-            console.log(type_id)
             const companyData = {
                 name: faker.company.companyName(),
                 website: faker.internet.url(),
