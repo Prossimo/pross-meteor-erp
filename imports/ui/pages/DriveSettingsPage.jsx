@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
+import { createContainer } from 'meteor/react-meteor-data';
 import styled from 'styled-components';
 import picker from 'meteor/picker';
+import swal from 'sweetalert2';
+import Settings from '/imports/api/models/settings/settings';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 class DriveSettingsPage extends Component {
   constructor() {
@@ -9,9 +13,19 @@ class DriveSettingsPage extends Component {
     this.updateFolder = this.updateFolder.bind(this);
   }
 
-  updateFolder(key, name, id) {
-    this.picker.pick(result => {
-      console.log(result);
+  componentWillUnMount() {
+    this.props.subs.forEache(sub => sub.stop());
+  }
+
+  updateFolder(key) {
+    this.picker.pick(({ docs }) => {
+      const value = docs[0].id;
+      Meteor.call('settings.update', { key, value }, (error, result)=> {
+        if (error) {
+          const msg = error.reason ? error.reason : error.message;
+          swal('Update Settings', msg, 'error');
+        };
+      });
     });
   }
 
@@ -21,36 +35,16 @@ class DriveSettingsPage extends Component {
       padding: 20px 30px;
       min-height: 300px;
     `;
-    const settings = [
-      {
-        key: 'Project Root',
-        folder: {
-          name: '00Projects',
-          id: '0B2L677Tiv56RbmRDUDdTQnZTbHM',
-        },
-      },
-      {
-        key: 'Deal Root',
-        folder: {
-          name: '01Internals',
-          id: '1B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
-        },
-      },
-      {
-        key: 'Project Template Folder',
-        folder: {
-          name: '000ProjectTemplate',
-          id: '2B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
-        },
-      },
-      {
-        key: 'Deal Template Folder',
-        folder: {
-          name: '000DealTemplate',
-          id: '3B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
-        },
-      },
-    ];
+    const folderSettings = this
+      .props
+      .settings
+      .filter(({ key })=> [
+        'PROJECT_ROOT_FOLDER',
+        'DEAL_ROOT_FOLDER',
+        'PROJECT_TEMPLATE_FOLDER',
+        'DEAL_TEMPLATE_FOLDER'
+      ].includes(key));
+
     return (
       <ContentWrapper>
         <div className='panel panel-default'>
@@ -60,26 +54,24 @@ class DriveSettingsPage extends Component {
               <thead>
                 <tr>
                   <th>Key</th>
-                  <th>Folder Name</th>
                   <th>Folder Id</th>
                   <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {
-                  settings.map(({ key, folder: { name, id } })=> {
+                  folderSettings.map(({ key, value })=> {
                     return (
                       <tr key={key}>
                         <td>{ key }</td>
-                        <td>{ name }</td>
-                        <td>{ id }</td>
+                        <td>{ value }</td>
                         <td>
                           <div className='btn-group'>
-                            <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, name, id)}>
+                            <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, value)}>
                               <i className='fa fa-folder-o'/> Update
                             </button>
-                            <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, name, id)}>
-                              <i className='fa fa-refresh'/> Reset
+                            <button className='btn btn-default btn-sm'>
+                              <i className='fa fa-external-link'/> Open
                             </button>
                           </div>
                         </td>
@@ -96,4 +88,11 @@ class DriveSettingsPage extends Component {
   }
 }
 
-export default DriveSettingsPage;
+export default createContainer(()=> {
+  const subs = [];
+  subs.push(Meteor.subscribe('settings.all'));
+  return {
+    subs,
+    settings: Settings.find().fetch(),
+  };
+}, DriveSettingsPage);

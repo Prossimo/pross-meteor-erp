@@ -8,3 +8,4 @@ import '../../api/server/methods';
 import './router';
 import '../../api/tasks/';
 import '../../api/drive/';
+import '../../api/settings/';
