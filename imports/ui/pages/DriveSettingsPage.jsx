@@ -1,9 +1,18 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
+import picker from 'meteor/picker';
 
 class DriveSettingsPage extends Component {
   constructor() {
     super();
+    picker.then(p => this.picker = p);
+    this.updateFolder = this.updateFolder.bind(this);
+  }
+
+  updateFolder(key, name, id) {
+    this.picker.pick(result => {
+      console.log(result);
+    });
   }
 
   render() {
@@ -24,21 +33,21 @@ class DriveSettingsPage extends Component {
         key: 'Deal Root',
         folder: {
           name: '01Internals',
-          id: '0B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
+          id: '1B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
         },
       },
       {
         key: 'Project Template Folder',
         folder: {
           name: '000ProjectTemplate',
-          id: '0B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
+          id: '2B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
         },
       },
       {
         key: 'Deal Template Folder',
         folder: {
           name: '000DealTemplate',
-          id: '0B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
+          id: '3B9TUb-58jBJ-WFp3ZmhsVEZqVmc',
         },
       },
     ];
@@ -61,13 +70,17 @@ class DriveSettingsPage extends Component {
                   settings.map(({ key, folder: { name, id } })=> {
                     return (
                       <tr key={key}>
-                        <td>Project Root</td>
-                        <td>00Projects</td>
-                        <td>0B2L677Tiv56RbmRDUDdTQnZTbHM</td>
+                        <td>{ key }</td>
+                        <td>{ name }</td>
+                        <td>{ id }</td>
                         <td>
                           <div className='btn-group'>
-                            <button className='btn btn-default btn-sm'><i className='fa fa-folder-o'/> Update</button>
-                            <button className='btn btn-default btn-sm'><i className='fa fa-refresh'/> Reset</button>
+                            <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, name, id)}>
+                              <i className='fa fa-folder-o'/> Update
+                            </button>
+                            <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, name, id)}>
+                              <i className='fa fa-refresh'/> Reset
+                            </button>
                           </div>
                         </td>
                       </tr>
