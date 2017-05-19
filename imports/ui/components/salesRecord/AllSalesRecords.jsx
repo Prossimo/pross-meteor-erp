@@ -7,6 +7,7 @@ import { info, warning  } from '/imports/api/lib/alerts';
 import Select from 'react-select';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
+import KanbanView from './kanbanView/KanbanView'
 
 class AllSalesRecords extends React.Component{
     constructor(props){
@@ -142,7 +143,8 @@ class AllSalesRecords extends React.Component{
                     type: 'text',
                     editable: true,
                 }
-            ]
+            ],
+						showKanbanView: false
         }
         this.renderRows = this.renderRows.bind(this);
         this.allowEdit = this.allowEdit.bind(this);
@@ -152,6 +154,8 @@ class AllSalesRecords extends React.Component{
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderSaveButton = this.renderSaveButton.bind(this);
         this.updateProject = this.updateProject.bind(this);
+				this.renderKanbanView = this.renderKanbanView.bind(this);
+				this.renderSwitchLabels = this.renderSwitchLabels.bind(this);
     }
 
     handleMouseLeave() {
@@ -346,11 +350,11 @@ class AllSalesRecords extends React.Component{
                 <thead>
                   <tr>
                     {
-                        selectedColumns.map(({ label, key })=> {
-                            return (
-                                <th key={key}>{label}</th>
-                            )
-                        })
+                      selectedColumns.map(({ label, key })=> {
+                          return (
+                              <th key={key}>{label}</th>
+                          )
+                      })
                     }
                     <th></th>
                   </tr>
@@ -413,19 +417,59 @@ class AllSalesRecords extends React.Component{
             }
         });
     }
-
+		renderKanbanView() {
+			return (
+				<KanbanView {...this.props} />
+			)
+		}
+		renderSwitchLabels() {
+			if (this.props.showAllDeals) {
+				const active = this.state.showKanbanView ? 'active' : ''
+				return (
+					<div className="text-right input-group-btn">
+						<button
+							className={`btn btn-default ${!active ? 'active' : ''}`}
+							onClick={()=>{
+								this.setState({showKanbanView: false})
+							}}
+						>
+							<span className="fa fa-list" aria-hidden="true"></span>
+						</button>
+						<button
+							className={`btn btn-default ${active}`}
+							onClick={()=>{
+								this.setState({showKanbanView: true})
+							}}
+						>
+							<span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
+						</button>
+					</div>
+				)
+			}
+			return ''
+		}
     render() {
-        return (
-           <div className="">
-                <select className='selectpicker pull-right' multiple>
-                {
-                    this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
-                }
-                </select>
-                <br/>
-               {this.renderProjectList()}
-           </div>
-          )
+	    return (
+	       <div className="">
+				 	{this.renderSwitchLabels()}
+					<div className="col-md-12">&nbsp;</div>
+					{
+						this.props.showAllDeals && this.state.showKanbanView ?
+							this.renderKanbanView()
+						: (
+							<div>
+							 <select className='selectpicker pull-right' multiple>
+							 {
+									 this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
+							 }
+							 </select>
+							 <br/>
+							 {this.renderProjectList()}
+							</div>
+						)
+					}
+	       </div>
+	      )
     }
 }
 

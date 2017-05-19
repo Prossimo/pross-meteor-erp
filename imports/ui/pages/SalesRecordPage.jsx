@@ -10,9 +10,10 @@ class ProjectsPage extends React.Component{
         this.tabs = [
             {
                 label: "All Deals",
-                component: <AllSalesRecords/>
+                component: <AllSalesRecords showAllDeals/>
             },
             {
+
                 label: "Add Deal",
                 component: <CreateSalesRecord/>
             }
