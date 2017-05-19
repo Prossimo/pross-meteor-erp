@@ -2,10 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import createFolder from './createFolder';
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
-import { Projects } from '../../models';
-import { prossDocDrive } from '../../config/config';
-
-const { projectParentFolderId }  = prossDocDrive;
+import { Projects, Settings } from '../../models';
 
 export default new ValidatedMethod({
   name: 'drive.createProjectFolder',
@@ -14,6 +11,8 @@ export default new ValidatedMethod({
     projectId: { type: String },
   }).validator(),
   run({ name, projectId }) {
+    const { value: projectParentFolderId } = Settings.findOne({ key: 'PROJECT_ROOT_FOLDER' });
+    const { value: projectTemplateFolder } = Settings.findOne({ key: 'PROJECT_TEMPLATE_FOLDER' });
     const projectName = `##### ${name}`;
     const taskName = `Tasks`;
     const { id: folderId } =  createFolder.call({ name: projectName, parent: projectParentFolderId });
@@ -23,6 +22,12 @@ export default new ValidatedMethod({
         folderId,
         taskFolderId,
       },
+    });
+
+    // copy template to new created folder
+    const { files } = listFiles.call({ query: `'${projectTemplateFolder}' in parents` });
+    files.forEach((file)=> {
+      copyFiles.call({ fileId: file.id, parentId: folderId });
     });
   },
 });
