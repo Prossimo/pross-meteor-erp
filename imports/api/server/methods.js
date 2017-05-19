@@ -35,6 +35,7 @@ import '../models/mailtemplates/methods';
 import '../models/messages/methods';
 import '../models/threads/methods';
 import '../models/slackmails/methods';
+import '../models/people/methods';
 import { googleServerApiAutToken } from '../../api/server/functions';
 
 const driveScopes = [

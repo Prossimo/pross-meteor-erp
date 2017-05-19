@@ -3,6 +3,8 @@ import { Meteor } from 'meteor/meteor'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import People from './people'
+import Designations from './designations'
+import {ADMIN_ROLE_LIST} from '../../constants/roles'
 
 
 export const insertPerson = new ValidatedMethod({
@@ -63,5 +65,55 @@ export const removePerson = new ValidatedMethod({
         if(person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
 
         People.remove(_id)
+    }
+})
+
+export const insertDesignation = new ValidatedMethod({
+    name: 'people.designations.insert',
+    validate: Designations.schema.pick('name','role_addable','roles').validator({clean:true}),
+    run({name, role_addable, roles}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+
+        const data = {
+            name, role_addable, roles
+        }
+
+        return Designations.insert(data)
+    }
+})
+
+export const updateDesignation = new ValidatedMethod({
+    name: 'people.designations.update',
+    validate: Designations.schema.pick('_id','name','role_addable','roles').validator({clean:true}),
+    run({_id, name, role_addable, roles}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+
+        const designation = Designations.findOne({_id})
+        if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)
+
+
+        const data = {
+            name: _.isUndefined(name) ? null : name,
+            role_addable: _.isUndefined(role_addable) ? false : role_addable,
+            roles: _.isUndefined(roles) ? [] : roles
+        }
+
+        return Designations.update({_id}, {$set:data})
+    }
+})
+
+export const removeDesignation = new ValidatedMethod({
+    name: 'people.designations.remove',
+    validate: new SimpleSchema({_id:Designations.schema.schema('_id')}).validator({clean:true}),
+    run({_id}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+
+        const designation = Designations.findOne({_id})
+        if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)
+
+        Designations.remove(_id)
     }
 })
