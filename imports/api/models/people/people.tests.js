@@ -3,11 +3,73 @@ import {Meteor} from 'meteor/meteor'
 import {chai, assert} from 'meteor/practicalmeteor:chai'
 import {resetDatabase} from 'meteor/xolvio:cleaner'
 import {Factory} from 'meteor/dburles:factory'
-import { createAdminUser } from '/imports/api/models/users/methods'
-import { insertPerson, updatePerson, removePerson } from './methods'
 import People from './people'
+import Designations from './designations'
+import { createAdminUser } from '/imports/api/models/users/methods'
+import { insertPerson, updatePerson, removePerson, insertDesignation, updateDesignation, removeDesignation } from './methods'
 
 if(Meteor.isServer) {
+    describe('people.desinations', () => {
+        let adminId
+        beforeEach(() => {
+            resetDatabase()
+            adminId = createAdminUser()
+        })
+
+        let data = {
+            name: 'Team Member',
+            role_addable: false,
+            roles: ['Admin', 'Manager', 'Sales', 'Takeoffs', 'Arch']
+        }
+
+        it('should insert designation correctly by factory and method', () => {
+            let designation = Factory.create('designation')
+            assert.typeOf(designation, 'object')
+            assert.typeOf(designation.created_at, 'date')
+
+            const designationId = insertDesignation._execute({userId:adminId}, data)
+
+            assert.typeOf(designationId, 'string')
+
+            designation = Designations.findOne({_id:designationId})
+
+            assert.equal(designation.name, data.name)
+            assert.equal(designation.role_addable, data.role_addable)
+            assert.typeOf(designation.roles, 'array')
+            assert.equal(designation.roles.length, data.roles.length)
+        })
+
+        it('should update designation correctly by method', () => {
+            const _id = insertDesignation._execute({userId:adminId}, data)
+
+            data = {
+                _id,
+                name: 'Stakeholder',
+                role_addable: true,
+                roles: ['Developer', 'Architectect', 'GC', 'Contractor', 'Installer', 'Energy Consultant', 'Facade Consultant']
+            }
+            const results = updateDesignation._execute({userId:adminId}, data)
+
+            assert.equal(results, 1)
+
+            const designation = Designations.findOne(_id)
+
+            assert.equal(designation.name, data.name)
+            assert.equal(designation.role_addable, data.role_addable)
+            assert.typeOf(designation.roles, 'array')
+            assert.equal(designation.roles.length, data.roles.length)
+        })
+
+        it('should remove designation correctly by method', () => {
+            const _id = insertDesignation._execute({userId:adminId}, data)
+
+            removeDesignation._execute({userId:adminId}, {_id})
+
+            const designation = Designations.findOne({_id})
+            assert.equal(designation, null)
+        })
+    })
+
     describe('people', () => {
         let adminId
         beforeEach(() => {
