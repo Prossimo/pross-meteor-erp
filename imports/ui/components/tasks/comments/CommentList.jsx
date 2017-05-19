@@ -18,6 +18,7 @@ class CommentList extends Component {
     this.removeComment = this.removeComment.bind(this);
     this.changeState = this.changeState.bind(this);
     this.updateComment = this.updateComment.bind(this);
+    this.replyComment = this.replyComment.bind(this);
   }
 
   changeState(prop, propName, propValue) {
@@ -68,29 +69,12 @@ class CommentList extends Component {
     this.changeState(this.state.comments, _id, true);
   }
 
-  componentDidMount() {
-    //const editor = new Textarea(this.refs.comment);
-    //const textComplete = new Textcomplete(editor);
-    //textComplete.register([
-      //{
-        //match: /(^|\s)@(.*)$/,
-        //search(term, callback) {
-          //Meteor.call('task.findUsers', {
-            //keyword: term,
-            //ignore: '',
-          //}, (error, users)=> {
-            //if (!error) {
-              //callback(
-                //users.map(({ username })=> username)
-              //);
-            //}
-          //});
-        //},
-        //replace(value) {
-          //return `@${value}`;
-        //},
-      //},
-    //]);
+  replyComment(username, event) {
+    event.preventDefault();
+    const commentBoxElem = $('.comment-textarea');
+    let curComment = commentBoxElem.val();
+    commentBoxElem.val(curComment + ` @${username} `);
+    commentBoxElem.focus();
   }
 
   render() {
@@ -136,7 +120,7 @@ class CommentList extends Component {
                                 </span>
                               ) : ''
                             }
-                            <a href='#'>Reply</a>
+                            <a href='#' onClick={event => this.replyComment(username, event)}>Reply</a>
                           </p>
                         </div>
                       </div>
