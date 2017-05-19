@@ -1,11 +1,8 @@
 import SimpleSchema from 'simpl-schema';
-import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
+import { SalesRecords, Settings } from '/imports/api/models';
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
 import createFolder from './createFolder';
-import { prossDocDrive } from '../../config/config';
-
-const { salesRecordParentFolderId }  = prossDocDrive;
 
 export default new ValidatedMethod({
   name: 'drive.createSalesRecordFolder',
@@ -14,9 +11,11 @@ export default new ValidatedMethod({
     salesRecordId: { type: String },
   }).validator(),
   run({ name, salesRecordId }) {
+    const { value: salesRecordParentFolderId } = Settings.findOne({ key: 'DEAL_ROOT_FOLDER' });
+    const { value: dealTempletFolder } = Settings.findOne({ key: 'DEAL_TEMPLATE_FOLDER' });
     const salesRecordName = `##### ${name}`;
     const taskName = `Tasks`;
-    const { id: folderId } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId});
+    const { id: folderId } = createFolder.call({ name: salesRecordName, parent: salesRecordParentFolderId });
     const { id: taskFolderId } = createFolder.call({ name: taskName, parent: folderId });
     SalesRecords.update(salesRecordId, {
       $set: {
@@ -26,7 +25,7 @@ export default new ValidatedMethod({
     });
 
     // copy template to new created folder
-    const { files } = listFiles.call({ query: `'${prossDocDrive.templateFolderId}' in parents` });
+    const { files } = listFiles.call({ query: `'${dealTempletFolder}' in parents` });
     files.forEach((file)=> {
       copyFiles.call({ fileId: file.id, parentId: folderId });
     });
