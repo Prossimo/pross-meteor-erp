@@ -11,6 +11,7 @@ class DriveSettingsPage extends Component {
     super();
     picker.then(p => this.picker = p);
     this.updateFolder = this.updateFolder.bind(this);
+    this.openFolder = this.openFolder.bind(this);
   }
 
   componentWillUnMount() {
@@ -26,6 +27,17 @@ class DriveSettingsPage extends Component {
           swal('Update Settings', msg, 'error');
         };
       });
+    });
+  }
+
+  openFolder(key, value) {
+    Meteor.call('drive.getFiles', { fileId: value }, (error, result)=> {
+      if (error) {
+        const msg = error.reason ? error.reason : error.message;
+        swal('Update Settings', msg, 'error');
+      } else {
+        window.open(result.webViewLink, '_blank');
+      }
     });
   }
 
@@ -70,7 +82,7 @@ class DriveSettingsPage extends Component {
                             <button className='btn btn-default btn-sm' onClick={()=> this.updateFolder(key, value)}>
                               <i className='fa fa-folder-o'/> Update
                             </button>
-                            <button className='btn btn-default btn-sm'>
+                            <button className='btn btn-default btn-sm' onClick={()=> this.openFolder(key, value)}>
                               <i className='fa fa-external-link'/> Open
                             </button>
                           </div>
