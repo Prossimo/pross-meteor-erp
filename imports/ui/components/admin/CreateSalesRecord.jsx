@@ -236,7 +236,7 @@ class CreateSalesRecord extends React.Component {
                         ) : ''
                     }
                     <div className="form-group">
-                        <label>{dealTitle ? dealTitle : 'Lead Name'}</label>
+                        <label>{dealTitle ? dealTitle : 'Deal Name'}</label>
                         <input type="text"
                                className='form-control'
                                onChange={this.changeState('projectName')}
