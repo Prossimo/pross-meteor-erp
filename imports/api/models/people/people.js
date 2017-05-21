@@ -4,6 +4,7 @@ import {Factory} from 'meteor/dburles:factory';
 import {_} from 'meteor/underscore';
 import faker from 'faker';
 import PeopleDesignations from './designations'
+import Companies from '../companies/companies'
 
 class PeopleCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -118,6 +119,10 @@ People.helpers({
     designation: function() {
         if(!this.designation_id) return null
         return PeopleDesignations.findOne(this.designation_id)
+    },
+    company: function() {
+        if(!this.company_id) return null
+        return Companies.findOne(this.company_id)
     }
 });
 

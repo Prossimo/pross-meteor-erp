@@ -39,7 +39,6 @@ import {
 } from '../constants/roles';
 
 import '/imports/api/models/companies/publications'
-import '/imports/api/models/companytypes/publications'
 import '/imports/api/models/people/publications'
 
 Meteor.startup(() => {

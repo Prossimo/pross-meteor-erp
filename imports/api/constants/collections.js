@@ -22,6 +22,6 @@ export const GET_MAILTEMPLATES = 'getMailTemplates';
 export const GET_ALL_USERS = 'getAllUsers';
 export const GET_SLACK_MAILS = 'getSlackMails';
 export const GET_COMPANIES = 'getCompanies';
-export const GET_COMPANYTYPES = 'getCompanyTypes';
+export const GET_COMPANY_TYPES = 'getCompanyTypes';
 export const GET_PEOPLE = 'getPeople';
 export const GET_PEOPLE_DESIGNATIONS = 'getPeopleDesignations';

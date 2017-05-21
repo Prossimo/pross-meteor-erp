@@ -1,10 +1,5 @@
 import React from 'react'
 import {Panel, Button, FormControl} from 'react-bootstrap'
-import Select from 'react-select'
-
-import {Companies} from '/imports/api/models'
-
-const addressTypeOptions = []
 
 export default class AddressInput extends React.Component {
     static propTypes = {

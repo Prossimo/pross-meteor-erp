@@ -104,7 +104,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
                         <th width="20%">Name</th>
                         <th width="25%">Email</th>
                         <th width="15%">Phone Numbers</th>
-                        <th width="25%">Company</th>
+                        <th width="25%">Description</th>
                         <th width="10%">Inbox</th>
                     </tr>
                     </thead>
@@ -137,7 +137,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
                 <td width="20%">{contact.name}</td>
                 <td width="25%">{contact.email}</td>
                 <td width="15%">{contact.phone_numbers}</td>
-                <td width="25%">{contact.company() ? contact.company().name : ''}</td>
+                <td width="25%">{contact.description}</td>
                 <td width="10%">{contact.account() ? contact.account().name : ''}</td>
             </tr>
         ))
