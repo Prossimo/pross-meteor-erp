@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import inviteUsers from './inviteUsers';
 import { Tasks } from '../../models';
+import sendSlackMessage from './sendSlackMessage';
 
 const updateTask = new ValidatedMethod({
   name: 'task.update',
@@ -46,8 +47,15 @@ const updateTask = new ValidatedMethod({
       parentId,
       taskOperators: [assignee, approver],
     });
-    return Tasks.update(task._id, {
+    Tasks.update(task._id, {
       $set: task,
+    });
+    Meteor.defer(()=> {
+      sendSlackMessage.call({
+        taskId: task._id,
+        parentId,
+        type: 'UPDATE_TASK',
+      });
     });
   },
 });
