@@ -50,7 +50,6 @@ const createNewTask = new ValidatedMethod({
         taskId: _id,
         parentId,
         type: 'NEW_TASK',
-        parentType: 'salesrecord',
       });
     });
     return _id;

@@ -1,5 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Tasks } from '../../models';
+import sendSlackMessage from './sendSlackMessage';
 
 const removeTask = new ValidatedMethod({
   name: 'task.remove',
@@ -11,10 +12,20 @@ const removeTask = new ValidatedMethod({
   run({ _id }) {
     if (!this.userId)
       throw new Meteor.Error('You are not allowed to remove this task');
-    return Tasks.update(_id, {
+    Tasks.update(_id, {
       $set: {
         isRemoved: true,
       },
     });
+    const task = Tasks.findOne(_id);
+    if (task) {
+      Meteor.defer(()=> {
+        sendSlackMessage.call({
+          taskId: _id,
+          parentId: task.parentId,
+          type: 'REMOVE_TASK',
+        });
+      });
+    }
   },
 });
