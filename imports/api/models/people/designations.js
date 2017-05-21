@@ -36,7 +36,7 @@ Designations.deny({
 Designations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
-    role_addable: {type: String, optional: true},
+    role_addable: {type: Boolean, optional: true},
     roles: {type: Array},
     'roles.$': {type: String},
     created_at: {type: Date, denyUpdate: true, optional: true},

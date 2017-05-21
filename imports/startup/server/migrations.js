@@ -41,7 +41,8 @@ Migrations.add({
         types.forEach((type)=>CompanyTypes.insert({name:type}))
     },
     down() {
-        console.log('=== migrate down to version 2')
+        console.log('=== migrate down from version 2')
+        CompanyTypes.remove({})
     }
 });
 Migrations.add({
@@ -74,13 +75,13 @@ Migrations.add({
         designations.forEach((d) => PeopleDesignations.insert(d))
     },
     down() {
-        console.log('=== migrate down to version 3')
+        console.log('=== migrate down from version 3')
+        PeopleDesignations.remove({})
     }
 });
 
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        console.log('===> Started migration to version 3')
         Migrations.migrateTo(3);
     }
 });
