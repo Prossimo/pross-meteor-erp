@@ -1,8 +1,11 @@
 import React from 'react'
 import {Panel, Button, FormControl} from 'react-bootstrap'
+import Select from 'react-select'
+import {People} from '/imports/api/models'
 
+const phoneNumberTypeOptions = People.PhoneNumberTypes.map(t => ({value:t, label:t}))
 
-export default class PhoneNumberInput extends React.Component {
+export default class PhoneNumbersInput extends React.Component {
     static propTypes = {
         phoneNumbers: React.PropTypes.array,
         onChange: React.PropTypes.func
@@ -20,6 +23,7 @@ export default class PhoneNumberInput extends React.Component {
         let {phoneNumbers} = this.state
         const phoneNumber = {
             number: '',
+            extension: '',
             type: '',
             is_default: phoneNumbers.length==0
         }
@@ -58,8 +62,7 @@ export default class PhoneNumberInput extends React.Component {
             <div style={{display: 'flex'}}>
                 <div style={{flex: 1}}>Phone numbers</div>
                 <div>
-                    <Button bsSize="xsmall"
-                            onClick={this.onClickAddPhoneNumber}>
+                    <Button bsSize="xsmall" onClick={this.onClickAddPhoneNumber}>
                         <i className="fa fa-plus"/>
                     </Button>
                 </div>
@@ -71,8 +74,9 @@ export default class PhoneNumberInput extends React.Component {
                 <table className='table table-condensed'>
                     <thead>
                     <tr>
-                        <th width="50%">Number</th>
-                        <th width="35%">Type</th>
+                        <th width="40%">Number</th>
+                        <th width="20%">Extension</th>
+                        <th width="25%">Type</th>
                         <th width="10%">Default</th>
                         <th></th>
                     </tr>
@@ -82,7 +86,8 @@ export default class PhoneNumberInput extends React.Component {
                         phoneNumbers.map((phoneNumber, index)=>(
                             <tr key={index}>
                                 <td><FormControl type="text" value={phoneNumber.number} onChange={(e)=>this.changeState(phoneNumber, 'number', e.target.value)}/></td>
-                                <td><FormControl type="text" value={phoneNumber.type} onChange={(e)=>this.changeState(phoneNumber, 'type', e.target.value)}/></td>
+                                <td><FormControl type="text" value={phoneNumber.extension} onChange={(e)=>this.changeState(phoneNumber, 'extension', e.target.value)}/></td>
+                                <td><Select clearable={false} options={phoneNumberTypeOptions} value={{value:phoneNumber.type, label:phoneNumber.type}} onChange={(item)=>this.changeState(phoneNumber, 'type', item.value)}/></td>
                                 <td><input type="checkbox" checked={phoneNumber.is_default} onChange={(e)=>this.changeState(phoneNumber, 'is_default', e.target.checked)}/> </td>
                                 <td><Button bsSize="xsmall" onClick={()=>this.onClickRemovePhoneNumber(index)}><i className="fa fa-trash"/></Button></td>
                             </tr>

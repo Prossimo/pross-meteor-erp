@@ -119,7 +119,12 @@ class Aside extends React.Component{
                     {
                         label: "Companies",
                         route: "Companies"
+                    },
+                    {
+                        label: "Email Contacts",
+                        route: "Contacts"
                     }
+
                 ]
             },
             {

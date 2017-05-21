@@ -3,7 +3,7 @@ import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
 import {CompanyTypes} from '/imports/api/models'
-import {insertCompanyType, updateCompanyType} from '/imports/api/models/companytypes/methods'
+import {insertCompanyType, updateCompanyType} from '/imports/api/models/companies/methods'
 
 
 export default class CompanyTypeForm extends React.Component {

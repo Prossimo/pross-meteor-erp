@@ -11,7 +11,9 @@ import {
     GET_THREADS,
     GET_SLACK_MAILS,
     GET_COMPANIES,
-    GET_COMPANYTYPES
+    GET_COMPANY_TYPES,
+    GET_PEOPLE,
+    GET_PEOPLE_DESIGNATIONS
 } from '/imports/api/constants/collections';
 import SalesRecords from '/imports/api/models/salesRecords/salesRecords';
 
@@ -27,7 +29,9 @@ const reactiveMapper = (props, onData) => {
         Meteor.subscribe(GET_THREADS).ready() &&
         Meteor.subscribe(GET_SLACK_MAILS).ready() &&
         Meteor.subscribe(GET_COMPANIES).ready() &&
-        Meteor.subscribe(GET_COMPANYTYPES).ready()
+        Meteor.subscribe(GET_COMPANY_TYPES).ready() &&
+        Meteor.subscribe(GET_PEOPLE).ready() &&
+        Meteor.subscribe(GET_PEOPLE_DESIGNATIONS).ready()
     ) {
         const currentUser = Meteor.users.findOne(Meteor.userId());
         const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch();

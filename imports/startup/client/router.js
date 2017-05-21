@@ -3,23 +3,10 @@ import {mount} from 'react-mounter';
 import {FlowRouter} from 'meteor/kadira:flow-router';
 
 import App from '../../api/composer/App';
-import AuthenticationPage from '../../ui/pages/AuthenticationPage';
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject';
-import SalesRecordPage from '/imports/ui/pages/SalesRecordPage';
-import UserAccount from '../../ui/pages/UserAccount';
-import InboxPage from '../../ui/pages/InboxPage';
-import InboxSettingsPage from '../../ui/pages/InboxSettingsPage';
-import LeadsPage from '/imports/ui/pages/LeadsPage';
-import OrdersPage from '/imports/ui/pages/OrdersPage';
-import TicketsPage from '/imports/ui/pages/TicketsPage';
-import ContactsPage from '/imports/ui/pages/ContactsPage';
-import CompaniesPage from '/imports/ui/pages/CompaniesPage';
-import FinancialPage from '/imports/ui/pages/FinancialPage';
-import OpportunitiesPage from '/imports/ui/pages/OpportunitiesPage';
-import ProjectsPage from '/imports/ui/pages/ProjectsPage';
-import AdminPage from '/imports/ui/pages/AdminPage';
-import DashboardPage from '/imports/ui/pages/DashboardPage';
 import SingleProjectPage from '/imports/ui/components/project/SingleProject';
+
+import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, LeadsPage, OrdersPage, TicketsPage, ContactsPage, CompaniesPage, FinancialPage, OpportunitiesPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage} from '/imports/ui/pages'
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go("Root");
@@ -159,12 +146,22 @@ FlowRouter.route('/tickets', {
     }
 });
 
+FlowRouter.route('/contacts', {
+    name: 'Contacts',
+    action(){
+        checkAuth();
+        mount(App, {
+            content: <ContactsPage/>,
+        })
+    }
+});
+
 FlowRouter.route('/people', {
     name: 'People',
     action(){
         checkAuth();
         mount(App, {
-            content: <ContactsPage/>,
+            content: <PeoplePage/>,
         })
     }
 });

@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema';
 import {Factory} from 'meteor/dburles:factory';
 import {_} from 'meteor/underscore';
 import faker from 'faker';
-import CompanyTypes from '../companytypes/companytypes'
+import CompanyTypes from './companytypes'
 import Contacts from '../contacts/contacts'
 
 class CompaniesCollection extends Mongo.Collection {

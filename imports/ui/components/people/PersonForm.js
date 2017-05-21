@@ -1,0 +1,193 @@
+import React from 'react'
+import {Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap'
+import Select from 'react-select'
+import {warning} from "/imports/api/lib/alerts"
+import {PeopleDesignations, Companies} from '/imports/api/models'
+import {insertPerson, updatePerson} from '/imports/api/models/people/methods'
+import PhoneNumbersInput from './PhoneNumbersInput'
+import EmailsInput from './EmailsInput'
+
+
+
+export default class PersonForm extends React.Component {
+    static propTypes = {
+        person: React.PropTypes.object,
+        onSaved: React.PropTypes.func
+    }
+
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            name: props.person ? props.person.name||'' : '',
+            email: props.person ? props.person.email||'' : '',
+            twitter: props.person ? props.person.twitter||'' : '',
+            facebook: props.person ? props.person.facebook||'' : '',
+            linkedin: props.person ? props.person.linkedin||'' : '',
+            designation_id: props.person ? props.person.designation_id : '',
+            role: props.person ? props.person.role||'' : '',
+            emails: props.person ? props.person.emails : [],
+            phone_numbers: props.person ? props.person.phone_numbers : [],
+            company_id: props.person ? props.person.company_id : '',
+            position: props.person ? props.person.position||'' : ''
+        }
+
+        this.designations = PeopleDesignations.find().fetch()
+        this.companies = Companies.find().fetch()
+    }
+
+    render() {
+        const {name, email, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position} = this.state
+
+        const designationOptions = this.designations.map(d => ({value:d._id, label:d.name}))
+        let designationValue, roleOptions = [], roleValue
+        if(designation_id) {
+            const designation = PeopleDesignations.findOne({_id:designation_id})
+            if(designation) {
+                designationValue = {value:designation._id, label:designation.name}
+                roleOptions = designation.roles.map(r => ({value:r, label:r}))
+                roleValue = designation.roles.indexOf(role)>-1 ? {value:role, label:role} : null
+            }
+        }
+
+        const companyOptions = this.companies.map(c => ({value:c._id, label:c.name}))
+        let companyValue
+        if(company_id) {
+            const company = Companies.findOne({_id:company_id})
+            if(company) companyValue = {value:company._id, label:company.name}
+        }
+        return (
+          <div>
+            <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
+                <FormGroup controlId="formHorizontalName">
+                    <Col sm={3}>
+                        Name
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="text" placeholder="Name" value={name} onChange={(evt) => this.setState({name: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalEmail">
+                    <Col sm={3}>
+                        Email
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="email" placeholder="Email" value={email} onChange={(evt) => this.setState({email: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalTwitter">
+                    <Col sm={3}>
+                        Twitter
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="url" placeholder="Twitter" value={twitter} onChange={(evt) => this.setState({twitter: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalFacebook">
+                    <Col sm={3}>
+                        Facebook
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="url" placeholder="Facebook" value={facebook} onChange={(evt) => this.setState({facebook: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalLinkedin">
+                    <Col sm={3}>
+                        LinkedIn
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="url" placeholder="LinkedIn" value={linkedin} onChange={(evt) => this.setState({linkedin: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalDesignation">
+                    <Col sm={3}>
+                        Designation
+                    </Col>
+                    <Col sm={9}>
+                        <Select
+                            options={designationOptions}
+                            value={designationValue}
+                            onChange={this.onChangeDesignation}
+                        />
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalRole">
+                    <Col sm={3}>
+                        Role
+                    </Col>
+                    <Col sm={9}>
+                        <Select
+                            options={roleOptions}
+                            value={roleValue}
+                            onChange={this.onChangeRole}
+                        />
+                    </Col>
+                </FormGroup>
+                <PhoneNumbersInput phoneNumbers={phone_numbers} onChange={(data)=>this.setState({phone_numbers:data})}/>
+                <EmailsInput emails={emails} onChange={(data)=>this.setState({emails:data})}/>
+                <FormGroup controlId="formHorizontalCompany">
+                    <Col sm={3}>
+                        Company
+                    </Col>
+                    <Col sm={9}>
+                        <Select
+                            options={companyOptions}
+                            value={companyValue}
+                            onChange={this.onChangeCompany}
+                        />
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalPosition">
+                    <Col sm={3}>
+                        Position
+                    </Col>
+                    <Col sm={9}>
+                        <FormControl type="text" placeholder="Position" value={position} onChange={(evt) => this.setState({position: evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup>
+                    <Col sm={12} style={{textAlign:'right'}}>
+                        <Button type="submit" bsStyle="primary">{this.props.person ? "Update" : "Create"}</Button>
+                    </Col>
+                </FormGroup>
+            </Form>
+          </div>
+
+        )
+    }
+
+    onChangeDesignation = (item) => {
+        this.setState({
+            designation_id: item ? item.value : null
+        })
+    }
+    onChangeRole = (item) => {
+        this.setState({
+            role: item ? item.value : null
+        })
+    }
+    onChangeCompany = (item) => {
+        this.setState({
+            company_id: item ? item.value : null
+        })
+    }
+    onSubmit = (evt) => {
+        evt.preventDefault()
+
+        let data = {name, email, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position} = this.state
+
+        try {
+            if (this.props.person){
+                data._id = this.props.person._id
+                updatePerson.call(data)
+            } else {
+                insertPerson.call(data)
+            }
+
+            if(this.props.onSaved) this.props.onSaved()
+        } catch(e) {
+            console.log(e)
+        }
+
+    }
+}

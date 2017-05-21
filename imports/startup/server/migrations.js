@@ -71,7 +71,7 @@ Migrations.add({
             roles: []
         }]
 
-        designations.forEach((d) => PeopleDesignations.insert({name:d}))
+        designations.forEach((d) => PeopleDesignations.insert(d))
     },
     down() {
         console.log('=== migrate down to version 3')
@@ -80,7 +80,7 @@ Migrations.add({
 
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        console.log('Started migration to version 2')
+        console.log('===> Started migration to version 3')
         Migrations.migrateTo(3);
     }
 });
