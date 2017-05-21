@@ -8,6 +8,7 @@ import inviteUsers from './methods/inviteUsers';
 import removeComment from './methods/removeComment';
 import attachFiles from './methods/attachFiles';
 import removeAttachment from './methods/removeAttachment';
+import sendSlackMessage from './methods/sendSlackMessage';
 import './publications';
 
 export {
@@ -20,6 +21,7 @@ export {
   removeComment,
   attachFiles,
   removeAttachment,
+  sendSlackMessage,
 };
 
 

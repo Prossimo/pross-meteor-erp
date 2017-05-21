@@ -1,16 +1,7 @@
 import SimpleSchema from 'simpl-schema';
-import config from '/imports/api/config/config';
 import inviteUsers from './inviteUsers';
+import sendSlackMessage from './sendSlackMessage';
 import { Tasks } from '../../models';
-
-const {
-  slack: {
-    apiRoot,
-    apiKey,
-    botId,
-    botToken,
-  },
-} = config;
 
 const createNewTask = new ValidatedMethod({
   name: 'task.create',
@@ -53,6 +44,15 @@ const createNewTask = new ValidatedMethod({
       parentId,
       taskOperators: [assignee, approver],
     });
-    return Tasks.insert(task);
+    const _id = Tasks.insert(task);
+    Meteor.defer(()=> {
+      sendSlackMessage.call({
+        taskId: _id,
+        parentId,
+        type: 'NEW_TASK',
+        parentType: 'salesrecord',
+      });
+    });
+    return _id;
   },
 });
