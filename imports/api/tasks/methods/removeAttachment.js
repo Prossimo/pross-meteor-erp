@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { Tasks } from '../../models';
 import { prossDocDrive } from '/imports/api/drive';
+import sendSlackMessage from './sendSlackMessage';
 
 export default new ValidatedMethod({
   name: 'task.removeAttachment',
@@ -18,6 +19,14 @@ export default new ValidatedMethod({
     });
     Meteor.defer(()=> {
       prossDocDrive.removeFiles.call({ fileId: fileId });
+      const task = Tasks.findOne(_id);
+      if (task) {
+        sendSlackMessage.call({
+          taskId: _id,
+          parentId: task.parentId,
+          type: 'REMOVE_FILE',
+        });
+      }
     });
   },
 });

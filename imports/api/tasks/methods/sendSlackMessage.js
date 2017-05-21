@@ -33,10 +33,62 @@ export default new ValidatedMethod({
 
     if (parent) {
       const { slackChanel: channel } = parent;
+      const { name, description, status, comments } = Tasks.findOne(taskId);
       if (channel) {
         switch (type) {
+          case 'ADD_COMMENT': {
+            const pretext = `A comment has beed added`;
+            const attachment = {
+              pretext,
+              title: `Task: ${name}`,
+              text: _.last(comments).content,
+              color: '#FF4C4C',
+              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
+            };
+            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            break;
+          }
+
+          case 'REMOVE_FILE': {
+            let pretext = `A attachment file has been removed`;
+            const attachment = {
+              pretext,
+              title: `Task: ${name}`,
+              text: description,
+              color: '#FF4C4C',
+              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
+            };
+            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            break;
+          }
+
+          case 'ATTACH_FILE': {
+            let pretext = `A file have been attached`;
+            const attachment = {
+              pretext,
+              title: `Task: ${name}`,
+              text: description,
+              color: '#FFA64C',
+              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
+            };
+            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            break;
+          }
+
+          case 'UPDATE_TASK': {
+            let pretext = `A task have been updated at ${status} board`;
+            const attachment = {
+              pretext,
+              title: `Task: ${name}`,
+              text: description,
+              color: '#FFA64C',
+              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
+            };
+            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            break;
+          }
+
           case 'REMOVE_TASK': {
-            const { name, description, status } = Tasks.findOne(taskId);
             let pretext = `A task have been removed from ${status} board`;
             const attachment = {
               pretext,
@@ -50,7 +102,6 @@ export default new ValidatedMethod({
           }
 
           case 'NEW_TASK': {
-            const { name, description, assignee, status } = Tasks.findOne(taskId);
             const { slack } = Meteor.users.findOne(assignee);
             let pretext = `New task has created in ${status} board`;
             (slack && slack.id) && (pretext = `New task has assigned to <@${slack.id}> in ${status} board`);
