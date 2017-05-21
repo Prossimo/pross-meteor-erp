@@ -10,9 +10,10 @@ export default new ValidatedMethod({
     parentId: String,
     taskId: String,
     type: String,
-    parentType: String,
   }).validator(),
-  run({ parentId, type, taskId, parentType }) {
+  run({ parentId, type, taskId }) {
+    let parent = null;
+    let parentType = null;
     const sendMessage = ({ channel, text, attachments })=> {
       const params = { token: apiKey, channel };
       text && (params.text = text);
@@ -22,12 +23,33 @@ export default new ValidatedMethod({
       });
     };
 
-    const parent = SalesRecords.findOne(parentId) || Projects.findOne(parentId);
+    if (parent = SalesRecords.findOne(parentId)) {
+      parentType = 'salesrecord';
+    } else {
+      if (parent = Projects.findOne(parentId)) {
+        parentType = 'project';
+      }
+    };
+
     if (parent) {
       const { slackChanel: channel } = parent;
       if (channel) {
         switch (type) {
-          case 'NEW_TASK':
+          case 'REMOVE_TASK': {
+            const { name, description, status } = Tasks.findOne(taskId);
+            let pretext = `A task have been removed from ${status} board`;
+            const attachment = {
+              pretext,
+              title: `Task: ${name}`,
+              text: description,
+              color: '#FF4C4C',
+              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
+            };
+            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            break;
+          }
+
+          case 'NEW_TASK': {
             const { name, description, assignee, status } = Tasks.findOne(taskId);
             const { slack } = Meteor.users.findOne(assignee);
             let pretext = `New task has created in ${status} board`;
@@ -39,9 +61,9 @@ export default new ValidatedMethod({
               color: '#7CD197',
               title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
             };
-
             sendMessage({ channel, attachments: JSON.stringify([attachment]) });
             break;
+          }
         }
       }
     }
