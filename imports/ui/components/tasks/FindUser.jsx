@@ -2,22 +2,19 @@ import React, { Component, PropTypes } from 'react';
 import styled from 'styled-components';
 
 class FindUser extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.changeState = this.changeState.bind(this);
-    this.changeKeyword = this.changeKeyword.bind(this);
     this.selectUser = this.selectUser.bind(this);
+    this.changeKeyword = _.throttle(keyword => {
+      const ignore = props.ignore ? props.ignore._id : '';
+      Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
+        if (!error) this.setState({ users });
+      });
+    }, 2000);
     this.state = {
       users: [],
-      keyword: '',
     };
-  }
-
-  changeKeyword(keyword) {
-    const ignore = this.props.ignore ? this.props.ignore._id : '';
-    Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
-      if (!error) this.setState({ users, keyword });
-    });
   }
 
   componentDidMount() {
@@ -50,7 +47,7 @@ class FindUser extends Component {
               type='text'
               className='form-control input-sm'
               placeholder={`Search ${this.props.title}s`}
-              value={ this.state.keyword }
+              ref='keyword'
               onChange={ (event) => this.changeKeyword(event.target.value) }
               autoFocus={true}
             />
