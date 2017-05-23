@@ -3,6 +3,7 @@ import { SalesRecords, Settings } from '/imports/api/models';
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
 import createFolder from './createFolder';
+import shareWith from './shareWith';
 
 export default new ValidatedMethod({
   name: 'drive.createSalesRecordFolder',
@@ -29,5 +30,18 @@ export default new ValidatedMethod({
     files.forEach((file)=> {
       copyFiles.call({ fileId: file.id, parentId: folderId });
     });
+
+    // share folder with members
+    const salesRecord = SalesRecords.findOne(salesRecordId);
+    if (salesRecord) {
+      const memberIds = salesRecord.members.map(({ userId })=> userId);
+      const emails = Meteor
+        .users
+        .find({ _id: { $in: memberIds } })
+        .fetch()
+        .filter(({ emails })=> emails && emails.length > 0)
+        .map(({ emails })=> emails[0].address);
+      emails.forEach(email => shareWith.call({ fileId: folderId, email }));
+    }
   },
 });

@@ -8,14 +8,16 @@ import getFiles from './getFiles';
 import getParents from './getParents';
 import createFile from './createFile';
 import copyFiles from './copyFiles';
+import shareWith from './shareWith';
 
 export {
-    listFiles,
-    createFolder,
-    createSalesRecordFolder,
-    createProjectFolder,
-    removeFiles,
-    getFiles,
-    copyFiles,
-    createFile,
+  listFiles,
+  createFolder,
+  createSalesRecordFolder,
+  createProjectFolder,
+  removeFiles,
+  getFiles,
+  copyFiles,
+  createFile,
+  shareWith,
 }

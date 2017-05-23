@@ -127,7 +127,9 @@ Meteor.methods({
         const salesRecordId = SalesRecords.insert(data);
 
         // create folder in google drive
-        prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
+        Meteor.defer(()=> {
+          prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
+        });
 
         // Insert conversations attached
         if (thread) {

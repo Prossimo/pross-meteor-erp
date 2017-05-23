@@ -1,5 +1,6 @@
 node_modules/
-packages/
+packages/*
+!packages/picker/
 .idea/
 *.log
 settings.json
