@@ -442,6 +442,17 @@ Meteor.methods({
     if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
 
     SalesRecords.update(salesRecordId, {$push: {members: member}});
+    // allow edit folder
+    const user = Meteor.users.findOne(member.userId);
+    if (user && user.emails && user.emails.length > 0) {
+      const email = user.emails[0].address;
+      if (email) {
+        const salesRecord = SalesRecords.findOne(salesRecordId);
+        if (salesRecord && salesRecord.folderId) {
+          prossDocDrive.shareWith.call({ fileId: salesRecord.folderId, email });
+        }
+      }
+    }
   },
 
   updateUserInfo(user){
