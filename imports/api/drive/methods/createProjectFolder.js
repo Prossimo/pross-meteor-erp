@@ -2,6 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import createFolder from './createFolder';
 import listFiles from './listFiles';
 import copyFiles from './copyFiles';
+import shareWith from './shareWith';
 import { Projects, Settings } from '../../models';
 
 export default new ValidatedMethod({
@@ -29,5 +30,18 @@ export default new ValidatedMethod({
     files.forEach((file)=> {
       copyFiles.call({ fileId: file.id, parentId: folderId });
     });
+
+    // share folder with members
+    const project = Projects.findOne(projectId);
+    if (project) {
+      const memberIds = project.members.map(({ userId })=> userId);
+      const emails = Meteor
+        .users
+        .find({ _id: { $in:  memberIds } })
+        .fetch()
+        .filter(({ emails })=> emails && emails.length > 0)
+        .map(({ emails })=> emails[0].address);
+      emails.forEach(email => shareWith.call({ fileId: folderId, email }));
+    }
   },
 });

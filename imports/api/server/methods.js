@@ -770,8 +770,9 @@ Meteor.methods({
       }],
     });
     const projectId = Projects.insert(project);
-    // create new project folder in google drive
-    prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
+    Meteor.defer(()=> {
+      prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
+    });
     return projectId;
   },
 
