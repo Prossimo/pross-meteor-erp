@@ -82,7 +82,7 @@ class CommentList extends Component {
       <div>
         {
           _.sortBy(this.props.comments, ({ createdAt })=> -createdAt.getTime())
-          .map(({ content, createdAt, user, _id })=> {
+          .map(({ content, createdAt, user, _id, updatedAt })=> {
             let username = user ? user.username : 'loading ...';
             let shortName = user ? this.shortenName(user) : 'loading ...';
             return (
@@ -111,7 +111,7 @@ class CommentList extends Component {
                         </div>
                         <div className='comment-controls'>
                           <p className='pull-right'>
-                            <small>{ moment(createdAt).format('YYYY MMM D hh:mm:ss A') }</small> -&nbsp;
+                            <small>{ moment(updatedAt || createdAt).format('YYYY MMM D hh:mm:ss A') }</small> -&nbsp;
                             {
                               (user._id === Meteor.userId()) ? (
                                 <span>
@@ -142,10 +142,11 @@ CommentList.propTypes = {
 
 export default createContainer(({ comments })=> {
   return {
-    comments: comments.map(({ content, createdAt, userId, _id })=> {
+    comments: comments.map(({ content, createdAt, userId, _id, updatedAt })=> {
       return {
         content,
         createdAt,
+        updatedAt,
         user: Meteor.users.find(userId).fetch()[0],
         _id,
       };

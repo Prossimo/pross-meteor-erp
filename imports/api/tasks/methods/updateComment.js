@@ -17,6 +17,7 @@ export default new ValidatedMethod({
     return Tasks.update({ comments: { $elemMatch: { _id, userId: this.userId } } }, {
       $set: {
         'comments.$.content': content,
+        'comments.$.updatedAt': new Date(),
       },
     });
   },
