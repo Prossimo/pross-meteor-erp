@@ -115,6 +115,7 @@ class Task extends Component {
           assignee={this.props.assignee}
           approver={this.props.approver}
           taskFolderId={this.props.taskFolderId}
+          total={this.props.total}
         />
       </div>
     );
@@ -126,6 +127,7 @@ Task.propTypes = {
   approver: PropTypes.object,
   assignee: PropTypes.object.isRequired,
   taskFolderId: PropTypes.string,
+  total: PropTypes.number.isRequired,
 };
 
 export default Task;

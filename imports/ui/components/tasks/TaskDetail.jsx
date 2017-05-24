@@ -26,7 +26,7 @@ class TaskDetail extends Component {
 
     if (props.isNew) {
       this.state.task = {
-        name: 'Task ###',
+        name: `Task #${props.total + 1}`,
         assignee: null,
         approver: null,
         dueDate: new Date,
@@ -207,6 +207,7 @@ TaskDetail.propTypes = {
   isNew: PropTypes.bool.isRequired,
   task: PropTypes.object,
   taskFolderId: PropTypes.string,
+  total: PropTypes.number.isRequired,
 };
 
 export default TaskDetail;
