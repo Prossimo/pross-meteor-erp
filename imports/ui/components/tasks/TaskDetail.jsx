@@ -30,7 +30,7 @@ class TaskDetail extends Component {
         assignee: null,
         approver: null,
         dueDate: new Date,
-        description: 'This task is about ...',
+        description: '',
         status: props.status,
       };
     }
