@@ -57,6 +57,7 @@ class TaskBoard extends Component {
                 users={users}
                 key={allowedStatus}
                 taskFolderId={taskFolderId}
+                total={this.props.tasks.length}
               />;
             })
           }
