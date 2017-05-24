@@ -51,24 +51,20 @@ Migrations.add({
     up() {
         console.log('=== migrate up to version 3')
         const designations = [{
-            name: 'Team Member',
-            role_addable: false,
-            roles: ['Admin', 'Manager', 'Sales', 'Takeoffs', 'Arch']
-        },{
             name: 'Stakeholder',
             role_addable: true,
             roles: ['Developer', 'Architectect', 'GC', 'Contractor', 'Installer', 'Energy Consultant', 'Facade Consultant']
         },{
             name: 'Vendor',
-            role_addable: false,
+            role_addable: true,
             roles: ['Window Producer', 'Screen Producer']
         },{
             name: 'Logistics',
-            role_addable: false,
+            role_addable: true,
             roles: ['Freight Forwarder', 'Container Line', 'Broker', 'Trucking']
         },{
             name: 'Consultant',
-            role_addable: false,
+            role_addable: true,
             roles: []
         }]
 

@@ -140,7 +140,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                 <td width="2%"><Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button></td>
                 <td width="3%">{index + 1}</td>
                 <td width="15%">{person.name}</td>
-                <td width="15%">{person.email}</td>
+                <td width="15%">{person.defaultEmail()}</td>
                 <td width="15%">{person.designation() ? person.designation().name : ''}</td>
                 <td width="15%">{person.role}</td>
                 <td width="15%">{person.company() ? person.company().name : ''}</td>

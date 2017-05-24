@@ -55,7 +55,6 @@ People.PhoneNumber = new SimpleSchema({
 People.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
-    email: {type: String, regEx: SimpleSchema.RegEx.Email},
     twitter: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
     facebook: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
     linkedin: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
@@ -77,7 +76,6 @@ People.attachSchema(People.schema);
 
 People.publicFields = {
     name: 1,
-    email: 1,
     twitter: 1,
     facebook: 1,
     linkedin: 1,
@@ -95,7 +93,6 @@ People.publicFields = {
 
 Factory.define('person', People, {
     name: faker.name.findName(),
-    email: faker.internet.email(),
     twitter: faker.internet.url(),
     facebook: faker.internet.url(),
     linkedin: faker.internet.url(),
@@ -123,6 +120,16 @@ People.helpers({
     company: function() {
         if(!this.company_id) return null
         return Companies.findOne(this.company_id)
+    },
+    defaultEmail: function() {
+        if(!this.emails || this.emails.length==0) return null
+
+        let email = this.emails[0].email
+        this.emails.forEach((em) => {
+          if(em.is_default) email = em.email
+        })
+
+        return email
     }
 });
 

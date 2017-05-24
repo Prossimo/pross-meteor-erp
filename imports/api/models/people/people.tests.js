@@ -79,7 +79,6 @@ if(Meteor.isServer) {
 
         let data = {
             name: 'John Smith',
-            email: 'john@prossimo.us',
             twitter: 'http://www.twitter.com/john',
             facebook: 'http://www.facebook.com/john',
             linkedin: 'http://www.linkedin.com/john',
@@ -111,7 +110,6 @@ if(Meteor.isServer) {
             person = People.findOne({_id:personId})
 
             assert.equal(person.name, data.name)
-            assert.equal(person.email, data.email)
             assert.equal(person.twitter, data.twitter)
             assert.equal(person.facebook, data.facebook)
             assert.equal(person.linkedin, data.linkedin)
@@ -133,7 +131,6 @@ if(Meteor.isServer) {
             data = {
                 _id,
                 name: 'John Smith1',
-                email: 'john1@prossimo.us',
                 twitter: 'http://www.twitter.com/john1',
                 facebook: 'http://www.facebook.com/john1',
                 linkedin: 'http://www.linkedin.com/john1',
@@ -159,7 +156,6 @@ if(Meteor.isServer) {
             const person = People.findOne(_id)
 
             assert.equal(person.name, data.name)
-            assert.equal(person.email, data.email)
             assert.equal(person.twitter, data.twitter)
             assert.equal(person.facebook, data.facebook)
             assert.equal(person.linkedin, data.linkedin)
