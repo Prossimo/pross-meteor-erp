@@ -41,6 +41,7 @@ class TextEditor extends Component {
     return (
       <TextArea
         ref='content'
+        placeholder='This task is about ...'
         defaultValue={this.props.content}
         onChange={ this.changeContent }
       />

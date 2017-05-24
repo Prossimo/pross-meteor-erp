@@ -22,7 +22,6 @@ Projects.schema = new SimpleSchema({
   },
   'members.$.isAdmin': {
     type: Boolean,
-    defaultValue: false,
   },
   folderId: {
     type: String,
