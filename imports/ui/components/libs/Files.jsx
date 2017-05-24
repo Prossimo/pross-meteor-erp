@@ -71,9 +71,13 @@ decorators.Header = (props) => {
                 <i className={iconClass} style={iconStyle}/>
                 {props.node.name}
             </div>
-            <a href='#' style={{marginLeft: 20}} onClick={(event)=> props.removeFile(props.node.id, props.node.name, event)}>
-                <span className='fa fa-times'/>
-            </a>
+            {
+              ( !props.node.preventRemove ) ? (
+                <a href='#' style={{marginLeft: 20}} onClick={(event)=> props.removeFile(props.node.id, props.node.name, event)}>
+                    <span className='fa fa-times'/>
+                </a>
+              ) : ''
+            }
         </div>
     );
 };
@@ -124,7 +128,7 @@ class Files extends Component {
         callback_ct = 0;
 
         //getFileList(this.rootfolderId, 0);
-        var data = {name: "root", toggled: true, children:[], mimeType: 'application/vnd.google-apps.folder', id:this.rootfolderId};
+        var data = {name: "root", toggled: true, children:[], mimeType: 'application/vnd.google-apps.folder', id:this.rootfolderId, preventRemove: true};
 
         Meteor.call('drive.listFiles', {query: `'${this.state.folderId}' in parents and trashed = false`}, (error, result)=> {
             if (error) {
