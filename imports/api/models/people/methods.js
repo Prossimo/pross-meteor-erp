@@ -9,12 +9,12 @@ import {ADMIN_ROLE_LIST} from '../../constants/roles'
 
 export const insertPerson = new ValidatedMethod({
     name: 'people.insert',
-    validate: People.schema.pick('name','email','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').validator({clean:true}),
-    run({name, email, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position}) {
+    validate: People.schema.pick('name','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').validator({clean:true}),
+    run({name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const data = {
-            name, email, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position,
+            name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position,
             user_id: this.userId
         }
 
@@ -24,8 +24,8 @@ export const insertPerson = new ValidatedMethod({
 
 export const updatePerson = new ValidatedMethod({
     name: 'people.update',
-    validate: People.schema.pick('_id','name','email','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').validator({clean:true}),
-    run({_id, name, email, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position}) {
+    validate: People.schema.pick('_id','name','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').validator({clean:true}),
+    run({_id, name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const person = People.findOne({_id})
@@ -35,7 +35,6 @@ export const updatePerson = new ValidatedMethod({
 
         const data = {
             name: _.isUndefined(name) ? null : name,
-            email: _.isUndefined(email) ? null : email,
             twitter: _.isUndefined(twitter) ? null : twitter,
             facebook: _.isUndefined(facebook) ? null : facebook,
             linkedin: _.isUndefined(linkedin) ? null : linkedin,

@@ -20,7 +20,6 @@ export default class PersonForm extends React.Component {
 
         this.state = {
             name: props.person ? props.person.name || '' : '',
-            email: props.person ? props.person.email || '' : '',
             twitter: props.person ? props.person.twitter || '' : '',
             facebook: props.person ? props.person.facebook || '' : '',
             linkedin: props.person ? props.person.linkedin || '' : '',
@@ -38,7 +37,7 @@ export default class PersonForm extends React.Component {
     }
 
     render() {
-        const {name, email, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position, designations, companies} = this.state
+        const {name, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position, designations, companies} = this.state
 
         const designationOptions = designations.map(d => ({value: d._id, label: d.name}))
         let designation, designationValue, roleOptions = [], roleValue, roleAddable = false
@@ -68,15 +67,6 @@ export default class PersonForm extends React.Component {
                         <Col sm={9}>
                             <FormControl type="text" placeholder="Name" value={name}
                                          onChange={(evt) => this.setState({name: evt.target.value})}/>
-                        </Col>
-                    </FormGroup>
-                    <FormGroup controlId="formHorizontalEmail">
-                        <Col sm={3}>
-                            Email
-                        </Col>
-                        <Col sm={9}>
-                            <FormControl type="email" placeholder="Email" value={email}
-                                         onChange={(evt) => this.setState({email: evt.target.value})}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalTwitter">
@@ -219,7 +209,6 @@ export default class PersonForm extends React.Component {
 
         let data = {
             name,
-            email,
             twitter,
             facebook,
             linkedin,
