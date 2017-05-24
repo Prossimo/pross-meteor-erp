@@ -68,8 +68,14 @@ decorators.Header = (props) => {
     return (
         <div style={style.base}>
             <div style={style.title}>
-                <i className={iconClass} style={iconStyle}/>
-                {props.node.name}
+                {
+                  (props.node.children) ? (
+                    <i className='fa fa-folder' style={iconStyle}/>
+                  ) : (
+                    <img src={props.node.iconLink}/>
+                  )
+                }
+                &nbsp; {props.node.name}
             </div>
             {
               ( !props.node.preventRemove ) ? (

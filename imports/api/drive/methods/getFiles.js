@@ -9,7 +9,7 @@ export default new ValidatedMethod({
   run({ fileId }) {
     const params = {
       fileId,
-      fields: 'kind,id,name,mimeType,webContentLink,webViewLink',
+      fields: 'kind,id,name,mimeType,webContentLink,webViewLink,iconLink',
     };
     return Meteor.wrapAsync(drive.files.get)(params);
   },
