@@ -60,6 +60,10 @@ Tasks.schema = new SimpleSchema({
   'comments.$.createdAt': {
     type: Date,
   },
+  'comments.$.updatedAt': {
+    type: Date,
+    optional: true,
+  },
   attachments: {
     type: Array,
     optional: true,
