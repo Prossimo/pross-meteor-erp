@@ -22,6 +22,7 @@ class AllSalesRecords extends React.Component{
                 key: null,
                 rowIndex: null,
                 value: null,
+                _id: null,
             },
             possibleColumns: [
                 {
@@ -180,12 +181,13 @@ class AllSalesRecords extends React.Component{
         });
     }
 
-    allowEdit(key, rowIndex, value) {
+    allowEdit(key, rowIndex, value, _id) {
         this.setState({
             edittingCell: {
                 key,
                 rowIndex,
                 value,
+                _id,
             }
         });
     }
@@ -198,13 +200,13 @@ class AllSalesRecords extends React.Component{
         });
     }
 
-    renderEditButton(key, index, value) {
+    renderEditButton(key, index, value, _id) {
         if (this.state.edittingCell.key) return;
         if (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) {
             return (
                 <button
                     className='btn btn-sm pull-right btn-primary'
-                    onClick={()=> this.allowEdit(key, index, value)}
+                    onClick={()=> this.allowEdit(key, index, value, _id)}
                 >
                     <i className='fa fa-pencil'/>
                 </button>
@@ -215,7 +217,8 @@ class AllSalesRecords extends React.Component{
     updateProject() {
         // TODO: update salesRecord at here
         const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
-        const { _id } = this.props.salesRecords[this.state.edittingCell.rowIndex];
+        const _id = this.state.edittingCell._id;
+        console.log(_id);
         let { key, value } = this.state.edittingCell;
         switch (type) {
             case 'date':
@@ -236,6 +239,7 @@ class AllSalesRecords extends React.Component{
                     key: null,
                     rowIndex: null,
                     value: null,
+                    _id: null
                 }
             });
             return info(`Success update project`);
@@ -317,7 +321,7 @@ class AllSalesRecords extends React.Component{
                                         >
                                             <div>
                                                 { date }
-                                                { this.renderEditButton(key, index, moment(project[key])) }
+                                                { this.renderEditButton(key, index, moment(project[key]), project._id) }
                                             </div>
                                         </td>
                                     );
@@ -330,7 +334,7 @@ class AllSalesRecords extends React.Component{
                                         >
                                             <div>
                                                 { project[key] }
-                                                { this.renderEditButton(key, index, project[key]) }
+                                                { this.renderEditButton(key, index, project[key], project._id) }
                                             </div>
                                         </td>)
                             }
@@ -407,6 +411,7 @@ class AllSalesRecords extends React.Component{
                             key: null,
                             rowIndex: null,
                             value: null,
+                            _id: null,
                         },
                         possibleColumns
                     });
