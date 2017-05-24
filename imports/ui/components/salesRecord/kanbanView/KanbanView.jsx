@@ -5,7 +5,7 @@ class KanbanView extends Component {
 		super();
 		this.columns = [
 			{
-				title: 'Lead',
+				title: 'Leads',
 				id: 'lead'
 			},
 			{
@@ -17,7 +17,7 @@ class KanbanView extends Component {
 				id: 'order'
 			},
 			{
-				title: 'Ticket',
+				title: 'Tickets',
 				id: 'ticket'
 			}
 		]

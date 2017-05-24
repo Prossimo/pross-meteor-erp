@@ -202,7 +202,7 @@ class AllSalesRecords extends React.Component{
         edittingCell.value = value
         this.setState({
             edittingCell,
-        })
+        });
     }
 
     renderEditButton(key, index, value, _id) {
@@ -475,59 +475,55 @@ class AllSalesRecords extends React.Component{
             }
         })
     }
-    renderKanbanView() {
-      return (
-        <KanbanView {...this.props} />
-      )
-    }
-    renderSwitchLabels() {
-      if (this.props.showAllDeals) {
-        const active = this.state.showKanbanView ? 'active' : ''
-        return (
-          <div className="text-right input-group-btn">
-            <button
-              className={`btn btn-default ${!active ? 'active' : ''}`}
-              onClick={() => {
-                this.setState({showKanbanView: false})
-              }}
-            >
-              <span className="fa fa-list" aria-hidden="true"></span>
-            </button>
-            <button
-              className={`btn btn-default ${active}`}
-              onClick={() => {
-                this.setState({showKanbanView: true})
-              }}
-            >
-              <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
-            </button>
-          </div>
-        )
-      }
-      return ''
-    }
+		renderKanbanView() {
+			return (
+				<KanbanView {...this.props} />
+			)
+		}
+		renderSwitchLabels() {
+			if (this.props.showAllDeals) {
+				const active = this.state.showKanbanView ? 'active' : ''
+				return (
+					<div className="text-right input-group-btn">
+						<button
+							className={`btn btn-default ${!active ? 'active' : ''}`}
+							onClick={()=>{
+								this.setState({showKanbanView: false})
+							}}
+						>
+							<span className="fa fa-list" aria-hidden="true"></span>
+						</button>
+						<button
+							className={`btn btn-default ${active}`}
+							onClick={()=>{
+								this.setState({showKanbanView: true})
+							}}
+						>
+							<span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
+						</button>
+					</div>
+				)
+			}
+			return ''
+		}
     render() {
-      return (
-         <div className="">
-          {this.renderSwitchLabels()}
-          <div className="col-md-12">&nbsp;</div>
-          {
-            this.props.showAllDeals && this.state.showKanbanView ?
-              this.renderKanbanView()
-            : (
-              <div>
-               <select className='selectpicker pull-right' multiple>
-               {
-                   this.state.possibleColumns.map(({ key, label }) => <option value={key} key={key}>{label}</option>)
-               }
-               </select>
-               <br/>
-               {this.renderProjectList()}
-              </div>
-            )
-          }
-         </div>
-        )
+		const showKaban = this.props.showAllDeals && this.state.showKanbanView;
+	    return (
+	       <div className="">
+		 	{this.renderSwitchLabels()}
+			<div className="col-md-12">&nbsp;</div>
+				{showKaban ? this.renderKanbanView() : ''}
+				<div className={showKaban ? 'hidden' : ''}>
+				 <select className='selectpicker pull-right' multiple>
+				 {
+				 	this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
+				 }
+				 </select>
+				 <br/>
+				 {this.renderProjectList()}
+			</div>
+	       </div>
+	      )
     }
 }
 
