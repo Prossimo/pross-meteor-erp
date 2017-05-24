@@ -13,10 +13,9 @@ export default {
         },
         node: {
             base: {
-                position: 'relative'
+                position: 'relative',
             },
             link: {
-                cursor: 'pointer',
                 position: 'relative',
                 padding: '0px 5px',
                 display: 'block'
@@ -31,7 +30,8 @@ export default {
                     verticalAlign: 'top',
                     marginLeft: '-5px',
                     height: '24px',
-                    width: '24px'
+                    width: '24px',
+                    cursor: 'pointer',
                 },
                 wrapper: {
                     position: 'absolute',
@@ -51,7 +51,8 @@ export default {
                 base: {
                     display: 'inline-block',
                     verticalAlign: 'top',
-                    color: '#9DA5AB'
+                    color: '#9DA5AB',
+                    cursor: 'pointer',
                 },
                 connector: {
                     width: '2px',
