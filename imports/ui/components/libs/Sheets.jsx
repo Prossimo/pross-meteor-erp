@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import { info, warning  } from '/imports/api/lib/alerts';
 import Select from 'react-select';
+import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 
@@ -225,7 +226,20 @@ class Sheets extends Component {
                         }
                     })
                 }
-                <td><Button onClick={()=> this.goTo(project)} bsSize='xsmall'><i className='fa fa-link'/> </Button></td>
+                <td>
+                  <div className='btn-group'>
+                    <Button onClick={()=> this.goTo(project)} bsSize='small'>
+                      <i className='fa fa-link'/>
+                    </Button>
+                    {
+                      (Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) ? (
+                        <Button onClick={()=> this.props.remove(project)} bsSize='small' bsStyle='danger'>
+                          <i className='fa fa-times'/>
+                        </Button>
+                      ) : ''
+                    }
+                  </div>
+                </td>
                 </tr>
             )
         })
@@ -333,6 +347,7 @@ Sheets.propTypes = {
     onSave: PropTypes.func.isRequired,
     settingKey: PropTypes.string.isRequired,
     goTo: PropTypes.func.isRequired,
+    remove: PropTypes.func.isRequired,
 }
 
 export default Sheets;

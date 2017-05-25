@@ -3,6 +3,8 @@ import { createContainer  } from 'meteor/react-meteor-data';
 import { GET_NEW_PROJECTS } from '/imports/api/constants/collections';
 import Projects from '/imports/api/models/projects/projects';
 import Sheets from '/imports/ui/components/libs/Sheets';
+import swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 class AllProjects extends Component {
     constructor(props) {
@@ -21,21 +23,9 @@ class AllProjects extends Component {
                 selected: false,
                 editable: true,
             },
-            //{
-                //key: 'shippingMode',
-                //label: 'Shipping Mode',
-                //selected: false,
-                //type: 'select',
-                //options: [
-                    //'LCL',
-                    //'FCL',
-                    //'FCL Pallets',
-                    //'Courrier'
-                //].map((value)=> ({label: value, value})),
-                //editable: true,
-            //},
         ];
         this.saveProjectProperty = this.saveProjectProperty.bind(this);
+        this.removeProject = this.removeProject.bind(this);
     }
 
     componentWillUnmount() {
@@ -51,6 +41,51 @@ class AllProjects extends Component {
                 callback && callback(null, 'Success update project attributes')
             }
         });
+    }
+
+    removeProject({ _id }) {
+      swal({
+        title: 'Are you sure ?',
+        type: 'warning',
+        html: `
+          <div class='form-group text-left'>
+            <div class='checkbox'>
+              <label>
+                <input type='checkbox' checked id='confirm-remove-folders'/> Remove resource folders
+              </label>
+            </div>
+            <div class='checkbox'>
+              <label>
+                <input type='checkbox' checked id='confirm-remove-slack'/> Remove slack channel
+              </label>
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!',
+        preConfirm: ()=> {
+          return new Promise((resolve)=> {
+            resolve({
+              isRemoveFolders: $('#confirm-remove-folders').is(':checked'),
+              isRemoveSlack: $('#confirm-remove-slack').is(':checked'),
+            });
+          });
+        },
+      }).then(({ isRemoveFolders, isRemoveSlack })=> {
+        Meteor.call('removeProject', { _id, isRemoveFolders, isRemoveSlack }, (error, result)=> {
+          if (error) {
+            const msg = error.reason ? error.reason : error.message;
+            return swal('remove project failed',  msg, 'warning');
+          }
+          swal(
+            'Removed!',
+            'Project has been removed.',
+            'success'
+          );
+        });
+      })
     }
 
     goTo(project) {
@@ -70,6 +105,7 @@ class AllProjects extends Component {
                         onSave={this.saveProjectProperty}
                         settingKey={'newProject'}
                         goTo={this.goTo}
+                        remove={this.removeProject}
                     />
                 )
             }
