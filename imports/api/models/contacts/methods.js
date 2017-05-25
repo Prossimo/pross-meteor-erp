@@ -14,16 +14,18 @@ Meteor.methods({
         return Contacts.insert(data)
     },
 
-    updateContact(id, data)
+    updateContact(_id, data)
     {
         check(data, {
             account_id: Match.Maybe(String),
             email: Match.Maybe(String),
             name: Match.Maybe(String),
-            phone_numbers: Match.Maybe(Array)
+            phone_numbers: Match.Maybe(Array),
+            person_id: Match.Maybe(String)
         });
 
-        return Contacts.update({id}, data)
+        data.edited = true
+        return Contacts.update({_id}, {$set:data})
     },
 
     insertOrUpdateContact(data)

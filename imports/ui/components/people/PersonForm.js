@@ -2,7 +2,7 @@ import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from "/imports/api/lib/alerts"
-import {PeopleDesignations, Companies} from '/imports/api/models'
+import {PeopleDesignations, Companies, People} from '/imports/api/models'
 import {insertPerson, updatePerson} from '/imports/api/models/people/methods'
 import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
@@ -18,22 +18,28 @@ export default class PersonForm extends React.Component {
     constructor(props) {
         super(props)
 
+        const person = props.person ? props.person : (props.person_id ? People.findOne(props.person_id) : null)
+        const name = person ? person.name : props.name
+        const emails = person ? person.emails : (props.email ? [{email:props.email, is_default:true}] : [])
+
         this.state = {
-            name: props.person ? props.person.name || '' : '',
-            twitter: props.person ? props.person.twitter || '' : '',
-            facebook: props.person ? props.person.facebook || '' : '',
-            linkedin: props.person ? props.person.linkedin || '' : '',
-            designation_id: props.person ? props.person.designation_id : '',
-            role: props.person ? props.person.role || '' : '',
-            emails: props.person ? props.person.emails : [],
-            phone_numbers: props.person ? props.person.phone_numbers : [],
-            company_id: props.person ? props.person.company_id : '',
-            position: props.person ? props.person.position || '' : '',
+            name: name || '',
+            twitter: person ? person.twitter || '' : '',
+            facebook: person ? person.facebook || '' : '',
+            linkedin: person ? person.linkedin || '' : '',
+            designation_id: person ? person.designation_id : '',
+            role: person ? person.role || '' : '',
+            emails: emails,
+            phone_numbers: person ? person.phone_numbers : [],
+            company_id: person ? person.company_id : '',
+            position: person ? person.position || '' : '',
 
             designations: PeopleDesignations.find().fetch(),
             companies: Companies.find().fetch(),
             showRoleModal: false
         }
+
+        this.person = person
     }
 
     render() {
@@ -150,7 +156,7 @@ export default class PersonForm extends React.Component {
                     </FormGroup>
                     <FormGroup>
                         <Col sm={12} style={{textAlign: 'right'}}>
-                            <Button type="submit" bsStyle="primary">{this.props.person ? "Update" : "Create"}</Button>
+                            <Button type="submit" bsStyle="primary">{this.person ? "Update" : "Create"}</Button>
                         </Col>
                     </FormGroup>
                 </Form>
@@ -220,15 +226,17 @@ export default class PersonForm extends React.Component {
             position
         } = this.state
 
+        let personId
         try {
-            if (this.props.person) {
-                data._id = this.props.person._id
+            if (this.person) {
+                personId = this.person._id
+                data._id = personId
                 updatePerson.call(data)
             } else {
-                insertPerson.call(data)
+                personId = insertPerson.call(data)
             }
 
-            if (this.props.onSaved) this.props.onSaved()
+            if (this.props.onSaved) this.props.onSaved(personId)
         } catch (e) {
             console.log(e)
         }

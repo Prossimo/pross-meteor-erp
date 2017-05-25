@@ -46,7 +46,7 @@ Contacts.schema = new SimpleSchema({
     userId: {type: String, optional: true},
     removed: {type: Boolean, optional: true},
     edited: {type: Boolean, optional: true},
-    people_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    person_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 });
@@ -63,7 +63,7 @@ Contacts.publicFields = {
     userId: 1,
     removed: 1,
     edited: 1,
-    people_id: 1,
+    person_id: 1,
     created_at: 1,
     modified_at: 1
 };

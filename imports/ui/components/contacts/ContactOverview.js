@@ -6,7 +6,8 @@ export default class ContactOverview extends React.Component {
     static propTypes = {
         contact: React.PropTypes.object,
         onRemoveContact: React.PropTypes.func,
-        onEditContact: React.PropTypes.func
+        onEditContact: React.PropTypes.func,
+        onConvertToPerson: React.PropTypes.func
     }
 
     constructor(props) {
@@ -38,10 +39,10 @@ export default class ContactOverview extends React.Component {
         const disabled = !contact || account && !Meteor.user().isAdmin() && account.isTeamAccount
         return (
             <div className="toolbar-panel">
-                <div>
-                    <Button bsStyle="default" disabled={disabled} onClick={this.onClickEditContact}><i className="fa fa-edit"/></Button>&nbsp;
-                    <Button bsStyle="danger" disabled={disabled} onClick={this.onClickRemoveContact}><i className="fa fa-trash"/></Button>
-                </div>
+                <Button bsStyle="default" disabled={disabled} onClick={this.onClickEditContact}><i className="fa fa-edit"/></Button>&nbsp;
+                <Button bsStyle="danger" disabled={disabled} onClick={this.onClickRemoveContact}><i className="fa fa-trash"/></Button>
+                <div style={{flex:1}}/>
+                <Button bsStyle="success" disabled={disabled} onClick={this.onClickConvertToPerson}><i className="fa fa-address-book"/></Button>
             </div>
         )
     }
@@ -76,5 +77,8 @@ export default class ContactOverview extends React.Component {
         this.props.onRemoveContact && this.props.onRemoveContact(contact)
     }
 
+    onClickConvertToPerson = () => {
+        this.props.onConvertToPerson && this.props.onConvertToPerson(this.props.contact)
+    }
 }
 
