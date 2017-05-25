@@ -4,6 +4,8 @@ import ContactsList from '../components/contacts/ContactsList'
 import ContactOverview from '../components/contacts/ContactOverview'
 import ContactForm from '../components/contacts/ContactForm'
 import {warning} from '/imports/api/lib/alerts'
+import PersonForm from '../components/people/PersonForm'
+import PeopleForm from '../components/people/PeopleForm'
 
 
 export default class ContactsPage extends React.Component {
@@ -32,8 +34,12 @@ export default class ContactsPage extends React.Component {
                     contact={this.state.selectedContact}
                     onRemoveContact={this.onRemoveContact}
                     onEditContact={() => this.setState({showContactModal: true, creating:false})}
+                    onConvertToPerson={(contact) => {this.setState({
+                        showPersonModal: true
+                    })}}
                 />
                 {this.renderContactModal()}
+                {this.renderPersonModal()}
             </div>
         )
     }
@@ -52,6 +58,25 @@ export default class ContactsPage extends React.Component {
                         contact={!creating?selectedContact:null}
                         onSaved={this.onSavedContact}
                         toggleLoader={this.props.toggleLoader}
+                    />
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    renderPersonModal() {
+        const {showPersonModal, selectedContact} = this.state
+        const title = 'Create person'
+
+        return (
+            <Modal show={showPersonModal} onHide={() => {
+                this.setState({showPersonModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> {title}</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <PersonForm
+                        {...selectedContact}
+                        onSaved={this.onSavedPerson}
                     />
                 </Modal.Body>
             </Modal>
@@ -83,5 +108,11 @@ export default class ContactsPage extends React.Component {
                 selectedContact: contact
             })
         }
+    }
+
+    onSavedPerson = (person_id) => { console.log(person_id)
+        Meteor.call('updateContact', this.state.selectedContact._id, {person_id}, (err,res)=>{
+            this.setState({showPersonModal: false})
+        })
     }
 }
