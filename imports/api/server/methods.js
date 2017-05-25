@@ -183,32 +183,6 @@ Meteor.methods({
     });
   },
 
-  updateNewProjectProperty(projectId, property) {
-    check(projectId, String);
-    check(property, {
-      key: String,
-      value: Match.OneOf(String, Date)
-    });
-    const {key, value} = property;
-
-    // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
-
-    // current user belongs to salesRecords
-    const project = Projects.findOne(projectId);
-    if (!project) throw new Meteor.Error('Project does not exists');
-    const isMember = !!project.members.find(({userId}) => userId === this.userId);
-
-    // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-
-    return Projects.update(projectId, {
-      $set: {
-        [key]: value,
-      }
-    });
-  },
-
   addUserToSlackChannel(userId, channel){
     check(userId, String);
     check(channel, String);
@@ -767,56 +741,6 @@ Meteor.methods({
     let token = capability.generate();
 
     return token;
-  },
-
-  removeProject({ _id, isRemoveFolders, isRemoveSlack }) {
-    check({
-      _id,
-      isRemoveFolders,
-      isRemoveSlack,
-    }, new SimpleSchema({
-      _id: { type: String },
-      isRemoveFolders: { type: Boolean },
-      isRemoveSlack: { type: Boolean },
-    }));
-
-    if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-      const project = Projects.findOne(_id);
-      if (project) {
-        const { _id, folderId, slackChanel } = project;
-        // Remove Project
-        Projects.remove(_id);
-        Meteor.defer(()=> {
-          // Remove folder
-          isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId });
-          // Remove slack channel
-          isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
-            params: {
-              token: SLACK_API_KEY,
-              channel: slackChanel,
-            },
-          });
-        });
-      }
-    }
-  },
-
-  createNewProject(project) {
-    if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
-      throw new Meteor.Error('Access denied');
-    }
-    check(project, {
-      name: String,
-      members: [{
-        userId: String,
-        isAdmin: Boolean,
-      }],
-    });
-    const projectId = Projects.insert(project);
-    Meteor.defer(()=> {
-      prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
-    });
-    return projectId;
   },
 
   async getDriveFileList() {
