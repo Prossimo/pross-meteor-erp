@@ -2,8 +2,8 @@ import SimpleSchema from 'simpl-schema';
 import { Settings } from '../../models/';
 
 const CONFIG = {
-  PROJECT_ROOT_FOLDER: '0B9TUb-58jBJ-S25JYUV3c3FNM0E',
-  DEAL_ROOT_FOLDER: '0B9TUb-58jBJ-YzR2Tkwzc1FYVVk',
+  PROJECT_ROOT_FOLDER: '0BwlkF3vox8cEa1M5X3gtMV9ocnc',
+  DEAL_ROOT_FOLDER: '0BwlkF3vox8cEa1M5X3gtMV9ocnc',
   PROJECT_TEMPLATE_FOLDER: '0BzKhdC5zjamxY1g4aEtGMGNWY1k',
   DEAL_TEMPLATE_FOLDER: '0BzKhdC5zjamxY1g4aEtGMGNWY1k',
 };
