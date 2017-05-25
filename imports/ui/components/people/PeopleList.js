@@ -97,8 +97,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                 <Table striped hover>
                     <thead>
                     <tr>
-                        <th width="2%"></th>
-                        <th width="3%">#</th>
+                        <th width="5%">#</th>
                         <th width="15%">Name</th>
                         <th width="15%">Email</th>
                         <th width="15%">Designation</th>
@@ -137,8 +136,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         people.sort(compare).forEach((person, index) => {
             trs.push(<tr key={person._id}>
-                <td width="2%"><Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button></td>
-                <td width="3%">{index + 1}</td>
+                <td width="5%"><Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button></td>
                 <td width="15%">{person.name}</td>
                 <td width="15%">{person.defaultEmail()}</td>
                 <td width="15%">{person.designation() ? person.designation().name : ''}</td>
@@ -185,7 +183,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                                 </tr></thead>
                                 <tbody>
                                 {
-                                    person.emails.map((e,i) => (
+                                    person.emails && person.emails.map((e,i) => (
                                         <tr key={`email-${person._id}-#${i}`}>
                                             <td width="60%">{e.email}</td>
                                             <td width="25%">{e.type}</td>
@@ -208,7 +206,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                                 </tr></thead>
                                 <tbody>
                                 {
-                                    person.phone_numbers.map((p,i) => (
+                                    person.phone_numbers && person.phone_numbers.map((p,i) => (
                                         <tr key={`phone-number-${person._id}-#${i}`}>
                                             <td width="40%">{p.number}</td>
                                             <td width="20%">{p.extension}</td>

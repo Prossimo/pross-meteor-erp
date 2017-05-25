@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
@@ -7,8 +8,9 @@ import Contacts from '/imports/api/models/contacts/contacts'
 const PAGESIZE = 100
 export default class ContactsList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelectContact: React.PropTypes.func,
+        onSelectContacts: React.PropTypes.func,
         onCreateContact: React.PropTypes.func,
+        onConvertToPeople: React.PropTypes.func,
         updatedContact: React.PropTypes.object,
         removedContact: React.PropTypes.object
     }
@@ -20,7 +22,8 @@ export default class ContactsList extends TrackerReact(React.Component) {
         this.fullyLoaded = false
         this.state = {
             page: 1,
-            keyword: null
+            keyword: null,
+            selectedContacts: []
         }
     }
 
@@ -82,7 +85,8 @@ export default class ContactsList extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>
+                    {/*<Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>*/}
+                    <Button bsStyle="primary" onClick={()=>{this.props.onConvertToPeople&&this.props.onConvertToPeople()}}><i className="fa fa-address-book"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -116,7 +120,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
         )
     }
     renderContacts() {
-        const {selectedContact} = this.state
+        const {selectedContacts} = this.state
 
         const contacts = this.loadContacts()
         if (!contacts || contacts.length == 0) return
@@ -131,21 +135,53 @@ export default class ContactsList extends TrackerReact(React.Component) {
                 return 0
             }
         }
-        return contacts.sort(compare).map((contact, index) => (
-            <tr className={selectedContact && selectedContact._id===contact._id ? 'focused' : ''} key={contact._id} onClick={() => this.onClickContact(contact)}>
-                <td width="5%">{index + 1}</td>
-                <td width="20%">{contact.name}</td>
-                <td width="25%">{contact.email}</td>
-                <td width="15%">{contact.phone_numbers}</td>
-                <td width="25%">{contact.description}</td>
-                <td width="10%">{contact.account() ? contact.account().name : ''}</td>
-            </tr>
-        ))
+        return contacts.sort(compare).map((contact, index) => {
+            const selected = _.findIndex(selectedContacts, {_id:contact._id})>-1
+            return (
+                <tr className={selected ? 'focused' : ''} key={contact._id} onClick={(e) => this.selectContact(contact)}>
+                    <td width="5%"><input type="checkbox" checked={selected} onChange={(e)=>{
+                        e.stopPropagation()
+                        if(e.target.checked) {
+                            this.selectContact(contact)
+                        } else {
+                            this.deselectContact(contact)
+                        }
+                    }}/></td>
+                    <td width="20%">{contact.name}</td>
+                    <td width="25%">{contact.email}</td>
+                    <td width="15%">{contact.phone_numbers}</td>
+                    <td width="25%">{contact.description}</td>
+                    <td width="10%">{contact.account() ? contact.account().name : ''}</td>
+                </tr>
+            )
+        })
     }
 
-    onClickContact = (contact) => {
-        this.setState({selectedContact: contact})
-        if(this.props.onSelectContact) this.props.onSelectContact(contact)
+    selectContact = (contact) => {
+        const {selectedContacts} = this.state
+
+        const index = _.findIndex(selectedContacts, {_id:contact._id})
+
+        if(index == -1) {
+            selectedContacts.push(contact)
+        }
+        this.setState({selectedContacts})
+
+        if(this.props.onSelectContacts) this.props.onSelectContacts(selectedContacts)
+    }
+
+    deselectContact = (contact) => {
+        const {selectedContacts} = this.state
+
+        const index = _.findIndex(selectedContacts, {_id:contact._id})
+
+        if(index > -1) {
+            selectedContacts.splice(index, 1)
+        }
+
+        this.setState({selectedContacts})
+
+        if(this.props.onSelectContacts) this.props.onSelectContacts(selectedContacts)
     }
 
     onScrollContactList = (evt) => {

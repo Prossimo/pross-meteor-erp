@@ -10,8 +10,8 @@ import {ADMIN_ROLE_LIST} from '../../constants/roles'
 
 export const insertPerson = new ValidatedMethod({
     name: 'people.insert',
-    validate: People.schema.pick('name','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').validator({clean:true}),
-    run({name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position}) {
+    validate: People.schema.pick('name','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').extend({contact_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}}).validator({clean:true}),
+    run({name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position, contact_id}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const data = {
@@ -19,7 +19,12 @@ export const insertPerson = new ValidatedMethod({
             user_id: this.userId
         }
 
-        return People.insert(data)
+        const person_id =  People.insert(data)
+
+        if(contact_id) {
+            Contacts.update({_id:contact_id}, {$set:{person_id}})
+        }
+        return person_id
     }
 })
 

@@ -3,12 +3,12 @@ import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from "/imports/api/lib/alerts"
 import {PeopleDesignations, Companies} from '/imports/api/models'
-import {insertPerson, updatePerson} from '/imports/api/models/people/methods'
+import {insertPeople} from '/imports/api/models/people/methods'
 
 
 export default class PeopleForm extends React.Component {
     static propTypes = {
-        people: React.PropTypes.object,
+        people: React.PropTypes.array,
         onSaved: React.PropTypes.func
     }
 
@@ -55,10 +55,10 @@ export default class PeopleForm extends React.Component {
                         <thead>
                         <tr>
                             <th width="20%">Name</th>
-                            <th width="20%">Email</th>
-                            <th width="10%">Designation</th>
-                            <th width="10%">Role</th>
-                            <th width="10%">Company</th>
+                            <th width="25%">Email</th>
+                            <th width="15%">Designation</th>
+                            <th width="15%">Role</th>
+                            <th width="13%">Company</th>
                             <th width="10%">Position</th>
                             <th></th>
                         </tr>
@@ -110,31 +110,15 @@ export default class PeopleForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        /*let data = {
-            name,
-            twitter,
-            facebook,
-            linkedin,
-            designation_id,
-            role,
-            emails,
-            phone_numbers,
-            company_id,
-            position
-        } = this.state
+        const {people} = this.state
 
+        console.log(people)
         try {
-            if (this.props.person) {
-                data._id = this.props.person._id
-                updatePerson.call(data)
-            } else {
-                insertPerson.call(data)
-            }
-
+            insertPeople.call({people})
             if (this.props.onSaved) this.props.onSaved()
         } catch (e) {
             console.log(e)
-        }*/
+        }
 
     }
 }

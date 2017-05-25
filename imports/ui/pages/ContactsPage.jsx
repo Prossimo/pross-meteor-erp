@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import React from 'react'
 import {Modal} from 'react-bootstrap'
 import ContactsList from '../components/contacts/ContactsList'
@@ -15,7 +16,7 @@ export default class ContactsPage extends React.Component {
         this.state = {
             showContactModal: false,
             creating: false,
-            selectedContact: null,
+            selectedContacts: [],
             updatedContact: null,
             removedContact: null
         }
@@ -25,13 +26,14 @@ export default class ContactsPage extends React.Component {
         return (
             <div className="contact-page">
                 <ContactsList
-                    onSelectContact={(contact) => this.setState({selectedContact: contact})}
+                    onSelectContacts={(contacts) => this.setState({selectedContacts: contacts})}
                     onCreateContact={() => this.setState({showContactModal: true, creating:true})}
+                    onConvertToPeople={() => this.setState({showPeopleModal: true})}
                     updatedContact={this.state.updatedContact}
                     removedContact={this.state.removedContact}
                 />
                 <ContactOverview
-                    contact={this.state.selectedContact}
+                    contact={_.last(this.state.selectedContacts)}
                     onRemoveContact={this.onRemoveContact}
                     onEditContact={() => this.setState({showContactModal: true, creating:false})}
                     onConvertToPerson={(contact) => {this.setState({
@@ -40,12 +42,14 @@ export default class ContactsPage extends React.Component {
                 />
                 {this.renderContactModal()}
                 {this.renderPersonModal()}
+                {this.renderPeopleModal()}
             </div>
         )
     }
 
     renderContactModal() {
-        const {showContactModal, selectedContact, creating} = this.state
+        const {showContactModal, selectedContacts, creating} = this.state
+        const selectedContact = _.last(selectedContacts)
         const title = selectedContact&&!creating ? 'Edit Contact' : 'Create Contact'
 
         return (
@@ -65,8 +69,11 @@ export default class ContactsPage extends React.Component {
     }
 
     renderPersonModal() {
-        const {showPersonModal, selectedContact} = this.state
-        const title = 'Create person'
+        const {showPersonModal, selectedContacts} = this.state
+        const contact = _.last(selectedContacts)
+        if(!contact) return ''
+
+        const title = contact.person_id ? 'Edit person' : 'Create person'
 
         return (
             <Modal show={showPersonModal} onHide={() => {
@@ -75,8 +82,30 @@ export default class ContactsPage extends React.Component {
                 <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> {title}</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <PersonForm
-                        {...selectedContact}
+                        contactId={contact._id}
+                        name={contact.name}
+                        email={contact.email}
                         onSaved={this.onSavedPerson}
+                    />
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    renderPeopleModal() {
+        const {showPeopleModal, selectedContacts} = this.state
+
+        if(!selectedContacts || selectedContacts.length == 0) return ''
+
+        return (
+            <Modal bsSize="large" show={showPeopleModal} onHide={() => {
+                this.setState({showPeopleModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to people</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <PeopleForm
+                        people={selectedContacts.map(c => ({name:c.name, email:c.email}))}
+                        onSaved={this.onSavedPeople}
                     />
                 </Modal.Body>
             </Modal>
@@ -92,8 +121,10 @@ export default class ContactsPage extends React.Component {
                     return warning(err.message);
                 }
 
+                const {selectedContacts} = this.state
+                selectedContacts.splice(_.findIndex(selectedContacts, {_id:contact._id}), 1)
                 this.setState({
-                    selectedContact: null,
+                    selectedContacts,
                     removedContact: contact
                 })
             })
@@ -104,15 +135,16 @@ export default class ContactsPage extends React.Component {
         this.setState({showContactModal: false})
         if(updating) {
             this.setState({
-                updatedContact: contact,
-                selectedContact: contact
+                updatedContact: contact
             })
         }
     }
 
-    onSavedPerson = (person_id) => { console.log(person_id)
-        Meteor.call('updateContact', this.state.selectedContact._id, {person_id}, (err,res)=>{
-            this.setState({showPersonModal: false})
-        })
+    onSavedPerson = (person_id) => {
+        this.setState({showPersonModal: false})
+    }
+
+    onSavedPeople = (person_id) => {
+        this.setState({showPeopleModal: false})
     }
 }

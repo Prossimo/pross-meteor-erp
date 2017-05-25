@@ -61,9 +61,9 @@ People.schema = new SimpleSchema({
     designation_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     role: {type: String, optional: true},
     is_user: {type: Boolean, optional: true},
-    emails: {type: Array, optional: true},
+    emails: {type: Array, optional: true, defaultValue:[]},
     'emails.$': {type: People.Email},
-    phone_numbers: {type: Array, optional: true},
+    phone_numbers: {type: Array, optional: true, defaultValue:[]},
     'phone_numbers.$': {type: People.PhoneNumber},
     company_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     position: {type: String, optional: true},
@@ -121,13 +121,15 @@ People.helpers({
         if(!this.company_id) return null
         return Companies.findOne(this.company_id)
     },
-    email: function() {
+    defaultEmail: function() {
         if(!this.emails || this.emails.length==0) return null
 
         let email = this.emails[0].email
         this.emails.forEach((em) => {
           if(em.is_default) email = em.email
         })
+
+        return email
     }
 });
 

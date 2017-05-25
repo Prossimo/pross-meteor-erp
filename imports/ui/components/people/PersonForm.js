@@ -34,6 +34,8 @@ export default class PersonForm extends React.Component {
             company_id: person ? person.company_id : '',
             position: person ? person.position || '' : '',
 
+            contact_id: props.contactId,
+
             designations: PeopleDesignations.find().fetch(),
             companies: Companies.find().fetch(),
             showRoleModal: false
@@ -223,7 +225,8 @@ export default class PersonForm extends React.Component {
             emails,
             phone_numbers,
             company_id,
-            position
+            position,
+            contact_id
         } = this.state
 
         let personId
