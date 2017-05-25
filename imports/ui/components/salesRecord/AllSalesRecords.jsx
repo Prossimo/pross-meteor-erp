@@ -3,8 +3,11 @@ import { Table, Glyphicon, Button } from 'react-bootstrap';
 import classNames from 'classnames';
 import DatePicker from 'react-datepicker';
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
+import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
 import { info, warning  } from '/imports/api/lib/alerts';
 import Select from 'react-select';
+import swal from 'sweetalert2';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import 'bootstrap-select';
 import 'bootstrap-select/dist/css/bootstrap-select.min.css';
 import KanbanView from './kanbanView/KanbanView'
@@ -145,7 +148,7 @@ class AllSalesRecords extends React.Component{
                     editable: true,
                 }
             ],
-						showKanbanView: false
+            showKanbanView: false
         }
         this.renderRows = this.renderRows.bind(this);
         this.allowEdit = this.allowEdit.bind(this);
@@ -155,8 +158,9 @@ class AllSalesRecords extends React.Component{
         this.renderEditButton = this.renderEditButton.bind(this);
         this.renderSaveButton = this.renderSaveButton.bind(this);
         this.updateProject = this.updateProject.bind(this);
-				this.renderKanbanView = this.renderKanbanView.bind(this);
-				this.renderSwitchLabels = this.renderSwitchLabels.bind(this);
+        this.renderKanbanView = this.renderKanbanView.bind(this);
+        this.renderSwitchLabels = this.renderSwitchLabels.bind(this);
+        this.removeProject = this.removeProject.bind(this);
     }
 
     handleMouseLeave() {
@@ -341,7 +345,16 @@ class AllSalesRecords extends React.Component{
                         }
                     })
                 }
-                <td><Button onClick={()=> this.goToProject(project)} bsSize='xsmall'><i className='fa fa-link'/> </Button></td>
+                <td>
+                  <div className='btn-group'>
+                    <Button onClick={()=> this.goToProject(project)} bsSize='small'><i className='fa fa-link'/> </Button>
+                    {
+                      (Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) ? (
+                        <Button onClick={()=> this.removeProject(project._id)} bsStyle='danger' bsSize='small'><i className='fa fa-trash'/></Button>
+                      ) : ''
+                    }
+                  </div>
+                </td>
                 </tr>
             )
         })
@@ -368,6 +381,51 @@ class AllSalesRecords extends React.Component{
                 </tbody>
               </Table>
         )
+    }
+
+    removeProject(_id) {
+      swal({
+        title: 'Are you sure ?',
+        type: 'warning',
+        html: `
+          <div class='form-group text-left'>
+            <div class='checkbox'>
+              <label>
+                <input type='checkbox' checked id='confirm-remove-folders'/> Remove resource folders
+              </label>
+            </div>
+            <div class='checkbox'>
+              <label>
+                <input type='checkbox' checked id='confirm-remove-slack'/> Remove slack channel
+              </label>
+            </div>
+          </div>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!',
+        preConfirm: ()=> {
+          return new Promise((resolve)=> {
+            resolve({
+              isRemoveFolders: $('#confirm-remove-folders').is(':checked'),
+              isRemoveSlack: $('#confirm-remove-slack').is(':checked'),
+            });
+          })
+        }
+      }).then(({ isRemoveFolders, isRemoveSlack })=> {
+        Meteor.call('removeSalesRecord', { _id, isRemoveFolders, isRemoveSlack }, (error, result)=> {
+          if (error) {
+            const msg = error.reason ? error.reason : error.message;
+            return swal('remove deal failed',  msg, 'warning');
+          }
+          swal(
+            'Removed!',
+            'Deal has been removed.',
+            'success'
+          );
+        })
+      })
     }
 
     goToProject(project){
@@ -422,59 +480,59 @@ class AllSalesRecords extends React.Component{
             }
         });
     }
-		renderKanbanView() {
-			return (
-				<KanbanView {...this.props} />
-			)
-		}
-		renderSwitchLabels() {
-			if (this.props.showAllDeals) {
-				const active = this.state.showKanbanView ? 'active' : ''
-				return (
-					<div className="text-right input-group-btn">
-						<button
-							className={`btn btn-default ${!active ? 'active' : ''}`}
-							onClick={()=>{
-								this.setState({showKanbanView: false})
-							}}
-						>
-							<span className="fa fa-list" aria-hidden="true"></span>
-						</button>
-						<button
-							className={`btn btn-default ${active}`}
-							onClick={()=>{
-								this.setState({showKanbanView: true})
-							}}
-						>
-							<span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
-						</button>
-					</div>
-				)
-			}
-			return ''
-		}
+    renderKanbanView() {
+      return (
+        <KanbanView {...this.props} />
+      )
+    }
+    renderSwitchLabels() {
+      if (this.props.showAllDeals) {
+        const active = this.state.showKanbanView ? 'active' : ''
+        return (
+          <div className="text-right input-group-btn">
+            <button
+              className={`btn btn-default ${!active ? 'active' : ''}`}
+              onClick={()=>{
+                this.setState({showKanbanView: false})
+              }}
+            >
+              <span className="fa fa-list" aria-hidden="true"></span>
+            </button>
+            <button
+              className={`btn btn-default ${active}`}
+              onClick={()=>{
+                this.setState({showKanbanView: true})
+              }}
+            >
+              <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
+            </button>
+          </div>
+        )
+      }
+      return ''
+    }
     render() {
-	    return (
-	       <div className="">
-				 	{this.renderSwitchLabels()}
-					<div className="col-md-12">&nbsp;</div>
-					{
-						this.props.showAllDeals && this.state.showKanbanView ?
-							this.renderKanbanView()
-						: (
-							<div>
-							 <select className='selectpicker pull-right' multiple>
-							 {
-									 this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
-							 }
-							 </select>
-							 <br/>
-							 {this.renderProjectList()}
-							</div>
-						)
-					}
-	       </div>
-	      )
+      return (
+         <div className="">
+          {this.renderSwitchLabels()}
+          <div className="col-md-12">&nbsp;</div>
+          {
+            this.props.showAllDeals && this.state.showKanbanView ?
+              this.renderKanbanView()
+            : (
+              <div>
+               <select className='selectpicker pull-right' multiple>
+               {
+                   this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
+               }
+               </select>
+               <br/>
+               {this.renderProjectList()}
+              </div>
+            )
+          }
+         </div>
+        )
     }
 }
 

@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import  {HTTP} from 'meteor/http';
+import SimpleSchema from 'simpl-schema';
 import SalesRecords from './salesRecords'
 import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
 import config from '../../config/config';
@@ -16,6 +17,32 @@ const SLACK_API_KEY = config.slack.apiKey;
 const SLACK_BOT_ID = config.slack.botId;
 
 Meteor.methods({
+    removeSalesRecord({ _id, isRemoveSlack, isRemoveFolders }) {
+      new SimpleSchema({
+        _id: String,
+        isRemoveSlack: Boolean,
+        isRemoveFolders: Boolean,
+      }).validate({ _id, isRemoveSlack, isRemoveFolders });
+      if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+        const salesRecord = SalesRecords.findOne(_id);
+        if (salesRecord) {
+          const { _id, folderId, slackChanel } = salesRecord;
+          // Remove salesrecord
+          SalesRecords.remove(_id);
+          Meteor.defer(()=> {
+            // Remove folder
+            isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId });
+            // Remove slack channel
+            isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
+              params: {
+                token: SLACK_API_KEY,
+                channel: slackChanel,
+              }
+            });
+          })
+        }
+      }
+    },
     changeStageOfSalesRecord(salesRecordId, stage) {
         check(salesRecordId, String);
         check(stage, String);
