@@ -104,7 +104,7 @@ export default class ContactsPage extends React.Component {
                 <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to people</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <PeopleForm
-                        people={selectedContacts.map(c => ({name:c.name, email:c.email}))}
+                        people={selectedContacts.filter(c => c.person_id==null).map(c => ({name:c.name, email:c.email}))}
                         onSaved={this.onSavedPeople}
                     />
                 </Modal.Body>
