@@ -769,6 +769,38 @@ Meteor.methods({
     return token;
   },
 
+  removeProject({ _id, isRemoveFolders, isRemoveSlack }) {
+    check({
+      _id,
+      isRemoveFolders,
+      isRemoveSlack,
+    }, new SimpleSchema({
+      _id: { type: String },
+      isRemoveFolders: { type: Boolean },
+      isRemoveSlack: { type: Boolean },
+    }));
+
+    if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
+      const project = Projects.findOne(_id);
+      if (project) {
+        const { _id, folderId, slackChanel } = project;
+        // Remove Project
+        Projects.remove(_id);
+        Meteor.defer(()=> {
+          // Remove folder
+          isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId });
+          // Remove slack channel
+          isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
+            params: {
+              token: SLACK_API_KEY,
+              channel: slackChanel,
+            },
+          });
+        });
+      }
+    }
+  },
+
   createNewProject(project) {
     if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
       throw new Meteor.Error('Access denied');
