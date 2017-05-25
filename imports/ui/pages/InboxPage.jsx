@@ -185,6 +185,7 @@ class InboxPage extends React.Component {
         if (!currentThread) return ''
 
         const title = bindingSalesRecord ? 'Bind this thread to existing SalesRecord' : 'Create new SalesRecord from this thread'
+				console.log('this.props', this.props);
         return (
             <Modal show={showSalesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
                 <Modal.Header closeButton>
