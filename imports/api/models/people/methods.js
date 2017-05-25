@@ -4,6 +4,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import People from './people'
 import Designations from './designations'
+import Contacts from '../contacts/contacts'
 import {ADMIN_ROLE_LIST} from '../../constants/roles'
 
 
@@ -66,6 +67,46 @@ export const removePerson = new ValidatedMethod({
         People.remove(_id)
     }
 })
+
+export const insertPeople = new ValidatedMethod({
+    name: 'people.bulkinsert',
+    validate: new SimpleSchema({
+        people: {type: Array},
+        'people.$': {type: Object},
+        'people.$.name': People.schema.schema('name'),
+        'people.$.email': People.Email.schema('email'),
+        'people.$.designation_id': People.schema.schema('designation_id'),
+        'people.$.role': People.schema.schema('role'),
+        'people.$.company_id': People.schema.schema('company_id'),
+        'people.$.position': People.schema.schema('position'),
+        'people.$.contact_id': {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}
+    }).validator({clean:true,filter:false}),
+    run({people}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const ids = []
+        people.forEach((p) => {
+            const person = _.clone(p)
+            person.user_id = this.userId
+
+            person.emails = [{email:person.email}]
+            delete person.email
+
+            const contactId = person.contact_id
+            delete person.contact_id
+
+            const personId = People.insert(person)
+
+            if(contactId) {
+                Contacts.update({_id:contactId}, {$set:{person_id:personId}})
+            }
+            ids.push(personId)
+        })
+
+        return ids
+    }
+})
+
 
 export const insertDesignation = new ValidatedMethod({
     name: 'people.designations.insert',

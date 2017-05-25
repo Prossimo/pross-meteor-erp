@@ -5,8 +5,9 @@ import {resetDatabase} from 'meteor/xolvio:cleaner'
 import {Factory} from 'meteor/dburles:factory'
 import People from './people'
 import Designations from './designations'
+import Contacts from '../contacts/contacts'
 import { createAdminUser } from '/imports/api/models/users/methods'
-import { insertPerson, updatePerson, removePerson, insertDesignation, updateDesignation, removeDesignation } from './methods'
+import { insertPerson, updatePerson, removePerson, insertPeople, insertDesignation, updateDesignation, removeDesignation } from './methods'
 
 if(Meteor.isServer) {
     describe('people.desinations', () => {
@@ -179,5 +180,54 @@ if(Meteor.isServer) {
             const person = People.findOne({_id})
             assert.equal(person, null)
         })
+
+        it('should insert people correctly by method from contacts', () => {
+            let contact1 = Contacts.findOne(Contacts.insert({name:'John Smith', email:'johnsmith@gmail.com'}))
+            let contact2 = Contacts.findOne(Contacts.insert({name:'Ben Cox', email:'bencox@gmail.com'}))
+
+            const people = [{
+                name: contact1.name,
+                email: contact1.email,
+                designation_id: Factory.create('designation')._id,
+                role: 'Developer',
+                company_id: Factory.create('company')._id,
+                position: 'Team Manager',
+                contact_id: contact1._id
+            }, {
+                name: contact2.name,
+                email: contact2.email,
+                designation_id: Factory.create('designation')._id,
+                role: 'Customer',
+                company_id: Factory.create('company')._id,
+                position: 'Client',
+                contact_id: contact2._id
+            }]
+
+            const ids = insertPeople._execute({userId:adminId}, {people})
+
+            assert.typeOf(ids, 'array')
+
+            const person1 = People.findOne({name: people[0].name})
+            const person2 = People.findOne({name: people[1].name})
+
+            assert.equal(person1.name, people[0].name)
+            assert.equal(person1.emails[0].email, people[0].email)
+            assert.equal(person1.designation_id, people[0].designation_id)
+            assert.equal(person1.role, people[0].role)
+            assert.equal(person1.company_id, people[0].company_id)
+            assert.equal(person1.position, people[0].position)
+            assert.equal(person2.name, people[1].name)
+            assert.equal(person2.emails[0].email, people[1].email)
+            assert.equal(person2.designation_id, people[1].designation_id)
+            assert.equal(person2.role, people[1].role)
+            assert.equal(person2.company_id, people[1].company_id)
+            assert.equal(person2.position, people[1].position)
+
+            contact1 = Contacts.findOne(contact1._id)
+            assert.equal(contact1.person_id, person1._id)
+            contact2 = Contacts.findOne(contact2._id)
+            assert.equal(contact2.person_id, person2._id)
+        })
+
     })
 }

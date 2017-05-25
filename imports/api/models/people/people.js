@@ -121,15 +121,13 @@ People.helpers({
         if(!this.company_id) return null
         return Companies.findOne(this.company_id)
     },
-    defaultEmail: function() {
+    email: function() {
         if(!this.emails || this.emails.length==0) return null
 
         let email = this.emails[0].email
         this.emails.forEach((em) => {
           if(em.is_default) email = em.email
         })
-
-        return email
     }
 });
 
