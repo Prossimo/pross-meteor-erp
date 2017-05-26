@@ -53,7 +53,7 @@ Meteor.methods({
       }
 
       if (data.ok) {
-        const slackChannel = data.channel.id;
+        const slackChanel = data.channel.id;
 
         // INVITE MEMBERS to CHANNEL
         Meteor.users.find({
@@ -62,12 +62,17 @@ Meteor.methods({
         }).forEach(
           ({ slack: { id } })=> slackRequest({
             action: 'channels.invite',
-            params: { channel: slackChannel, user: id },
+            params: { channel: slackChanel, user: id },
           })
         );
 
         // CREATE DRIVE
         prossDocDrive.createProjectFolder.call({ name: project.name, projectId });
+
+        // UPDATE slackChanel
+        Projects.update(projectId, {
+          $set: { slackChanel },
+        });
       }
 
     });

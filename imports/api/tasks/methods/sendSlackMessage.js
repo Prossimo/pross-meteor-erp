@@ -33,7 +33,7 @@ export default new ValidatedMethod({
 
     if (parent) {
       const { slackChanel: channel } = parent;
-      const { name, description, status, comments } = Tasks.findOne(taskId);
+      const { name, description, status, comments, assignee } = Tasks.findOne(taskId);
       if (channel) {
         switch (type) {
           case 'ADD_COMMENT': {

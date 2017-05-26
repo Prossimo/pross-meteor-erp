@@ -23,6 +23,10 @@ Projects.schema = new SimpleSchema({
   'members.$.isAdmin': {
     type: Boolean,
   },
+  slackChanel: {
+    type: String,
+    optional: true,
+  },
   folderId: {
     type: String,
     optional: true,
