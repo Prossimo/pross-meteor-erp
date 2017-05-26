@@ -110,7 +110,7 @@ class Files extends Component {
         switch(props.type) {
             case 'project':
                 this.rootfolderId = props.project.folderId;
-                this.slackChannel = props.salesRecords[0].slackChanel;
+                this.slackChannel = props.project.slackChanel;
                 if (!this.rootfolderId) warning('Your folder was not created yet')
                 break;
             case 'salesRecord':
