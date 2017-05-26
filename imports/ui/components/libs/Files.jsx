@@ -436,7 +436,11 @@ class Files extends Component {
                     <div className='col-md-8'>
                         <div>{this.state.msgstring}</div>
                         <a href={`https://drive.google.com/drive/folders/${this.state.folderId}`} target='_blank'>
-                            <span className='file-name hand-cursor'>Open Folder</span>
+                            <span className='file-name hand-cursor'>Open Current Folder</span>
+                        </a>
+                        &nbsp;&nbsp;
+                        <a href={`https://drive.google.com/drive/folders/${this.state.data.id}`} target='_blank'>
+                            <span className='file-name hand-cursor'>Open Root Folder</span>
                         </a>
                         {
                             (this.state.loadingRemoteFiles) ? (
