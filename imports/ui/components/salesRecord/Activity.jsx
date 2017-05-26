@@ -3,7 +3,6 @@ import {FlowRouter} from 'meteor/kadira:flow-router';
 import Massage from './Massage';
 import { getUserName } from '../../../api/lib/filters';
 
-
 class Activity extends React.Component{
     constructor(props){
         super(props);
