@@ -1,4 +1,4 @@
-import { HTTP  } from 'meteor/http';
+import { HTTP } from 'meteor/http';
 import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
 import { Projects } from '/imports/api/models';
 import { prossDocDrive } from '/imports/api/drive';
@@ -23,11 +23,15 @@ Meteor.methods({
       const project = Projects.findOne(_id);
       if (project) {
         const { _id, folderId, slackChanel } = project;
+
         // Remove Project
         Projects.remove(_id);
+
+        // Run later
         Meteor.defer(()=> {
           // Remove folder
           isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId });
+
           // Remove slack channel
           isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
             params: {
@@ -38,5 +42,5 @@ Meteor.methods({
         });
       }
     }
-  }
+  },
 });
