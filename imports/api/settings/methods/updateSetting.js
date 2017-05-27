@@ -1,6 +1,6 @@
-import SimpleSchema from 'simpl-schema';
-import { Settings } from '../../models/';
-import { ADMIN_ROLE_LIST } from '../../constants/roles';
+import {Roles} from 'meteor/alanning:roles'
+import SimpleSchema from 'simpl-schema'
+import { ROLES, Settings } from '../../models/'
 
 export default new ValidatedMethod({
   name: 'settings.update',
@@ -9,8 +9,8 @@ export default new ValidatedMethod({
     value: String,
   }).validator(),
   run({ key, value }) {
-    if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-      return Settings.update({ key }, { $set: { value } });
+    if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+      return Settings.update({ key }, { $set: { value } })
     }
   },
-});
+})

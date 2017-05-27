@@ -1,11 +1,13 @@
 import {_} from 'meteor/underscore'
 import { Meteor } from 'meteor/meteor'
+import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import People from './people'
 import Designations from './designations'
 import Contacts from '../contacts/contacts'
-import {ADMIN_ROLE_LIST} from '../../constants/roles'
+import {ROLES} from '../users/users'
+
 
 
 export const insertPerson = new ValidatedMethod({
@@ -118,7 +120,7 @@ export const insertDesignation = new ValidatedMethod({
     validate: Designations.schema.pick('name','role_addable','roles').validator({clean:true}),
     run({name, role_addable, roles}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
         const data = {
             name, role_addable, roles
@@ -133,7 +135,7 @@ export const updateDesignation = new ValidatedMethod({
     validate: Designations.schema.pick('_id','name','role_addable','roles').validator({clean:true}),
     run({_id, name, role_addable, roles}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
         const designation = Designations.findOne({_id})
         if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)
@@ -154,7 +156,7 @@ export const removeDesignation = new ValidatedMethod({
     validate: new SimpleSchema({_id:Designations.schema.schema('_id')}).validator({clean:true}),
     run({_id}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) throw new Meteor.Error('Permission denied')
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
         const designation = Designations.findOne({_id})
         if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)

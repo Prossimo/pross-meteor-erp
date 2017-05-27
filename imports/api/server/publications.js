@@ -1,6 +1,9 @@
-import {Meteor} from 'meteor/meteor';
-import {Match} from 'meteor/check';
+import {Meteor} from 'meteor/meteor'
+import {Match} from 'meteor/check'
+import {Roles} from 'meteor/alanning:roles'
+
 import {
+    ROLES,
     SalesRecords,
     CreatedUsers,
     Quotes,
@@ -8,10 +11,10 @@ import {
     Events,
     SlackMessages,
     Projects,
-    Tasks
-} from '../models';
+    Tasks,
+    NylasAccounts, Contacts, Threads, Messages, MailTemplates,SlackMails
+} from '../models'
 
-import {NylasAccounts, Contacts, Threads, Messages, MailTemplates,SlackMails} from '../models'
 import {
     GET_PROJECTS,
     GET_USERS,
@@ -31,12 +34,8 @@ import {
     GET_MAILTEMPLATES,
     GET_ALL_USERS,
     GET_SLACK_MAILS
-} from '../constants/collections';
-import {
-  ADMIN_ROLE,
-  SUPER_ADMIN_ROLE,
-  ADMIN_ROLE_LIST
-} from '../constants/roles';
+} from '../constants/collections'
+
 
 import '/imports/api/models/companies/publications'
 import '/imports/api/models/people/publications'
@@ -44,96 +43,88 @@ import '/imports/api/models/people/publications'
 Meteor.startup(() => {
     //
 
-    Meteor.publish(GET_USERS, function () {
-        return Meteor.users.find({}, {
+    Meteor.publish(GET_USERS, () => Meteor.users.find({}, {
             fields: {
-                "services": 0
+                'services': 0
             }
-        });
-    });
+        }))
 
-    Meteor.publishComposite(GET_PROJECTS, function() {
-      return {
+    Meteor.publishComposite(GET_PROJECTS, () => ({
         find() {
-          if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find();
+          if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find()
           return SalesRecords.find({'members.userId': this.userId})
         },
         children: [
           {
             find({ stakeholders }) {
               if (stakeholders) {
-                const contactIds = stakeholders.map(({ contactId })=> contactId);
-                return Contacts.find({ _id: { $in: contactIds } });
+                const contactIds = stakeholders.map(({ contactId }) => contactId)
+                return Contacts.find({ _id: { $in: contactIds } })
               }
             }
 
           }
         ]
-      }
-    })
+      }))
 
-    Meteor.publish(GET_QUOTES, function (projectId) {
-        Match.test(projectId, String);
+    Meteor.publish(GET_QUOTES, (projectId) => {
+        Match.test(projectId, String)
 
         return Quotes.find({projectId})
-    });
+    })
 
     Meteor.publish(GET_PROJECT, function (_id) {
-        Match.test(_id, String);
+        Match.test(_id, String)
 
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return SalesRecords.find({_id});
-        return SalesRecords.find({_id, "members.userId": this.userId});
-    });
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find({_id})
+        return SalesRecords.find({_id, 'members.userId': this.userId})
+    })
 
     Meteor.publish(GET_ALL_USERS, function () {
-      if (Roles.userIsInRole(this.userId, [SUPER_ADMIN_ROLE])) {
+      if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
           // SUPERADMIN: can see any user
           return Meteor.users.find({}, {
             services: 0,
           })
       }
-      if (Roles.userIsInRole(this.userId, [ADMIN_ROLE])) {
+      if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
           // ADMIN: see role <= ADMIN
-          return Meteor.users.find({ roles: { $nin: [SUPER_ADMIN_ROLE]} }, {
+          return Meteor.users.find({ roles: { $nin: ROLES.ADMIN} }, {
             services: 0,
           })
       }
-    });
+    })
 
-    Meteor.publish(GET_PROJECT_FILES, function (projectId) {
-        Match.test(projectId, String);
+    Meteor.publish(GET_PROJECT_FILES, (projectId) => {
+        Match.test(projectId, String)
 
-        return Files.find({'metadata.projectId': projectId});
-    });
+        return Files.find({'metadata.projectId': projectId})
+    })
 
-    Meteor.publish(GET_PROJECT_EVENTS, function (projectId) {
-        Match.test(projectId, String);
+    Meteor.publish(GET_PROJECT_EVENTS, (projectId) => {
+        Match.test(projectId, String)
 
-        return Events.find({projectId});
-    });
+        return Events.find({projectId})
+    })
 
-    Meteor.publish(GET_SLACK_MSG, function (salesRecordId) {
-        Match.test(salesRecordId, String);
+    Meteor.publish(GET_SLACK_MSG, (salesRecordId) => {
+        Match.test(salesRecordId, String)
 
-        const salesRecord = SalesRecords.findOne(salesRecordId);
+        const salesRecord = SalesRecords.findOne(salesRecordId)
         if (salesRecord.slackChanel) {
-            return SlackMessages.find({channel: salesRecord.slackChanel, subtype: {$ne: "bot_message"}})
+            return SlackMessages.find({channel: salesRecord.slackChanel, subtype: {$ne: 'bot_message'}})
         } else {
-            return [];
+            return []
         }
     })
 
-    Meteor.publish(GET_NYLAS_ACCOUNTS, function () {
-        return NylasAccounts.find({});
-    });
+    Meteor.publish(GET_NYLAS_ACCOUNTS, () => NylasAccounts.find({}))
 
-    Meteor.publish(GET_CONTACTS, function () {
-        return Contacts.find();
-    });
+    Meteor.publish(GET_CONTACTS, () => Contacts.find())
 
     Meteor.publish(GET_MY_CONTACTS, function () {
         if(!this.userId) return []
-        const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts();
+        const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts()
 
         return Contacts.find({
             $or: [{
@@ -143,40 +134,39 @@ Meteor.startup(() => {
             },{
                 userId: this.userId
             }]
-        });
-    });
+        })
+    })
 
     Meteor.publish(GET_NEW_PROJECTS, function () {
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find();
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
         return Projects.find({'members.userId': this.userId})
-    });
+    })
 
     Meteor.publish(GET_NEW_PROJECT, function (_id) {
-        if (!Match.test(_id, String)) return this.ready();
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) return Projects.find({_id});
-        return Projects.find({_id, 'members.userId': this.userId});
-    });
+        if (!Match.test(_id, String)) return this.ready()
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find({_id})
+        return Projects.find({_id, 'members.userId': this.userId})
+    })
 
     Meteor.publish(GET_MESSAGES, function (salesRecordId) {
-        if (!Match.test(salesRecordId, String)) return this.ready();
+        if (!Match.test(salesRecordId, String)) return this.ready()
 
         //const threads = Threads.find({salesRecordId}).fetch()
 
         //return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
         return Messages.find()
-    });
+    })
 
-    Meteor.publish(GET_THREADS, function (salesRecordId) {
+    Meteor.publish(GET_THREADS, (salesRecordId) => 
         //if (!Match.test(salesRecordId, String)) return this.ready();
 
         //return Threads.find({salesRecordId})
-        return Threads.find({})
-    });
+         Threads.find({}))
 
     Meteor.publish(GET_MAILTEMPLATES, function () {
 
         return MailTemplates.find({userId:this.userId})
-    });
+    })
 
     Meteor.publish(GET_SLACK_MAILS, function () {
         if(!this.userId) {
@@ -184,7 +174,7 @@ Meteor.startup(() => {
             return
         }
         return SlackMails.find({})
-    });
-});
+    })
+})
 
 

@@ -1,24 +1,21 @@
-import React, { Component } from 'react';
+import {Roles} from 'meteor/alanning:roles'
+import React, { Component } from 'react'
 import EditableUsersTable  from '../components/admin/EditableUsersTable'
-import { createContainer  } from 'meteor/react-meteor-data';
-import { GET_ALL_USERS } from '/imports/api/constants/collections';
-import {
-  ADMIN_ROLE,
-  SUPER_ADMIN_ROLE,
-  ADMIN_ROLE_LIST,
-} from '/imports/api/constants/roles';
+import { createContainer  } from 'meteor/react-meteor-data'
+import { GET_ALL_USERS } from '/imports/api/constants/collections'
+import {ROLES} from '/imports/api/models'
 
 class AdminPage extends Component{
   constructor(props){
-    super(props);
+    super(props)
   }
 
   componentWillUnmount() {
-    this.props.subscribers.forEach((subscriber)=> subscriber.stop());
+    this.props.subscribers.forEach((subscriber) => subscriber.stop())
   }
 
   render() {
-    if (Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) {
+    if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
       return (
         <div className="page-container admin-page">
           <div className="main-content">
@@ -37,19 +34,17 @@ class AdminPage extends Component{
   }
 }
 
-export default createContainer(()=> {
-  const subscribers = [];
-  let users = [];
-  subscribers.push(Meteor.subscribe(GET_ALL_USERS));
-  if (Roles.userIsInRole(Meteor.userId(), [SUPER_ADMIN_ROLE])) {
-    users = Meteor.users.find({}).fetch();
-  }
-  if (Roles.userIsInRole(Meteor.userId(), [ADMIN_ROLE])) {
-    users = Meteor.users.find({roles: { $nin: [SUPER_ADMIN_ROLE] }}).fetch();
+export default createContainer(() => {
+  const subscribers = []
+  let users = []
+  subscribers.push(Meteor.subscribe(GET_ALL_USERS))
+
+  if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
+    users = Meteor.users.find({roles: { $nin: [ROLES.ADMIN] }}).fetch()
   }
   return {
     subscribers,
-    loading: !subscribers.reduce((prev, subscriber)=> prev && subscriber.ready(), true),
+    loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
     users,
   }
-}, AdminPage);
+}, AdminPage)

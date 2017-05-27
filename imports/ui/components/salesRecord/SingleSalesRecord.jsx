@@ -1,55 +1,56 @@
-import React from 'react';
-import classNames from 'classnames';
-import { ADMIN_ROLE_LIST, EMPLOYEE_ROLE, ADMIN_ROLE } from '/imports/api/constants/roles';
-import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project';
-import { getUserName, getUserEmail } from '/imports/api/lib/filters';
+import {Roles} from 'meteor/alanning:roles'
+import React from 'react'
+import classNames from 'classnames'
+import { DESIGNATION_LIST, STAKEHOLDER_CATEGORY } from '/imports/api/constants/project'
+import { getUserName, getUserEmail } from '/imports/api/lib/filters'
 import { info, warning } from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
-import Select from 'react-select';
-import Popup from '../popup/Popup';
-import ContactInfo from '../account/ContactInfo';
-import Quotes from './Quotes';
-import Details from './Details';
-import Activity from './Activity';
-import Tasks from '../tasks/TaskBoard.jsx';
-import Files from '../libs/Files';
-import Invoices from './Invoices';
-import Documents from './Documents';
-import Conversations from './conversations/Conversations';
+import Select from 'react-select'
+import {ROLES} from '/imports/api/models'
+import Popup from '../popup/Popup'
+import ContactInfo from '../account/ContactInfo'
+import Quotes from './Quotes'
+import Details from './Details'
+import Activity from './Activity'
+import Tasks from '../tasks/TaskBoard.jsx'
+import Files from '../libs/Files'
+import Invoices from './Invoices'
+import Documents from './Documents'
+import Conversations from './conversations/Conversations'
 
 class SingleSalesRecord extends React.Component{
   constructor(props){
-    super(props);
+    super(props)
     this.tabs = [
       {
-        label: "Activity",
+        label: 'Activity',
         component: <Activity/>
       },
       {
-        label: "Quotes",
+        label: 'Quotes',
         component: <Quotes/>
       },
       {
-        label: "Conversations",
+        label: 'Conversations',
         component: <Conversations/>
       },
       {
-        label: "Details",
+        label: 'Details',
         component: <Details/>
       },
       {
-        label: "Invoices",
+        label: 'Invoices',
         component: <Invoices/>
       },
       {
-        label: "Files",
+        label: 'Files',
         component: <Files type='salesRecord'/>
       },
       {
         label: 'Tasks',
         component: <Tasks projectId={props.salesRecord._id}/>
       }
-    ];
+    ]
 
     this.memberTypeOptions = [
       { label: 'Add Employee', value: 'member' },
@@ -64,7 +65,7 @@ class SingleSalesRecord extends React.Component{
     ]
 
     this.state = {
-      activeTab: this.tabs.find(tab=>tab.label === "Activity"),
+      activeTab: this.tabs.find(tab => tab.label === 'Activity'),
       showPopup: false,
       popupTitle: '',
       popupData: null,
@@ -81,24 +82,24 @@ class SingleSalesRecord extends React.Component{
       memberType: this.memberTypeOptions[0],
     }
 
-    this.renderStakeholders = this.renderStakeholders.bind(this);
-    this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
-    this.renderAddMemberForm = this.renderAddMemberForm.bind(this);
-    this.changeState = this.changeState.bind(this);
-    this.addMember = this.addMember.bind(this);
-    this.addStakeholder = this.addStakeholder.bind(this);
-    this.showContactInfo = this.showContactInfo.bind(this);
-    this.removeMember = this.removeMember.bind(this);
-    this.removeStakeholder = this.removeStakeholder.bind(this);
-    this.changeStage = this.changeStage.bind(this);
+    this.renderStakeholders = this.renderStakeholders.bind(this)
+    this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
+    this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
+    this.changeState = this.changeState.bind(this)
+    this.addMember = this.addMember.bind(this)
+    this.addStakeholder = this.addStakeholder.bind(this)
+    this.showContactInfo = this.showContactInfo.bind(this)
+    this.removeMember = this.removeMember.bind(this)
+    this.removeStakeholder = this.removeStakeholder.bind(this)
+    this.changeStage = this.changeStage.bind(this)
     /*
     * should not publish all contact to client
     * because searching in contact causes lag in UI, index contact list to provide quick search
     * */
-    this.contacts = {};
-    ContactStore.getContacts(1).forEach((contact)=> {
-      this.contacts[contact._id] = contact;
-    });
+    this.contacts = {}
+    ContactStore.getContacts(1).forEach((contact) => {
+      this.contacts[contact._id] = contact
+    })
   }
 
 
@@ -107,71 +108,67 @@ class SingleSalesRecord extends React.Component{
   }
 
   getTabs(){
-    const { activeTab } = this.state;
+    const { activeTab } = this.state
 
     return <ul>
-      {this.tabs.map(item=>{
-        return (
+      {this.tabs.map(item => (
           <li key={item.label}
               onClick={this.toggleTab.bind(this, item)}
-              className={classNames({"active": item === activeTab})}
+              className={classNames({'active': item === activeTab})}
           >{item.label}</li>
-        )
-      })}
+        ))}
     </ul>
   }
 
   getContent(){
-    const { activeTab } = this.state;
+    const { activeTab } = this.state
     if(activeTab.component){
-      return React.cloneElement(activeTab.component, this.props);
+      return React.cloneElement(activeTab.component, this.props)
     }else{
       return activeTab.content
     }
   }
 
   removeStakeholder(salesRecordId, contactId, event) {
-    event.preventDefault();
-    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , contactId, (error, result)=> {
-      if(error) return warning(error.reason? error.reason : 'remove stakeholder failed!');
-      info('remove stakeholder success!');
-    });
+    event.preventDefault()
+    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , contactId, (error, result) => {
+      if(error) return warning(error.reason? error.reason : 'remove stakeholder failed!')
+      info('remove stakeholder success!')
+    })
   }
 
   renderStakeholders() {
-    const salesRecord = this.props.salesRecord;
-    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : [];
+    const salesRecord = this.props.salesRecord
+    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : []
     return (
       <ul className="project-members">
       {
-        stakeholders.map(({ contactId, category })=> {
-          let email = 'unknown';
-          const contact = this.contacts[contactId];
+        stakeholders.map(({ contactId, category }) => {
+          let email = 'unknown'
+          const contact = this.contacts[contactId]
           if (contact && contact.email) {
             if (contact.email.length > 34)
-              email = contact.email.slice(0, 34) + '...';
+              email = `${contact.email.slice(0, 34)  }...`
             else
-              email = contact.email;
+              email = contact.email
           }
           return (
             <li key={contactId} className='member-list'>
               {
-                Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
-                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeStakeholder(salesRecord._id, contactId, event)}>
+                Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
+                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeStakeholder(salesRecord._id, contactId, event)}>
                     <span className='fa fa-times pull-right'></span>
                   </a>
                 ) : ''
               }
-              <span className='memberName' onClick={()=> this.showContactInfo(contact)}>{ email }</span>
+              <span className='memberName' onClick={() => this.showContactInfo(contact)}>{ email }</span>
               <div>
               {
-                category.map((name)=> {
-                  return (<span className='member-cat' key={name}>{name}</span>)
-                })
+                category.map((name) => (<span className='member-cat' key={name}>{name}</span>))
               }
               </div>
             </li>
-          );
+          )
         })
       }
       </ul>
@@ -180,43 +177,41 @@ class SingleSalesRecord extends React.Component{
   }
 
   removeMember(salesRecordId, userId, event) {
-    event.preventDefault();
-    Meteor.call('removeMemberFromSalesRecord', salesRecordId , userId, (error, result)=> {
-      if(error) return warning(error.reason? error.reason : 'remove member failed!');
-      info('remove member success!');
-    });
+    event.preventDefault()
+    Meteor.call('removeMemberFromSalesRecord', salesRecordId , userId, (error, result) => {
+      if(error) return warning(error.reason? error.reason : 'remove member failed!')
+      info('remove member success!')
+    })
   }
 
   //todo change style
   renderProjectMembers(){
-    const { salesRecord } = this.props;
-    if(!salesRecord )return null;
+    const { salesRecord } = this.props
+    if(!salesRecord )return null
     return (
       <ul className="project-members">
-        {_.isArray(salesRecord.members) && salesRecord.members.map(member=>{
-          if(!member.user) return null;
+        {_.isArray(salesRecord.members) && salesRecord.members.map(member => {
+          if(!member.user) return null
           return(
             <li key={member.user._id}
                 className="member-list">
                 {
-                  Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST) ? (
-                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event)=> this.removeMember(salesRecord._id, member.userId, event)}>
+                  Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
+                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeMember(salesRecord._id, member.userId, event)}>
                       <span className='fa fa-times pull-right'></span>
                     </a>
                   ) : ''
                 }
                 <span
                   onClick={this.showUserInfo.bind(this, member.user)}
-                  className={classNames("memberName", {"main": member.isMainStakeholder}) }>
+                  className={classNames('memberName', {'main': member.isMainStakeholder}) }>
                   {getUserName(member.user, true)}
                 </span>
                 <span className="email">
                   {getUserEmail(member.user)}
                 </span>
                 <div>
-                  {member.category.map(cat=>{
-                    return <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>
-                  })}
+                  {member.category.map(cat => <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>)}
                 </div>
             </li>
           )
@@ -227,39 +222,39 @@ class SingleSalesRecord extends React.Component{
 
   changeStage(salesRecordId, item) {
     if (item) {
-      Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error)=> {
-        if (error) return warning(error.reason ? error.reason : 'Change stage failed!');
-        info('Change stage sucess');
+      Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error) => {
+        if (error) return warning(error.reason ? error.reason : 'Change stage failed!')
+        info('Change stage sucess')
       })
     }
   }
 
   changeState(subState, propName, propValue) {
-    subState[propName] = propValue;
-    this.setState((prevState)=> prevState);
+    subState[propName] = propValue
+    this.setState((prevState) => prevState)
   }
 
   renderAddStakeholderForm() {
-    const { stakeholder: { selectedContact, selectedCategory, selectedDesignation, notify}} = this.state;
-    const designationOptions = DESIGNATION_LIST.map(item=>({label: item, value: item}));
-    const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
+    const { stakeholder: { selectedContact, selectedCategory, selectedDesignation, notify}} = this.state
+    const designationOptions = DESIGNATION_LIST.map(item => ({label: item, value: item}))
+    const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
     const selectContactOptions = ContactStore.getContacts(1)
-      .filter(({ _id })=> !this.props.salesRecord.stakeholders.map(({ contactId })=> contactId).includes(_id))
+      .filter(({ _id }) => !this.props.salesRecord.stakeholders.map(({ contactId }) => contactId).includes(_id))
       .map(({ _id, name, email }) => ({
           label: `${email}`,
           value: _id,
-      }));
+      }))
 
-    if(Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) {
+    if(Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
         return (
             <div className='form'>
                 <div className='form-group'>
                     <Select
                       value={selectedContact}
                       placeholder="Choose stakeholder"
-                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedContact', item)}
+                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedContact', item)}
                       options={selectContactOptions}
-                      className={"members-select"}
+                      className={'members-select'}
                       clearable={false}
                     />
                 </div>
@@ -267,9 +262,9 @@ class SingleSalesRecord extends React.Component{
                     <Select
                       value={selectedDesignation}
                       placeholder="Stakeholder designation"
-                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedDesignation', item)}
+                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedDesignation', item)}
                       options={designationOptions}
-                      className={"members-select"}
+                      className={'members-select'}
                       clearable={false}
                     />
                 </div>
@@ -278,9 +273,9 @@ class SingleSalesRecord extends React.Component{
                       multi
                       placeholder="Stakehoder categories"
                       value={selectedCategory}
-                      onChange={(item)=> this.changeState(this.state.stakeholder, 'selectedCategory', item)}
+                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedCategory', item)}
                       options={categoryOptions}
-                      className={"members-select"}
+                      className={'members-select'}
                       clearable={false}
                     />
                 </div>
@@ -289,7 +284,7 @@ class SingleSalesRecord extends React.Component{
                         type="checkbox"
                         value=""
                         checked={ notify }
-                        onChange={(event)=> this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
+                        onChange={(event) => this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
                         Notify
                     </label>
                 </div>
@@ -300,20 +295,18 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderAddMemberForm(){
-    const { salesRecord, users } = this.props;
-    const { member: { selectedUser, selectedCategory }} = this.state;
-    const categoryOptions = STAKEHOLDER_CATEGORY.map(item=>({label: item, value: item}));
-    const membersIds = salesRecord.members.map(i=>i.userId);
+    const { salesRecord, users } = this.props
+    const { member: { selectedUser, selectedCategory }} = this.state
+    const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
+    const membersIds = salesRecord.members.map(i => i.userId)
     const selectOptions = users
       .filter(user => membersIds.indexOf(user._id)<0) // do not contain current user
-      .filter(user => Roles.userIsInRole(user._id, [ EMPLOYEE_ROLE, ADMIN_ROLE ])) // must be admin or employee
-      .map(user=>{
-        return {
+      .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
+      .map(user => ({
           label: `${getUserName(user, true)} ${getUserEmail(user)}`,
           value: user._id,
-        }
-      });
-    if(Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST))
+        }))
+    if(Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN))
       return(
         <div>
             <div className="form">
@@ -321,9 +314,9 @@ class SingleSalesRecord extends React.Component{
                     <Select
                       value={selectedUser}
                       placeholder="Choose user"
-                      onChange={(item)=> this.changeState(this.state.member, 'selectedUser', item)}
+                      onChange={(item) => this.changeState(this.state.member, 'selectedUser', item)}
                       options={selectOptions}
-                      className={"members-select"}
+                      className={'members-select'}
                       clearable={false}
                     />
                 </div>
@@ -332,9 +325,9 @@ class SingleSalesRecord extends React.Component{
                       multi
                       placeholder="User categories"
                       value={selectedCategory}
-                      onChange={(item)=> this.changeState(this.state.member, 'selectedCategory', item)}
+                      onChange={(item) => this.changeState(this.state.member, 'selectedCategory', item)}
                       options={categoryOptions}
-                      className={"members-select"}
+                      className={'members-select'}
                       clearable={false}
                     />
                 </div>
@@ -345,17 +338,17 @@ class SingleSalesRecord extends React.Component{
   }
 
   addStakeholder() {
-    const { stakeholder: { selectedContact, selectedDesignation, selectedCategory, notify } } = this.state;
-    const { salesRecord } = this.props;
-    if(_.isNull(selectedContact)) return warning("Choose stakeholder");
+    const { stakeholder: { selectedContact, selectedDesignation, selectedCategory, notify } } = this.state
+    const { salesRecord } = this.props
+    if(_.isNull(selectedContact)) return warning('Choose stakeholder')
     const stakeholder = {
       contactId: selectedContact.value,
       destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
       category: selectedCategory.map(item => item.value),
       notify,
-    };
-    Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result)=> {
-      if(error) return warning(error.reason? error.reason : 'Add stakeholder failed!');
+    }
+    Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result) => {
+      if(error) return warning(error.reason? error.reason : 'Add stakeholder failed!')
       this.setState({
         stakeholder: {
           notify: true,
@@ -363,36 +356,36 @@ class SingleSalesRecord extends React.Component{
           selectedDesignation: null,
           selectedCategory: [],
         }
-      });
-      info("Add stakeholder to salesRecord success!");
+      })
+      info('Add stakeholder to salesRecord success!')
     })
   }
 
   addMember(){
-    const { member: { selectedUser, selectedCategory }} = this.state;
-    const { salesRecord } = this.props;
-    if(_.isNull(selectedUser)) return warning("Choose user");
+    const { member: { selectedUser, selectedCategory }} = this.state
+    const { salesRecord } = this.props
+    if(_.isNull(selectedUser)) return warning('Choose user')
 
     const member = {
       userId: selectedUser.value,
       isMainStakeholder: false,
-      category: selectedCategory.map(i=>i.value)
-    };
+      category: selectedCategory.map(i => i.value)
+    }
 
-    Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
-      if(err) return warning(err.reason? err.reason : "Add employee failed!");
+    Meteor.call('addMemberToProject', salesRecord._id, member, err => {
+      if(err) return warning(err.reason? err.reason : 'Add employee failed!')
       this.setState({
         member: {
           selectedUser: null,
           selectedCategory: []
         }
-      });
-      info("Add employee to salesRecord success!");
-    });
+      })
+      info('Add employee to salesRecord success!')
+    })
 
-    Meteor.call("addUserToSlackChannel", member.userId, salesRecord.slackChanel, err=>{
-      if(err) return warning(err.error);
-      info("User success add to slack channel!");
+    Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, err => {
+      if(err) return warning(err.error)
+      info('User success add to slack channel!')
     })
   }
 
@@ -407,7 +400,7 @@ class SingleSalesRecord extends React.Component{
       popupData: <ContactInfo
         user={user}
         hide={this.hidePopup.bind(this)}
-        editable={Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)}/>})
+        editable={Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)}/>})
   }
 
   showContactInfo(contact) {
@@ -430,7 +423,7 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderPopup(){
-    const { popupData, showPopup, popupTitle } = this.state;
+    const { popupData, showPopup, popupTitle } = this.state
     return <Popup active={showPopup}
                   title={popupTitle}
                   hide={this.hidePopup.bind(this)}
@@ -438,10 +431,10 @@ class SingleSalesRecord extends React.Component{
   }
 
   render() {
-    const { salesRecord } = this.props;
-    const sidebarTitle = "SalesRecord members";
-    const projectName = salesRecord.name;
-    const defaultStage = this.stageOptions.find(({ value })=> value === salesRecord.stage);
+    const { salesRecord } = this.props
+    const sidebarTitle = 'SalesRecord members'
+    const projectName = salesRecord.name
+    const defaultStage = this.stageOptions.find(({ value }) => value === salesRecord.stage)
     return (
       <div className="page-container single-project">
         {this.renderPopup()}
@@ -455,7 +448,7 @@ class SingleSalesRecord extends React.Component{
                         value={defaultStage}
                         options={this.stageOptions}
                         clearable={false}
-                        onChange={(item)=> this.changeStage(salesRecord._id, item)}
+                        onChange={(item) => this.changeStage(salesRecord._id, item)}
                       />
                     </div>
                   </div>
@@ -504,4 +497,4 @@ class SingleSalesRecord extends React.Component{
     )
   }
 }
-export default SingleSalesRecord;
+export default SingleSalesRecord

@@ -1,22 +1,22 @@
-import React, { Component, PropTypes } from 'react';
-import _ from 'underscore';
-import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table';
-import { info, warning } from '/imports/api/lib/alerts';
-import { isValidEmail } from '/imports/api/lib/validation';
-import { USER_ROLE_LIST } from '/imports/api/constants/roles';
-import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css';
+import React, { Component, PropTypes } from 'react'
+import _ from 'underscore'
+import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
+import { info, warning } from '/imports/api/lib/alerts'
+import { isValidEmail } from '/imports/api/lib/validation'
+import { ROLES } from '/imports/api/models'
+import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
 
 class EditableUsersTable extends Component{
   constructor(props){
-    super(props);
+    super(props)
 
-    this.activeFormatterStatus = this.activeFormatterStatus.bind(this);
-    this.usernameValidator = this.usernameValidator.bind(this);
-    this.emailValidator = this.emailValidator.bind(this);
-    this.onAfterInsertRow = this.onAfterInsertRow.bind(this);
-    this.customConfirm = this.customConfirm.bind(this);
-    this.onAfterSaveCell = this.onAfterSaveCell.bind(this);
-    this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this);
+    this.activeFormatterStatus = this.activeFormatterStatus.bind(this)
+    this.usernameValidator = this.usernameValidator.bind(this)
+    this.emailValidator = this.emailValidator.bind(this)
+    this.onAfterInsertRow = this.onAfterInsertRow.bind(this)
+    this.customConfirm = this.customConfirm.bind(this)
+    this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
+    this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this)
   }
 
   customConfirm(next, userIds) {
@@ -25,11 +25,11 @@ class EditableUsersTable extends Component{
       // continues the deletion of the record.
       Meteor.call('adminRemoveUser', userIds, (error) => {
         if (error) {
-          return warning(error.reason ? error.reason : error.error);
+          return warning(error.reason ? error.reason : error.error)
         }
-        info('User was successfully removed!');
-        next();
-      });
+        info('User was successfully removed!')
+        next()
+      })
     }
   }
 
@@ -40,10 +40,10 @@ class EditableUsersTable extends Component{
       username: row.username,
       email: row.email,
       role: row.role
-    };
-    Meteor.call('adminCreateUser', userData, (err)=>{
-      if (err) return warning(err.reason ? err.reason : err.error);
-      info('Successful create user!');
+    }
+    Meteor.call('adminCreateUser', userData, (err) => {
+      if (err) return warning(err.reason ? err.reason : err.error)
+      info('Successful create user!')
     })
   }
 
@@ -52,96 +52,97 @@ class EditableUsersTable extends Component{
       firstName: row.firstName,
       lastName: row.lastName,
       role: row.role
-    };
+    }
 
-    Meteor.call('adminEditUser', row._id, userData, (err)=>{
-      if (err) return warning(error.reason ? error.reason : error.error);
-      info('User was successfully edited!');
-    });
+    Meteor.call('adminEditUser', row._id, userData, (err) => {
+      if (err) return warning(err.reason ? err.reason : err.error)
+      info('User was successfully edited!')
+    })
   }
 
   onBeforeSaveCell(row, cellName, cellValue) {
     // You can do any validation on here for editing value,
     // return false for reject the editing
-    let validationStatus = true;
+    let validationStatus = true
 
-    let uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== cellValue) return true} );
-    let uniqueEmail = this.props.createdUsers.filter(person => { if (person.email !== cellValue) return true} );
+    const uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== cellValue) return true} )
+    const uniqueEmail = this.props.createdUsers.filter(person => { if (person.email !== cellValue) return true} )
     if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
-      validationStatus = false;
+      validationStatus = false
     }
 
     if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
-      validationStatus = false;
+      validationStatus = false
     }
-    return validationStatus;
+    return validationStatus
   }
 
   // validator function pass the user input value and row object. In addition, a bool return value is expected
   usernameValidator(value, row) {
-    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
-    let uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== value) return true} );
+    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } }
+    const uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== value) return true} )
     if (!value) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must be inserted';
-      response.notification.title = 'Requested Value';
+      response.isValid = false
+      response.notification.type = 'error'
+      response.notification.msg = 'Value must be inserted'
+      response.notification.title = 'Requested Value'
     } else if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must be unique';
-      response.notification.title = 'Invalid Value';
+      response.isValid = false
+      response.notification.type = 'error'
+      response.notification.msg = 'Value must be unique'
+      response.notification.title = 'Invalid Value'
     }
-    return response;
+    return response
   }
 
   // validator function pass the user input value and row object. In addition, a bool return value is expected
   emailValidator(value, row) {
-    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } };
-    let uniqueUsername = this.props.createdUsers.filter(person => { if (person.email !== value) return true} );
+    const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } }
+    const uniqueUsername = this.props.createdUsers.filter(person => { if (person.email !== value) return true} )
     if (!value) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must be inserted';
-      response.notification.title = 'Requested Value';
+      response.isValid = false
+      response.notification.type = 'error'
+      response.notification.msg = 'Value must be inserted'
+      response.notification.title = 'Requested Value'
     } else if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Value must be unique';
-      response.notification.title = 'Invalid Value';
+      response.isValid = false
+      response.notification.type = 'error'
+      response.notification.msg = 'Value must be unique'
+      response.notification.title = 'Invalid Value'
     } else if (!isValidEmail(value)) {
-      response.isValid = false;
-      response.notification.type = 'error';
-      response.notification.msg = 'Please check your email input';
-      response.notification.title = 'Invalid Value';
+      response.isValid = false
+      response.notification.type = 'error'
+      response.notification.msg = 'Please check your email input'
+      response.notification.title = 'Invalid Value'
     }
-    return response;
+    return response
   }
 
   activeFormatterStatus(cell, row, enumObject, index) {
-    return cell ? "Active" : "Not active yet";
+    return cell ? 'Active' : 'Not active yet'
   }
 
   render() {
     const selectRowProp = {
       mode: 'checkbox',
       clickToSelect: true
-    };
+    }
     const options = {
       handleConfirmDeleteRow: this.customConfirm,
       afterInsertRow: this.onAfterInsertRow
-    };
+    }
     const cellEditProp = {
       mode: 'click',
       blurToSave: true,
       beforeSaveCell: this.onBeforeSaveCell, // a hook for before saving cell
       afterSaveCell: this.onAfterSaveCell  // a hook for after saving cell
-    };
+    }
 
-    const userRoles = USER_ROLE_LIST;
+    const roles = Object.values(ROLES)
+      roles.splice(roles.indexOf(ROLES.ADMIN), 1)
+    const userRoles = roles
 
-    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles })=> {
-      return {
+    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles }) => ({
         _id,
         username,
         firstName,
@@ -149,8 +150,7 @@ class EditableUsersTable extends Component{
         email: emails[0].address,
         role: roles[0],
         isActive: emails[0].verified,
-      }
-    })
+      }))
     return (
       <BootstrapTable
         data={ createdUsers }
@@ -222,4 +222,4 @@ EditableUsersTable.propTypes = {
   createdUsers: PropTypes.array.isRequired,
 }
 
-export default  EditableUsersTable;
+export default  EditableUsersTable

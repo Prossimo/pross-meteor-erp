@@ -1,20 +1,21 @@
-import React from 'react';
-import classNames from 'classnames';
-import ContactInfo from '../components/account/ContactInfo';
-import EmailSignature from '../components/account/EmailSignature';
-import { ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE } from '/imports/api/constants/roles';
+import {Roles} from 'meteor/alanning:roles'
+import React from 'react'
+import classNames from 'classnames'
+import ContactInfo from '../components/account/ContactInfo'
+import EmailSignature from '../components/account/EmailSignature'
+import { ROLES } from '/imports/api/models'
 
 class UserAccount extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
 
         this.tabs = [
             {
-                label: "Contact info",
+                label: 'Contact info',
                 component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser} toggleLoader={props.toggleLoader}/>
             }
-        ];
-        if(Roles.userIsInRole(props.currentUser._id, [ADMIN_ROLE,SUPER_ADMIN_ROLE,EMPLOYEE_ROLE])){
+        ]
+        if(Roles.userIsInRole(props.currentUser._id, [ROLES.ADMIN, ROLES.SALES])){
             this.tabs.push({
                 label: 'Add Signature',
                 content: <EmailSignature user={props.currentUser}/>
@@ -31,24 +32,22 @@ class UserAccount extends React.Component{
     }
 
     getTabs(){
-        const { activeTab } = this.state;
+        const { activeTab } = this.state
 
         return <ul>
-            {this.tabs.map(item=>{
-                return (
+            {this.tabs.map(item => (
                     <li key={item.label}
                         onClick={this.toggleTab.bind(this, item)}
-                        className={classNames({"active": item === activeTab})}
+                        className={classNames({'active': item === activeTab})}
                     >{item.label}</li>
-                )
-            })}
+                ))}
         </ul>
     }
 
     getContent(){
-        const { activeTab } = this.state;
+        const { activeTab } = this.state
         if(activeTab.component){
-            return React.cloneElement(activeTab.component);
+            return React.cloneElement(activeTab.component)
         }else{
             return activeTab.content
         }
@@ -76,4 +75,4 @@ class UserAccount extends React.Component{
         )
     }
 }
-export default UserAccount;
+export default UserAccount

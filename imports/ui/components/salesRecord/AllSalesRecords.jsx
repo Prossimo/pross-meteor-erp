@@ -1,20 +1,21 @@
-import React from 'react';
-import { Table, Glyphicon, Button } from 'react-bootstrap';
-import classNames from 'classnames';
-import DatePicker from 'react-datepicker';
-import { SHIPPING_MODE_LIST } from '/imports/api/constants/project';
-import { ADMIN_ROLE_LIST } from '/imports/api/constants/roles';
-import { info, warning  } from '/imports/api/lib/alerts';
-import Select from 'react-select';
-import swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
-import 'bootstrap-select';
-import 'bootstrap-select/dist/css/bootstrap-select.min.css';
+import {Roles} from 'meteor/alanning:roles'
+import React from 'react'
+import { Table, Glyphicon, Button } from 'react-bootstrap'
+import classNames from 'classnames'
+import DatePicker from 'react-datepicker'
+import {ROLES} from '/imports/api/models'
+import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
+import { info, warning  } from '/imports/api/lib/alerts'
+import Select from 'react-select'
+import swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
+import 'bootstrap-select'
+import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
 
 class AllSalesRecords extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
         this.state = {
             hoverCell: {
                 key: null,
@@ -123,7 +124,7 @@ class AllSalesRecords extends React.Component{
                     label: 'Shipping Mode',
                     selected: false,
                     type: 'select',
-                    options: SHIPPING_MODE_LIST.map((value)=> ({label: value, value})),
+                    options: SHIPPING_MODE_LIST.map((value) => ({label: value, value})),
                     editable: true,
                 },
                 {
@@ -150,17 +151,17 @@ class AllSalesRecords extends React.Component{
             ],
             showKanbanView: false
         }
-        this.renderRows = this.renderRows.bind(this);
-        this.allowEdit = this.allowEdit.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleMouseEnter = this.handleMouseEnter.bind(this);
-        this.handleMouseLeave = this.handleMouseLeave.bind(this);
-        this.renderEditButton = this.renderEditButton.bind(this);
-        this.renderSaveButton = this.renderSaveButton.bind(this);
-        this.updateProject = this.updateProject.bind(this);
-        this.renderKanbanView = this.renderKanbanView.bind(this);
-        this.renderSwitchLabels = this.renderSwitchLabels.bind(this);
-        this.removeProject = this.removeProject.bind(this);
+        this.renderRows = this.renderRows.bind(this)
+        this.allowEdit = this.allowEdit.bind(this)
+        this.handleChange = this.handleChange.bind(this)
+        this.handleMouseEnter = this.handleMouseEnter.bind(this)
+        this.handleMouseLeave = this.handleMouseLeave.bind(this)
+        this.renderEditButton = this.renderEditButton.bind(this)
+        this.renderSaveButton = this.renderSaveButton.bind(this)
+        this.updateProject = this.updateProject.bind(this)
+        this.renderKanbanView = this.renderKanbanView.bind(this)
+        this.renderSwitchLabels = this.renderSwitchLabels.bind(this)
+        this.removeProject = this.removeProject.bind(this)
     }
 
     handleMouseLeave() {
@@ -174,15 +175,15 @@ class AllSalesRecords extends React.Component{
     }
 
     handleMouseEnter(key, rowIndex, value ) {
-        const {editable} = this.state.possibleColumns.find((column)=> column.key === key);
-        if (!editable) return;
+        const {editable} = this.state.possibleColumns.find((column) => column.key === key)
+        if (!editable) return
         this.setState({
             hoverCell: {
                 key,
                 rowIndex,
                 value
             }
-        });
+        })
     }
 
     allowEdit(key, rowIndex, value, _id) {
@@ -193,51 +194,51 @@ class AllSalesRecords extends React.Component{
                 value,
                 _id,
             }
-        });
+        })
     }
 
     handleChange(value) {
-        const edittingCell = this.state.edittingCell;
-        edittingCell.value = value;
+        const edittingCell = this.state.edittingCell
+        edittingCell.value = value
         this.setState({
             edittingCell,
-        });
+        })
     }
 
     renderEditButton(key, index, value, _id) {
-        if (this.state.edittingCell.key) return;
+        if (this.state.edittingCell.key) return
         if (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) {
             return (
                 <button
                     className='btn btn-sm pull-right btn-primary'
-                    onClick={()=> this.allowEdit(key, index, value, _id)}
+                    onClick={() => this.allowEdit(key, index, value, _id)}
                 >
                     <i className='fa fa-pencil'/>
                 </button>
-            );
+            )
         }
     }
 
     updateProject() {
         // TODO: update salesRecord at here
-        const { type } = this.state.possibleColumns.find(({ key })=> key === this.state.edittingCell.key);
-        const _id = this.state.edittingCell._id;
-        console.log(_id);
-        let { key, value } = this.state.edittingCell;
+        const { type } = this.state.possibleColumns.find(({ key }) => key === this.state.edittingCell.key)
+        const _id = this.state.edittingCell._id
+        console.log(_id)
+        let { key, value } = this.state.edittingCell
         switch (type) {
             case 'date':
-                value = value.toDate();
-                break;
+                value = value.toDate()
+                break
             case 'select':
                 // When user did not select any new option
-                value = value.value ? value.value : value;
-                break;
+                value = value.value ? value.value : value
+                break
             default:
-                break;
+                break
         }
-        Meteor.call('updateProjectProperty', _id, { key, value }, (error)=> {
-            if(error) return warning(`Problems with updating project. ${error.error}`);
-            this.handleMouseLeave();
+        Meteor.call('updateProjectProperty', _id, { key, value }, (error) => {
+            if(error) return warning(`Problems with updating project. ${error.error}`)
+            this.handleMouseLeave()
             this.setState({
                 edittingCell: {
                     key: null,
@@ -245,9 +246,9 @@ class AllSalesRecords extends React.Component{
                     value: null,
                     _id: null
                 }
-            });
-            return info(`Success update project`);
-        });
+            })
+            return info('Success update project')
+        })
     }
 
     renderSaveButton() {
@@ -263,13 +264,12 @@ class AllSalesRecords extends React.Component{
     }
 
     renderRows() {
-        const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
-        const salesRecords =_.sortBy( this.props.salesRecords, ({ productionStartDate }) => -productionStartDate.getTime());
-        return salesRecords.map((project, index)=> {
-            return (
+        const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
+        const salesRecords =_.sortBy( this.props.salesRecords, ({ productionStartDate }) => -productionStartDate.getTime())
+        return salesRecords.map((project, index) => (
                 <tr key={project._id}>
                 {
-                    selectedColumns.map(({ key, type, options })=> {
+                    selectedColumns.map(({ key, type, options }) => {
                         if (key === this.state.edittingCell.key && index === this.state.edittingCell.rowIndex) {
                             switch(type) {
                                 case 'date':
@@ -297,7 +297,7 @@ class AllSalesRecords extends React.Component{
                                                 { this.renderSaveButton() }
                                             </div>
                                         </td>
-                                    );
+                                    )
                                 default:
                                     return (
                                         <td key={key}>
@@ -311,30 +311,30 @@ class AllSalesRecords extends React.Component{
                                             </div>
                                         </td>
                                     )
-                                    break;
+                                    break
                             }
                         } else {
                             switch(type) {
                                 case 'date':
-                                    const date = moment(project[key]).format('MM/DD/YYYY');
+                                    const date = moment(project[key]).format('MM/DD/YYYY')
                                     return (
                                         <td
                                             key={key}
                                             onMouseLeave={this.handleMouseLeave}
-                                            onMouseEnter={()=> this.handleMouseEnter(key, index, moment(project[key]))}
+                                            onMouseEnter={() => this.handleMouseEnter(key, index, moment(project[key]))}
                                         >
                                             <div>
                                                 { date }
                                                 { this.renderEditButton(key, index, moment(project[key]), project._id) }
                                             </div>
                                         </td>
-                                    );
+                                    )
                                 default:
                                     return (
                                         <td
                                             key={key}
                                             onMouseLeave={this.handleMouseLeave}
-                                            onMouseEnter={()=> this.handleMouseEnter(key, index, project[key])}
+                                            onMouseEnter={() => this.handleMouseEnter(key, index, project[key])}
                                         >
                                             <div>
                                                 { project[key] }
@@ -347,31 +347,28 @@ class AllSalesRecords extends React.Component{
                 }
                 <td>
                   <div className='btn-group'>
-                    <Button onClick={()=> this.goToProject(project)} bsSize='small'><i className='fa fa-link'/> </Button>
+                    <Button onClick={() => this.goToProject(project)} bsSize='small'><i className='fa fa-link'/> </Button>
                     {
-                      (Roles.userIsInRole(Meteor.userId(), ADMIN_ROLE_LIST)) ? (
-                        <Button onClick={()=> this.removeProject(project._id)} bsStyle='danger' bsSize='small'><i className='fa fa-trash'/></Button>
+                      (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) ? (
+                        <Button onClick={() => this.removeProject(project._id)} bsStyle='danger' bsSize='small'><i className='fa fa-trash'/></Button>
                       ) : ''
                     }
                   </div>
                 </td>
                 </tr>
-            )
-        })
+            ))
     }
 
     renderProjectList(){
-        const selectedColumns = this.state.possibleColumns.filter(({ selected })=> selected);
+        const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
         return (
             <Table condensed hover>
                 <thead>
                   <tr>
                     {
-                      selectedColumns.map(({ label, key })=> {
-                          return (
+                      selectedColumns.map(({ label, key }) => (
                               <th key={key}>{label}</th>
-                          )
-                      })
+                          ))
                     }
                     <th></th>
                   </tr>
@@ -405,60 +402,58 @@ class AllSalesRecords extends React.Component{
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, remove it!',
-        preConfirm: ()=> {
-          return new Promise((resolve)=> {
+        preConfirm: () => new Promise((resolve) => {
             resolve({
               isRemoveFolders: $('#confirm-remove-folders').is(':checked'),
               isRemoveSlack: $('#confirm-remove-slack').is(':checked'),
-            });
+            })
           })
-        }
-      }).then(({ isRemoveFolders, isRemoveSlack })=> {
-        Meteor.call('removeSalesRecord', { _id, isRemoveFolders, isRemoveSlack }, (error, result)=> {
+      }).then(({ isRemoveFolders, isRemoveSlack }) => {
+        Meteor.call('removeSalesRecord', { _id, isRemoveFolders, isRemoveSlack }, (error, result) => {
           if (error) {
-            const msg = error.reason ? error.reason : error.message;
-            return swal('remove deal failed',  msg, 'warning');
+            const msg = error.reason ? error.reason : error.message
+            return swal('remove deal failed',  msg, 'warning')
           }
           swal(
             'Removed!',
             'Deal has been removed.',
             'success'
-          );
+          )
         })
       })
     }
 
     goToProject(project){
-        FlowRouter.go("SalesRecord", {id: project._id})
+        FlowRouter.go('SalesRecord', {id: project._id})
     }
 
     componentDidMount() {
-        const _this = this;
-        Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields)=> {
+        const _this = this
+        Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields) => {
             if (!error) {
-                const possibleColumns = _this.state.possibleColumns;
-                possibleColumns.forEach((column)=> {
+                const possibleColumns = _this.state.possibleColumns
+                possibleColumns.forEach((column) => {
                     if (selectedFields.includes(column.key)) {
-                        column.selected = true;
+                        column.selected = true
                     }
-                });
-                _this.setState({possibleColumns});
+                })
+                _this.setState({possibleColumns})
 
                 $('.selectpicker').selectpicker({
                     style: 'btn-default',
                     size: 4
-                });
+                })
 
-                $('.selectpicker').selectpicker('val', selectedFields);
+                $('.selectpicker').selectpicker('val', selectedFields)
 
                 $('.selectpicker').on('changed.bs.select', function() {
-                    const selectedKeys = $(this).val();
-                    const possibleColumns = _this.state.possibleColumns;
-                    possibleColumns.forEach((column)=> {
+                    const selectedKeys = $(this).val()
+                    const possibleColumns = _this.state.possibleColumns
+                    possibleColumns.forEach((column) => {
                         if (selectedKeys.includes(column.key))
-                            return column.selected = true;
-                        return column.selected = false;
-                    });
+                            return column.selected = true
+                        return column.selected = false
+                    })
                     _this.setState({
                         hoverCell: {
                             key: null,
@@ -472,13 +467,13 @@ class AllSalesRecords extends React.Component{
                             _id: null,
                         },
                         possibleColumns
-                    });
-                    Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (error)=> {
+                    })
+                    Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (error) => {
 
-                    });
+                    })
                 })
             }
-        });
+        })
     }
     renderKanbanView() {
       return (
@@ -492,7 +487,7 @@ class AllSalesRecords extends React.Component{
           <div className="text-right input-group-btn">
             <button
               className={`btn btn-default ${!active ? 'active' : ''}`}
-              onClick={()=>{
+              onClick={() => {
                 this.setState({showKanbanView: false})
               }}
             >
@@ -500,7 +495,7 @@ class AllSalesRecords extends React.Component{
             </button>
             <button
               className={`btn btn-default ${active}`}
-              onClick={()=>{
+              onClick={() => {
                 this.setState({showKanbanView: true})
               }}
             >
@@ -523,7 +518,7 @@ class AllSalesRecords extends React.Component{
               <div>
                <select className='selectpicker pull-right' multiple>
                {
-                   this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
+                   this.state.possibleColumns.map(({ key, label }) => <option value={key} key={key}>{label}</option>)
                }
                </select>
                <br/>
@@ -536,4 +531,4 @@ class AllSalesRecords extends React.Component{
     }
 }
 
-export default  AllSalesRecords;
+export default  AllSalesRecords

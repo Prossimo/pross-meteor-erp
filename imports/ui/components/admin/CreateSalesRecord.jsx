@@ -1,19 +1,21 @@
+import {FlowRouter} from 'meteor/kadira:flow-router'
+import {Roles} from 'meteor/alanning:roles'
 import _ from 'underscore'
-import React from 'react';
-import {getUserName} from '/imports/api/lib/filters';
-import Select from 'react-select';
-import Textarea from 'react-textarea-autosize';
-import {info, warning} from '/imports/api/lib/alerts';
-import {DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST, STAGES} from '/imports/api/constants/project';
-import {EMPLOYEE_ROLE, ADMIN_ROLE} from '/imports/api/constants/roles';
-import Switch from 'rc-switch';
-import moment from 'moment';
-import DatePicker from 'react-datepicker';
-import NumericInput from 'react-numeric-input';
-import SelectMembers from './salesRecord/SelectMembers';
-import SelectStakeholders from './salesRecord/SelectStakeholders';
+import React from 'react'
+import {getUserName} from '/imports/api/lib/filters'
+import Select from 'react-select'
+import Textarea from 'react-textarea-autosize'
+import {info, warning} from '/imports/api/lib/alerts'
+import {DESIGNATION_LIST, STAKEHOLDER_CATEGORY, SHIPPING_MODE_LIST, STAGES} from '/imports/api/constants/project'
+
+import Switch from 'rc-switch'
+import moment from 'moment'
+import DatePicker from 'react-datepicker'
+import NumericInput from 'react-numeric-input'
+import SelectMembers from './salesRecord/SelectMembers'
+import SelectStakeholders from './salesRecord/SelectStakeholders'
 import ContactStore from '../../../api/nylas/contact-store'
-import Contacts from '/imports/api/models/contacts/contacts'
+import {ROLES,Contacts} from '/imports/api/models'
 
 
 class CreateSalesRecord extends React.Component {
@@ -24,11 +26,11 @@ class CreateSalesRecord extends React.Component {
     }
 
     constructor(props) {
-        super(props);
-        this.shippingMode = SHIPPING_MODE_LIST.map(item => ({label: item, value: item}));
-        this.stages = STAGES.map(item => ({label: item.charAt(0).toUpperCase() + item.slice(1), value: item}));
-        this.members = [];
-        this.stakeholders = [];
+        super(props)
+        this.shippingMode = SHIPPING_MODE_LIST.map(item => ({label: item, value: item}))
+        this.stages = STAGES.map(item => ({label: item.charAt(0).toUpperCase() + item.slice(1), value: item}))
+        this.members = []
+        this.stakeholders = []
 
 
         const {salesRecord} = props
@@ -61,7 +63,7 @@ class CreateSalesRecord extends React.Component {
             contacts: ContactStore.getContacts(1),
             stakeholders: [],
             blocking: false
-        };
+        }
 
         if (props.thread) {
             const filter = {
@@ -72,7 +74,7 @@ class CreateSalesRecord extends React.Component {
             }
 
             const contacts = _.filter(_.uniq(Contacts.find(filter).fetch(), (c) => c.email), (c) => {
-                var re = /\S+@prossimo.us/;
+                const re = /\S+@prossimo.us/
                 if (re.test(c.email)) return false   // Remove @prossimo.us contacts
 
                 const users = Meteor.users.find({'emails.address': c.email}).fetch()
@@ -81,11 +83,11 @@ class CreateSalesRecord extends React.Component {
                 return true
             })
             if (contacts && contacts.length)
-                this.state.stakeholders = contacts;
+                this.state.stakeholders = contacts
         }
 
         if (props.salesRecord && props.salesRecord.stakeholders) {
-            let stakeholders = []
+            const stakeholders = []
             props.salesRecord.stakeholders.forEach((stakeholder) => {
                 const contact = Contacts.findOne({_id: stakeholder.contactId})
                 if (contact) {
@@ -96,26 +98,26 @@ class CreateSalesRecord extends React.Component {
                         isMainStakeholder: stakeholder.isMainStakeholder,
                         notify: stakeholder.notify,
                         designation: {label: stakeholder.destination, value: stakeholder.destination},
-                        categories: stakeholder.category.map((category)=>({label: category, value: category}))
+                        categories: stakeholder.category.map((category) => ({label: category, value: category}))
                     })
                 }
             })
-            this.state.stakeholders = _.uniq(stakeholders,(st)=>st._id)
+            this.state.stakeholders = _.uniq(stakeholders,(st) => st._id)
         }
 
-        this.changeState = this.changeState.bind(this);
-        this.updateMembers = this.updateMembers.bind(this);
-        this.updateStakeholders = this.updateStakeholders.bind(this);
+        this.changeState = this.changeState.bind(this)
+        this.updateMembers = this.updateMembers.bind(this)
+        this.updateStakeholders = this.updateStakeholders.bind(this)
     }
 
     submitForm(event) {
-        event.preventDefault();
+        event.preventDefault()
         const {
             projectName, shipper, supplier,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress, shippingContactEmail, shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage
-        } = this.state;
+        } = this.state
 
         const data = {
             name: projectName,
@@ -143,46 +145,46 @@ class CreateSalesRecord extends React.Component {
             shipper,
             estProductionTime,
             actProductionTime
-        };
-        this.props.toggleLoader(true);
+        }
+        this.props.toggleLoader(true)
         if(this.props.salesRecord) {
-            Meteor.call("updateSalesRecord", this.props.salesRecord._id, data, this.props.thread, (err, res) => {
-                this.props.toggleLoader(false);
-                if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`);
+            Meteor.call('updateSalesRecord', this.props.salesRecord._id, data, this.props.thread, (err, res) => {
+                this.props.toggleLoader(false)
+                if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
-                info(`Success update SalesRecord`);
+                info('Success update SalesRecord')
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path("SalesRecord", {id: this.props.salesRecord._id}))
+                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: this.props.salesRecord._id}))
                 }, 300)
-            });
+            })
 
         } else {
-            Meteor.call("insertSalesRecord", data, this.props.thread, (err, res) => {
-                this.props.toggleLoader(false);
-                if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`);
+            Meteor.call('insertSalesRecord', data, this.props.thread, (err, res) => {
+                this.props.toggleLoader(false)
+                if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)
 
-                info(`Success add new Deal & integration with Slack`);
+                info('Success add new Deal & integration with Slack')
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path("SalesRecord", {id: res}))
+                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: res}))
                 }, 300)
-            });
+            })
         }
     }
 
     changeState(key) {
         return e => {
             if (e) {
-                this.setState({[key]: e.target ? e.target.value : e});
+                this.setState({[key]: e.target ? e.target.value : e})
             }
         }
     }
 
     updateMembers(members) {console.log('CreateSalesRecord updateMembers', members)
-        this.members = members;
+        this.members = members
     }
 
     updateStakeholders(stakeholders) {
-        this.stakeholders = stakeholders;
+        this.stakeholders = stakeholders
     }
 
     render() {
@@ -192,27 +194,27 @@ class CreateSalesRecord extends React.Component {
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
             contacts, stakeholders
-        } = this.state;
-        const {shippingMode, stages} = this;
-        let submitBtnName = this.props.salesRecord ? 'Save Deal' : 'Add Deal';
-        let dealTitle = '';
+        } = this.state
+        const {shippingMode, stages} = this
+        let submitBtnName = this.props.salesRecord ? 'Save Deal' : 'Add Deal'
+        let dealTitle = ''
         switch (this.props.stage) {
             case 'lead':
-                submitBtnName = this.props.salesRecord ? 'Save Lead' : 'Add Lead';
+                submitBtnName = this.props.salesRecord ? 'Save Lead' : 'Add Lead'
                 dealTitle = 'Lead Name'
-                break;
+                break
             case 'opportunity':
-                submitBtnName = this.props.salesRecord ? 'Save Opportunity' : 'Add Opportunity';
+                submitBtnName = this.props.salesRecord ? 'Save Opportunity' : 'Add Opportunity'
                  dealTitle = 'Opportunity Name'
-                break;
+                break
             case 'order':
-                submitBtnName = this.props.salesRecord ? 'Save Order' : 'Add Order';
+                submitBtnName = this.props.salesRecord ? 'Save Order' : 'Add Order'
                 dealTitle = 'Order Name'
-                break;
+                break
             case 'ticket':
-                submitBtnName = this.props.salesRecord ? 'Save Ticket' : 'Add Ticket';
+                submitBtnName = this.props.salesRecord ? 'Save Ticket' : 'Add Ticket'
                 dealTitle = 'Ticket Name'
-                break;
+                break
         }
 
         return (
@@ -228,7 +230,7 @@ class CreateSalesRecord extends React.Component {
                                         value={selectedStage}
                                         onChange={this.changeState('selectedStage')}
                                         options={stages}
-                                        className={"select-role"}
+                                        className={'select-role'}
                                         clearable={false}
                                     />
                                 </div>
@@ -243,7 +245,7 @@ class CreateSalesRecord extends React.Component {
                                value={projectName}/>
                     </div>
                     <SelectMembers
-                        members={this.props.users.filter(({_id}) => Roles.userIsInRole(_id, [EMPLOYEE_ROLE, ADMIN_ROLE]))}
+                        members={this.props.users.filter(({_id}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]))}
                         onSelectMembers={this.updateMembers}
                     />
                     <SelectStakeholders
@@ -362,7 +364,7 @@ class CreateSalesRecord extends React.Component {
                                     value={selectedShippingMode}
                                     onChange={this.changeState('selectedShippingMode')}
                                     options={shippingMode}
-                                    className={"select-role"}
+                                    className={'select-role'}
                                     clearable={false}
                                 />
                             </div>
@@ -435,4 +437,4 @@ class CreateSalesRecord extends React.Component {
     }
 }
 
-export default  CreateSalesRecord;
+export default  CreateSalesRecord

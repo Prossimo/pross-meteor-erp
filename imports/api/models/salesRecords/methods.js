@@ -1,20 +1,18 @@
-import _ from 'underscore';
-import  {HTTP} from 'meteor/http';
-import SimpleSchema from 'simpl-schema';
-import SalesRecords from './salesRecords'
-import {EMPLOYEE_ROLE, ADMIN_ROLE_LIST, ADMIN_ROLE, SUPER_ADMIN_ROLE} from '../../constants/roles';
-import config from '../../config/config';
-import Threads from '../threads/threads'
-import Messages from '../messages/messages'
-import NylasAPI from '../../nylas/nylas-api'
+import {Roles} from 'meteor/alanning:roles'
+import  {HTTP} from 'meteor/http'
+import SimpleSchema from 'simpl-schema'
 import queryString from 'query-string'
+import config from '../../config/config'
+import NylasAPI from '../../nylas/nylas-api'
+import {SalesRecords, Threads, Messages, ROLES} from '../index'
 
 
-import {prossDocDrive} from '../../drive';
 
-const SLACK_API_ROOT = config.slack.apiRoot;
-const SLACK_API_KEY = config.slack.apiKey;
-const SLACK_BOT_ID = config.slack.botId;
+import {prossDocDrive} from '../../drive'
+
+const SLACK_API_ROOT = config.slack.apiRoot
+const SLACK_API_KEY = config.slack.apiKey
+const SLACK_BOT_ID = config.slack.botId
 
 Meteor.methods({
     removeSalesRecord({ _id, isRemoveSlack, isRemoveFolders }) {
@@ -22,57 +20,57 @@ Meteor.methods({
         _id: String,
         isRemoveSlack: Boolean,
         isRemoveFolders: Boolean,
-      }).validate({ _id, isRemoveSlack, isRemoveFolders });
-      if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-        const salesRecord = SalesRecords.findOne(_id);
+      }).validate({ _id, isRemoveSlack, isRemoveFolders })
+      if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+        const salesRecord = SalesRecords.findOne(_id)
         if (salesRecord) {
-          const { _id, folderId, slackChanel } = salesRecord;
+          const { _id, folderId, slackChanel } = salesRecord
           // Remove salesrecord
-          SalesRecords.remove(_id);
-          Meteor.defer(()=> {
+          SalesRecords.remove(_id)
+          Meteor.defer(() => {
             // Remove folder
-            isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId });
+            isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
             // Remove slack channel
             isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
               params: {
                 token: SLACK_API_KEY,
                 channel: slackChanel,
               }
-            });
+            })
           })
         }
       }
     },
     changeStageOfSalesRecord(salesRecordId, stage) {
-        check(salesRecordId, String);
-        check(stage, String);
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId});
-        if (salesRecord || Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            SalesRecords.update(salesRecordId, {$set: {stage}});
+        check(salesRecordId, String)
+        check(stage, String)
+        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId})
+        if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            SalesRecords.update(salesRecordId, {$set: {stage}})
         }
     },
 
     removeStakeholderFromSalesRecord(salesRecordId, contactId) {
-        check(salesRecordId, String);
-        check(contactId, String);
+        check(salesRecordId, String)
+        check(contactId, String)
 
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {contactId}}});
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {contactId}}})
         }
     },
 
     removeMemberFromSalesRecord(salesRecordId, userId) {
-        check(userId, String);
-        check(salesRecordId, String);
+        check(userId, String)
+        check(salesRecordId, String)
 
-        if (Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) {
-            return SalesRecords.update(salesRecordId, {$pull: {members: {userId}}});
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            return SalesRecords.update(salesRecordId, {$pull: {members: {userId}}})
         }
     },
     // NOTICE: it must be saleRecord
     insertSalesRecord(data, thread){
-        if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
-            throw new Meteor.Error("Access denied");
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+            throw new Meteor.Error('Access denied')
         }
         check(data, {
             name: String,
@@ -109,25 +107,25 @@ Meteor.methods({
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
             stage: Match.Maybe(String)
-        });
+        })
 
-        let responseCreateChannel = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
+        const responseCreateChannel = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
             params: {
                 token: SLACK_API_KEY,
                 name: data.name
             }
-        });
+        })
 
         //console.log("Create slack channel response", responseCreateChannel)
         if (!responseCreateChannel.data.ok) {
             if (responseCreateChannel.data.error = 'name_taken') {
-                throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`);
+                throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`)
             }
-            throw new Meteor.Error(`Some problems with created slack channel! Sorry try later`);
+            throw new Meteor.Error('Some problems with created slack channel! Sorry try later')
         }
 
 
-        data.slackChanel = responseCreateChannel.data.channel.id;
+        data.slackChanel = responseCreateChannel.data.channel.id
 
         const responseInviteBot = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
             params: {
@@ -135,9 +133,9 @@ Meteor.methods({
                 channel: responseCreateChannel.data.channel.id,
                 user: SLACK_BOT_ID
             }
-        });
+        })
 
-        if (!responseInviteBot.data.ok) throw new Meteor.Error("Bot cannot add to channel");
+        if (!responseInviteBot.data.ok) throw new Meteor.Error('Bot cannot add to channel')
 
         Meteor.users.find({_id: {$in: data.members.map(item => item.userId)}, slack: {$exists: true}})
             .forEach(user => {
@@ -148,15 +146,15 @@ Meteor.methods({
                         user: user.slack.id
                     }
                 })
-            });
+            })
 
 
-        const salesRecordId = SalesRecords.insert(data);
+        const salesRecordId = SalesRecords.insert(data)
 
         // create folder in google drive
-        Meteor.defer(()=> {
-          prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId});
-        });
+        Meteor.defer(() => {
+          prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
+        })
 
         // Insert conversations attached
         if (thread) {
@@ -164,7 +162,7 @@ Meteor.methods({
             thread.salesRecordId = salesRecordId
             Threads.insert(thread)
 
-            const query = queryString.stringify({thread_id: thread.id});
+            const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
                 path: `/messages?${query}`,
                 method: 'GET',
@@ -185,48 +183,48 @@ Meteor.methods({
 
         HTTP.post('http://78.47.83.46:8000/api/login_check', {
             data: {
-                "_username": "admin",
-                "_password": "12345678"
+                '_username': 'admin',
+                '_password': '12345678'
             }
-        }, function (error, response) {
+        }, (error, response) => {
 
             if (error) {
-                console.log(error);
+                console.log(error)
             } else {
                 //console.log( response);
                 HTTP.post('http://78.47.83.46:8000/api/projects', {
                     data: {
-                        "project": {
-                            "client_name": data.name,
-                            "client_phone": data.billingContactPhone,
-                            "client_email": data.billingContactEmail,
-                            "client_address": data.billingAddress,
-                            "project_name": data.name,
-                            "project_address": data.shippingAddress,
-                            "files": [],
-                            "quote_date": data.productionStartDate,
+                        'project': {
+                            'client_name': data.name,
+                            'client_phone': data.billingContactPhone,
+                            'client_email': data.billingContactEmail,
+                            'client_address': data.billingAddress,
+                            'project_name': data.name,
+                            'project_address': data.shippingAddress,
+                            'files': [],
+                            'quote_date': data.productionStartDate,
 
                         }
                     },
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + response.token
+                        'Authorization': `Bearer ${  response.token}`
                     }
-                }, function (err, result) {
+                }, (err, result) => {
                     if (err) {
-                        console.log(err);
+                        console.log(err)
                     } else {
                         //console.log( result);
                     }
-                });
+                })
             }
-        });
-        return salesRecordId;
+        })
+        return salesRecordId
     },
 
     updateSalesRecord(id, data, thread){
-        if (!Roles.userIsInRole(this.userId, [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
-            throw new Meteor.Error("Access denied");
+        if (!Roles.userIsInRole(this.userId, [ROLES.SALES, ROLES.ADMIN])) {
+            throw new Meteor.Error('Access denied')
         }
         check(data, {
             name: String,
@@ -263,10 +261,10 @@ Meteor.methods({
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
             stage: Match.Maybe(String)
-        });
+        })
 
 
-        SalesRecords.update({_id:id}, {$set:data});
+        SalesRecords.update({_id:id}, {$set:data})
 
 
         // Insert conversations attached
@@ -280,7 +278,7 @@ Meteor.methods({
                 Threads.insert(thread)
             }
 
-            const query = queryString.stringify({thread_id: thread.id});
+            const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
                 path: `/messages?${query}`,
                 method: 'GET',
@@ -306,4 +304,4 @@ Meteor.methods({
 
     },
 
-});
+})

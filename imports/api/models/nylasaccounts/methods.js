@@ -1,8 +1,9 @@
-import _ from 'underscore';
-import NylasAPI from '../../nylas/nylas-api';
-import config from '../../config/config';
-import NylasAccounts from './nylas-accounts';
-import {ADMIN_ROLE_LIST} from '../../constants/roles';
+import _ from 'underscore'
+import {Roles} from 'meteor/alanning:roles'
+import NylasAPI from '../../nylas/nylas-api'
+import config from '../../config/config'
+import NylasAccounts from './nylas-accounts'
+import {ROLES} from '../users/users'
 
 
 Meteor.methods({
@@ -15,26 +16,26 @@ Meteor.methods({
             provider: String,
             isTeamAccount: Boolean,
             googleRefreshToken: Match.Maybe(String)
-        });
+        })
 
-        const {name, email, password, provider, isTeamAccount, googleRefreshToken} = data;
+        const {name, email, password, provider, isTeamAccount, googleRefreshToken} = data
 
         const currentUserId = Meteor.userId()
         if (!currentUserId)
             throw new Meteor.Error('You must login to app')
 
-        const nylasAccounts = Meteor.user().nylasAccounts();
+        const nylasAccounts = Meteor.user().nylasAccounts()
         if (_.find(nylasAccounts, {emailAddress: email}))
             throw new Meteor.Error('You have already registered with this data')
 
 
         // Nylas Authentication
         const authData = {
-            "client_id": NylasAPI.AppID,
-            "name": name,
-            "email_address": email,
-            "provider": provider
-        };
+            'client_id': NylasAPI.AppID,
+            name,
+            'email_address': email,
+            provider
+        }
 
         if (provider == 'gmail') {
             authData.settings = {
@@ -45,7 +46,7 @@ Meteor.methods({
         } else {
             authData.settings = {
                 username: email,
-                password: password
+                password
             }
         }
 
@@ -61,10 +62,10 @@ Meteor.methods({
                 pass: '',
                 sendImmediately: true
             }
-        }).then((result) => {
+        }).then((result) => 
 
             // Call API for getting token
-            return NylasAPI.makeRequest({
+             NylasAPI.makeRequest({
                 path: '/connect/token',
                 method: 'POST',
                 timeout: 60000,
@@ -79,13 +80,13 @@ Meteor.methods({
                     sendImmediately: true
                 },
                 error: (error) => {
-                    console.error("NylasAPI makeRequest('/connect/token') error", error)
+                    console.error('NylasAPI makeRequest(\'/connect/token\') error', error)
                 }
-            }).then((account) => {
+            }).then((account) => 
 
                 // Folders or labels list
 
-                return NylasAPI.makeRequest({
+                 NylasAPI.makeRequest({
                     path: `/${account.organization_unit}s`,
                     method: 'GET',
                     auth: {
@@ -112,18 +113,15 @@ Meteor.methods({
                             provider: account.provider,
                             organizationUnit: account.organization_unit,
                             name: account.name,
-                            isTeamAccount: isTeamAccount,
+                            isTeamAccount,
                             userId: !isTeamAccount ? currentUserId : null,
                             categories: [inbox, drafts, sent, trash, archive]
                         })
                     }).run()
 
                     return true
-                })
-
-            })
-        }).catch((error) => {
-            console.error("NylasAPI makeRequest('/connect/authorize') error", error);
+                }))).catch((error) => {
+            console.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
             throw error
         })
     },
@@ -152,6 +150,6 @@ Meteor.methods({
 
         if(!accounts || accounts.length == 0) return null
 
-        return _.find(accounts, {accountId:accountId})
+        return _.find(accounts, {accountId})
     }
-});
+})

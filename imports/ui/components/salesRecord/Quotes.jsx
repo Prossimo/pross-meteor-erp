@@ -1,18 +1,19 @@
-import React from 'react';
-import {Modal} from 'react-bootstrap';
-import {ADMIN_ROLE_LIST, EMPLOYEE_ROLE} from '/imports/api/constants/roles';
-import Popup from '../popup/Popup';
-import classNames from 'classnames';
-import AddQuoteForm from './AddQuoteForm';
-import AddQuoteRevisionForm from './AddQuoteRevisionForm';
-import currencyFormatter from 'currency-formatter';
-import {info, warning} from '/imports/api/lib/alerts';
-import _ from 'underscore';
+import {Roles} from 'meteor/alanning:roles'
+import React from 'react'
+import {Modal} from 'react-bootstrap'
+import Popup from '../popup/Popup'
+import classNames from 'classnames'
+import AddQuoteForm from './AddQuoteForm'
+import AddQuoteRevisionForm from './AddQuoteRevisionForm'
+import currencyFormatter from 'currency-formatter'
+import {info, warning} from '/imports/api/lib/alerts'
+import {ROLES} from '/imports/api/models'
+import _ from 'underscore'
 import {DraftStore} from '/imports/api/nylas'
 
 class QuoteItem extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             editQuoteNameMode: false,
@@ -20,73 +21,72 @@ class QuoteItem extends React.Component {
     }
 
     renderQuoteName(quote) {
-        const {editQuoteNameMode} = this.state;
+        const {editQuoteNameMode} = this.state
 
-        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) {
-            return <p className="title">{quote.name}</p>;
+        if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) {
+            return <p className="title">{quote.name}</p>
         }
 
         return (
             <p className="title">
-                <span className={classNames("quote-name", {"hide": editQuoteNameMode})}
+                <span className={classNames('quote-name', {'hide': editQuoteNameMode})}
                       onClick={this.changeEditMode.bind(this)}>{quote.name}</span>
                 <input type="text"
                        onKeyPress={this.changeQuoteName.bind(this)}
                        onBlur={this.blurInput.bind(this)}
-                       className={classNames("quote-name-input", {"active": editQuoteNameMode})}
+                       className={classNames('quote-name-input', {'active': editQuoteNameMode})}
                 />
             </p>
         )
     }
 
     changeEditMode(event) {
-        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return;
-        event.persist();
-        this.setState({editQuoteNameMode: true});
+        if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return
+        event.persist()
+        this.setState({editQuoteNameMode: true})
         setTimeout(() => {
             event.target.nextSibling.focus()
         }, 0)
     }
 
     blurInput(event) {
-        event.target.velue = '';
+        event.target.velue = ''
         this.setState({editQuoteNameMode: false})
     }
 
     changeQuoteName(event) {
-        const {quote} = this.props;
+        const {quote} = this.props
 
         if (event.key === 'Enter') {
             Meteor.call('editQuoteName', quote._id, event.target.value, (err) => {
-                if (err) return warning('Change quote name failed');
+                if (err) return warning('Change quote name failed')
 
-                info("Change quote name success!")
-            });
-            event.target.value = '';
-            this.setState({editQuoteNameMode: false});
+                info('Change quote name success!')
+            })
+            event.target.value = ''
+            this.setState({editQuoteNameMode: false})
         }
     }
 
     addRevision() {
-        const {quote, addRevision} = this.props;
+        const {quote, addRevision} = this.props
         addRevision(quote)
     }
 
     render() {
-        const {quote} = this.props;
-        const lastRevisionNumber = Math.max(...quote.revisions.map(item => item.revisionNumber));
-        const latest = _.findWhere(quote.revisions, {revisionNumber: lastRevisionNumber});
+        const {quote} = this.props
+        const lastRevisionNumber = Math.max(...quote.revisions.map(item => item.revisionNumber))
+        const latest = _.findWhere(quote.revisions, {revisionNumber: lastRevisionNumber})
         const revisions = quote.revisions
             .filter(revision => revision !== latest)
             .sort((a, b) => a.revisionNumber > b.revisionNumber ? -1 : 1)
-            .map(revision => {
-                return (
+            .map(revision => (
                     <li className="revision-item"
                         key={revision.fileId}>
                         <p>Revision
                             <span className="revision-label"> # {revision.revisionNumber}</span></p>
                         <p>
-                            <i className="fa fa-calendar-o"/> {moment(revision.createAt).format("MMMM Do YYYY")}</p>
+                            <i className="fa fa-calendar-o"/> {moment(revision.createAt).format('MMMM Do YYYY')}</p>
                         <p>Total price {currencyFormatter.format(revision.totalPrice, {
                             code: 'USD',
                             locale: 'en-US',
@@ -96,8 +96,7 @@ class QuoteItem extends React.Component {
                            download={revision.fileName}
                            className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
                     </li>
-                )
-            })
+                ))
         return (
             <li className="single-quota">
                 <div className="flex-container">
@@ -107,7 +106,7 @@ class QuoteItem extends React.Component {
                             <span className="latest-label">latest version</span>
                             Revision <span className="revision-label"> # {latest.revisionNumber}</span></p>
                         <p className="quote-info">
-                            <i className="fa fa-calendar-o"/> {moment(latest.createAt).format("MMMM Do YYYY")}</p>
+                            <i className="fa fa-calendar-o"/> {moment(latest.createAt).format('MMMM Do YYYY')}</p>
                         <p className="quote-info">
                             Total price: {currencyFormatter.format(latest.totalPrice, {
                             code: 'USD',
@@ -137,7 +136,7 @@ class QuoteItem extends React.Component {
 
 class Quotes extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             showPopup: false,
@@ -147,23 +146,23 @@ class Quotes extends React.Component {
 
     componentDidMount() {
         this.slideToggle = function (event) {
-            const quote = event.currentTarget;
+            const quote = event.currentTarget
             if ($(quote).hasClass('up')) {
-                $(quote).removeClass('up');
-                $(quote).siblings('.revision-list').slideUp();
+                $(quote).removeClass('up')
+                $(quote).siblings('.revision-list').slideUp()
             } else {
-                $(quote).addClass('up');
-                $(quote).siblings('.revision-list').slideDown();
-                $(quote).parents('.single-quota').siblings('.single-quota').find('.revision-list').slideUp();
-                $(quote).parents('.single-quota').siblings('.single-quota').find('.show-revisions').removeClass('up');
+                $(quote).addClass('up')
+                $(quote).siblings('.revision-list').slideDown()
+                $(quote).parents('.single-quota').siblings('.single-quota').find('.revision-list').slideUp()
+                $(quote).parents('.single-quota').siblings('.single-quota').find('.show-revisions').removeClass('up')
             }
-        };
+        }
 
-        $(document).on('click', '.show-revisions', this.slideToggle);
+        $(document).on('click', '.show-revisions', this.slideToggle)
     }
 
     componentWillUnmount() {
-        $(document).off('click', '.show-revisions', this.slideToggle);
+        $(document).off('click', '.show-revisions', this.slideToggle)
     }
 
     hidePopup() {
@@ -171,11 +170,11 @@ class Quotes extends React.Component {
     }
 
     showAddQuoteForm() {
-        const {salesRecord, usersArr, currentUser, quotes} = this.props;
+        const {salesRecord, usersArr, currentUser, quotes} = this.props
 
-        const to = salesRecord.contactsForStakeholders().map((c)=>({name:c.name, email:c.email}))
+        const to = salesRecord.contactsForStakeholders().map((c) => ({name:c.name, email:c.email}))
         const salesRecordId = salesRecord._id
-        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft)=>{
+        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
             this.setState({
                 showPopup: true,
                 popupTitle: 'Add new quote',
@@ -194,7 +193,7 @@ class Quotes extends React.Component {
     }
 
     renderPopup() {
-        const {popupData, showPopup, popupTitle} = this.state;
+        const {popupData, showPopup, popupTitle} = this.state
 
         return (
             <Modal show={showPopup} onHide={() => {
@@ -209,11 +208,11 @@ class Quotes extends React.Component {
     }
 
     addRevision(quote) {
-        const {salesRecord, usersArr, currentUser} = this.props;
+        const {salesRecord, usersArr, currentUser} = this.props
 
-        const to = salesRecord.contactsForStakeholders().map((c)=>({name:c.name, email:c.email}))
+        const to = salesRecord.contactsForStakeholders().map((c) => ({name:c.name, email:c.email}))
         const salesRecordId = salesRecord._id
-        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft)=>{
+        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
             this.setState({
                 showPopup: true,
                 popupTitle: `Add revision to ${quote.name}`,
@@ -231,20 +230,18 @@ class Quotes extends React.Component {
     }
 
     renderQuotes() {
-        const {quotes} = this.props;
+        const {quotes} = this.props
 
-        if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>;
+        if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>
 
-        return <ul className="quotes-list">{quotes.map(quote => {
-            return <QuoteItem key={quote._id}
+        return <ul className="quotes-list">{quotes.map(quote => <QuoteItem key={quote._id}
                               addRevision={this.addRevision.bind(this)}
-                              quote={quote}/>
-        })}
+                              quote={quote}/>)}
         </ul>
     }
 
     renderAddQuotes() {
-        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+        if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
 
         return (
             <div className="add-quotes">
@@ -256,44 +253,44 @@ class Quotes extends React.Component {
     }
 
     getDriveFileList(e) {
-        e.preventDefault();
+        e.preventDefault()
         Meteor.call('getDriveFileList', (err, filesList) => {
             if (err) {
-                console.log(err);
-                return warning(err.message);
+                console.log(err)
+                return warning(err.message)
             }
-            console.log('===get files list from google drive===');
-            console.log(filesList);
-            console.log('======================================');
-        });
+            console.log('===get files list from google drive===')
+            console.log(filesList)
+            console.log('======================================')
+        })
     }
 
     saveDriveFile(e) {
-        e.preventDefault();
+        e.preventDefault()
         if (e.target.files.length) {
-            let file = e.target.files[0];
-            let fileInfo = {
+            const file = e.target.files[0]
+            const fileInfo = {
                 name: file.name,
                 type: file.type
-            };
-            let reader = new FileReader();
+            }
+            const reader = new FileReader()
             reader.onload = function (fileLoadEvent) {
                 Meteor.call('saveGoogleDriveFile', fileInfo, reader.result, (err, result) => {
                     if (err) {
-                        console.log(err);
-                        return warning(err.message);
+                        console.log(err)
+                        return warning(err.message)
                     }
-                    console.log('===file save result on google drive===');
-                    console.log(result);
-                    console.log('======================================');
-                });
-            };
-            reader.readAsBinaryString(file);
+                    console.log('===file save result on google drive===')
+                    console.log(result)
+                    console.log('======================================')
+                })
+            }
+            reader.readAsBinaryString(file)
         }
     }
 
     getGoogleDriveFileList() {
-        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+        if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
 
         return (
             <div className="add-quotes">
@@ -305,7 +302,7 @@ class Quotes extends React.Component {
     }
 
     saveFileToGoogleDrive() {
-        if (!Roles.userIsInRole(Meteor.userId(), [EMPLOYEE_ROLE, ...ADMIN_ROLE_LIST])) return null;
+        if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
 
         return (
             <div className="field-wrap">
@@ -332,4 +329,4 @@ class Quotes extends React.Component {
     }
 }
 
-export default  Quotes;
+export default  Quotes

@@ -1,9 +1,10 @@
-import { Factory } from 'meteor/dburles:factory';
-import SimpleSchema from 'simpl-schema';
-import faker from 'faker';
-import { Accounts } from 'meteor/accounts-base';
-import NylasAccounts from '../nylasaccounts/nylas-accounts';
-import {ADMIN_ROLE_LIST} from '../../constants/roles';
+import {Roles} from 'meteor/alanning:roles'
+import { Factory } from 'meteor/dburles:factory'
+import SimpleSchema from 'simpl-schema'
+import faker from 'faker'
+import { Accounts } from 'meteor/accounts-base'
+import NylasAccounts from '../nylasaccounts/nylas-accounts'
+
 
 export const ROLES = {
     ADMIN: 'admin',
@@ -13,7 +14,7 @@ export const ROLES = {
     ARCH: 'arch'
 }
 
-Schema = {};
+const Schema = {}
 
 Schema.User = new SimpleSchema({
     username: {
@@ -24,14 +25,14 @@ Schema.User = new SimpleSchema({
         type: Array,
         optional: true
     },
-    "emails.$": {
+    'emails.$': {
         type: Object
     },
-    "emails.$.address": {
+    'emails.$.address': {
         type: String,
         regEx: SimpleSchema.RegEx.Email
     },
-    "emails.$.verified": {
+    'emails.$.verified': {
         type: Boolean
     },
     createdAt: {
@@ -73,11 +74,11 @@ Schema.User = new SimpleSchema({
         type: String,
         optional: true,
     }
-});
+})
 
-export const UserSchema = Schema.User;
+export const UserSchema = Schema.User
 
-Meteor.users.attachSchema(UserSchema);
+Meteor.users.attachSchema(UserSchema)
 Meteor.users.publicFields = {
     username: 1,
     emails: 1,
@@ -86,28 +87,28 @@ Meteor.users.publicFields = {
     roles: 1,
     slack: 1,
     createdAt: 1
-};
+}
 
 // Deny all client-side updates to user documents
 Meteor.users.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; },
-});
+    insert() { return true },
+    update() { return true },
+    remove() { return true },
+})
 
 Factory.define('user', Meteor.users, {
     username: () => faker.lorem.word() + Random.id(10),
     firstName: () => faker.lorem.word(),
     lastName: () => faker.lorem.word()
-});
+})
 
 Meteor.users.helpers({
     email() {
         if(this.emails.length > 0)
         {
-            return this.emails[0].address;
+            return this.emails[0].address
         }
-        return null;
+        return null
     },
 
     nylasAccounts() {
@@ -117,32 +118,32 @@ Meteor.users.helpers({
                 {isTeamAccount:true,userId:null}
             ]
 
-        }).fetch();
+        }).fetch()
     },
 
     isAdmin() {
-        return Roles.userIsInRole(this._id, [...ADMIN_ROLE_LIST])
+        return Roles.userIsInRole(this._id, ROLES.ADMIN)
     }
-});
+})
 
 if(Meteor.isServer) {
-    Accounts.onCreateUser(function(options, user) {
-        user.profile = {};
+    Accounts.onCreateUser((options, user) => {
+        user.profile = {}
         if(options.profile) {
-            const profile = options.profile;
+            const profile = options.profile
 
             if(profile.firstName)
             {
-                user.profile.firstName = profile.firstName;
+                user.profile.firstName = profile.firstName
             }
             if(profile.lastName)
             {
-                user.profile.lastName = profile.lastName;
+                user.profile.lastName = profile.lastName
             }
         }
 
-        return user;
-    });
+        return user
+    })
 }
 
-export default Meteor.users;
+export default Meteor.users

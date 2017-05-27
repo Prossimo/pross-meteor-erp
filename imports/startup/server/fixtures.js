@@ -1,13 +1,8 @@
 //import {resetDatabase} from 'meteor/xolvio:cleaner';
-import { Factory } from 'meteor/dburles:factory';
-import _ from 'underscore';
-import {SUPER_ADMIN_ROLE, EMPLOYEE_ROLE} from '../../api/constants/roles'
-import {
-  SalesRecords,
-  Quotes
-} from '../../api/models';
-
-import '../../api/models'
+import {Roles} from 'meteor/alanning:roles'
+import { Factory } from 'meteor/dburles:factory'
+import _ from 'underscore'
+import { ROLES, SalesRecords, Quotes} from '../../api/models'
 
 function createBaseData() {
     // 1. Generate user data
@@ -17,12 +12,12 @@ function createBaseData() {
         emailProvider: 'eas',
         password: 'prossimo2017',
         profile: {
-            firstName: "Prossimo",
-            lastName: "Admin"
+            firstName: 'Prossimo',
+            lastName: 'Admin'
         }
-    };
-    const adminId = Accounts.createUser(administrator);
-    Roles.addUsersToRoles(adminId, [SUPER_ADMIN_ROLE]);
+    }
+    const adminId = Accounts.createUser(administrator)
+    Roles.addUsersToRoles(adminId, [ROLES.ADMIN])
 
     const user1 = {
         username: 'prossimo1',
@@ -30,48 +25,48 @@ function createBaseData() {
         emailProvider: 'gmail',
         password: 'P4ssiveH0use',
         profile: {
-            firstName: "Quote",
-            lastName: "User"
+            firstName: 'Quote',
+            lastName: 'User'
         }
-    };
-    const userId1 = Accounts.createUser(user1);
-    Roles.addUsersToRoles(userId1, [EMPLOYEE_ROLE]);
+    }
+    const userId1 = Accounts.createUser(user1)
+    Roles.addUsersToRoles(userId1, [ROLES.SALES])
 
-    console.log("=========== Created user data ===========");
+    console.log('=========== Created user data ===========')
 
     // 2. Generate salesRecord data
 
-    _.times(10, ()=>{
-        Factory.create('salesRecord');
+    _.times(10, () => {
+        Factory.create('salesRecord')
     })
 
-    console.log("=========== Created salesRecord data ===========");
+    console.log('=========== Created salesRecord data ===========')
 
     const quoteList = [
         {
-            name: "Quote #1",
-            revisionNumber: "active",
+            name: 'Quote #1',
+            revisionNumber: 'active',
             active: true,
             fileLink: '',
             createAt: new Date()
         },
             {
-                name: "Quote 2",
-                status: "delivered",
+                name: 'Quote 2',
+                status: 'delivered',
                 active: false,
                 fileLink: '',
                 createAt: new Date()
             }
-        ];
+        ]
     quoteList.forEach(item => {
         Quotes.insert(item)
     })
-    console.log("=========== Created quote data ===========");
+    console.log('=========== Created quote data ===========')
 
 }
 
 if (Meteor.isAppTest) {
     // resetDatabase();
 
-    createBaseData();
+    createBaseData()
 }
