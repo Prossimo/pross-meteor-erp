@@ -10,7 +10,7 @@ import SalesRecords from './salesRecords/salesRecords';
 import Projects from './projects/projects';
 import Settings from './settings/settings';
 import Tasks from './tasks/tasks';
-import Users from './users/users';
+import Users, {ROLES} from './users/users';
 import Files from './files/files';
 import Quotes from './quotes/quotes';
 import Events from './events/events';
@@ -39,5 +39,6 @@ export {
     Users,
     Projects,
     People,
-    PeopleDesignations
+    PeopleDesignations,
+    ROLES
 };

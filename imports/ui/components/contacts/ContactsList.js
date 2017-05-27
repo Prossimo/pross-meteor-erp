@@ -86,7 +86,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
                     {/*<Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>*/}
-                    <Button bsStyle="primary" onClick={()=>{this.props.onConvertToPeople&&this.props.onConvertToPeople()}}><i className="fa fa-address-book"/></Button>
+                    <Button bsStyle="primary" onClick={()=>{this.props.onConvertToPeople&&this.props.onConvertToPeople()}} disabled={this.state.selectedContacts.length===0}><i className="fa fa-address-book"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>

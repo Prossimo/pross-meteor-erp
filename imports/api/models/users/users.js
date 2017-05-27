@@ -5,6 +5,14 @@ import { Accounts } from 'meteor/accounts-base';
 import NylasAccounts from '../nylasaccounts/nylas-accounts';
 import {ADMIN_ROLE_LIST} from '../../constants/roles';
 
+export const ROLES = {
+    ADMIN: 'admin',
+    MANAGER: 'manager',
+    SALES: 'sales',
+    TAKEOFFS: 'takeoffs',
+    ARCH: 'arch'
+}
+
 Schema = {};
 
 Schema.User = new SimpleSchema({
