@@ -1,7 +1,9 @@
-import _ from 'underscore';
-import {Meteor} from 'meteor/meteor';
-import  {HTTP} from 'meteor/http';
-import {check, Match} from 'meteor/check';
+import _ from 'underscore'
+import {Meteor} from 'meteor/meteor'
+import {Roles} from 'meteor/alanning:roles'
+import  {HTTP} from 'meteor/http'
+import {check, Match} from 'meteor/check'
+import SimpleSchema from 'simpl-schema'
 import {
   Files,
   SlackUsers,
@@ -9,60 +11,52 @@ import {
   SlackMessages,
   Settings,
   Projects
-} from '../models';
-import {SlackMails, SalesRecords} from '../models'
-import {
-  EMPLOYEE_ROLE,
-  ADMIN_ROLE,
-  STAKEHOLDER_ROLE,
-  VENDOR_ROLE,
-  SHIPPER_ROLE,
-  ADMIN_ROLE_LIST,
-  SUPER_ADMIN_ROLE,
-} from '../constants/roles';
-import { prossDocDrive } from '../drive';
+} from '../models'
+import {SlackMails, SalesRecords, ROLES} from '../models'
+
+import { prossDocDrive } from '../drive'
 
 
-import '../lib/extendMatch.js';
-import google from 'googleapis';
-import config from '../config/config';
-import '../models/nylasaccounts/methods';
-import '../models/companies/methods';
-import '../models/contacts/methods';
-import '../models/salesRecords/methods';
-import '../models/mailtemplates/methods';
-import '../models/messages/methods';
-import '../models/threads/methods';
-import '../models/slackmails/methods';
-import '../models/people/methods';
-import { googleServerApiAutToken } from '../../api/server/functions';
+import '../lib/extendMatch.js'
+import google from 'googleapis'
+import config from '../config/config'
+import '../models/nylasaccounts/methods'
+import '../models/companies/methods'
+import '../models/contacts/methods'
+import '../models/salesRecords/methods'
+import '../models/mailtemplates/methods'
+import '../models/messages/methods'
+import '../models/threads/methods'
+import '../models/slackmails/methods'
+import '../models/people/methods'
+import { googleServerApiAutToken } from '../../api/server/functions'
 
 const driveScopes = [
     'https://www.googleapis.com/auth/drive',
     'https://www.googleapis.com/auth/drive.file',
     'https://www.googleapis.com/auth/drive.appdata',
     'https://www.googleapis.com/auth/drive.apps.readonly'
-];
+]
 //googleServerApiAutToken is async but we need token to make req to google drive api
-let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
-let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+const syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken)
+const googleToken =  syncGoogleServerApiAutToken(driveScopes)
 
-const OAuth2Client = google.auth.OAuth2;
+const OAuth2Client = google.auth.OAuth2
 const oauth2Client = new OAuth2Client(
     config.google.clientDriveId,
     config.google.clientDriveSecret,
-    config.google.redirectUri);
+    config.google.redirectUri)
 
 oauth2Client.setCredentials({
     access_token: googleToken
-});
+})
 
-const googleDrive = google.drive({ version: 'v3', auth: oauth2Client });
+const googleDrive = google.drive({ version: 'v3', auth: oauth2Client })
 
-const SLACK_API_ROOT = config.slack.apiRoot;
-const SLACK_API_KEY = config.slack.apiKey;
-const SLACK_BOT_ID = config.slack.botId;
-const SLACK_BOT_TOKEN = config.slack.botToken;
+const SLACK_API_ROOT = config.slack.apiRoot
+const SLACK_API_KEY = config.slack.apiKey
+const SLACK_BOT_ID = config.slack.botId
+const SLACK_BOT_TOKEN = config.slack.botToken
 
 Meteor.methods({
   userRegistration(userData){
@@ -73,16 +67,16 @@ Meteor.methods({
       firstName: String,
       lastName: String,
       googleRefreshToken: Match.Maybe(String)
-    });
+    })
 
-    const {username, email, password, firstName, lastName, googleRefreshToken} = userData;
-    let validation = {};
-    if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`;
-    if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`;
+    const {username, email, password, firstName, lastName, googleRefreshToken} = userData
+    const validation = {}
+    if (Accounts.findUserByUsername(username)) validation.username = `Username "${username}" is already exist`
+    if (Accounts.findUserByEmail(email)) validation.email = `Email "${email}" is already exist`
 
     if (!_.isEmpty(validation)) {
-      userData.validation = validation;
-      return userData;
+      userData.validation = validation
+      return userData
     }
 
     const userId = Accounts.createUser({
@@ -93,26 +87,26 @@ Meteor.methods({
         firstName,
         lastName,
         role: [
-          {role: EMPLOYEE_ROLE}
+          {role: ROLES.SALES}
         ]
       }
-    });
-    Roles.addUsersToRoles(userId, [EMPLOYEE_ROLE]);
+    })
+    Roles.addUsersToRoles(userId, [ROLES.SALES])
 
-    userData.validation = validation;
+    userData.validation = validation
 
-    if (userId) Meteor.call('initVisiableFields', userId);
+    if (userId) Meteor.call('initVisiableFields', userId)
 
-    return userData;
+    return userData
   },
 
   initVisiableFields(userId) {
-    const salesRecord = Settings.findOne({key: 'salesRecord', userId: userId});
-    const newProject = Settings.findOne({key: 'newProject', userId: userId});
+    const salesRecord = Settings.findOne({key: 'salesRecord', userId})
+    const newProject = Settings.findOne({key: 'newProject', userId})
     if (!salesRecord) {
       Settings.insert({
         key: 'salesRecord',
-        userId: userId,
+        userId,
         show: [
           'name',
           'productionStartDate',
@@ -123,7 +117,7 @@ Meteor.methods({
     }
     if (!newProject) {
       Settings.insert({
-        userId: userId,
+        userId,
         key: 'newProject',
         show: [
           '_id',
@@ -134,62 +128,62 @@ Meteor.methods({
   },
 
   getVisibleFields(key) {
-    check(key, String);
-    const userId = this.userId;
-    let setting  = Settings.findOne({ key, userId });
+    check(key, String)
+    const userId = this.userId
+    const setting  = Settings.findOne({ key, userId })
     if (!setting) {
-      Meteor.call('initVisiableFields', userId);
-      return Settings.findOne({key, userId}).show;
+      Meteor.call('initVisiableFields', userId)
+      return Settings.findOne({key, userId}).show
     } else
 
-    return setting.show;
+    return setting.show
   },
 
   updateVisibleFields(key, visibleFields) {
-    if (!this.userId) return;
-    check(visibleFields, [String]);
-    check(key, String);
-    const userId = this.userId;
+    if (!this.userId) return
+    check(visibleFields, [String])
+    check(key, String)
+    const userId = this.userId
     Settings.update({ key, userId }, {
       $set: {
         show: visibleFields,
       }
-    });
+    })
   },
 
   updateProjectProperty(salesRecordId, property) {
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(property, {
       key: String,
       value: Match.OneOf(String, Date)
-    });
-    const {key, value} = property;
+    })
+    const {key, value} = property
 
     // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+    const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
     // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
+    const salesRecord = SalesRecords.findOne(salesRecordId)
+    if (!salesRecord) throw new Meteor.Error('Project does not exists')
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
 
     // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
+    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
     return SalesRecords.update(salesRecordId, {
       $set: {
         [key]: value,
       }
-    });
+    })
   },
 
   addUserToSlackChannel(userId, channel){
-    check(userId, String);
-    check(channel, String);
+    check(userId, String)
+    check(channel, String)
 
-    const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}});
+    const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}})
 
-    if (!user) throw new Meteor.Error("User don`t integrate with slack");
+    if (!user) throw new Meteor.Error('User don`t integrate with slack')
 
     const res = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
       params: {
@@ -197,11 +191,11 @@ Meteor.methods({
         channel,
         user: user.slack.id
       }
-    });
+    })
     if (!res.data.ok) {
-      if (res.data.error === "already_in_channel") throw new Meteor.Error("User already in channel");
+      if (res.data.error === 'already_in_channel') throw new Meteor.Error('User already in channel')
     }
-    return res;
+    return res
   },
 
   sendEmail(mailData) {
@@ -212,20 +206,18 @@ Meteor.methods({
       subject: String,
       attachments: Match.Maybe([String]),
       html: String,
-    });
-    this.unblock();
+    })
+    this.unblock()
 
     if (_.isArray(mailData.attachments) && mailData.attachments.length) {
-      mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item => {
-        return {
+      mailData.attachments = Files.find({_id: {$in: mailData.attachments}}).fetch().map(item => ({
           fileName: item.original.name,
           filePath: `${Meteor.absoluteUrl(`cfs/files/files/${item._id}/${item.original.name}`)}`
-        }
-      });
+        }))
     }
 
-    Email.send(mailData);
-    return "Message is sending";
+    Email.send(mailData)
+    return 'Message is sending'
   },
 
   adminCreateUser(user) {
@@ -245,21 +237,15 @@ Meteor.methods({
       },
       role: {
         type: String,
-        allowedValues: [
-          EMPLOYEE_ROLE,
-          ADMIN_ROLE,
-          STAKEHOLDER_ROLE,
-          VENDOR_ROLE,
-          SHIPPER_ROLE,
-        ]
+        allowedValues: Object.values(ROLES)
       }
-    }));
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
-    const { email, username, firstName, lastName, role } = user;
+    }))
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+    const { email, username, firstName, lastName, role } = user
     if (Accounts.findUserByEmail(email))
-      throw new Meteor.Error('validEmail', `Email "${email}" is already exist`);
+      throw new Meteor.Error('validEmail', `Email "${email}" is already exist`)
     if (Accounts.findUserByUsername(username))
-      throw new Meteor.Error('validUsername', `"${username}" is already exist`);
+      throw new Meteor.Error('validUsername', `"${username}" is already exist`)
 
     const createdUserId = Accounts.createUser({
       username,
@@ -268,7 +254,7 @@ Meteor.methods({
         firstName,
         lastName,
       }
-    });
+    })
 
     Meteor.users.update(createdUserId, {
       $set: {
@@ -277,22 +263,22 @@ Meteor.methods({
       }
     })
 
-    if (userId) Meteor.call('initVisiableFields', userId);
+    if (userId) Meteor.call('initVisiableFields', userId)
 
-    Meteor.defer(()=> Accounts.sendEnrollmentEmail(createdUserId));
-    return createdUserId;
+    Meteor.defer(() => Accounts.sendEnrollmentEmail(createdUserId))
+    return createdUserId
   },
 
   adminEditUser(userId, userFields){
-    check(userId, String);
+    check(userId, String)
     check(userFields, {
       firstName: String,
       lastName: String,
       role: String,
     })
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
-    if (Roles.userIsInRole(this.userId), ADMIN_ROLE && role === SUPER_ADMIN_ROLE) throw new Meteor.Error('Can not set current user as super admin');
-    const { firstName, lastName, role } = userFields;
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+    if (Roles.userIsInRole(this.userId), role === ROLES.ADMIN) throw new Meteor.Error('Can not set current user as super admin')
+    const { firstName, lastName, role } = userFields
     Meteor.users.update(userId, {
       $set: {
         'profile.firstName': firstName,
@@ -303,68 +289,68 @@ Meteor.methods({
   },
 
   adminRemoveUser(userIds) {
-    check(userIds, [String]);
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access denied');
+    check(userIds, [String])
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
     // can not remove super admin role
-    const removeIds = userIds.filter((userId)=> !Roles.userIsInRole(userId, [SUPER_ADMIN_ROLE]));
-    Meteor.users.remove({ _id: { $in: removeIds } });
+    const removeIds = userIds.filter((userId) => !Roles.userIsInRole(userId, [ROLES.ADMIN]))
+    Meteor.users.remove({ _id: { $in: removeIds } })
     if (removeIds.length != userIds.length) {
-      throw new Meteor.Error('Can not remove super admin account');
+      throw new Meteor.Error('Can not remove super admin account')
     }
   },
 
   updateProjectShipping(salesRecordId, shipping) {
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(shipping, {
       shippingContactPhone: Match.Maybe(Match.phone),
       shippingContactName: Match.Maybe(String),
       shippingContactEmail: Match.Maybe(String),
       shippingAddress: Match.Maybe(String),
       shippingNotes: Match.Maybe(String),
-    });
+    })
     // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+    const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
     // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
+    const salesRecord = SalesRecords.findOne(salesRecordId)
+    if (!salesRecord) throw new Meteor.Error('Project does not exists')
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
 
     // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-    shipping.modifiedAt = new Date();
+    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+    shipping.modifiedAt = new Date()
     return SalesRecords.update(salesRecordId, {
       $set: shipping,
-    });
+    })
   },
 
   updateProjectBilling(salesRecordId, billing) {
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(billing, {
       billingContactPhone: Match.Maybe(Match.phone),
       billingContactName: Match.Maybe(String),
       billingContactEmail: Match.Maybe(String),
       billingAddress: Match.Maybe(String),
       billingNotes: Match.Maybe(String),
-    });
+    })
     // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+    const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
     // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
+    const salesRecord = SalesRecords.findOne(salesRecordId)
+    if (!salesRecord) throw new Meteor.Error('Project does not exists')
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
 
     // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-    billing.modifiedAt = new Date();
+    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+    billing.modifiedAt = new Date()
     return SalesRecords.update(salesRecordId, {
       $set: billing,
-    });
+    })
   },
 
   updateProjectAttributes(salesRecordId, attributes) {
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(attributes, {
       shippingMode: String,
       actualDeliveryDate: Date,
@@ -377,72 +363,72 @@ Meteor.methods({
     })
 
     // current user belongs to ADMIN LIST
-    const isAdmin = Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST);
+    const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
     // current user belongs to salesRecords
-    const salesRecord = SalesRecords.findOne(salesRecordId);
-    if (!salesRecord) throw new Meteor.Error('Project does not exists');
-    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId);
+    const salesRecord = SalesRecords.findOne(salesRecordId)
+    if (!salesRecord) throw new Meteor.Error('Project does not exists')
+    const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
 
     // check permission
-    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied');
-    attributes.modifiedAt = new Date();
+    if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+    attributes.modifiedAt = new Date()
     return SalesRecords.update(salesRecordId, {
       $set: attributes,
-    });
+    })
   },
 
   addStakeholderToSalesRecord(salesRecordId, stakeholder) {
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(stakeholder, {
       contactId: String,
       destination: Match.OneOf(String, null),
       category: Match.OneOf([String], []),
       notify: Boolean,
-    });
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error('Access Denined');
-    stakeholder.isMainStakeholder = false;
-    SalesRecords.update(salesRecordId, {$push: { stakeholders: stakeholder }});
+    })
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
+    stakeholder.isMainStakeholder = false
+    SalesRecords.update(salesRecordId, {$push: { stakeholders: stakeholder }})
   },
 
   addMemberToProject(salesRecordId, member){
-    check(salesRecordId, String);
+    check(salesRecordId, String)
     check(member, {
       userId: String,
       isMainStakeholder: Boolean,
       category: Match.OneOf([String], [])
-    });
+    })
 
-    if (!Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST)) throw new Meteor.Error("Access denied");
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
 
-    SalesRecords.update(salesRecordId, {$push: {members: member}});
+    SalesRecords.update(salesRecordId, {$push: {members: member}})
     // allow edit folder
-    const user = Meteor.users.findOne(member.userId);
+    const user = Meteor.users.findOne(member.userId)
     if (user && user.emails && user.emails.length > 0) {
-      const email = user.emails[0].address;
+      const email = user.emails[0].address
       if (email) {
-        const salesRecord = SalesRecords.findOne(salesRecordId);
+        const salesRecord = SalesRecords.findOne(salesRecordId)
         if (salesRecord && salesRecord.folderId) {
-          prossDocDrive.shareWith.call({ fileId: salesRecord.folderId, email });
+          prossDocDrive.shareWith.call({ fileId: salesRecord.folderId, email })
         }
       }
     }
   },
 
   updateUserInfo(user){
-    if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, ADMIN_ROLE_LIST))
-      throw new Meteor.Error("Access denied");
+    if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
+      throw new Meteor.Error('Access denied')
 
     Meteor.users.update({_id: user.userId}, {
       $set: {
         username: user.username,
-        "profile.firstName": user.firstName,
-        "profile.lastName": user.lastName,
-        "profile.twitter": user.twitter,
-        "profile.facebook": user.facebook,
-        "profile.linkedIn": user.linkedIn,
-        "profile.companyName": user.companyName,
-        "profile.companyPosition": user.companyPosition
+        'profile.firstName': user.firstName,
+        'profile.lastName': user.lastName,
+        'profile.twitter': user.twitter,
+        'profile.facebook': user.facebook,
+        'profile.linkedIn': user.linkedIn,
+        'profile.companyName': user.companyName,
+        'profile.companyPosition': user.companyPosition
       }
     })
   },
@@ -452,28 +438,28 @@ Meteor.methods({
     HTTP.post(`${SLACK_API_ROOT}/chat.postMessage`, {
       params: {
         token: SLACK_API_KEY,
-        channel: channel,
+        channel,
         text: message
       }
     })
   },
 
   parseSlackMessage(data){
-    data.createAt = new Date();
+    data.createAt = new Date()
     switch (data.subtype) {
       case 'file_share':
-        Meteor.call("addSlackFileMsg", data);
-        break;
+        Meteor.call('addSlackFileMsg', data)
+        break
       default:
         SlackMessages.insert(data)
     }
   },
 
   addSlackFileMsg(data){
-    if (!data.file && !data.file.id) return;
+    if (!data.file && !data.file.id) return
 
-    data.publicLink = Meteor.call("getPublicPermalink", data.file.id);
-    SlackMessages.insert(data);
+    data.publicLink = Meteor.call('getPublicPermalink', data.file.id)
+    SlackMessages.insert(data)
   },
 
   sendMailToSlack(message, threadId, salesRecordId) {
@@ -492,7 +478,7 @@ Meteor.methods({
           if(channelsListRes.statusCode!=200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
 
           const channels = channelsListRes.data.channels
-          let inboxChannel = _.find(channels, {name:'inbox'})
+          const inboxChannel = _.find(channels, {name:'inbox'})
           if(!inboxChannel) {
               const channelsCreateRes = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
                 params: {
@@ -521,28 +507,28 @@ Meteor.methods({
 
 
       const from = message.from[0].email
-      let to = []
-      message.to.forEach((c)=>{to.push(c.email)})
-      message.cc.forEach((c)=>{to.push(c.email)})
-      message.bcc.forEach((c)=>{to.push(c.email)})
-      const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`;
+      const to = []
+      message.to.forEach((c) => {to.push(c.email)})
+      message.cc.forEach((c) => {to.push(c.email)})
+      message.bcc.forEach((c) => {to.push(c.email)})
+      const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
       const slackify = require('slackify-html')
       const text = slackify(message.body)
       const params = {
-          username: "prossimobot",//getSlackUsername(Meteor.user()),
+          username: 'prossimobot',//getSlackUsername(Meteor.user()),
           //icon_url: getAvatarUrl(Meteor.user()),
           attachments: [
               {
-                  "fallback": message.snippet,
-                  "color": "#36a64f",
+                  'fallback': message.snippet,
+                  'color': '#36a64f',
                   //"pretext": "Optional text that appears above the attachment block",
                   //"author_name": "Bobby Tables",
                   //"author_link": "http://flickr.com/bobby/",
                   //"author_icon": "http://flickr.com/icons/bobby.jpg",
-                  "title": message.subject,
+                  'title': message.subject,
                   //"title_link": "https://api.slack.com/",
-                  "text": text,
+                  text,
                   // "fields": [
                   //     {
                   //         "title": "Priority",
@@ -550,38 +536,38 @@ Meteor.methods({
                   //         "short": false
                   //     }
                   // ],
-                  "image_url": "http://my-website.com/path/to/image.jpg",
-                  "thumb_url": "http://example.com/path/to/thumb.png",
-                  "footer": "Prossimo CRM",
-                  "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
-                  "ts": new Date().getTime()/1000
+                  'image_url': 'http://my-website.com/path/to/image.jpg',
+                  'thumb_url': 'http://example.com/path/to/thumb.png',
+                  'footer': 'Prossimo CRM',
+                  'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
+                  'ts': new Date().getTime()/1000
               }
           ],
           as_user: false
-      };
+      }
       if(threadable && thread_ts) params.thread_ts = thread_ts
 
 
       return Meteor.call('sendBotMessage', slackChannelId, slackText, params)
   },
   getPublicPermalink(fileId){
-    check(fileId, String);
+    check(fileId, String)
 
     const response = HTTP.get(`${SLACK_API_ROOT}/files.sharedPublicURL`, {
       params: {
         token: SLACK_API_KEY,
         file: fileId
       }
-    });
+    })
 
-    if (!response.data.ok) return;
+    if (!response.data.ok) return
     //console.log(response);
 
-    const file = HTTP.get(response.data.file.url_private_download, {params: {token: SLACK_API_KEY}});
+    const file = HTTP.get(response.data.file.url_private_download, {params: {token: SLACK_API_KEY}})
 
     //console.log(file)
 
-    return response.data.file.permalink_public;
+    return response.data.file.permalink_public
   },
 
   getSlackUsers(){
@@ -589,25 +575,25 @@ Meteor.methods({
       params: {
         token: SLACK_API_KEY,
       }
-    }, requestCb);
+    }, requestCb)
 
     function requestCb(err, res) {
-      if (err || !res.data.ok) return;
-      const {members} = res.data;
+      if (err || !res.data.ok) return
+      const {members} = res.data
       members.length && members.forEach(item => {
         if (!SlackUsers.findOne({id: item.id})) {
-          SlackUsers.insert(item);
+          SlackUsers.insert(item)
         }
       })
     }
   },
 
   updateUserProfileField(field, data){
-    check(field, String);
-    check(data, Match.OneOf(String, Number));
+    check(field, String)
+    check(data, Match.OneOf(String, Number))
 
-    if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
-      throw new Meteor.Error("Access denied");
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+      throw new Meteor.Error('Access denied')
     }
     Meteor.users.update({_id: this.userId}, {
       $set: {
@@ -617,13 +603,13 @@ Meteor.methods({
   },
 
   addNewQuote(data){
-    if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
-      throw new Meteor.Error("Access denied");
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+      throw new Meteor.Error('Access denied')
     }
 
-    data.createBy = this.userId;
+    data.createBy = this.userId
 
-    Quotes.insert(data);
+    Quotes.insert(data)
   },
 
   addQuoteRevision(data){
@@ -635,13 +621,13 @@ Meteor.methods({
       createAt: Date,
       fileName: String,
       fileId: String
-    });
-    if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
-      throw new Meteor.Error("Access denied");
+    })
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+      throw new Meteor.Error('Access denied')
     }
 
-    const quoteId = data.quoteId;
-    delete data.quoteId;
+    const quoteId = data.quoteId
+    delete data.quoteId
 
     Quotes.update(quoteId, {
       $push: {
@@ -659,48 +645,48 @@ Meteor.methods({
       updateAt: Date,
       fileName: String,
       fileId: String
-    });
-    if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
-      throw new Meteor.Error("Access denied");
+    })
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+      throw new Meteor.Error('Access denied')
     }
-    let oldFileId;
+    let oldFileId
 
-    const quote = Quotes.findOne(data.quoteId);
+    const quote = Quotes.findOne(data.quoteId)
 
     const revisions = quote.revisions.map(revision => {
       if (revision.revisionNumber === data.revisionNumber) {
-        oldFileId = revision.fileId;
+        oldFileId = revision.fileId
 
-        revision.totalPrice = data.totalPrice;
-        revision.updateBy = data.updateBy;
-        revision.updateAt = data.updateAt;
-        revision.fileName = data.fileName;
-        revision.fileId = data.fileId;
+        revision.totalPrice = data.totalPrice
+        revision.updateBy = data.updateBy
+        revision.updateAt = data.updateAt
+        revision.fileName = data.fileName
+        revision.fileId = data.fileId
       }
-      return revision;
-    });
+      return revision
+    })
 
-    Quotes.update(quote._id, {$set: {revisions}});
-    Files.remove(oldFileId);
+    Quotes.update(quote._id, {$set: {revisions}})
+    Files.remove(oldFileId)
   },
 
   editQuoteName(quoteId, name){
-    check(quoteId, String);
-    check(name, String);
-    if (!Roles.userIsInRole(this.userId, [ADMIN_ROLE, SUPER_ADMIN_ROLE, EMPLOYEE_ROLE])) {
-      throw new Meteor.Error("Access denied");
+    check(quoteId, String)
+    check(name, String)
+    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+      throw new Meteor.Error('Access denied')
     }
 
     Quotes.update({_id: quoteId}, {
       $set: {name}
-    });
+    })
   },
 
   updateUserConversationGroups(group, membersId){
-    check(group, String);
-    check(membersId, [String]);
+    check(group, String)
+    check(membersId, [String])
 
-    const profile = Meteor.users.findOne({_id: this.userId}).profile;
+    const profile = Meteor.users.findOne({_id: this.userId}).profile
     if (profile.conversationGroups && profile.conversationGroups.length) {
       const updateGroups = profile.conversationGroups.map(item => {
         if (item.name === group) {
@@ -709,9 +695,9 @@ Meteor.methods({
             members: membersId
           }
         } else {
-          return item;
+          return item
         }
-      });
+      })
       Meteor.users.update({_id: this.userId}, {
         $set: {
           'profile.conversationGroups': updateGroups
@@ -720,7 +706,7 @@ Meteor.methods({
     } else {
       Meteor.users.update({_id: this.userId}, {
         $set: {
-          "profile.conversationGroups": [{
+          'profile.conversationGroups': [{
             name: group,
             members: membersId
           }]
@@ -730,63 +716,63 @@ Meteor.methods({
   },
 
   getTwilioToken() {
-    const twilio = require('twilio');
-    const config = require('../config/config');
+    const twilio = require('twilio')
+    const config = require('../config/config')
 
-    let capability = new twilio.Capability(
+    const capability = new twilio.Capability(
       config.twilio.accountSid,
       config.twilio.authToken
-    );
-    capability.allowClientOutgoing(config.twilio.appSid);
-    let token = capability.generate();
+    )
+    capability.allowClientOutgoing(config.twilio.appSid)
+    const token = capability.generate()
 
-    return token;
+    return token
   },
 
   async getDriveFileList() {
-      const drive = google.drive('v3');
+      const drive = google.drive('v3')
       const driveScopes = [
           'https://www.googleapis.com/auth/drive',
           'https://www.googleapis.com/auth/drive.file',
           'https://www.googleapis.com/auth/drive.appdata',
           'https://www.googleapis.com/auth/drive.apps.readonly'
-      ];
+      ]
 
-      const OAuth2Client = google.auth.OAuth2;
+      const OAuth2Client = google.auth.OAuth2
       const oauth2Client = new OAuth2Client(
           config.google.clientDriveId,
           config.google.clientDriveSecret,
-          config.google.redirectUri);
+          config.google.redirectUri)
 
       //googleServerApiAutToken is async but we need token to make req to google drive api
-      let syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken);
-      let googleToken =  syncGoogleServerApiAutToken(driveScopes);
+      const syncGoogleServerApiAutToken = Meteor.wrapAsync(googleServerApiAutToken)
+      const googleToken =  syncGoogleServerApiAutToken(driveScopes)
 
       oauth2Client.setCredentials({
           access_token: googleToken
-      });
+      })
 
       // Create the promise so we can use await later.
       const driveFileListPromise = new Promise((resolve, reject) => {
           googleDrive.files.list({
               auth: oauth2Client,
               pageSize: 10,
-              fields: "nextPageToken, files"
+              fields: 'nextPageToken, files'
               // fields: "nextPageToken, files(id, name)"
           }, (err, response) => {
               if (err) {
-                  return reject(err);
+                  return reject(err)
               }
-              resolve(response);
-          });
-      });
+              resolve(response)
+          })
+      })
 
       // return promise result to React method
       try {
-          return await driveFileListPromise;
+          return await driveFileListPromise
       } catch (err) {
-          console.log(`ERROR: ${err.message}`);
-          throw err;
+          console.log(`ERROR: ${err.message}`)
+          throw err
       }
   },
 
@@ -804,18 +790,18 @@ Meteor.methods({
               }
           }, (err, response) => {
               if (err) {
-                  return reject(err);
+                  return reject(err)
               }
-              resolve(response);
-          });
-      });
+              resolve(response)
+          })
+      })
 
       // return promise result to React method
       try {
-          return await driveFileListPromise;
+          return await driveFileListPromise
       } catch (err) {
-          console.log(`ERROR: ${err.message}`);
-          throw err;
+          console.log(`ERROR: ${err.message}`)
+          throw err
       }
   }
-});
+})

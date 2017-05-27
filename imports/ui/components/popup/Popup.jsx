@@ -1,22 +1,19 @@
-import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
-import classNames from 'classnames';
-import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from '../../../api/constants/roles';
+import React from 'react'
 
 
 class Popup extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
 
     }
 
     hide(){
-        const { hide } = this.props;
+        const { hide } = this.props
         if(typeof hide === 'function'){hide()}
     }
 
     render() {
-        const { active, title, content } = this.props;
+        const { active, title, content } = this.props
         if(active){
             return (
                 <div className="popup-area">
@@ -32,9 +29,9 @@ class Popup extends React.Component{
                 </div>
             )
         }else{
-            return null;
+            return null
         }
 
     }
 }
-export default Popup;
+export default Popup

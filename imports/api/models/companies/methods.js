@@ -1,10 +1,11 @@
 import {_} from 'meteor/underscore'
 import { Meteor } from 'meteor/meteor'
+import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import Companies from './companies'
 import CompanyTypes from './companytypes'
-import {ADMIN_ROLE_LIST} from '../../constants/roles'
+import {ROLES} from '../users/users'
 
 
 export const insertCompany = new ValidatedMethod({
@@ -78,7 +79,7 @@ export const insertCompanyType = new ValidatedMethod({
             name
         }
 
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST])) data.user_id = this.userId
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) data.user_id = this.userId
         return CompanyTypes.insert(data)
     }
 })
@@ -92,7 +93,7 @@ export const updateCompanyType = new ValidatedMethod({
         const companyType = CompanyTypes.findOne({_id})
         if(!companyType) throw new Meteor.Error(`Not found company type with _id ${_id}`)
 
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST]) && (!companyType.user_id || companyType.user_id!==this.userId))
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && (!companyType.user_id || companyType.user_id!==this.userId))
             throw new Meteor.Error('Permission denied')
 
         const type = CompanyTypes.findOne({name})
@@ -114,7 +115,7 @@ export const removeCompanyType = new ValidatedMethod({
         const companyType = CompanyTypes.findOne({_id})
         if(!companyType) throw new Meteor.Error(`Not found company type with _id ${_id}`)
 
-        if(!Roles.userIsInRole(this.userId, [...ADMIN_ROLE_LIST]) && (!companyType.user_id || companyType.user_id!==this.userId))
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && (!companyType.user_id || companyType.user_id!==this.userId))
             throw new Meteor.Error('Permission denied')
 
         CompanyTypes.remove(_id)

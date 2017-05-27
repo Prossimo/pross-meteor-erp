@@ -1,36 +1,24 @@
+import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {
-    ADMIN_ROLE,
-    SUPER_ADMIN_ROLE,
-    STAKEHOLDER_ROLE,
-    VENDOR_ROLE,
-    EMPLOYEE_ROLE,
-    SHIPPER_ROLE
-} from '../../api/constants/roles'
-import {CompanyTypes, PeopleDesignations} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations} from '/imports/api/models'
 
 Migrations.add({
     version: 1,
     name: 'Add roles',
     up() {
         console.log('=== migrate up to version 1')
-        Roles.createRole(ADMIN_ROLE);
-        Roles.createRole(SUPER_ADMIN_ROLE);
-        Roles.createRole(STAKEHOLDER_ROLE);
-        Roles.createRole(VENDOR_ROLE);
-        Roles.createRole(EMPLOYEE_ROLE);
-        Roles.createRole(SHIPPER_ROLE);
+        Object.values(ROLES).forEach((role) => {
+            Roles.createRole(role)
+        })
     },
     down() {
         console.log('=== migrate down to version 1')
-        Roles.deleteRole(ADMIN_ROLE);
-        Roles.deleteRole(SUPER_ADMIN_ROLE);
-        Roles.deleteRole(STAKEHOLDER_ROLE);
-        Roles.deleteRole(VENDOR_ROLE);
-        Roles.deleteRole(EMPLOYEE_ROLE);
-        Roles.deleteRole(SHIPPER_ROLE);
+
+        Object.values(ROLES).forEach((role) => {
+            Roles.deleteRole(role)
+        })
     }
-});
+})
 Migrations.add({
     version: 2,
     name: 'Add company types',
@@ -38,13 +26,13 @@ Migrations.add({
         console.log('=== migrate up to version 2')
         const types = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultat', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
 
-        types.forEach((type)=>CompanyTypes.insert({name:type}))
+        types.forEach((type) => CompanyTypes.insert({name:type}))
     },
     down() {
         console.log('=== migrate down from version 2')
         CompanyTypes.remove({})
     }
-});
+})
 Migrations.add({
     version: 3,
     name: 'Add people designations',
@@ -74,10 +62,10 @@ Migrations.add({
         console.log('=== migrate down from version 3')
         PeopleDesignations.remove({})
     }
-});
+})
 
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(3);
+        Migrations.migrateTo(3)
     }
-});
+})
