@@ -106,7 +106,8 @@ Meteor.methods({
             actProductionTime: Match.Maybe(Number),
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
-            stage: Match.Maybe(String)
+            stage: Match.Maybe(String),
+            subStage: Match.Maybe(String)
         })
 
         const responseCreateChannel = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
@@ -260,7 +261,8 @@ Meteor.methods({
             actProductionTime: Match.Maybe(Number),
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
-            stage: Match.Maybe(String)
+            stage: Match.Maybe(String),
+            subStage: Match.Maybe(String),
         })
 
 

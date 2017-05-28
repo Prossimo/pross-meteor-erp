@@ -1,0 +1,54 @@
+import React, {Component} from 'react'
+import Select from 'react-select'
+import {
+  SUB_STAGES_LEAD,
+  SUB_STAGES_OPP,
+  SUB_STAGES_ORDER,
+  SUB_STAGE_TICKET
+} from '../../../../api/constants/project'
+
+class SelectSubStage extends Component {
+  constructor() {
+    super()
+    this.getSubStages = this.getSubStages.bind(this)
+    this.changeSelectionValue = this.changeSelectionValue.bind(this)
+    this.state = {
+      subStage: ''
+    }
+  }
+  componentWillReceiveProps(props) {
+    if (this.props.stage !== props.stage) {
+      this.setState({subStage: ''})
+    }
+  }
+  getSubStages() {
+    const {stage} = this.props
+    switch (stage) {
+      case 'lead': return SUB_STAGES_LEAD
+      case 'opportunity': return SUB_STAGES_OPP
+      case 'order': return SUB_STAGES_ORDER
+      case 'ticket': return SUB_STAGE_TICKET
+      default: return []
+    }
+  }
+  changeSelectionValue(value) {
+    this.setState({subStage: value})
+    this.props.onSelectSubStage(value)
+  }
+  render() {
+    return (
+      <div>
+        <label>Sub Stage</label>
+        <Select
+          value={this.state.subStage}
+          onChange={this.changeSelectionValue}
+          options={this.getSubStages()}
+          className={'members-select'}
+          clearable={false}
+        />
+      </div>
+    )
+  }
+}
+
+export default SelectSubStage
