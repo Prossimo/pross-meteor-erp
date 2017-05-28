@@ -34,7 +34,7 @@ class KanbanView extends Component {
 					{this.columns.map((col) => {
 						let data = this.filterColumn(col)
 						data = _.sortBy(data, ({ createdAt }) => -createdAt.getTime())
-						return <KanbanColumn key={col.id} deals={data} colName={col.title} />
+						return <KanbanColumn key={col.id} deals={data} colName={col.title} id={col.id} />
 					})}
 				</div>
 			</div>

@@ -25,9 +25,9 @@ class KanbanItem extends Component {
 			<div className="task-container"
 				onClick={() => {FlowRouter.go('SalesRecord', {id: _id})} }
 				draggable='true'
-				onDragStart={ event =>
-				 event.dataTransfer.setData('<deal></deal>', JSON.stringify(this.props.deal))
-				}
+				onDragStart={ event => {
+					event.dataTransfer.setData('deal', JSON.stringify(this.props.deal))
+				}}
 			>
 				<p>{name}</p>
 	      <DueDateIcon>
