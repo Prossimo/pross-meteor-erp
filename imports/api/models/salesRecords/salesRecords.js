@@ -1,34 +1,34 @@
 import _ from 'underscore'
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import { Factory } from 'meteor/dburles:factory';
-import faker from 'faker';
-import { STAGES } from '../../constants/project';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
+import { Factory } from 'meteor/dburles:factory'
+import faker from 'faker'
+import { STAGES, SUB_STAGES } from '../../constants/project'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import Contacts from '../contacts/contacts'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.createdAt = ourDoc.createdAt || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.createdAt = ourDoc.createdAt || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
     remove(selector) {
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-SalesRecords = new SalesRecordsCollection("SalesRecords");
+const SalesRecords = new SalesRecordsCollection('SalesRecords')
 // Deny all client-side updates since we will be using methods to manage this collection
 /*salesRecords.deny({
-    insert() { return true; },
-    update() { return true; },
-    remove() { return true; }
-});*/
+    insert() { return true },
+    update() { return true },
+    remove() { return true }
+})*/
 
 SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
@@ -76,11 +76,12 @@ SalesRecords.schema = new SimpleSchema({
     estProductionTime: { type: Number, optional: true },
     actProductionTime: { type: Number, optional: true },
     stage: { type: String, allowedValues: STAGES },
+    subStage: {type: String, allowedValues: SUB_STAGES},
     folderId: { type: String, optional: true },
     taskFolderId: { type: String, optional: true },
-});
+})
 
-SalesRecords.attachSchema(SalesRecords.schema);
+SalesRecords.attachSchema(SalesRecords.schema)
 
 SalesRecords.publicFields = {
     name: 1,
@@ -107,21 +108,21 @@ SalesRecords.publicFields = {
     estProductionTime: 1,
     actProductionTime: 1,
     stage: 1
-};
+}
 
 Factory.define('salesRecord', SalesRecords, {
     name: () => faker.name.jobTitle()
-});
+})
 
 
 SalesRecords.before.insert(function (userId, doc) {
     doc.createdAt = new Date()
-});
+})
 
 SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options) {
-    // modifier.$set = modifier.$set || {};
-    doc.modifiedAt = Date.now();
-});
+    // modifier.$set = modifier.$set || {}
+    doc.modifiedAt = Date.now()
+})
 
 SalesRecords.helpers({
     threads() {
@@ -138,4 +139,4 @@ SalesRecords.helpers({
     }
 })
 
-export default SalesRecords;
+export default SalesRecords

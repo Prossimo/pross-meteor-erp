@@ -53,7 +53,7 @@ class SingleSalesRecord extends React.Component{
     ]
 
     this.memberTypeOptions = [
-      { label: 'Add Employee', value: 'member' },
+      { label: 'Add Team Member', value: 'member' },
       { label: 'Add Stakeholder', value: 'stakeholder' },
     ]
 
@@ -331,7 +331,7 @@ class SingleSalesRecord extends React.Component{
                       clearable={false}
                     />
                 </div>
-                <button onClick={this.addMember} className="btnn primary-btn">Add Employee</button>
+                <button onClick={this.addMember} className="btnn primary-btn">Add Team member</button>
             </div>
         </div>
       )
@@ -372,16 +372,16 @@ class SingleSalesRecord extends React.Component{
       category: selectedCategory.map(i => i.value)
     }
 
-    Meteor.call('addMemberToProject', salesRecord._id, member, err => {
-      if(err) return warning(err.reason? err.reason : 'Add employee failed!')
+    Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
+      if(err) return warning(err.reason? err.reason : 'Add team member failed!');
       this.setState({
         member: {
           selectedUser: null,
           selectedCategory: []
         }
-      })
-      info('Add employee to salesRecord success!')
-    })
+      });
+      info('Add team member to salesRecord success!');
+    });
 
     Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, err => {
       if(err) return warning(err.error)
@@ -396,7 +396,7 @@ class SingleSalesRecord extends React.Component{
   showUserInfo(user){
     this.setState({
       showPopup: true,
-      popupTitle: 'Employee Info',
+      popupTitle: 'Team Member Info',
       popupData: <ContactInfo
         user={user}
         hide={this.hidePopup.bind(this)}

@@ -17,6 +17,7 @@ import SelectStakeholders from './salesRecord/SelectStakeholders'
 import ContactStore from '../../../api/nylas/contact-store'
 import {ROLES,Contacts} from '/imports/api/models'
 
+import SelectSubStage from './salesRecord/SelectSubStage'
 
 class CreateSalesRecord extends React.Component {
     static propTypes = {
@@ -141,12 +142,14 @@ class CreateSalesRecord extends React.Component {
 
             shippingMode: selectedShippingMode.value,
             stage: this.props.stage ? this.props.stage : selectedStage.value,
+            subStage: this.subStage,
             supplier,
             shipper,
             estProductionTime,
             actProductionTime
         }
         this.props.toggleLoader(true)
+        console.log('data', data);
         if(this.props.salesRecord) {
             Meteor.call('updateSalesRecord', this.props.salesRecord._id, data, this.props.thread, (err, res) => {
                 this.props.toggleLoader(false)
@@ -157,7 +160,6 @@ class CreateSalesRecord extends React.Component {
                     FlowRouter.go(FlowRouter.path('SalesRecord', {id: this.props.salesRecord._id}))
                 }, 300)
             })
-
         } else {
             Meteor.call('insertSalesRecord', data, this.props.thread, (err, res) => {
                 this.props.toggleLoader(false)
@@ -237,13 +239,25 @@ class CreateSalesRecord extends React.Component {
                             </div>
                         ) : ''
                     }
-                    <div className="form-group">
-                        <label>{dealTitle ? dealTitle : 'Deal Name'}</label>
-                        <input type="text"
-                               className='form-control'
-                               onChange={this.changeState('projectName')}
-                               value={projectName}/>
+                    <div className="row">
+                      <div className="col-md-8">
+                        <div className="form-group">
+                          <label>{dealTitle ? dealTitle : 'Deal Name'}</label>
+                          <input type="text"
+                            className='form-control'
+                            onChange={this.changeState('projectName')}
+                            value={projectName}
+                          />
+                        </div>
+                      </div>
+                      <div className="col-md-4">
+                        <SelectSubStage
+                          stage={this.props.stage || selectedStage.value}
+                          onSelectSubStage={(subStage) => {this.subStage = subStage.value}}
+                        />
+                      </div>
                     </div>
+
                     <SelectMembers
                         members={this.props.users.filter(({_id}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]))}
                         onSelectMembers={this.updateMembers}
