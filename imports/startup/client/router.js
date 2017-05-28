@@ -2,7 +2,7 @@ import React from 'react'
 import {mount} from 'react-mounter'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 
-import App from '../../api/composer/App'
+import App from '/imports/ui/App'
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject'
 import SingleProjectPage from '/imports/ui/components/project/SingleProject'
 import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
