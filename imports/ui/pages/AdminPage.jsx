@@ -40,7 +40,7 @@ export default createContainer(() => {
   subscribers.push(Meteor.subscribe(GET_ALL_USERS))
 
   if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
-    users = Meteor.users.find({roles: { $nin: [ROLES.ADMIN] }}).fetch()
+    users = Meteor.users.find({username: { $ne: 'root' }}).fetch()
   }
   return {
     subscribers,

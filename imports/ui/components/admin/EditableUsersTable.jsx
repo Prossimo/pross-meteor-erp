@@ -138,9 +138,7 @@ class EditableUsersTable extends Component{
       afterSaveCell: this.onAfterSaveCell  // a hook for after saving cell
     }
 
-    const roles = Object.values(ROLES)
-      roles.splice(roles.indexOf(ROLES.ADMIN), 1)
-    const userRoles = roles
+    const userRoles = Object.values(ROLES)
 
     const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles }) => ({
         _id,

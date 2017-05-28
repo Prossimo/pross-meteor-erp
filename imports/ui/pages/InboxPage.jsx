@@ -1,29 +1,29 @@
-import React from 'react';
-import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap';
-import Spinner from '../components/utils/spinner';
-import {warning} from "/imports/api/lib/alerts";
-import Actions from '../../api/nylas/actions';
-import '../../api/nylas/tasks/task-queue';
-import Contacts from '../../api/models/contacts/contacts';
-import NylasUtils from '../../api/nylas/nylas-utils';
-import AccountStore from '../../api/nylas/account-store';
-import CategoryStore from '../../api/nylas/category-store';
-import ThreadStore from '../../api/nylas/thread-store';
-import MessageStore from '../../api/nylas/message-store';
-import DraftStore from '../../api/nylas/draft-store';
-import ItemCategory from '../components/inbox/ItemCategory';
-import ItemThread from '../components/inbox/ItemThread';
-import MessageList from '../components/inbox/MessageList';
-import Toolbar from '../components/inbox/Toolbar';
-import ComposeModal from '../components/inbox/composer/ComposeModal';
-import NylasSigninForm from '../components/inbox/NylasSigninForm';
-import CreateSalesRecord from '../components/admin/CreateSalesRecord';
+import React from 'react'
+import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
+import Spinner from '../components/utils/spinner'
+import {warning} from '/imports/api/lib/alerts'
+import Actions from '../../api/nylas/actions'
+import '../../api/nylas/tasks/task-queue'
+import Contacts from '../../api/models/contacts/contacts'
+import NylasUtils from '../../api/nylas/nylas-utils'
+import AccountStore from '../../api/nylas/account-store'
+import CategoryStore from '../../api/nylas/category-store'
+import ThreadStore from '../../api/nylas/thread-store'
+import MessageStore from '../../api/nylas/message-store'
+import DraftStore from '../../api/nylas/draft-store'
+import ItemCategory from '../components/inbox/ItemCategory'
+import ItemThread from '../components/inbox/ItemThread'
+import MessageList from '../components/inbox/MessageList'
+import Toolbar from '../components/inbox/Toolbar'
+import ComposeModal from '../components/inbox/composer/ComposeModal'
+import NylasSigninForm from '../components/inbox/NylasSigninForm'
+import CreateSalesRecord from '../components/admin/CreateSalesRecord'
 import SalesRecordSelect from '../components/admin/salesRecord/SalesRecordSelect'
 
 
 class InboxPage extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         const currentCategory = CategoryStore.currentCategory
         this.state = {
@@ -33,30 +33,30 @@ class InboxPage extends React.Component {
             bindingSalesRecord: false,
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
-            currentCategory: currentCategory,
+            currentCategory,
             threads: currentCategory ? ThreadStore.getThreads(currentCategory) : [],
             currentThread: ThreadStore.currentThread
         }
 
 
         if (this.state.hasNylasAccounts) {
-            Actions.loadContacts();
+            Actions.loadContacts()
         }
     }
 
     componentDidMount() {
-        this.unsubscribes = [];
-        this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged));
-        this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged));
-        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged));
-        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged));
+        this.unsubscribes = []
+        this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
+        this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
+        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
+        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
 
     }
 
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
-        });
+        })
 
     }
 
@@ -71,7 +71,7 @@ class InboxPage extends React.Component {
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
         this.setState({
-            currentCategory: currentCategory,
+            currentCategory,
             threads: ThreadStore.getThreads(currentCategory),
         })
     }
@@ -98,7 +98,7 @@ class InboxPage extends React.Component {
     }
 
     renderContents() {
-        const {hasNylasAccounts, composeState, addingInbox, addingTeamInbox} = this.state;
+        const {hasNylasAccounts, composeState, addingInbox, addingTeamInbox} = this.state
 
         if (addingInbox) {
             return <NylasSigninForm isAddingTeamInbox={addingTeamInbox}
@@ -209,7 +209,7 @@ class InboxPage extends React.Component {
     }
 
     renderCategories() {
-        const {currentCategory} = this.state;
+        const {currentCategory} = this.state
 
         return (
             <div className="list-category">
@@ -224,7 +224,7 @@ class InboxPage extends React.Component {
                             <div key={account.accountId}>
                                 <div className="account-wrapper">
                     <span><img
-                        src={account.isTeamAccount ? "/icons/inbox/ic-team.png" : "/icons/inbox/ic-individual.png"}
+                        src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
                         width="16px"/></span>&nbsp;
                                     <span>{account.emailAddress}</span>
                                     <span style={{flex: 1}}></span>
@@ -297,7 +297,7 @@ class InboxPage extends React.Component {
             Meteor.call('removeNylasAccount', account, (err, res) => {
                 if (err) {
                     console.log(err)
-                    return warning(err.message);
+                    return warning(err.message)
                 }
 
                 Actions.changedAccounts()
@@ -306,7 +306,7 @@ class InboxPage extends React.Component {
     }
 
     renderThreads() {
-        const {threads, currentThread, loadingThreads} = this.state;
+        const {threads, currentThread, loadingThreads} = this.state
 
         return (
             <div className="list-thread">
@@ -327,13 +327,13 @@ class InboxPage extends React.Component {
     }
 
     onCategorySelected(category) {
-        CategoryStore.selectCategory(category);
+        CategoryStore.selectCategory(category)
     }
 
     onThreadSelected(thread) {
-        this.setState({currentThread: thread});
+        this.setState({currentThread: thread})
 
-        ThreadStore.selectThread(thread);
+        ThreadStore.selectThread(thread)
     }
 
     onScrollThreadList = (evt) => {
@@ -345,4 +345,4 @@ class InboxPage extends React.Component {
     }
 }
 
-export default InboxPage;
+export default InboxPage
