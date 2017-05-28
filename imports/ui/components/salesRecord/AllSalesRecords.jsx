@@ -1,4 +1,4 @@
-/* global moment */
+/* global moment, FlowRouter */
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import { Table, Glyphicon, Button } from 'react-bootstrap'
@@ -13,6 +13,13 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
+
+import {
+  SUB_STAGES_LEAD,
+  SUB_STAGES_OPP,
+  SUB_STAGES_ORDER,
+  SUB_STAGE_TICKET
+} from '../../../api/constants/project'
 
 class AllSalesRecords extends React.Component{
     constructor(props){
@@ -148,6 +155,14 @@ class AllSalesRecords extends React.Component{
                     selected: false,
                     type: 'text',
                     editable: true,
+                },
+                {
+                    key: 'subStage',
+                    label: 'Sub Stage',
+                    selected: false,
+                    options: [],
+                    type: 'select',
+                    editable: true
                 }
             ],
             showKanbanView: false
@@ -263,7 +278,15 @@ class AllSalesRecords extends React.Component{
         )
 
     }
-
+    getSubStages(stage) {
+     switch (stage) {
+       case 'lead': return SUB_STAGES_LEAD
+       case 'opportunity': return SUB_STAGES_OPP
+       case 'order': return SUB_STAGES_ORDER
+       case 'ticket': return SUB_STAGE_TICKET
+       default: return []
+     }
+    }
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
         const salesRecords =_.sortBy( this.props.salesRecords, ({ productionStartDate }) => -productionStartDate.getTime())
@@ -286,6 +309,7 @@ class AllSalesRecords extends React.Component{
                                         </td>
                                     )
                                 case 'select':
+                                    options = key === 'subStage' ? this.getSubStages(project.stage) : options
                                     return (
                                         <td key={key}>
                                             <div>
@@ -488,7 +512,7 @@ class AllSalesRecords extends React.Component{
           <div className="text-right input-group-btn">
           <button
             className={`btn btn-default ${!active ? 'active' : ''}`}
-            onClick={()=>{
+            onClick={() => {
               this.setState({showKanbanView: false})
             }}
           >
@@ -496,7 +520,7 @@ class AllSalesRecords extends React.Component{
           </button>
           <button
             className={`btn btn-default ${active}`}
-            onClick={()=>{
+            onClick={() => {
             this.setState({showKanbanView: true})
             }}
           >
@@ -508,7 +532,7 @@ class AllSalesRecords extends React.Component{
       return ''
     }
     render() {
-      const showKaban = this.props.showAllDeals && this.state.showKanbanView;
+      const showKaban = this.props.showAllDeals && this.state.showKanbanView
       return (
         <div className="">
           {this.renderSwitchLabels()}
@@ -517,7 +541,7 @@ class AllSalesRecords extends React.Component{
           <div className={showKaban ? 'hidden' : ''}>
             <select className='selectpicker pull-right' multiple>
             {
-              this.state.possibleColumns.map(({ key, label })=> <option value={key} key={key}>{label}</option>)
+              this.state.possibleColumns.map(({ key, label }) => <option value={key} key={key}>{label}</option>)
             }
             </select>
             <br/>

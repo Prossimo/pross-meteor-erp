@@ -149,7 +149,6 @@ class CreateSalesRecord extends React.Component {
             actProductionTime
         }
         this.props.toggleLoader(true)
-        console.log('data', data);
         if(this.props.salesRecord) {
             Meteor.call('updateSalesRecord', this.props.salesRecord._id, data, this.props.thread, (err, res) => {
                 this.props.toggleLoader(false)
