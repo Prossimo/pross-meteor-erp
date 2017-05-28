@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 import KanbanColumn from './KanbanColumn'
 class KanbanView extends Component {
 	constructor() {
-		super();
+		super()
 		this.columns = [
 			{
 				title: 'Leads',
@@ -23,17 +23,17 @@ class KanbanView extends Component {
 		]
 	}
 	filterColumn(col) {
-		return this.props.salesRecords.filter((deal)=>{
+		return this.props.salesRecords.filter((deal) => {
 			return deal.stage === col.id
 		})
 	}
 	render() {
-		const { salesRecords = []} = this.props;
 		return (
 			<div className="task-board-container">
 				<div className="col-md-12">
 					{this.columns.map((col) => {
-						const data = this.filterColumn(col);
+						let data = this.filterColumn(col)
+						data = _.sortBy(data, ({ createdAt }) => -createdAt.getTime())
 						return <KanbanColumn key={col.id} deals={data} colName={col.title} />
 					})}
 				</div>
