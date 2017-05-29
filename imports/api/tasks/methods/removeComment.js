@@ -10,21 +10,32 @@ export default new ValidatedMethod({
   }).validator(),
   run({ _id }) {
     if (!this.userId) throw new Error('User is not allowed to add comment');
-    const isRemoved = Tasks.update({}, {
-      $pull: {
-        comments: {
-          userId: this.userId,
-          _id,
-        },
-      },
-    }, { multi: true });
+    const task = Tasks.findOne({
+      'comments._id': _id,
+      'comments.userId': this.userId,
+    });
 
-    if (isRemoved) {
-      console.log(_id);
+    const getChilds = (comments, _id, path)=> {
+      // GET CHILD ELEM
+      let childs = comments.filter(({ parentId })=> parentId === _id);
+
+      // SAVE RESULT
+      childs.forEach(({ _id })=> path.push(_id));
+      while (childs.length) {
+
+        // GET CHILD OF CHILD
+        const child = childs.shift();
+        getChilds(comments, child._id, path);
+      }
+    };
+
+    if (task) {
+      const removeIds = [_id];
+      getChilds(task.comments, _id, removeIds);
       Tasks.update({}, {
         $pull: {
           comments: {
-            parentId: _id,
+            _id: { $in: removeIds },
           },
         },
       }, { multi: true });
