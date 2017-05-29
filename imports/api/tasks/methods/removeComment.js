@@ -20,13 +20,14 @@ export default new ValidatedMethod({
     }, { multi: true });
 
     if (isRemoved) {
+      console.log(_id);
       Tasks.update({}, {
         $pull: {
           comments: {
             parentId: _id,
           },
         },
-      });
+      }, { multi: true });
     }
   },
 });
