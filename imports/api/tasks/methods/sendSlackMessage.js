@@ -61,10 +61,14 @@ export default new ValidatedMethod({
       if (channel) {
         switch (type) {
           case 'ADD_COMMENT': {
+            const comment = _.last(comments);
+            const user = Meteor.users.findOne(comment.userId);
+            let pretext = `A new comment from @${user.username} has been added`;
+            (user.slack && user.slack.id) && (pretext = `A new comment from <@${user.slack.id}> has been added`);
             sendAttachment({
-              pretext: `A comment has beed added`,
+              pretext,
               title,
-              text: _.last(comments).content,
+              text: comment.content,
               color: BLUE,
               channel,
             });
