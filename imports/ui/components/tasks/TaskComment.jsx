@@ -65,7 +65,7 @@ class TaskComment extends Component {
     event.preventDefault();
     const commentElem = event.target.previousSibling;
     const content = commentElem.value;
-    Meteor.call('task.addComment', { content, _id: this.props.task._id  }, error=> {
+    Meteor.call('task.addComment', { content, _id: this.props.task._id }, error=> {
       if (!error) {
         commentElem.value = '';
       }
@@ -96,6 +96,7 @@ class TaskComment extends Component {
         <p>
           <strong><i className='fa fa-align-left'/>&nbsp;&nbsp; Activity</strong>
         </p>
+        <p><strong>{(this.props.task.comments || []).length} &nbsp;&nbsp; Comments</strong></p>
         <CommentList comments={this.props.task.comments || []} taskId={this.props.task._id}/>
       </div>
     );

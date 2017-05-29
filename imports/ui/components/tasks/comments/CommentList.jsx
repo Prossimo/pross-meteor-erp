@@ -44,7 +44,7 @@ class CommentList extends Component {
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, remove it!'
+      confirmButtonText: 'Yes, remove it!',
     }).then(function () {
       Meteor.call('task.removeComment', { _id }, (error, result)=> {
         if (error) {
