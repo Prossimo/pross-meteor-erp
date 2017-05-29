@@ -141,6 +141,19 @@
   .comment-box {
     width: calc(100% - 45px);
     float: left;
+    .reply-comment-box {
+      .reply-comment {
+        width: calc(100% - 40px);
+        min-height: 50px;
+        border: 1px solid #CDD2D4;
+        border-radius: 3px;
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        padding: 5px 8px;
+        color: #4d4d4d;
+        resize: none;
+        font-size: 14px;
+      }
+    }
     .comment-content {
       padding: 9px 11px;
       background-color: white;

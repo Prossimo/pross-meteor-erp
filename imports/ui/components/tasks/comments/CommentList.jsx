@@ -13,12 +13,14 @@ class CommentList extends Component {
     super();
     this.state = {
       comments: {},
+      showReply: null,
     };
     this.editComment = this.editComment.bind(this);
     this.removeComment = this.removeComment.bind(this);
     this.changeState = this.changeState.bind(this);
     this.updateComment = this.updateComment.bind(this);
     this.replyComment = this.replyComment.bind(this);
+    this.saveComment = this.saveComment.bind(this);
   }
 
   changeState(prop, propName, propValue) {
@@ -69,12 +71,13 @@ class CommentList extends Component {
     this.changeState(this.state.comments, _id, true);
   }
 
-  replyComment(username, event) {
+  replyComment(_id, event) {
     event.preventDefault();
-    const commentBoxElem = $('.comment-textarea');
-    let curComment = commentBoxElem.val();
-    commentBoxElem.val(curComment + ` @${username} `);
-    commentBoxElem.focus();
+    this.setState({ showReply: _id });
+  }
+
+  saveComment(event) {
+    this.setState({ showReply: null });
   }
 
   render() {
@@ -120,9 +123,30 @@ class CommentList extends Component {
                                 </span>
                               ) : ''
                             }
-                            <a href='#' onClick={event => this.replyComment(username, event)}>Reply</a>
+                            <a href='#' onClick={event => this.replyComment(_id, event)}>Reply</a>
                           </p>
                         </div>
+                        {
+                          (this.state.showReply === _id) ? (
+                            <div className='reply-comment-box'>
+                              <CommentIcon name={shortName}/>
+                              <textarea
+                                className='reply-comment'
+                                placeholder='Write a reply'
+                                autoFocus={true}
+                                onBlur={event => this.saveComment(event)}
+                              />
+                              <div className='comment-controls'>
+                                <p className='pull-right'>
+                                  <small>{ moment().format('YYYY MMM D hh:mm:ss A') }</small> - &nbsp;
+                                  <a href='#'>Edit</a> - &nbsp;
+                                  <a href='#'>Remove</a> - &nbsp;
+                                  <a href='#'>Reply</a>
+                                </p>
+                              </div>
+                            </div>
+                          ) : ''
+                        }
                       </div>
                     )
                   }
