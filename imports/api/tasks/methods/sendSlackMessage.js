@@ -3,11 +3,17 @@ import { HTTP } from 'meteor/http';
 import { SalesRecords, Projects, Tasks } from '/imports/api/models';
 import { slack } from '/imports/api/config/config';
 
-const { apiRoot, apiKey, botId, botToken } = slack;
+const { apiRoot } = slack;
+const token = 'xoxb-143253157236-cBzs3iNbCDuxCOIHTPnI2LHG';
 
 // SEND SLACK MESSAGE
 const sendMessage = ({ channel, text, attachments })=> {
-  const params = { token: botToken, channel };
+  const params = {
+    token,
+    channel,
+    username: 'prossimobot',
+    as_user: false,
+  };
   text && (params.text = text);
   attachments && (params.attachments = attachments);
   HTTP.post(`${apiRoot}/chat.postMessage`, {
