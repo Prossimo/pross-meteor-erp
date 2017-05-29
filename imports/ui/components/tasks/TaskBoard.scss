@@ -142,6 +142,7 @@
     width: calc(100% - 45px);
     float: left;
     .reply-comment-box {
+      margin-left: -20px;
       .reply-comment {
         width: calc(100% - 40px);
         min-height: 50px;
