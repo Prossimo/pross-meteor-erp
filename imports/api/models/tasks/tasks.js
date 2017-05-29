@@ -51,6 +51,10 @@ Tasks.schema = new SimpleSchema({
   'comments.$._id': {
     type: String,
   },
+  'comments.$.parentId': {
+    type: String,
+    optional: true,
+  },
   'comments.$.userId': {
     type: String,
   },

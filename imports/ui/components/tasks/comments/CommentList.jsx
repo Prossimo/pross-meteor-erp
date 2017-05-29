@@ -76,8 +76,11 @@ class CommentList extends Component {
     this.setState({ showReply: _id });
   }
 
-  saveComment(event) {
+  saveComment(parentId, event) {
     this.setState({ showReply: null });
+    const content = event.target.value;
+    const taskId = this.props.taskId;
+    Meteor.call('task.addComment', { _id: taskId, content, parentId });
   }
 
   render() {
@@ -134,7 +137,7 @@ class CommentList extends Component {
                                 className='reply-comment'
                                 placeholder='Write a reply'
                                 autoFocus={true}
-                                onBlur={event => this.saveComment(event)}
+                                onBlur={event => this.saveComment(_id, event)}
                               />
                               <div className='comment-controls'>
                                 <p className='pull-right'>
@@ -162,6 +165,7 @@ class CommentList extends Component {
 
 CommentList.propTypes = {
   comments: PropTypes.array.isRequired,
+  taskId: PropTypes.string.isRequired,
 };
 
 export default createContainer(({ comments })=> {
