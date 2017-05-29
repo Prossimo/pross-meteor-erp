@@ -1,8 +1,9 @@
+import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
-import {warning} from "/imports/api/lib/alerts"
-import {PeopleDesignations, Companies, People} from '/imports/api/models'
+import {warning} from '/imports/api/lib/alerts'
+import {PeopleDesignations, Companies, People, ROLES} from '/imports/api/models'
 import {insertPerson, updatePerson} from '/imports/api/models/people/methods'
 import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
@@ -29,7 +30,7 @@ export default class PersonForm extends React.Component {
             linkedin: person ? person.linkedin || '' : '',
             designation_id: person ? person.designation_id : '',
             role: person ? person.role || '' : '',
-            emails: emails,
+            emails,
             phone_numbers: person ? person.phone_numbers : [],
             company_id: person ? person.company_id : '',
             position: person ? person.position || '' : '',
@@ -55,7 +56,7 @@ export default class PersonForm extends React.Component {
                 designationValue = {value: designation._id, label: designation.name}
                 roleOptions = designation.roles.map(r => ({value: r, label: r}))
                 roleValue = designation.roles.indexOf(role) > -1 ? {value: role, label: role} : null
-                roleAddable = designation.role_addable
+                roleAddable = designation.role_addable && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])
             }
         }
 
@@ -158,7 +159,7 @@ export default class PersonForm extends React.Component {
                     </FormGroup>
                     <FormGroup>
                         <Col sm={12} style={{textAlign: 'right'}}>
-                            <Button type="submit" bsStyle="primary">{this.person ? "Update" : "Create"}</Button>
+                            <Button type="submit" bsStyle="primary">{this.person ? 'Update' : 'Create'}</Button>
                         </Col>
                     </FormGroup>
                 </Form>
@@ -215,7 +216,7 @@ export default class PersonForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        let data = {
+        const data = {
             name,
             twitter,
             facebook,
