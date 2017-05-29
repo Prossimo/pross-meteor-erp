@@ -124,9 +124,9 @@ export default new ValidatedMethod({
           }
 
           case 'NEW_TASK': {
-            const { slack } = Meteor.users.findOne(assignee);
-            let pretext = `New task has created in ${status} board`;
-            (slack && slack.id) && (pretext = `New task has assigned to <@${slack.id}> in ${status} board`);
+            const user = Meteor.users.findOne(assignee);
+            let pretext = `New task has assigned to @${user.username} in ${status} board`;
+            (user.slack && user.slack.id) && (pretext = `New task has assigned to <@${user.slack.id}> in ${status} board`);
             sendAttachment({
               pretext,
               title,
