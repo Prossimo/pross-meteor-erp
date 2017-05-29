@@ -10,7 +10,7 @@ export default new ValidatedMethod({
   }).validator(),
   run({ _id }) {
     if (!this.userId) throw new Error('User is not allowed to add comment');
-    return Tasks.update({}, {
+    const isRemoved = Tasks.update({}, {
       $pull: {
         comments: {
           userId: this.userId,
@@ -18,5 +18,15 @@ export default new ValidatedMethod({
         },
       },
     }, { multi: true });
+
+    if (isRemoved) {
+      Tasks.update({}, {
+        $pull: {
+          comments: {
+            parentId: _id,
+          },
+        },
+      });
+    }
   },
 });

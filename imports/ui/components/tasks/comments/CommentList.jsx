@@ -21,6 +21,7 @@ class CommentList extends Component {
     this.updateComment = this.updateComment.bind(this);
     this.replyComment = this.replyComment.bind(this);
     this.saveComment = this.saveComment.bind(this);
+    this.renderComments = this.renderComments.bind(this);
   }
 
   changeState(prop, propName, propValue) {
@@ -80,86 +81,92 @@ class CommentList extends Component {
     this.setState({ showReply: null });
     const content = event.target.value;
     const taskId = this.props.taskId;
+    if (!content) return;
     Meteor.call('task.addComment', { _id: taskId, content, parentId });
   }
 
-  render() {
+  renderComments(comments, level) {
     return (
       <div>
         {
-          _.sortBy(this.props.comments, ({ createdAt })=> -createdAt.getTime())
-          .map(({ content, createdAt, user, _id, updatedAt })=> {
+          comments.map(({ content, createdAt, user, _id, updatedAt })=> {
             let username = user ? user.username : 'loading ...';
             let shortName = user ? this.shortenName(user) : 'loading ...';
+            const childComments = this.props.comments.filter(({ parentId })=> _id === parentId);
             return (
-              <div key={_id}>
-                <CommentIcon name={shortName}/>
-                <div className='comment-box'>
-                  <div className='comment-title'>
-                    {username}
-                  </div>
-                  {
-                    (this.state.comments[_id]) ? (
-                      <div>
-                        <textarea
-                          ref='comment'
-                          className='edit-comment-editor'
-                          autoFocus={true}
-                          onBlur={(event) => this.updateComment(_id, event)}
-                        >
-                        { content }
-                        </textarea>
-                      </div>
-                    ) : (
-                      <div>
-                        <div className='comment-content'>
+              <div key={_id} style={{marginLeft: level === 0 ? 0 : '20px'}}>
+                <div>
+                  <CommentIcon name={shortName}/>
+                  <div className='comment-box'>
+                    <div className='comment-title'>
+                      {username}
+                    </div>
+                    {
+                      (this.state.comments[_id]) ? (
+                        <div>
+                          <textarea
+                            ref='comment'
+                            className='edit-comment-editor'
+                            autoFocus={true}
+                            onBlur={(event) => this.updateComment(_id, event)}
+                          >
                           { content }
+                          </textarea>
                         </div>
-                        <div className='comment-controls'>
-                          <p className='pull-right'>
-                            <small>{ moment(updatedAt || createdAt).format('YYYY MMM D hh:mm:ss A') }</small> -&nbsp;
-                            {
-                              (user._id === Meteor.userId()) ? (
-                                <span>
-                                  <a href='#' onClick={(event)=> this.editComment(_id, event)}>Edit</a> -
-                                  <a href='#' onClick={(event)=> this.removeComment(_id, event)}> Remove </a> -&nbsp;
-                                </span>
-                              ) : ''
-                            }
-                            <a href='#' onClick={event => this.replyComment(_id, event)}>Reply</a>
-                          </p>
-                        </div>
-                        {
-                          (this.state.showReply === _id) ? (
-                            <div className='reply-comment-box'>
-                              <CommentIcon name={shortName}/>
-                              <textarea
-                                className='reply-comment'
-                                placeholder='Write a reply'
-                                autoFocus={true}
-                                onBlur={event => this.saveComment(_id, event)}
-                              />
-                              <div className='comment-controls'>
-                                <p className='pull-right'>
-                                  <small>{ moment().format('YYYY MMM D hh:mm:ss A') }</small> - &nbsp;
-                                  <a href='#'>Edit</a> - &nbsp;
-                                  <a href='#'>Remove</a> - &nbsp;
-                                  <a href='#'>Reply</a>
-                                </p>
+                      ) : (
+                        <div>
+                          <div className='comment-content'>
+                            { content }
+                          </div>
+                          <div className='comment-controls'>
+                            <p className='pull-right'>
+                              <small>{ moment(updatedAt || createdAt).format('YYYY MMM D hh:mm:ss A') }</small> -&nbsp;
+                              {
+                                (user._id === Meteor.userId()) ? (
+                                  <span>
+                                    <a href='#' onClick={(event)=> this.editComment(_id, event)}>Edit</a> -
+                                    <a href='#' onClick={(event)=> this.removeComment(_id, event)}> Remove </a> -&nbsp;
+                                  </span>
+                                ) : ''
+                              }
+                              <a href='#' onClick={event => this.replyComment(_id, event)}>Reply</a>
+                            </p>
+                          </div>
+                          {
+                            (this.state.showReply === _id) ? (
+                              <div className='reply-comment-box'>
+                                <CommentIcon name={shortName}/>
+                                <textarea
+                                  className='reply-comment'
+                                  placeholder='Write a reply'
+                                  autoFocus={true}
+                                  onBlur={event => this.saveComment(_id, event)}
+                                />
                               </div>
-                            </div>
-                          ) : ''
-                        }
-                      </div>
-                    )
-                  }
+                            ) : ''
+                          }
+                        </div>
+                      )
+                    }
+                  </div>
                 </div>
+                {
+                  this.renderComments(_.sortBy(childComments, ({ createdAt })=> -createdAt.getTime()), level + 1)
+                }
               </div>
             );
           })
         }
       </div>
     );
+  }
+
+  render() {
+    const comments = this
+      .props
+      .comments
+      .filter(({ parentId })=> !parentId)
+    return this.renderComments(_.sortBy(comments, ({ createdAt })=> -createdAt.getTime()), 0);
   }
 }
 
@@ -170,13 +177,14 @@ CommentList.propTypes = {
 
 export default createContainer(({ comments })=> {
   return {
-    comments: comments.map(({ content, createdAt, userId, _id, updatedAt })=> {
+    comments: comments.map(({ content, createdAt, userId, _id, updatedAt, parentId })=> {
       return {
         content,
         createdAt,
         updatedAt,
         user: Meteor.users.find(userId).fetch()[0],
         _id,
+        parentId,
       };
     }),
   };
