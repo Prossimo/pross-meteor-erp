@@ -3,7 +3,37 @@ import { HTTP } from 'meteor/http';
 import { SalesRecords, Projects, Tasks } from '/imports/api/models';
 import { slack } from '/imports/api/config/config';
 
-const { apiRoot, apiKey } = slack;
+const { apiRoot, apiKey, botId, botToken } = slack;
+
+// SEND SLACK MESSAGE
+const sendMessage = ({ channel, text, attachments })=> {
+  const params = { token: botToken, channel };
+  text && (params.text = text);
+  attachments && (params.attachments = attachments);
+  HTTP.post(`${apiRoot}/chat.postMessage`, {
+    params,
+  });
+};
+
+// SEND SLACK ATTACHMENTS
+const sendAttachment = ({ pretext, title, text, color, title_link, channel })=> {
+  const attachment = {
+    pretext,
+    title,
+    text,
+    color,
+    title_link,
+  };
+  sendMessage({
+    channel,
+    attachments: JSON.stringify([attachment]),
+  });
+};
+
+const RED = '#FF4C4C';
+const ORANGE = '#FFA64C';
+const BLUE = '#7CD197';
+
 export default new ValidatedMethod({
   name: 'task.sendSlackMessage',
   validate: new SimpleSchema({
@@ -14,14 +44,6 @@ export default new ValidatedMethod({
   run({ parentId, type, taskId }) {
     let parent = null;
     let parentType = null;
-    const sendMessage = ({ channel, text, attachments })=> {
-      const params = { token: apiKey, channel };
-      text && (params.text = text);
-      attachments && (params.attachments = attachments);
-      HTTP.post(`${apiRoot}/chat.postMessage`, {
-        params,
-      });
-    };
 
     if (parent = SalesRecords.findOne(parentId)) {
       parentType = 'salesrecord';
@@ -33,71 +55,67 @@ export default new ValidatedMethod({
 
     if (parent) {
       const { slackChanel: channel } = parent;
-      const { name, description, status, comments, assignee } = Tasks.findOne(taskId);
+      const { name, description: text, status, comments, assignee } = Tasks.findOne(taskId);
+      const title_link = Meteor.absoluteUrl(`${parentType}/${parentId}`);
+      const title = `Task: ${name}`;
       if (channel) {
         switch (type) {
           case 'ADD_COMMENT': {
-            const pretext = `A comment has beed added`;
-            const attachment = {
-              pretext,
-              title: `Task: ${name}`,
+            sendAttachment({
+              pretext: `A comment has beed added`,
+              title,
               text: _.last(comments).content,
-              color: '#FF4C4C',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+              color: BLUE,
+              channel,
+            });
             break;
           }
 
           case 'REMOVE_FILE': {
-            let pretext = `A attachment file has been removed`;
-            const attachment = {
-              pretext,
-              title: `Task: ${name}`,
-              text: description,
-              color: '#FF4C4C',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            sendAttachment({
+              pretext: `A attachment file has been removed`,
+              title,
+              text,
+              color: RED,
+              title_link,
+              channel,
+            });
             break;
           }
 
           case 'ATTACH_FILE': {
-            let pretext = `A file have been attached`;
-            const attachment = {
-              pretext,
-              title: `Task: ${name}`,
-              text: description,
-              color: '#FFA64C',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            sendAttachment({
+              pretext: `A file have been attached`,
+              title,
+              text,
+              color: BLUE,
+              title_link,
+              channel,
+            });
             break;
           }
 
           case 'UPDATE_TASK': {
-            let pretext = `A task have been updated at ${status} board`;
-            const attachment = {
-              pretext,
-              title: `Task: ${name}`,
-              text: description,
-              color: '#FFA64C',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            sendAttachment({
+              pretext: `A task have been updated at ${status} board`,
+              title,
+              text,
+              color: ORANGE,
+              title_link,
+              channel,
+            });
             break;
           }
 
           case 'REMOVE_TASK': {
-            let pretext = `A task have been removed from ${status} board`;
-            const attachment = {
-              pretext,
-              title: `Task: ${name}`,
-              text: description,
-              color: '#FF4C4C',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+            sendAttachment({
+              pretext: `A task have been removed from ${status} board`,
+              title,
+              text,
+              color: RED,
+              title_link,
+              channel,
+            });
             break;
           }
 
@@ -105,14 +123,14 @@ export default new ValidatedMethod({
             const { slack } = Meteor.users.findOne(assignee);
             let pretext = `New task has created in ${status} board`;
             (slack && slack.id) && (pretext = `New task has assigned to <@${slack.id}> in ${status} board`);
-            const attachment = {
+            sendAttachment({
               pretext,
-              title: `Task: ${name}`,
-              text: description,
-              color: '#7CD197',
-              title_link: Meteor.absoluteUrl(`${parentType}/${parentId}`),
-            };
-            sendMessage({ channel, attachments: JSON.stringify([attachment]) });
+              title,
+              text,
+              color: BLUE,
+              title_link,
+              channel,
+            });
             break;
           }
         }
