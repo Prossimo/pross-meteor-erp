@@ -96,7 +96,7 @@ class TaskComment extends Component {
         <p>
           <strong><i className='fa fa-align-left'/>&nbsp;&nbsp; Activity</strong>
         </p>
-        <CommentList comments={this.props.task.comments || []}/>
+        <CommentList comments={this.props.task.comments || []} taskId={this.props.task._id}/>
       </div>
     );
   }

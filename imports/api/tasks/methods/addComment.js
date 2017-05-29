@@ -12,14 +12,19 @@ export default new ValidatedMethod({
       type: String,
       min: 1,
     },
+    parentId: {
+      type: String,
+      optional: true,
+    },
   }).validator(),
-  run({ _id, content }) {
+  run({ _id, content, parentId }) {
     if (!this.userId) throw new Error('User is not allowed to add comment');
     Tasks.update(_id, {
       $push: {
         comments: {
           userId: this.userId,
           content,
+          parentId,
           _id: Random.id(),
           createdAt: new Date(),
         },
