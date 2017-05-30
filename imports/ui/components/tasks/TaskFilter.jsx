@@ -1,13 +1,13 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import Toggle from 'react-toggle';
-import { ReactiveDict } from 'meteor/reactive-dict';
-import 'react-toggle/style.css';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
+import Toggle from 'react-toggle'
+import { ReactiveDict } from 'meteor/reactive-dict'
+import 'react-toggle/style.css'
 
 class TaskFilter extends Component {
   constructor(props) {
-    super(props);
-    const { taskFilter } = props;
+    super(props)
+    const { taskFilter } = props
     this.state = {
       filters: {
         AssignToMe: taskFilter.get('AssignToMe'),
@@ -16,14 +16,14 @@ class TaskFilter extends Component {
         Today: taskFilter.get('Today'),
         Tomorrow: taskFilter.get('Tomorrow'),
       },
-    };
-    this.changeState = this.changeState.bind(this);
+    }
+    this.changeState = this.changeState.bind(this)
   }
 
   changeState(prop, propName, propValue) {
-    prop[propName] = propValue;
-    this.setState(prevState => prevState);
-    this.props.taskFilter.set(propName, propValue);
+    prop[propName] = propValue
+    this.setState(prevState => prevState)
+    this.props.taskFilter.set(propName, propValue)
   }
 
   render() {
@@ -47,7 +47,7 @@ class TaskFilter extends Component {
         font-size: 14px;
         padding-left: 3px;
       }
-    `;
+    `
     return (
       <div className='col-md-12' style={{textAlign: 'center'}}>
         <ToggleButton>
@@ -90,12 +90,12 @@ class TaskFilter extends Component {
           <span>Tomorrow tasks</span>
         </ToggleButton>
       </div>
-    );
+    )
   }
 }
 
 TaskFilter.propTypes = {
   taskFilter: PropTypes.instanceOf(ReactiveDict),
-};
+}
 
-export default TaskFilter;
+export default TaskFilter

@@ -1,23 +1,23 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react'
 
 class UploadFrom extends Component {
   constructor() {
-    super();
-    this.pickLocalFile = this.pickLocalFile.bind(this);
-    this.uploadFromLocal = this.uploadFromLocal.bind(this);
+    super()
+    this.pickLocalFile = this.pickLocalFile.bind(this)
+    this.uploadFromLocal = this.uploadFromLocal.bind(this)
   }
 
   uploadFromLocal(event) {
-    const modalElem = $('.task-details .modal-content');
-    const dropEvent = new $.Event({ type: 'drop', files: event.target.files });
-    this.props.close();
-    modalElem.trigger('dragenter');
-    modalElem.trigger(dropEvent);
+    const modalElem = $('.task-details .modal-content')
+    const dropEvent = new $.Event({ type: 'drop', files: event.target.files })
+    this.props.close()
+    modalElem.trigger('dragenter')
+    modalElem.trigger(dropEvent)
   }
 
   pickLocalFile() {
-    event.preventDefault();
-    this.refs.file.click();
+    event.preventDefault()
+    this.refs.file.click()
   }
 
   render() {
@@ -25,7 +25,7 @@ class UploadFrom extends Component {
       <div className='upload-from'>
         <p className='text-center'>
           Upload From ...
-          <a href='#' className='pull-right' onClick={event => this.props.close()}>
+          <a href='#' className='pull-right' onClick={() => this.props.close()}>
             <i className='fa fa-times'/>
           </a>
         </p>
@@ -49,12 +49,12 @@ class UploadFrom extends Component {
           */}
         </div>
       </div>
-    );
+    )
   }
 }
 
 UploadFrom.propTypes = {
   close: PropTypes.func.isRequired,
-};
+}
 
-export default UploadFrom;
+export default UploadFrom

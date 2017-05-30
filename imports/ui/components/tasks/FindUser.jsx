@@ -1,34 +1,33 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
+import React, { Component, PropTypes } from 'react'
 
 class FindUser extends Component {
   constructor(props) {
-    super(props);
-    this.changeState = this.changeState.bind(this);
-    this.selectUser = this.selectUser.bind(this);
+    super(props)
+    this.changeState = this.changeState.bind(this)
+    this.selectUser = this.selectUser.bind(this)
     this.changeKeyword = _.throttle(keyword => {
-      const ignore = props.ignore ? props.ignore._id : '';
-      Meteor.call('task.findUsers', { keyword, ignore }, (error, users)=> {
-        if (!error) this.setState({ users });
-      });
-    }, 2000);
+      const ignore = props.ignore ? props.ignore._id : ''
+      Meteor.call('task.findUsers', { keyword, ignore }, (error, users) => {
+        if (!error) this.setState({ users })
+      })
+    }, 2000)
     this.state = {
       users: [],
-    };
+    }
   }
 
   componentDidMount() {
-    this.changeKeyword('');
+    this.changeKeyword('')
   }
 
   changeState(prop, propName, propValue) {
-    prop[propName] = propValue;
-    this.setState(prevState => prevState);
+    prop[propName] = propValue
+    this.setState(prevState => prevState)
   }
 
   selectUser(user) {
-    this.props.selectUser(user);
-    this.props.close();
+    this.props.selectUser(user)
+    this.props.close()
   }
 
   render() {
@@ -54,23 +53,23 @@ class FindUser extends Component {
           </div>
           <div className='form-group'>
           {
-            this.state.users.map((user)=> {
-              const { username, emails, _id } = user;
-              const email = _.first(emails) ? `(${_.first(emails).address})` : ``;
+            this.state.users.map(user => {
+              const { username, emails, _id } = user
+              const email = _.first(emails) ? `(${_.first(emails).address})` : ''
               return (
                 <div
                   className='assignee-elem'
                   key={ _id }
-                  onClick={ ()=> this.selectUser(user) }>
+                  onClick={ () => this.selectUser(user) }>
                   { username } { email }
                 </div>
-              );
+              )
             })
           }
           </div>
         </div>
       </div>
-    );
+    )
   };
 }
 
@@ -80,6 +79,6 @@ FindUser.propTypes = {
   top: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   ignore: PropTypes.object,
-};
+}
 
-export default FindUser;
+export default FindUser

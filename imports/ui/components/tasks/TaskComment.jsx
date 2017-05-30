@@ -1,38 +1,36 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import { createContainer } from 'meteor/react-meteor-data';
-import Textcomplete from 'textcomplete/lib/textcomplete';
-import Textarea from 'textcomplete/lib/textarea';
-import CommentList from './comments/CommentList.jsx';
-import CommentIcon from './comments/CommentIcon.jsx';
+import React, { Component, PropTypes } from 'react'
+import Textcomplete from 'textcomplete/lib/textcomplete'
+import Textarea from 'textcomplete/lib/textarea'
+import CommentList from './comments/CommentList.jsx'
+import CommentIcon from './comments/CommentIcon.jsx'
 
 class TaskComment extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
       comment: {
         content: '',
       },
-    };
-    this.addComment = this.addComment.bind(this);
+    }
+    this.addComment = this.addComment.bind(this)
   }
 
   shortenName({ profile: { firstName, lastName } }) {
     return `${firstName} ${lastName}`
       .split(' ')
-      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+      .reduce((result, next) => `${result}${next.charAt(0)}`, '')
   }
 
   componentDidMount() {
-    setTimeout(()=> {
+    setTimeout(() => {
       this.subscriber = Meteor.subscribe(
         'task.details', {
           _id: this.props.task._id,
         }
-      );
-    }, 500);
-    const editor = new Textarea(this.refs.comment);
-    const textComplete = new Textcomplete(editor);
+      )
+    }, 500)
+    const editor = new Textarea(this.refs.comment)
+    const textComplete = new Textcomplete(editor)
     textComplete.register([
       {
         match: /(^|\s)@(.*)$/,
@@ -40,36 +38,36 @@ class TaskComment extends Component {
           Meteor.call('task.findUsers', {
             keyword: term,
             ignore: '',
-          }, (error, users)=> {
+          }, (error, users) => {
             if (!error) {
               callback(
-                users.map(({ username })=> username)
-              );
+                users.map(({ username }) => username)
+              )
             }
-          });
+          })
         },
         replace(value) {
-          return `@${value}`;
+          return `@${value}`
         },
       },
-    ]);
+    ])
   }
 
   componentWillUnmout() {
-    setTimeout(()=> {
-      this.subscriber && this.subscriber.stop();
-    }, 500);
+    setTimeout(() => {
+      this.subscriber && this.subscriber.stop()
+    }, 500)
   }
 
   addComment(event) {
-    event.preventDefault();
-    const commentElem = event.target.previousSibling;
-    const content = commentElem.value;
-    Meteor.call('task.addComment', { content, _id: this.props.task._id }, error=> {
+    event.preventDefault()
+    const commentElem = event.target.previousSibling
+    const content = commentElem.value
+    Meteor.call('task.addComment', { content, _id: this.props.task._id }, error => {
       if (!error) {
-        commentElem.value = '';
+        commentElem.value = ''
       }
-    });
+    })
   }
 
   render() {
@@ -99,12 +97,12 @@ class TaskComment extends Component {
         <p><strong>{(this.props.task.comments || []).length} &nbsp;&nbsp; Comments</strong></p>
         <CommentList comments={this.props.task.comments || []} taskId={this.props.task._id}/>
       </div>
-    );
+    )
   }
 }
 
 TaskComment.propTypes = {
   task: PropTypes.object.isRequired,
-};
+}
 
-export default TaskComment;
+export default TaskComment

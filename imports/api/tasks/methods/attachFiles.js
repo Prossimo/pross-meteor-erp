@@ -1,6 +1,7 @@
-import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../models';
-import sendSlackMessage from './sendSlackMessage';
+import SimpleSchema from 'simpl-schema'
+import { Tasks } from '../../models'
+import sendSlackMessage from './sendSlackMessage'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
   name: 'task.attachFiles',
@@ -25,23 +26,23 @@ export default new ValidatedMethod({
     },
   }).validator(),
   run({ _id, attachments }) {
-    attachments.forEach(attachment => attachment.createdAt = new Date());
+    attachments.forEach(attachment => attachment.createdAt = new Date())
     Tasks.update(_id, {
       $push: {
         attachments: {
           $each: attachments,
         },
       },
-    });
-    const task = Tasks.findOne(_id);
+    })
+    const task = Tasks.findOne(_id)
     if (task) {
-      Meteor.defer(()=> {
+      Meteor.defer(() => {
         sendSlackMessage.call({
           taskId: _id,
           parentId: task.parentId,
           type: 'ATTACH_FILE',
-        });
-      });
+        })
+      })
     }
   },
-});
+})

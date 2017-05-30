@@ -1,9 +1,10 @@
-import SimpleSchema from 'simpl-schema';
-import inviteUsers from './inviteUsers';
-import sendSlackMessage from './sendSlackMessage';
-import { Tasks } from '../../models';
+import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import inviteUsers from './inviteUsers'
+import sendSlackMessage from './sendSlackMessage'
+import { Tasks } from '../../models'
 
-const createNewTask = new ValidatedMethod({
+export default new ValidatedMethod({
   name: 'task.create',
   validate: new SimpleSchema({
     name: {
@@ -38,20 +39,20 @@ const createNewTask = new ValidatedMethod({
     },
   }).validator(),
   run(task) {
-    if (!this.userId) return;
-    const { parentId, assignee, approver } = task;
+    if (!this.userId) return
+    const { parentId, assignee, approver } = task
     inviteUsers.call({
       parentId,
       taskOperators: [assignee, approver],
-    });
-    const _id = Tasks.insert(task);
-    Meteor.defer(()=> {
+    })
+    const _id = Tasks.insert(task)
+    Meteor.defer(() => {
       sendSlackMessage.call({
         taskId: _id,
         parentId,
         type: 'NEW_TASK',
-      });
-    });
-    return _id;
+      })
+    })
+    return _id
   },
-});
+})

@@ -1,23 +1,23 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import FindUser from './FindUser.jsx';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
+import FindUser from './FindUser.jsx'
 
 class SelectUser extends Component {
   constructor() {
-    super();
+    super()
   }
 
   shortenName({ profile: { firstName, lastName } }) {
     return `${firstName} ${lastName}`
       .split(' ')
-      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+      .reduce((result, next) => `${result}${next.charAt(0)}`, '')
   }
 
   render() {
-    let SelectUserButton = null;
+    let SelectUserButton = null
     const TaskControl = styled.button `
       width: 125px;
-    `;
+    `
     const UserElem = styled.div `
       position: relative;
       height: 38px;
@@ -40,7 +40,7 @@ class SelectUser extends Component {
         text-overflow: ellipsis;
         margin: 0 0;
       }
-    `;
+    `
     const SelectedAssignee = styled(UserElem) `
       background-color: #519839;
       color: white;
@@ -48,18 +48,18 @@ class SelectUser extends Component {
         background-color: #519839;
         color: white;
       }
-    `;
+    `
     const SelectedApprover = styled(UserElem) `
       background-color: #cecece;
-    `;
+    `
 
     switch (this.props.title) {
       case 'Assignee':
-        SelectUserButton = SelectedAssignee;
-        break;
+        SelectUserButton = SelectedAssignee
+        break
       case 'Approver':
-        SelectUserButton = SelectedApprover;
-        break;
+        SelectUserButton = SelectedApprover
+        break
     }
 
     return (
@@ -92,7 +92,7 @@ class SelectUser extends Component {
           ) : ''
         }
       </div>
-    );
+    )
   }
 }
 
@@ -106,6 +106,6 @@ SelectUser.propTypes = {
   onSelectUser: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleFinding: PropTypes.func.isRequired,
-};
+}
 
-export default SelectUser;
+export default SelectUser

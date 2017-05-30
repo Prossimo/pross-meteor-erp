@@ -1,7 +1,7 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
 
-const Tasks = new Mongo.Collection('Tasks');
+const Tasks = new Mongo.Collection('Tasks')
 
 Tasks.schema = new SimpleSchema({
   _id: {
@@ -87,8 +87,8 @@ Tasks.schema = new SimpleSchema({
   'attachments.$.createdAt': {
     type: Date,
   },
-});
+})
 
-Tasks.attachSchema(Tasks.schema);
+Tasks.attachSchema(Tasks.schema)
 
-export default Tasks;
+export default Tasks

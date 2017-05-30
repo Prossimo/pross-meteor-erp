@@ -1,8 +1,9 @@
-import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../models';
-import sendSlackMessage from './sendSlackMessage';
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import SimpleSchema from 'simpl-schema'
+import { Tasks } from '../../models'
+import sendSlackMessage from './sendSlackMessage'
 
-const removeTask = new ValidatedMethod({
+export default new ValidatedMethod({
   name: 'task.remove',
   validate: new SimpleSchema({
     _id: {
@@ -11,21 +12,21 @@ const removeTask = new ValidatedMethod({
   }).validator(),
   run({ _id }) {
     if (!this.userId)
-      throw new Meteor.Error('You are not allowed to remove this task');
+      throw new Meteor.Error('You are not allowed to remove this task')
     Tasks.update(_id, {
       $set: {
         isRemoved: true,
       },
-    });
-    const task = Tasks.findOne(_id);
+    })
+    const task = Tasks.findOne(_id)
     if (task) {
-      Meteor.defer(()=> {
+      Meteor.defer(() => {
         sendSlackMessage.call({
           taskId: _id,
           parentId: task.parentId,
           type: 'REMOVE_TASK',
-        });
-      });
+        })
+      })
     }
   },
-});
+})
