@@ -75,4 +75,4 @@ export default createContainer(props => {
     messages: SlackMessages.find({ channel: slackChanel }).fetch(),
     subscribers,
   }
-, Activities)
+}, Activities)
