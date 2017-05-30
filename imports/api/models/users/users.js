@@ -65,6 +65,11 @@ Schema.User = new SimpleSchema({
         type: Object,
         optional: true
     },
+    status: {
+      type: String,
+      optional: true,
+      allowedValues: ['actived', 'pending', 'banned']
+    },
     slack: {
         type: Object,
         optional: true,
@@ -86,7 +91,8 @@ Meteor.users.publicFields = {
     lastName: 1,
     roles: 1,
     slack: 1,
-    createdAt: 1
+    createdAt: 1,
+    status: 1
 }
 
 // Deny all client-side updates to user documents

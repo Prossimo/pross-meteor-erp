@@ -157,7 +157,7 @@ Meteor.startup(() => {
         return Messages.find()
     })
 
-    Meteor.publish(GET_THREADS, (salesRecordId) => 
+    Meteor.publish(GET_THREADS, (salesRecordId) =>
         //if (!Match.test(salesRecordId, String)) return this.ready();
 
         //return Threads.find({salesRecordId})
@@ -176,5 +176,3 @@ Meteor.startup(() => {
         return SlackMails.find({})
     })
 })
-
-
