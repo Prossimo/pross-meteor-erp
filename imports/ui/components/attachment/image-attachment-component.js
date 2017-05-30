@@ -27,13 +27,14 @@ class ImageAttachmentComponent extends AttachmentComponent {
             imageReader.onload = this._onLoadImage
             imageReader.readAsDataURL(file.blob)
 
-            return <img id={`image-${this.props.file.id}`} ref="previewImageAttachment"/>
+            return <img id={`image-${file.id}`} ref="previewImageAttachment"/>
         } else if(download && download.blob) {
-            return <img id={`image-${this.props.download.fileId}`} ref="previewImageAttachment" src={download.blob}/>
+            return <img id={`image-${download.fileId}`} ref="previewImageAttachment" src={download.blob}/>
         } else {
             return (
-                <div style={{width: "100%", height: "100px"}}>
+                <div style={{width: '100%', height: '100px'}}>
                     <Spinner visible/>
+                    <img src="/icons/placeholder.png"/>
                 </div>
             )
         }
@@ -61,7 +62,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
 
     render() {
         const {download, file} = this.props
-        const state = download ? download.state || "" : ""
+        const state = download ? download.state || '' : ''
         const displayName = file instanceof File ? file.displayName() : file.name
         return (
             <div className={this.props.className}>

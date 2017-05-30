@@ -20,10 +20,10 @@ class Upload {
 
         const token = AccountStore.tokenForAccountId(DraftStore.draftForClientId(clientId).account_id)
 
-        let data = new FormData();
-        data.append('file', file);
+        const data = new FormData()
+        data.append('file', file)
 
-        this.requestSource = axios.CancelToken.source();
+        this.requestSource = axios.CancelToken.source()
 
         const self = this
         axios.post('https://api.nylas.com/files', data, {
@@ -32,7 +32,7 @@ class Upload {
                 password: ''
             },
             timeout: 20 * 60 * 1000,
-            onUploadProgress: function (progressEvent) {
+            onUploadProgress (progressEvent) {
                 if(this.onUploadProgress) this.onUploadProgress(progressEvent)
 
                 const {loaded, total} = progressEvent
@@ -60,7 +60,7 @@ class Upload {
                 if(self.onError) self.onError(err)
 
                 self.status = Upload.Status.Failed
-            });
+            })
 
         this.status = Upload.Status.Uploading
         this.percent = 0
@@ -83,11 +83,11 @@ class FileUploadStore extends Reflux.Store {
     }
 
     _onAddAttachment = ({clientId, file}) => {
-        if(!clientId) throw new Error("You need to pass the ID of the message (draft) this Action refers to")
+        if(!clientId) throw new Error('You need to pass the ID of the message (draft) this Action refers to')
 
         this._verifyFile(file)
-            .then((file)=>this._makeUpload(clientId, file))
-            .then((upload)=>{console.log(upload)
+            .then((file) => this._makeUpload(clientId, file))
+            .then((upload) => {console.log(upload)
                 DraftStore.addUploadToDraftForClientId(clientId, upload)
             })
             .catch(this._onAttachFileError)

@@ -1,12 +1,12 @@
 import _ from 'underscore'
-import React from 'react';
-import classNames from 'classnames';
-import Actions from '../../../api/nylas/actions';
-import NylasUtils from '../../../api/nylas/nylas-utils';
-import ItemMessageBody from './ItemMessageBody';
-import MessageParticipants from './MessageParticipants';
-import MessageTimestamp from './MessageTimestamp';
-import MessageControls from './MessageControls';
+import React from 'react'
+import classNames from 'classnames'
+import Actions from '../../../api/nylas/actions'
+import NylasUtils from '../../../api/nylas/nylas-utils'
+import ItemMessageBody from './ItemMessageBody'
+import MessageParticipants from './MessageParticipants'
+import MessageTimestamp from './MessageTimestamp'
+import MessageControls from './MessageControls'
 import AttachmentComponent from '../attachment/attachment-component'
 import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
@@ -14,7 +14,7 @@ import FileDownloadStore from '../../../api/nylas/file-download-store'
 class ItemMessage extends React.Component {
 
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             detailedHeaders: false,
@@ -33,18 +33,19 @@ class ItemMessage extends React.Component {
 
     render() {
         if (this.props.collapsed) {
-            return this.renderCollapsed();
+            return this.renderCollapsed()
         } else {
-            return this.renderFull();
+            return this.renderFull()
         }
     }
 
     renderCollapsed() {
-        attachmentIcon = []
-        if (this.props.message.files.length > 0)
+        let attachmentIcon = []
+        if (this.props.message.files.length > 0) {
             attachmentIcon = <div className="collapsed-attachment"></div>
+        }
 
-        displayName = this.props.message.from && this.props.message.from.length ? NylasUtils.contactDisplayName(this.props.message.from[0]) : ''
+        const displayName = this.props.message.from && this.props.message.from.length ? NylasUtils.contactDisplayName(this.props.message.from[0]) : ''
         return (
             <div className={this.props.className} onClick={this._toggleCollapsed}>
                 <div className="message-item-white-wrap">
@@ -71,7 +72,7 @@ class ItemMessage extends React.Component {
                 <div className="message-item-white-wrap">
                     <div className="message-item-area">
                         {this.renderHeader()}
-                        <ItemMessageBody message={this.props.message}/>
+                        <ItemMessageBody message={this.props.message} downloads={this.state.downloads}/>
                         {this.renderAttachments()}
                     </div>
                 </div>
@@ -80,10 +81,10 @@ class ItemMessage extends React.Component {
     }
 
     renderHeader() {
-        classes = classNames({
-            "message-header": true,
-            "pending": this.props.pending
-        });
+        const classes = classNames({
+            'message-header': true,
+            'pending': this.props.pending
+        })
         return (
             <header className={classes} onClick={this._onClickHeader}>
                 {this.renderHeaderSideItems()}
@@ -103,8 +104,8 @@ class ItemMessage extends React.Component {
     }
 
     renderHeaderSideItems() {
-        styles = {
-            position: "absolute",
+        const styles = {
+            position: 'absolute',
             marginTop: -2
         }
         return (
@@ -135,13 +136,13 @@ class ItemMessage extends React.Component {
     }
 
     renderFolder() {
-        if (!this.state.detailedHeaders) return [];
+        if (!this.state.detailedHeaders) return []
 
-        if (!NylasUtils.usesFolders(this.props.message.account_id)) return;
+        if (!NylasUtils.usesFolders(this.props.message.account_id)) return
 
-        const folder = this.props.message.folder;
+        const folder = this.props.message.folder
 
-        if (!folder) return;
+        if (!folder) return
 
 
         return (
@@ -153,28 +154,28 @@ class ItemMessage extends React.Component {
     }
 
     renderHeaderDetailToggle() {
-        if (this.props.pending) return null;
+        if (this.props.pending) return null
 
         if (this.state.detailedHeaders)
             return (
                 <div className="header-toggle-control"
-                     style={{top: "18px", left: "-14px"}}
+                     style={{top: '18px', left: '-14px'}}
                      onClick={ (e) => {
-                         this.setState({detailedHeaders: false});
+                         this.setState({detailedHeaders: false})
                          e.stopPropagation()
                      }}>
-                    <img src="/icons/inbox/message-disclosure-triangle-active.png" style={{width: "50%"}}/>
+                    <img src="/icons/inbox/message-disclosure-triangle-active.png" style={{width: '50%'}}/>
                 </div>
             )
         else
             return (
                 <div className="header-toggle-control inactive"
-                     style={{top: "18px"}}
+                     style={{top: '18px'}}
                      onClick={ (e) => {
-                         this.setState({detailedHeaders: true});
+                         this.setState({detailedHeaders: true})
                          e.stopPropagation()
                      }}>
-                    <img src="/icons/inbox/message-disclosure-triangle.png" style={{width: "50%"}}/>
+                    <img src="/icons/inbox/message-disclosure-triangle.png" style={{width: '50%'}}/>
                 </div>
             )
     }
@@ -198,7 +199,7 @@ class ItemMessage extends React.Component {
         let imageAttachments = []
         let otherAttachments = []
 
-        for(let file of this.props.message.files||[]) {
+        for(const file of this.props.message.files||[]) {
             if(!this._isRealFile(file)) continue
 
             if(NylasUtils.shouldDisplayAsImage(file))
@@ -207,7 +208,7 @@ class ItemMessage extends React.Component {
                 otherAttachments.push(file)
         }
 
-        otherAttachments = otherAttachments.map((file)=>(
+        otherAttachments = otherAttachments.map((file) => (
             <AttachmentComponent
                 key={file.id}
                 className="file-wrap"
@@ -216,7 +217,7 @@ class ItemMessage extends React.Component {
             />
         ))
 
-        imageAttachments = imageAttachments.map((file)=>(
+        imageAttachments = imageAttachments.map((file) => (
             <ImageAttachmentComponent
                 key={file.id}
                 className="file-wrap file-image-wrap"
@@ -233,8 +234,7 @@ class ItemMessage extends React.Component {
         return !(file.content_id && this.props.message.body && this.props.message.body.indexOf(file.content_id) > 0)
     }
 
-    _renderDownloadAllButton = () => {
-        return (
+    _renderDownloadAllButton = () => (
             <div className="download-all">
                 <div className="attachment-number">
                     <img
@@ -244,55 +244,53 @@ class ItemMessage extends React.Component {
                 </div>
             </div>
         )
-    }
 
     _onDownloadAll = () => {
         Actions.downloadFiles(this.props.message.files)
     }
 
     _onClickParticipants = (e) => {
-        el = e.target
+        let el = e.target
         while (el != e.currentTarget) {
-            if (el.classList.contains("collapsed-participants")) {
-                this.setState({detailedHeaders: true});
+            if (el.classList.contains('collapsed-participants')) {
+                this.setState({detailedHeaders: true})
 
-                e.stopPropagation();
-                return;
+                e.stopPropagation()
+                return
             }
-            el = el.parentElement;
+            el = el.parentElement
         }
-        return;
+        return
     }
 
     _onClickHeader = (e) => {
-        console.log('_onClickHeader');
+        console.log('_onClickHeader')
 
-        if (this.state.detailedHeaders) return;
+        if (this.state.detailedHeaders) return
 
-        el = e.target
+        let el = e.target
         while (el !== e.currentTarget) {
-            wl = ["message-header-right",
-                "collapsed-participants",
-                "header-toggle-control"]
-            if (el.classList.contains("message-header-right")) return;
-            if (el.classList.contains("collapsed-participants")) return;
+            const wl = ['message-header-right',
+                'collapsed-participants',
+                'header-toggle-control']
+            if (el.classList.contains('message-header-right')) return
+            if (el.classList.contains('collapsed-participants')) return
 
-            el = el.parentElement;
+            el = el.parentElement
         }
 
-        this._toggleCollapsed();
+        this._toggleCollapsed()
     }
 
     _toggleCollapsed = () => {
-        if (this.props.isLastMsg) return;
+        if (this.props.isLastMsg) return
         Actions.toggleMessageExpanded(this.props.message.id)
     }
 
 
     _onDownloadStoreChanged = () => {
         this.setState({downloads: FileDownloadStore.downloadDataForFiles(_.pluck(this.props.message.files, 'id'))})
-
     }
 }
 
-export default ItemMessage;
+export default ItemMessage
