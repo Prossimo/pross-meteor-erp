@@ -1,7 +1,7 @@
 import React from 'react'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js"
-import {warning} from "/imports/api/lib/alerts"
+import {warning, info} from "/imports/api/lib/alerts"
 
 
 class SignUp extends React.Component {
@@ -86,10 +86,8 @@ class SignUp extends React.Component {
             if (validation && validation.email || validation.username) {
                 this.Check(validation)
             } else {
-                Meteor.loginWithPassword({email: userData.email}, userData.password, (err) => {
-                    if (err) return warning('Login error, please try again!')
-                    FlowRouter.reload()
-                })
+               info('Create user successfully')
+               this.toggle()
             }
         })
     }

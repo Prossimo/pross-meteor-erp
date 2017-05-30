@@ -14,5 +14,4 @@ Meteor.startup(() => {
 
     if (!adminId) return;
     Meteor.call('initVisiableFields', adminId);
-
 });

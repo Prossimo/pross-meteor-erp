@@ -277,15 +277,17 @@ Meteor.methods({
       firstName: String,
       lastName: String,
       role: String,
+      status: String
     })
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
     if (Roles.userIsInRole(this.userId), role === ROLES.ADMIN) throw new Meteor.Error('Can not set current user as super admin')
-    const { firstName, lastName, role } = userFields
+    const { firstName, lastName, role, status } = userFields
     Meteor.users.update(userId, {
       $set: {
         'profile.firstName': firstName,
         'profile.lastName': lastName,
         'roles.0': role,
+        status
       }
     })
   },
