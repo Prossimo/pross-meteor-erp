@@ -31,7 +31,7 @@ export default class ComposeView extends React.Component {
 
         const draft = this._getDraftFromStore()
         this.state = {
-            draft: draft,
+            draft,
             expandedCc: draft.cc && draft.cc.length ? true : false,
             expandedBcc: draft.bcc && draft.bcc.length ? true : false,
             downloads: FileDownloadStore.downloadDataForFiles(_.pluck(draft.downloads, 'id'))
@@ -39,7 +39,7 @@ export default class ComposeView extends React.Component {
     }
 
     componentDidMount() {
-        this.unsubscribes = [];
+        this.unsubscribes = []
 
         this.unsubscribes.push(DraftStore.listen(this._onChangeDraftStore))
     }
@@ -47,7 +47,7 @@ export default class ComposeView extends React.Component {
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
-        });
+        })
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -61,7 +61,7 @@ export default class ComposeView extends React.Component {
     }
 
     _getDraftFromStore() {
-        let draft = _.clone(DraftStore.draftForClientId(this.props.clientId))
+        const draft = _.clone(DraftStore.draftForClientId(this.props.clientId))
 
 
         return draft
@@ -87,7 +87,7 @@ export default class ComposeView extends React.Component {
 
         const {from, to, cc, bcc, subject} = draft
 
-        let contactOptions = [], onlyselect = false;
+        let contactOptions = [], onlyselect = false
         if (draft.salesRecordId) {
             const salesRecord = SalesRecord.findOne({_id: draft.salesRecordId})
             contactOptions = salesRecord.contactsForStakeholders()
@@ -185,38 +185,38 @@ export default class ComposeView extends React.Component {
                 {/*{this._renderDownloadAttachments()}*/}
                 {this._renderUploadAttachments()}
             </div>
-        );
+        )
     }
     _renderFileAttachments() {
-        const {files} = this.state.draft;
+        const {files} = this.state.draft
         const nonImageFiles = this._nonImageFiles(files).map(file =>
-            this._renderFileAttachment(file, "Attachment")
-        );
+            this._renderFileAttachment(file, 'Attachment')
+        )
         const imageFiles = this._imageFiles(files).map(file =>
-            this._renderFileAttachment(file, "Attachment:Image")
-        );
-        return nonImageFiles.concat(imageFiles);
+            this._renderFileAttachment(file, 'Attachment:Image')
+        )
+        return nonImageFiles.concat(imageFiles)
     }
 
     _renderDownloadAttachments() {
-        const {downloads} = this.props.draft;
+        const {downloads} = this.props.draft
         const nonImageFiles = this._nonImageFiles(downloads).map(file =>
-            this._renderFileAttachment(file, "Attachment")
-        );
+            this._renderFileAttachment(file, 'Attachment')
+        )
         const imageFiles = this._imageFiles(downloads).map(file =>
-            this._renderFileAttachment(file, "Attachment:Image")
-        );
-        return nonImageFiles.concat(imageFiles);
+            this._renderFileAttachment(file, 'Attachment:Image')
+        )
+        return nonImageFiles.concat(imageFiles)
     }
 
 
     _renderFileAttachment(file, role) {
         const props = {
-            file: file,
+            file,
             removable: true,
             clientId: this.props.clientId,
             download: this.state.downloads[file.id]
-        };
+        }
 
         if(role === 'Attachment') {
             return (
@@ -231,23 +231,23 @@ export default class ComposeView extends React.Component {
     }
 
     _renderUploadAttachments() {
-        const {uploads} = this.state.draft;
+        const {uploads} = this.state.draft
 
         const nonImageUploads = this._nonImageFiles(uploads).map((upload, index) =>
             <FileUpload key={`file-upload-${index}`} upload={upload} clientId={this.props.clientId} />
-        );
+        )
         const imageUploads = this._imageFiles(uploads).map((upload, index) =>
             <ImageFileUpload key={`image-file-upload-${index}`} upload={upload} clientId={this.props.clientId} />
-        );
-        return nonImageUploads.concat(imageUploads);
+        )
+        return nonImageUploads.concat(imageUploads)
     }
 
     _imageFiles(files) {
-        return _.filter(files, NylasUtils.shouldDisplayAsImage);
+        return _.filter(files, NylasUtils.shouldDisplayAsImage)
     }
 
     _nonImageFiles(files) {
-        return _.reject(files, NylasUtils.shouldDisplayAsImage);
+        return _.reject(files, NylasUtils.shouldDisplayAsImage)
     }
 
     _renderSignature() {
@@ -296,7 +296,7 @@ export default class ComposeView extends React.Component {
     _onChangeSubject = (e) => {
         const subject = e.target.value
 
-        this._changeDraftStore({subject: subject})
+        this._changeDraftStore({subject})
 
         this.setState({draft: this._getDraftFromStore()})
     }
@@ -351,26 +351,24 @@ export default class ComposeView extends React.Component {
         this._changeDraftStore({hideSignature: true})
         this.setState({draft: this._getDraftFromStore()})
     }
-    _isUnableToSend = () => {
-        return !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0 || DraftStore.isUploadingDraftFiles(this.props.clientId)
-    }
+    _isUnableToSend = () => !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0 || DraftStore.isUploadingDraftFiles(this.props.clientId)
 
 
     _isValidDraft = (options = {}) => {
         if (DraftStore.isSendingDraft(this.props.clientId)) {
-            return false;
+            return false
         }
 
         if (!this.state.draft) return false
 
-        let dealbreaker = null;
+        let dealbreaker = null
 
         if(DraftStore.isUploadingDraftFiles(this.props.clientId)) {
             dealbreaker = 'Some attachments is uploading now. please wait for uploading'
         }
 
-        const {to, cc, bcc, subject, body, files, uploads} = this.state.draft;
-        const allRecipients = [].concat(to, cc, bcc);
+        const {to, cc, bcc, subject, body, files, uploads} = this.state.draft
+        const allRecipients = [].concat(to, cc, bcc)
 
 
         for (const contact of allRecipients) {
@@ -379,48 +377,47 @@ export default class ComposeView extends React.Component {
             }
         }
         if (allRecipients.length === 0) {
-            dealbreaker = 'You need to provide one or more recipients before sending the message.';
+            dealbreaker = 'You need to provide one or more recipients before sending the message.'
         }
 
         if (dealbreaker) {
-            return alert(dealbreaker);
+            return alert(dealbreaker)
         }
 
         const bodyIsEmpty = !body || body.length == 0
-        const forwarded = NylasUtils.isForwardedMessage({subject, body});
-        const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0;
+        const forwarded = NylasUtils.isForwardedMessage({subject, body})
+        const hasAttachment = (files || []).length > 0 || (uploads || []).length > 0
 
-        let warnings = [];
+        const warnings = []
 
         if (subject.length === 0) {
-            warnings.push('without a subject line');
+            warnings.push('without a subject line')
         }
 
         if (this._mentionsAttachment(body) && !hasAttachment) {
-            warnings.push('without an attachment');
+            warnings.push('without an attachment')
         }
 
         if (bodyIsEmpty && !forwarded && !hasAttachment) {
-            warnings.push('without a body');
+            warnings.push('without a body')
         }
 
         if ((warnings.length > 0) && (!options.force)) {
             if (confirm(`Send ${warnings.join(' and ')}?`)) {
-                return this._isValidDraft({force: true});
+                return this._isValidDraft({force: true})
             }
-            return false;
+            return false
         }
 
-        return true;
+        return true
 
     }
-    _mentionsAttachment = (body) => {
+    _mentionsAttachment = (body) => 
         /*let cleaned = QuotedHTMLTransformer.removeQuotedHTML(body.toLowerCase().trim());
          const signatureIndex = cleaned.indexOf('<signature>');
          if (signatureIndex !== -1) {
          cleaned = cleaned.substr(0, signatureIndex - 1);
          }
          return (cleaned.indexOf("attach") >= 0);*/
-        return false
-    }
+         false
 }

@@ -5,13 +5,14 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
 import {SalesRecords} from '/imports/api/models'
+import NylasUtils from './nylas-utils'
 
 class MessageStore extends Reflux.Store {
     constructor(salesRecord=null) {
-        super();
+        super()
 
-        this._registerListeners();
-        this._setStoreDefaults();
+        this._registerListeners()
+        this._setStoreDefaults()
 
         if(salesRecord) {
             this.salesRecord = salesRecord
@@ -23,30 +24,30 @@ class MessageStore extends Reflux.Store {
     }
 
     _setStoreDefaults(messages) {
-        this._currentThread = null;
-        this._messages = [];
-        this._messagesExpanded = {};
-        this._loading = false;
+        this._currentThread = null
+        this._messages = []
+        this._messagesExpanded = {}
+        this._loading = false
 
         this._expandMessagesToDefault()
     }
 
     _registerListeners() {
-        this.listenTo(Actions.loadMessages, this._onLoadMessages);
-        this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded);
-        this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded);
-        this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages);
-        this.listenTo(Actions.changedConversations, this._onLoadConversations);
+        this.listenTo(Actions.loadMessages, this._onLoadMessages)
+        this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded)
+        this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
+        this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
+        this.listenTo(Actions.changedConversations, this._onLoadConversations)
     }
 
     _onLoadMessages(thread) {
         thread = thread ? thread : this._currentThread
-        if(!thread || !thread.account_id) return;
+        if(!thread || !thread.account_id) return
 
-        this._loading = true;
-        this.trigger();
+        this._loading = true
+        this.trigger()
 
-        const query = queryString.stringify({thread_id: thread.id});
+        const query = queryString.stringify({thread_id: thread.id})
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
             method: 'GET',
@@ -54,32 +55,32 @@ class MessageStore extends Reflux.Store {
         }).then((result) => {
             //console.log('onLoadMessage result',  result)
             if(result) {
-                this._messages = result;
+                this._messages = result
 
-                this._messages.sort((m1, m2)=>m1.date-m2.date)
+                this._messages.sort((m1, m2) => m1.date-m2.date)
 
-                this._loading = false;
+                this._loading = false
 
-                this._expandMessagesToDefault();
-                this._fetchExpandedAttachments(this._messages);
+                this._expandMessagesToDefault()
+                this._fetchExpandedAttachments(this._messages)
 
 
                 if(this._currentThread.unread) {
-                    markAsReadId = this._currentThread.id
-                    setTimeout(()=>{
+                    const markAsReadId = this._currentThread.id
+                    setTimeout(() => {
                         if(markAsReadId!=this._currentThread.id || !this._currentThread.unread) return
 
-                        t = new ChangeUnreadTask({thread:this._currentThread, unread:false})
+                        const t = new ChangeUnreadTask({thread:this._currentThread, unread:false})
                         Actions.queueTask(t)
                     }, 2000)
                 }
 
 
-                this.trigger();
+                this.trigger()
             }
         })
 
-        this._currentThread = thread;
+        this._currentThread = thread
     }
 
     _onLoadConversations(salesRecordId) {
@@ -87,9 +88,9 @@ class MessageStore extends Reflux.Store {
             this._messages = SalesRecords.findOne({_id: salesRecordId}).messages()
             this._messages.sort((m1, m2) => m1.date - m2.date)
 
-            this._loading = false;
-            this._expandMessagesToDefault();
-            this._fetchExpandedAttachments(this._messages);
+            this._loading = false
+            this._expandMessagesToDefault()
+            this._fetchExpandedAttachments(this._messages)
 
             this.trigger()
         }
@@ -98,21 +99,21 @@ class MessageStore extends Reflux.Store {
     _onToggleMessageExpanded(id) {
         const message = _.findWhere(this._messages, {id})
 
-        if (!message) return;
+        if (!message) return
 
         if (this._messagesExpanded[id])
-            this._collapseMessage(message);
+            this._collapseMessage(message)
         else
-            this._expandMessage(message);
-        this.trigger();
+            this._expandMessage(message)
+        this.trigger()
     }
 
     _onToggleAllMessagesExpanded() {
         if (this.hasCollapsedMessages())
-            this._messages.forEach((message) => this._expandMessage(message));
+            this._messages.forEach((message) => this._expandMessage(message))
         else
-            [...-1].this._messages.forEach((message) => this._collapseMessage(message));
-        this.trigger();
+            [...-1].this._messages.forEach((message) => this._collapseMessage(message))
+        this.trigger()
     }
 
     _onToggleHiddenMessages() {
@@ -124,31 +125,31 @@ class MessageStore extends Reflux.Store {
     _expandMessagesToDefault() {
         const visibleMessages = this.messages()
 
-        visibleMessages.forEach((message, idx)=>{
+        visibleMessages.forEach((message, idx) => {
             if(message.unread || message.draft || idx==visibleMessages.length - 1)
-                this._messagesExpanded[message.id] = "default"
+                this._messagesExpanded[message.id] = 'default'
         })
 
     }
     _expandMessage(message) {
-        this._messagesExpanded[message.id] = 'explicit';
-        this._fetchExpandedAttachments([message]);
+        this._messagesExpanded[message.id] = 'explicit'
+        this._fetchExpandedAttachments([message])
     }
 
     _collapseMessage(message) {
-        delete this._messagesExpanded[message.id];
+        delete this._messagesExpanded[message.id]
     }
 
     hasCollapsedMessages() {
-        return _.size(this._messagesExpanded) < this._messages.length;
+        return _.size(this._messagesExpanded) < this._messages.length
     }
     _fetchExpandedAttachments(messages) {
         /*policy = PlanckEnv.config.get('core.attachments.downloadPolicy')
          if(policy === 'manually') return;*/
 
-        for (let message of messages) {
-            if (!this._messagesExpanded[message.id]) continue;
-            for (let file of message.files) {
+        for (const message of messages) {
+            if (!this._messagesExpanded[message.id]) continue
+            for (const file of message.files) {
                 if(NylasUtils.shouldDisplayAsImage(file)) {
                     Actions.fetchImage(_.extend(_.clone(file), {account_id: message.account_id}))
                 }
@@ -157,19 +158,19 @@ class MessageStore extends Reflux.Store {
     }
 
     messages() {
-        return this._messages;
+        return this._messages
     }
 
     loading() {
-        return this._loading;
+        return this._loading
     }
 
     currentThread() {
-        return this._currentThread;
+        return this._currentThread
     }
 
     messagesExpanded() {
-        return _.clone(this._messagesExpanded);
+        return _.clone(this._messagesExpanded)
     }
 
 

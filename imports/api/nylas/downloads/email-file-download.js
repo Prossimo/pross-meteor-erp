@@ -1,9 +1,5 @@
 import _ from 'underscore'
-//import {WritableStream} from 'web-streams-polyfill';
-//import streamSaver from 'StreamSaver'
-import progress from 'request-progress'
 import Download from './download'
-import NylasAPI  from '../nylas-api'
 import AccountStore from '../account-store'
 
 class EmailFileDownload extends Download {
@@ -11,7 +7,7 @@ class EmailFileDownload extends Download {
         super(options)
 
         if (!options.accountId)
-            throw new Error("Download.constructor: You must provide a non-empty accountId.")
+            throw new Error('Download.constructor: You must provide a non-empty accountId.')
 
         this.accountId = options.accountId
 
@@ -38,65 +34,33 @@ class EmailFileDownload extends Download {
         this.promise = new Promise((resolve, reject) => {
             this.state = Download.State.Downloading
 
-            /*NylasAPI.makeRequest({
-                json: false,
-                path: `/files/${this.fileId}/download`,
-                accountId: this.accountId,
-                encoding: null, // Tell `request` not to parse the response data
-                started: (req) => {
-                    this.request = req
-                    /!*progress(this.request, {throtte: 250})
-                        .on("progress", (progress) => {console.log(progress)
-                            this.percent = progress.percent
-                            this.progressCallback()
-                        })
-                        .on("error", (err) => {
-                            this.request = null
-                            this.state = Download.State.Failed
-                            reject(this)
-                        })
-                        .on("end", () => {
-                            if (this.state == Download.State.Failed) return
-                            this.request = null
-                            this.state = Download.State.Finished
-                            this.percent = 100
-                            resolve(this) // Note: we must resolve with this
-                        })*!/
-                }
-            }).then((res)=>{
-                this.request = null
-                this.blob = `data:${this.contentType};base64,${new Buffer(res,'binary').toString('base64')}`
-                this.state = Download.State.Finished
-                resolve(this)
-            }).catch((err)=>{
-                console.log('download error', err)
-                this.request = null
-                this.state = Download.State.Failed
-                reject(this)
-            })*/
-
             const self = this
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', `https://api.nylas.com/files/${self.fileId}/download`, true);
-            xhr.responseType = 'arraybuffer';
-            xhr.setRequestHeader('Authorization', `Basic ${window.btoa(AccountStore.tokenForAccountId(self.accountId)+':')}`)
+            const xhr = new XMLHttpRequest()
+            xhr.open('GET', `https://api.nylas.com/files/${self.fileId}/download`, true)
+            xhr.responseType = 'arraybuffer'
+            xhr.setRequestHeader('Authorization', `Basic ${window.btoa(`${AccountStore.tokenForAccountId(self.accountId)}:`)}`)
             xhr.onload = function(e) {
                 if (this.status == 200) {
-                    const blob = this.response;
+                    const blob = this.response
 
-                    let binary = '';
-                    const bytes = new Uint8Array(blob);
-                    const len = bytes.byteLength;
+                    let binary = ''
+                    const bytes = new Uint8Array(blob)
+                    const len = bytes.byteLength
                     for (let i = 0; i < len; i++) {
-                        binary += String.fromCharCode(bytes[i]);
+                        binary += String.fromCharCode(bytes[i])
                     }
                     self.blob = `data:${self.contentType};base64,${window.btoa(binary)}`
                     self.state = Download.State.Finished
 
                     resolve(self)
                 }
-            };
-            xhr.send();
+            }
+            xhr.onprogress = function(e) {
+                self.percent = e.loaded * 100 / e.total
+                if(self.progressCallback) self.progressCallback()
+                console.log(self.percent)
+            }
+            xhr.send()
 
         })
 

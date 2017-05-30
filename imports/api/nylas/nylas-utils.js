@@ -1,35 +1,30 @@
-import _ from 'underscore';
-import '../models/users/users';
-import moment from 'moment-timezone';
+import _ from 'underscore'
+import '../models/users/users'
+import moment from 'moment-timezone'
 import RegExpUtils from './RegExpUtils'
 import AccountStore from './account-store'
 
 import filesize from 'filesize'
 import path from 'path'
-import fs from 'fs'
 
+
+let NylasUtils
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    isMe: (email) => {
-        return AccountStore.accountForEmail(email)!=null
-    },
+    isMe: (email) => AccountStore.accountForEmail(email)!=null,
 
-    isFromMe: (message) => {
-        return message.from[0] && NylasUtils.isMe(message.from[0].email);
-    },
+    isFromMe: (message) => message.from[0] && NylasUtils.isMe(message.from[0].email),
     isValidContact: (contact) => {
         if (!contact.email) return false
 
         // The email regexp must match the /entire/ email address
-        result = RegExpUtils.emailRegex().exec(contact.email)
+        const result = RegExpUtils.emailRegex().exec(contact.email)
         if (result && result instanceof Array)
             return result[0] == contact.email
         else return false
     },
 
-    contactDisplayName: (participant) => {
-        return participant.name && participant.name.length ? participant.name : participant.email;
-    },
+    contactDisplayName: (participant) => participant.name && participant.name.length ? participant.name : participant.email,
 
     contactDisplayFullname: (c) => {
         if (c.name && c.name.length)
@@ -40,55 +35,43 @@ module.exports = NylasUtils = {
 
     getParticipantsNamesString: (participants, excludeMe = true) => {
         if (excludeMe) {
-            const others = participants.filter((participant) => {
-                return !NylasUtils.isMe(participant.email);
-            });
-            return others.map((participant) => {
-                return NylasUtils.contactDisplayName(participant);
-            }).join(', ');
+            const others = participants.filter((participant) => !NylasUtils.isMe(participant.email))
+            return others.map((participant) => NylasUtils.contactDisplayName(participant)).join(', ')
         } else {
-            return participants.map((participant) => {
-                return NylasUtils.contactDisplayName(participant);
-            }).join(', ');
+            return participants.map((participant) => NylasUtils.contactDisplayName(participant)).join(', ')
         }
     },
 
     getParticipantsNamesArray: (participants, excludeMe = true) => {
         if (excludeMe) {
-            const others = participants.filter((participant) => {
-                return !NylasUtils.isMe(participant.email);
-            });
-            return others.map((participant) => {
-                return NylasUtils.contactDisplayName(participant);
-            });
+            const others = participants.filter((participant) => !NylasUtils.isMe(participant.email))
+            return others.map((participant) => NylasUtils.contactDisplayName(participant))
         } else {
-            return participants.map((participant) => {
-                return NylasUtils.contactDisplayName(participant);
-            });
+            return participants.map((participant) => NylasUtils.contactDisplayName(participant))
         }
     },
 
     shortTimeString: (time/*unixtimestamp*/) => {
-        if (!time) return "";
+        if (!time) return ''
 
-        const diff = moment().diff(moment(time * 1000), 'days', true);
+        const diff = moment().diff(moment(time * 1000), 'days', true)
 
-        let format;
+        let format
         if (diff <= 1) {
-            format = "h:mm a";
+            format = 'h:mm a'
         } else if (diff > 1 && diff <= 365) {
-            format = "MMM d";
+            format = 'MMM d'
         } else {
-            format = "MMM D YYYY";
+            format = 'MMM D YYYY'
         }
-        format = "MMM D YYYY";
-        return moment(time * 1000).format(format);
+        format = 'MMM D YYYY'
+        return moment(time * 1000).format(format)
     },
 
     fullTimeString: (time/*unixtimestamp*/) => {
-        if (!time) return "";
+        if (!time) return ''
 
-        return moment(time * 1000).tz(NylasUtils.timezone).format("dddd, MMMM Do YYYY, h:mm:ss a z")
+        return moment(time * 1000).tz(NylasUtils.timezone).format('dddd, MMMM Do YYYY, h:mm:ss a z')
     },
 
     participantsForReply: (message) => {
@@ -109,9 +92,7 @@ module.exports = NylasUtils = {
 
     participantsForReplyAll: (message) => {
         excludedFroms = message.from.map((c) => c.email)
-        excludeMeAndFroms = (cc) => {
-            return _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
-        }
+        excludeMeAndFroms = (cc) => _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
 
         to = null
         cc = null
@@ -136,18 +117,12 @@ module.exports = NylasUtils = {
     },
 
     generateTempId: () => {
-        s4 = () => {
-            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
-        }
+        s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
 
-        return 'local-' + s4() + s4() + '-' + s4()
+        return `local-${  s4()  }${s4()  }-${  s4()}`
     },
-    canArchiveThreads: () => {
-        return true;
-    },
-    canTrashThreads: () => {
-        return true;
-    },
+    canArchiveThreads: () => true,
+    canTrashThreads: () => true,
 
 
     isForwardedMessage: ({body, subject} = {}) => {
@@ -162,22 +137,19 @@ module.exports = NylasUtils = {
             bodyFwd = indexFwd >= 0 && indexFwd < 250
         }
         if (subject)
-            subjectFwd = subject.slice(0, 3).toLowerCase() == "fwd"
+            subjectFwd = subject.slice(0, 3).toLowerCase() == 'fwd'
 
         return bodyForwarded || bodyFwd || subjectFwd
     },
 
-    isEmptyDraft: (draft) => {
-        return (!draft.subject || draft.subject.length == 0) &&
+    isEmptyDraft: (draft) => (!draft.subject || draft.subject.length == 0) &&
             (!draft.body || draft.body.length == 0) &&
             (!draft.files || draft.files.length == 0) &&
             (!draft.downloads || draft.downloads.length == 0) &&
-            (!draft.uploads || draft.uploads.length == 0)
-
-    },
+            (!draft.uploads || draft.uploads.length == 0),
 
     usesFolders: (accountOrId) => {
-        let account;
+        let account
         if (accountOrId instanceof Object) {
             account = accountOrId
         } else {
@@ -187,7 +159,7 @@ module.exports = NylasUtils = {
     },
 
     usesLabels: (accountOrId) => {
-        let account;
+        let account
         if (accountOrId instanceof Object) {
             account = accountOrId
         } else {
@@ -203,7 +175,7 @@ module.exports = NylasUtils = {
     },
 
     hasNylasAccounts: () => {
-        const accounts = AccountStore.accounts();
+        const accounts = AccountStore.accounts()
         return accounts.length > 0
     },
 
@@ -216,23 +188,17 @@ module.exports = NylasUtils = {
             return `${prefix} ${subject}`
     },
 
-    defaultMe: (account) => {
-        return {name: account.name || '', email: account.emailAddress}
-    },
+    defaultMe: (account) => ({name: account.name || '', email: account.emailAddress}),
 
-    replyAttributionLine: (message) => {
-        return `On ${NylasUtils.formattedDateForMessage(message)}, ${message.from && message.from.length ? NylasUtils.contactDisplayFullname(message.from[0]) : ""} wrote:`
-    },
+    replyAttributionLine: (message) => `On ${NylasUtils.formattedDateForMessage(message)}, ${message.from && message.from.length ? NylasUtils.contactDisplayFullname(message.from[0]) : ''} wrote:`,
 
-    formattedDateForMessage: (message) => {
-        return moment(message.date * 1000).format("MMM D YYYY, [at] h:mm a")
-    },
+    formattedDateForMessage: (message) => moment(message.date * 1000).format('MMM D YYYY, [at] h:mm a'),
 
     displayNameForFile: (file) => {
         if (!file) return null
 
         const defaultNames = {
-            'text/calendar': "Event.ics",
+            'text/calendar': 'Event.ics',
             'image/png': 'Unnamed Image.png',
             'image/jpg': 'Unnamed Image.jpg',
             'image/jpeg': 'Unnamed Image.jpg'
@@ -242,19 +208,15 @@ module.exports = NylasUtils = {
         else if (file.content_type && defaultNames[file.content_type])
             return defaultNames[file.content_type]
         else
-            return "Unnamed Attachment"
+            return 'Unnamed Attachment'
     },
 
-    displayExtensionForFile: (file) => {
-        return path.extname(NylasUtils.displayNameForFile(file).toLowerCase()).slice(1);
-    },
+    displayExtensionForFile: (file) => path.extname(NylasUtils.displayNameForFile(file).toLowerCase()).slice(1),
 
-    displayFileSize: (file) => {
-        return filesize(file.size)
-    },
+    displayFileSize: (file) => filesize(file.size),
 
     shouldDisplayAsImage: (file = {}) => {
-        const name = file.filename || file.fileName || file.name || ""
+        const name = file.filename || file.fileName || file.name || ''
         const size = file.size || file.fileSize || 0
         const ext = path.extname(name).toLowerCase()
 
@@ -264,7 +226,7 @@ module.exports = NylasUtils = {
     },
 
     fileIcon: (file) => {
-        const name = file.filename || file.fileName || file.name || ""
+        const name = file.filename || file.fileName || file.name || ''
         const ext = path.extname(name).toLowerCase().slice(1)
         const extensions = ['doc', 'docx', 'ics', 'pdf', 'ppt', 'pptx', 'xls', 'xlsx', 'zip']
 

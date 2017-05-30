@@ -1,5 +1,4 @@
 import Reflux from 'reflux'
-import _ from 'underscore'
 import Actions from './actions'
 import AccountStore from './account-store'
 import Download from './downloads/download'
@@ -18,13 +17,11 @@ class FileDownloadStore extends Reflux.Store {
         this._downloads = {}
     }
 
-    downloadDataForFile = (fileId) => {
-        return this._downloads[fileId] ? this._downloads[fileId].data() : null
-    }
+    downloadDataForFile = (fileId) => this._downloads[fileId] ? this._downloads[fileId].data() : null
 
     downloadDataForFiles = (fileIds=[]) => {
-        let downloadData = {}
-        fileIds.forEach((fileId)=>[
+        const downloadData = {}
+        fileIds.forEach((fileId) => [
             downloadData[fileId] = this.downloadDataForFile(fileId)
         ])
 
@@ -56,18 +53,19 @@ class FileDownloadStore extends Reflux.Store {
                 this.trigger()
                 return Promise.resolve(this._downloads[file.id])
             } else {
-                let download = new EmailFileDownload({
+                const download = new EmailFileDownload({
                     fileId: file.id,
                     filename: file.name || file.filename,
                     filesize: file.size,
                     accountId: file.account_id,
-                    contentType: file.content_type
+                    contentType: file.content_type,
+                    progressCallback: () => this.trigger()
                 })
 
                 this._downloads[file.id] = download
                 this.trigger()
 
-                return download.run().finally(()=>{
+                return download.run().finally(() => {
                     //download.ensureClosed()
                     if(download.state == Download.State.Failed)
                         delete this._downloads[file.id]
