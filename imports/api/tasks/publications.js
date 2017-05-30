@@ -1,4 +1,5 @@
-import { Tasks } from '../models';
+import  moment from 'moment'
+import { Tasks } from '../models'
 
 Meteor.publishComposite('task.all', function (param) {
   if (!Match.test(param, {
@@ -10,9 +11,9 @@ Meteor.publishComposite('task.all', function (param) {
       Today: Boolean,
       Tomorrow: Boolean,
     },
-  })) return this.ready();
+  })) return this.ready()
 
-  if (!this.userId) return this.ready();
+  if (!this.userId) return this.ready()
   const {
     parentId,
     filter: {
@@ -22,26 +23,26 @@ Meteor.publishComposite('task.all', function (param) {
       Today,
       Tomorrow,
     },
-  } = param;
+  } = param
 
   const selector = {
     parentId,
     isRemoved: false,
-  };
+  }
 
-  if (AssignToMe) selector.assignee = this.userId;
-  if (IamApprover) selector.approver = this.userId;
-  if (DueDate) selector.dueDate = { $lt: new Date() };
+  if (AssignToMe) selector.assignee = this.userId
+  if (IamApprover) selector.approver = this.userId
+  if (DueDate) selector.dueDate = { $lt: new Date() }
   if (Today) {
-    const start = moment(moment().format('YYYY-MM-DD') + ' 00:00:00').toDate();
-    const end = moment(moment().format('YYYY-MM-DD') + ' 23:59:59').toDate();
-    selector.dueDate = { $gte: start, $lte: end };
+    const start = moment(`${moment().format('YYYY-MM-DD')} 00:00:00`).toDate()
+    const end = moment(`${moment().format('YYYY-MM-DD')} 23:59:59`).toDate()
+    selector.dueDate = { $gte: start, $lte: end }
   }
 
   if (Tomorrow) {
-    const start = moment(moment().add(1, 'd').format('YYYY-MM-DD') + ' 00:00:00').toDate();
-    const end = moment(moment().add(1, 'd').format('YYYY-MM-DD') + ' 23:59:59').toDate();
-    selector.dueDate = { $gte: start, $lte: end };
+    const start = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 00:00:00`).toDate()
+    const end = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 23:59:59`).toDate()
+    selector.dueDate = { $gte: start, $lte: end }
   }
 
   return {
@@ -51,25 +52,25 @@ Meteor.publishComposite('task.all', function (param) {
           isRemoved: 0,
           comments: 0,
         },
-      });
+      })
     },
 
     children: [
       {
         find({ assignee, approver }) {
-          return Meteor.users.find({ _id: { $in: [assignee, approver] } });
+          return Meteor.users.find({ _id: { $in: [assignee, approver] } })
         },
       },
     ],
-  };
-});
+  }
+})
 
 /*
 * publish detail of a task
 * */
 
 Meteor.publishComposite('task.details', function({ _id }) {
-  if (!Match.test(_id, String)) return this.ready();
+  if (!Match.test(_id, String)) return this.ready()
   return {
     find() {
       return Tasks.find({
@@ -79,14 +80,14 @@ Meteor.publishComposite('task.details', function({ _id }) {
         fields: {
           isRemoved: 0,
         },
-      });
+      })
     },
     children: [
       {
         find({ comments }) {
           if (comments) {
-            const userIds = comments.map(({ userId })=> userId);
-            return Meteor.users.find({ _id: { $in: userIds } });
+            const userIds = comments.map(({ userId }) => userId)
+            return Meteor.users.find({ _id: { $in: userIds } })
           }
         },
       },

@@ -1,18 +1,18 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import TaskDetail from './TaskDetail.jsx';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
+import TaskDetail from './TaskDetail.jsx'
 
 class TaskAdding extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
       task: {
         showDetail: false,
       },
-    };
+    }
 
-    this.showDetail = this.showDetail.bind(this);
-    this.hideDetail = this.hideDetail.bind(this);
+    this.showDetail = this.showDetail.bind(this)
+    this.hideDetail = this.hideDetail.bind(this)
   }
 
   showDetail() {
@@ -20,7 +20,7 @@ class TaskAdding extends Component {
       task: {
         showDetail: true,
       },
-    });
+    })
   }
 
   hideDetail() {
@@ -28,7 +28,7 @@ class TaskAdding extends Component {
       task: {
         showDetail: false,
       },
-    });
+    })
   }
 
   render() {
@@ -39,7 +39,7 @@ class TaskAdding extends Component {
         background-color: #CDD2D4;
         cursor: pointer;
       }
-    `;
+    `
     return (
       <TaskAdding onClick={ this.showDetail }>
         + Add a task ...
@@ -53,7 +53,7 @@ class TaskAdding extends Component {
           total={this.props.total}
         />
       </TaskAdding>
-    );
+    )
   }
 }
 
@@ -61,6 +61,6 @@ TaskAdding.propTypes = {
   status: PropTypes.string.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
-};
+}
 
-export default TaskAdding;
+export default TaskAdding

@@ -1,51 +1,51 @@
-import React, { Component, PropTypes } from 'react';
-import swal from 'sweetalert2';
-import moment from 'moment';
-import 'sweetalert2/dist/sweetalert2.min.css';
+import React, { Component, PropTypes } from 'react'
+import swal from 'sweetalert2'
+import moment from 'moment'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 class Attachments extends Component {
   constructor() {
-    super();
-    this.downloadFile = this.downloadFile.bind(this);
-    this.deleteFile = this.deleteFile.bind(this);
+    super()
+    this.downloadFile = this.downloadFile.bind(this)
+    this.deleteFile = this.deleteFile.bind(this)
   }
 
   downloadFile(fileId, event) {
-    event.preventDefault();
-    Meteor.call('drive.getFiles', { fileId }, (error, result)=> {
+    event.preventDefault()
+    Meteor.call('drive.getFiles', { fileId }, (error, result) => {
       if (error) {
-        const msg = error.reason ? error.reason : error.message;
-        swal('Attachments', msg, 'error');
+        const msg = error.reason ? error.reason : error.message
+        swal('Attachments', msg, 'error')
       } else {
-        window.open(result.webContentLink, '_blank');
-      };
-    });
+        window.open(result.webContentLink, '_blank')
+      }
+    })
   }
 
   deleteFile(fileId, event) {
-    event.preventDefault();
+    event.preventDefault()
     swal({
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      text: 'You won\'t be able to revert this!',
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!',
-    }).then(()=> {
-      Meteor.call('task.removeAttachment', { fileId, _id: this.props.taskId }, (error, result)=> {
+    }).then(() => {
+      Meteor.call('task.removeAttachment', { fileId, _id: this.props.taskId }, (error) => {
         if (error) {
-          const msg = error.reason ? error.reason : error.message;
-          swal('Attachments', msg, 'error');
+          const msg = error.reason ? error.reason : error.message
+          swal('Attachments', msg, 'error')
         } else {
           swal(
             'Deleted!',
             'Your file has been deleted.',
             'success'
-          );
-        };
-      });
-    });
+          )
+        }
+      })
+    })
   }
 
   render() {
@@ -56,8 +56,8 @@ class Attachments extends Component {
         </p>
         <div className='attachments'>
           {
-            this.props.attachments.map(({ mimeType, name, _id, createdAt })=> {
-              return (
+            this.props.attachments.map(({ mimeType, name, _id, createdAt }) =>
+              (
                 <div className='attachment' key={_id}>
                   <div className='attachment-icon'>
                     { _.last(mimeType.split('/')) }
@@ -79,18 +79,18 @@ class Attachments extends Component {
                     </div>
                   </div>
                 </div>
-              );
-            })
+              )
+            )
           }
         </div>
       </div>
-    );
+    )
   }
 }
 
 Attachments.propTypes = {
   attachments: PropTypes.array,
   taskId: PropTypes.string.isRequired,
-};
+}
 
-export default Attachments;
+export default Attachments

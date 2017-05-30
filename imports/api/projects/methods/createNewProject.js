@@ -4,7 +4,7 @@ import config from '/imports/api/config/config'
 import { Projects, ROLES } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
 
-const { slack: { apiRoot, apiKey, botId } } = config;
+const { slack: { apiRoot, apiKey, botId } } = config
 const slackRequest  = ({ action, params }) => {
   check(action, String)
   check(params, Object)
@@ -70,7 +70,7 @@ Meteor.methods({
         slackRequest({
           action: 'channels.invite',
           params: { channel: slackChanel, user: botId },
-        });
+        })
 
         // CREATE DRIVE
         prossDocDrive.createProjectFolder.call({ name: project.name, projectId })

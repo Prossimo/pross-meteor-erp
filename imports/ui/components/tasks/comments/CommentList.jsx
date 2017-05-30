@@ -1,98 +1,98 @@
-import React, { Component, PropTypes } from 'react';
-import { createContainer } from 'meteor/react-meteor-data';
-import styled from 'styled-components';
-import moment from 'moment';
-import swal from 'sweetalert2';
-import Textcomplete from 'textcomplete/lib/textcomplete';
-import Textarea from 'textcomplete/lib/textarea';
-import 'sweetalert2/dist/sweetalert2.min.css';
-import CommentIcon from './CommentIcon.jsx';
+import React, { Component, PropTypes } from 'react'
+import { createContainer } from 'meteor/react-meteor-data'
+import styled from 'styled-components'
+import moment from 'moment'
+import swal from 'sweetalert2'
+import Textcomplete from 'textcomplete/lib/textcomplete'
+import Textarea from 'textcomplete/lib/textarea'
+import 'sweetalert2/dist/sweetalert2.min.css'
+import CommentIcon from './CommentIcon.jsx'
 
 class CommentList extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
       comments: {},
       showReply: null,
-    };
-    this.editComment = this.editComment.bind(this);
-    this.removeComment = this.removeComment.bind(this);
-    this.changeState = this.changeState.bind(this);
-    this.updateComment = this.updateComment.bind(this);
-    this.replyComment = this.replyComment.bind(this);
-    this.saveComment = this.saveComment.bind(this);
-    this.renderComments = this.renderComments.bind(this);
+    }
+    this.editComment = this.editComment.bind(this)
+    this.removeComment = this.removeComment.bind(this)
+    this.changeState = this.changeState.bind(this)
+    this.updateComment = this.updateComment.bind(this)
+    this.replyComment = this.replyComment.bind(this)
+    this.saveComment = this.saveComment.bind(this)
+    this.renderComments = this.renderComments.bind(this)
   }
 
   changeState(prop, propName, propValue) {
-    prop[propName] = propValue;
-    this.setState(prevState => prevState);
+    prop[propName] = propValue
+    this.setState(prevState => prevState)
   }
 
   shortenName({ profile: { firstName, lastName } }) {
     return `${firstName} ${lastName}`
       .split(' ')
-      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+      .reduce((result, next) => `${result}${next.charAt(0)}`, '')
   }
 
   removeComment(_id, event) {
-    event.preventDefault();
+    event.preventDefault()
     swal({
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      text: 'You won\'t be able to revert this!',
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, remove it!',
-    }).then(()=> {
-      Meteor.call('task.removeComment', { _id }, (error, result)=> {
+    }).then(() => {
+      Meteor.call('task.removeComment', { _id }, (error) => {
         if (error) {
-          const msg = error.reason ? error.reason : error.message;
-          swal('Delete task failed',  msg, 'warning');
+          const msg = error.reason ? error.reason : error.message
+          swal('Delete task failed',  msg, 'warning')
         }
-      });
+      })
       swal(
         'Removed!',
         'Your comment has been removed.',
         'success'
-      );
-    });
+      )
+    })
   }
 
   updateComment(_id, event) {
-    const content = event.target.value;
+    const content = event.target.value
     Meteor.call('task.updateComment', { _id, content }, () => {
-      this.setState({ comments: {} });
-    });
+      this.setState({ comments: {} })
+    })
   }
 
   editComment(_id, event) {
-    event.preventDefault();
-    this.changeState(this.state.comments, _id, true);
+    event.preventDefault()
+    this.changeState(this.state.comments, _id, true)
   }
 
   replyComment(_id, event) {
-    event.preventDefault();
-    this.setState({ showReply: _id });
+    event.preventDefault()
+    this.setState({ showReply: _id })
   }
 
   saveComment(parentId, event) {
-    this.setState({ showReply: null });
-    const content = event.target.value;
-    const taskId = this.props.taskId;
-    if (!content) return;
-    Meteor.call('task.addComment', { _id: taskId, content, parentId });
+    this.setState({ showReply: null })
+    const content = event.target.value
+    const taskId = this.props.taskId
+    if (!content) return
+    Meteor.call('task.addComment', { _id: taskId, content, parentId })
   }
 
   renderComments(comments, level) {
     return (
       <div>
         {
-          comments.map(({ content, createdAt, user, _id, updatedAt })=> {
-            let username = user ? user.username : 'loading ...';
-            let shortName = user ? this.shortenName(user) : 'loading ...';
-            const childComments = this.props.comments.filter(({ parentId })=> _id === parentId);
+          comments.map(({ content, createdAt, user, _id, updatedAt }) => {
+            const username = user ? user.username : 'loading ...'
+            const shortName = user ? this.shortenName(user) : 'loading ...'
+            const childComments = this.props.comments.filter(({ parentId }) => _id === parentId)
             return (
               <div key={_id} style={{marginLeft: level === 0 ? 0 : '20px'}}>
                 <div>
@@ -151,22 +151,22 @@ class CommentList extends Component {
                   </div>
                 </div>
                 {
-                  this.renderComments(_.sortBy(childComments, ({ createdAt })=> -createdAt.getTime()), level + 1)
+                  this.renderComments(_.sortBy(childComments, ({ createdAt }) => -createdAt.getTime()), level + 1)
                 }
               </div>
-            );
+            )
           })
         }
       </div>
-    );
+    )
   }
 
   render() {
     const comments = this
       .props
       .comments
-      .filter(({ parentId })=> !parentId)
-    return this.renderComments(_.sortBy(comments, ({ createdAt })=> -createdAt.getTime()), 0);
+      .filter(({ parentId }) => !parentId)
+    return this.renderComments(_.sortBy(comments, ({ createdAt }) => -createdAt.getTime()), 0)
   }
 }
 

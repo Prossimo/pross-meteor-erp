@@ -1,5 +1,6 @@
-import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../models';
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import SimpleSchema from 'simpl-schema'
+import { Tasks } from '../../models'
 
 export default new ValidatedMethod({
   name: 'task.updateComment',
@@ -13,12 +14,12 @@ export default new ValidatedMethod({
     },
   }).validator(),
   run({ _id, content }) {
-    if (!this.userId) throw new Error('User is not allowed to add comment');
+    if (!this.userId) throw new Error('User is not allowed to add comment')
     return Tasks.update({ comments: { $elemMatch: { _id, userId: this.userId } } }, {
       $set: {
         'comments.$.content': content,
         'comments.$.updatedAt': new Date(),
       },
-    });
+    })
   },
-});
+})

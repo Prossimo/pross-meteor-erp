@@ -1,51 +1,52 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import TaskModifying from './TaskModifying.jsx';
-import swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
+import React, { Component, PropTypes } from 'react'
+import moment from 'moment'
+import styled from 'styled-components'
+import TaskModifying from './TaskModifying.jsx'
+import swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 class Task extends Component {
   constructor(props) {
-    super(props);
+    super(props)
 
-    this.showDetail = this.showDetail.bind(this);
-    this.closeTask = this.closeTask.bind(this);
+    this.showDetail = this.showDetail.bind(this)
+    this.closeTask = this.closeTask.bind(this)
   }
 
   shortenName({ profile: { firstName, lastName } }) {
     return `${firstName} ${lastName}`
       .split(' ')
-      .reduce((result, next)=> `${result}${next.charAt(0)}`, '');
+      .reduce((result, next) => `${result}${next.charAt(0)}`, '')
   }
 
   showDetail() {
-    this.refs.taskModifying.showDetail();
+    this.refs.taskModifying.showDetail()
   }
 
   closeTask(_id, event) {
-    event.preventDefault();
-    event.stopPropagation();
+    event.preventDefault()
+    event.stopPropagation()
     swal({
       title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      text: 'You won\'t be able to revert this!',
       type: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, remove it!'
-    }).then(function () {
-      Meteor.call('task.remove', { _id }, (error, result)=> {
+    }).then(() => {
+      Meteor.call('task.remove', { _id }, (error) => {
         if (error) {
-          const msg = error.reason ? error.reason : error.message;
-          swal('Delete task failed',  msg, 'warning');
+          const msg = error.reason ? error.reason : error.message
+          swal('Delete task failed',  msg, 'warning')
         }
-      });
+      })
       swal(
         'Removed!',
         'Your task has been removed.',
         'success'
-      );
-    });
+      )
+    })
   }
 
   render() {
@@ -61,7 +62,7 @@ class Task extends Component {
       float: right;
       margin-left: 2px;
       color: white;
-    `;
+    `
     const ApproverIcon = styled.div `
       width: 35px;
       height: 20px;
@@ -73,20 +74,20 @@ class Task extends Component {
       position: relative;
       float: right;
       margin-left: 2px;
-    `;
+    `
     const DueDateIcon = styled(ApproverIcon) `
       float: left;
       width: 80px;
       background-color: ${this.props.task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46'};
       color: white;
-    `;
+    `
     const CloseButton = styled.a `
       position: absolute;
       top: 0px;
       right: 5px;
       font-size: 1.5em;
       color: black;
-    `;
+    `
     return (
       <div
         className='task-container'
@@ -118,7 +119,7 @@ class Task extends Component {
           total={this.props.total}
         />
       </div>
-    );
+    )
   }
 }
 
@@ -128,6 +129,6 @@ Task.propTypes = {
   assignee: PropTypes.object.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
-};
+}
 
-export default Task;
+export default Task

@@ -1,9 +1,9 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
 
 class TaskError extends Component {
   constructor() {
-    super();
+    super()
   }
 
   render() {
@@ -12,27 +12,25 @@ class TaskError extends Component {
         padding: 6px;
         font-size: 14px;
       }
-    `;
+    `
     return (
       <ErrorContainer>
         {
           (this.props.errors.length > 0) ? (
             <div className='alert alert-danger'>
               {
-                this.props.errors.map(error => {
-                  return (<li key={error}>{ error }</li>);
-                })
+                this.props.errors.map(error => <li key={error}>{ error }</li>)
               }
             </div>
           ) : ''
         }
       </ErrorContainer>
-    );
+    )
   }
 }
 
 TaskError.propTypes = {
   errors: PropTypes.array.isRequired,
-};
+}
 
-export default TaskError;
+export default TaskError

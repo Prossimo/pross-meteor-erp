@@ -1,6 +1,7 @@
-import SimpleSchema from 'simpl-schema';
-import { Tasks } from '../../models';
-import sendSlackMessage from './sendSlackMessage';
+import SimpleSchema from 'simpl-schema'
+import { Tasks } from '../../models'
+import sendSlackMessage from './sendSlackMessage'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
   name: 'task.addComment',
@@ -18,7 +19,7 @@ export default new ValidatedMethod({
     },
   }).validator(),
   run({ _id, content, parentId }) {
-    if (!this.userId) throw new Error('User is not allowed to add comment');
+    if (!this.userId) throw new Error('User is not allowed to add comment')
     Tasks.update(_id, {
       $push: {
         comments: {
@@ -29,16 +30,16 @@ export default new ValidatedMethod({
           createdAt: new Date(),
         },
       },
-    });
-    const task = Tasks.findOne(_id);
+    })
+    const task = Tasks.findOne(_id)
     if (task) {
-      Meteor.defer(()=> {
+      Meteor.defer(() => {
         sendSlackMessage.call({
           taskId: _id,
           parentId: task.parentId,
           type: 'ADD_COMMENT',
-        });
-      });
+        })
+      })
     }
   },
-});
+})

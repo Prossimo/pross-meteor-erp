@@ -1,9 +1,9 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
 
 class CommentIcon extends Component {
   constructor() {
-    super();
+    super()
   }
 
   render() {
@@ -22,12 +22,12 @@ class CommentIcon extends Component {
       overflow: hidden;
       padding: 1px;
       font-weight: 800;
-    `;
+    `
     return (
       <CommentIcon>
       { this.props.name }
       </CommentIcon>
-    );
+    )
   }
 }
 
@@ -35,4 +35,4 @@ CommentIcon.propTypes = {
   name: PropTypes.string.isRequired,
 }
 
-export default CommentIcon;
+export default CommentIcon

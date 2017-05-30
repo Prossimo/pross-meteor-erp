@@ -1,20 +1,20 @@
-import React, { Component, PropTypes } from 'react';
-import { Modal } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
-import styled from 'styled-components';
-import moment from 'moment';
-import SelectUser from './SelectUser.jsx';
-import TextEditor from './TextEditor.jsx';
-import TaskName from './TaskName.jsx';
-import TaskError from './TaskError.jsx';
-import TaskComment from './TaskComment.jsx';
-import UploadFrom from './upload/UploadFrom.jsx';
-import UploadOverlay from './upload/UploadOverlay.jsx';
-import Attachments from './upload/Attachments.jsx';
+import React, { Component, PropTypes } from 'react'
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import { Modal } from 'react-bootstrap'
+import DatePicker from 'react-datepicker'
+import moment from 'moment'
+import SelectUser from './SelectUser.jsx'
+import TextEditor from './TextEditor.jsx'
+import TaskName from './TaskName.jsx'
+import TaskError from './TaskError.jsx'
+import TaskComment from './TaskComment.jsx'
+import UploadFrom from './upload/UploadFrom.jsx'
+import UploadOverlay from './upload/UploadOverlay.jsx'
+import Attachments from './upload/Attachments.jsx'
 
 class TaskDetail extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       isFinding: {
         assignee: false,
@@ -22,7 +22,7 @@ class TaskDetail extends Component {
       },
       errors: [],
       isAttach: false,
-    };
+    }
 
     if (props.isNew) {
       this.state.task = {
@@ -32,57 +32,57 @@ class TaskDetail extends Component {
         dueDate: new Date,
         description: '',
         status: props.status,
-      };
+      }
     }
 
-    this.changeState = this.changeState.bind(this);
-    this.saveTask = this.saveTask.bind(this);
+    this.changeState = this.changeState.bind(this)
+    this.saveTask = this.saveTask.bind(this)
   }
 
   saveTask() {
-    const parentId = FlowRouter.current().params.id;
-    const { name, assignee, approver, dueDate, description, status } = this.state.task;
-    let task = {
+    const parentId = FlowRouter.current().params.id
+    const { name, assignee, approver, dueDate, description, status } = this.state.task
+    const task = {
       name,
       assignee: assignee ? assignee._id : '',
       approver: approver ? approver._id : '',
       description,
-      dueDate: moment(moment(dueDate).format('YYYY-MM-DD') + ' 23:59:59').toDate(),
+      dueDate: moment(`${moment(dueDate).format('YYYY-MM-DD')} 23:59:59`).toDate(),
       status,
       parentId,
-    };
+    }
 
     if (this.props.isNew) {
       Meteor.call('task.create', task, error => {
         if (error) {
-          const msg = error.reason ? error.reason : error.message;
-          this.setState({ errors: [msg] });
+          const msg = error.reason ? error.reason : error.message
+          this.setState({ errors: [msg] })
         } else {
-          this.props.hideDetail();
-          this.setState({ errors: [] });
+          this.props.hideDetail()
+          this.setState({ errors: [] })
         }
-      });
+      })
     } else {
-      task._id = this.props.task._id;
+      task._id = this.props.task._id
       Meteor.call('task.update', task, error => {
         if (error) {
-          const msg = error.reason ? error.reason : error.message;
-          this.setState({ errors: [msg] });
+          const msg = error.reason ? error.reason : error.message
+          this.setState({ errors: [msg] })
         } else {
-          this.props.hideDetail();
-          this.setState({ errors: [] });
+          this.props.hideDetail()
+          this.setState({ errors: [] })
         }
-      });
+      })
     }
   }
 
   changeState(prop, propName, propValue) {
-    prop[propName] = propValue;
-    this.setState(prevState => prevState);
+    prop[propName] = propValue
+    this.setState(prevState => prevState)
   }
 
   render() {
-    !this.props.isNew && (this.state.task = this.props.task);
+    !this.props.isNew && (this.state.task = this.props.task)
     const selectUsers = [
       {
         name: 'assignee',
@@ -96,7 +96,7 @@ class TaskDetail extends Component {
         ignore: 'assignee',
         label: 'Approver',
       },
-    ];
+    ]
 
     return (
       <Modal
@@ -121,22 +121,22 @@ class TaskDetail extends Component {
 
             <div className='col-md-3'>
               {
-                selectUsers.map(({ name, top, label, ignore })=> {
-                  return (
+                selectUsers.map(({ name, top, label, ignore }) =>
+                  (
                     <SelectUser
                       key={name}
                       isFinding={this.state.isFinding[name]}
-                      closeFinding={()=> this.changeState(this.state.isFinding, name, false)}
+                      closeFinding={() => this.changeState(this.state.isFinding, name, false)}
                       ignoreUser={this.state.task[ignore]}
                       title={label}
                       top={top}
                       user={this.state.task[name]}
-                      onSelectUser={(user)=> this.changeState(this.state.task, name, user)}
-                      removeUser={()=> this.changeState(this.state.task, name, null)}
-                      toggleFinding={()=> this.changeState(this.state.isFinding, name, !this.state.isFinding[name])}
+                      onSelectUser={(user) => this.changeState(this.state.task, name, user)}
+                      removeUser={() => this.changeState(this.state.task, name, null)}
+                      toggleFinding={() => this.changeState(this.state.isFinding, name, !this.state.isFinding[name])}
                     />
-                  );
-                })
+                  )
+                )
               }
               <div className='form-group'>
                 <label style={{fontSize: '14px'}}>Due Date</label>
@@ -153,7 +153,7 @@ class TaskDetail extends Component {
                   (!this.props.isNew) ? (
                     <button
                       className='btn btn-default full-width'
-                      onClick={event => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
+                      onClick={() => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
                       <i className='fa fa-paperclip'/>
                       <small> Attachment</small>
                     </button>
@@ -161,7 +161,7 @@ class TaskDetail extends Component {
                 }
                 {
                   (this.state.isAttach) ? (
-                    <UploadFrom close={event => this.changeState(this.state, 'isAttach', false)}/>
+                    <UploadFrom close={() => this.changeState(this.state, 'isAttach', false)}/>
                   ) : ''
                 }
               </div>
@@ -196,7 +196,7 @@ class TaskDetail extends Component {
               }
         </Modal.Body>
       </Modal>
-    );
+    )
   };
 }
 
@@ -209,6 +209,6 @@ TaskDetail.propTypes = {
   task: PropTypes.object,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
-};
+}
 
-export default TaskDetail;
+export default TaskDetail

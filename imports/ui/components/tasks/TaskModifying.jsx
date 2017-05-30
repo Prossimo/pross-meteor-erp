@@ -1,18 +1,17 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
-import TaskDetail from './TaskDetail.jsx';
+import React, { Component, PropTypes } from 'react'
+import TaskDetail from './TaskDetail.jsx'
 
 class TaskModifying extends Component {
   constructor() {
-    super();
+    super()
     this.state = {
       task: {
         showDetail: false,
       },
-    };
+    }
 
-    this.showDetail = this.showDetail.bind(this);
-    this.hideDetail = this.hideDetail.bind(this);
+    this.showDetail = this.showDetail.bind(this)
+    this.hideDetail = this.hideDetail.bind(this)
   }
 
   showDetail() {
@@ -20,7 +19,7 @@ class TaskModifying extends Component {
       task: {
         showDetail: true,
       },
-    });
+    })
   }
 
   hideDetail() {
@@ -28,13 +27,13 @@ class TaskModifying extends Component {
       task: {
         showDetail: false,
       },
-    });
+    })
   }
 
   render() {
-    const task = _.clone(this.props.task);
-    task.assignee = this.props.assignee;
-    task.approver = this.props.approver;
+    const task = _.clone(this.props.task)
+    task.assignee = this.props.assignee
+    task.approver = this.props.approver
     return (
       <TaskDetail
         showDetail={this.showDetail}
@@ -47,7 +46,7 @@ class TaskModifying extends Component {
         taskFolderId={this.props.taskFolderId}
         total={this.props.total}
       />
-    );
+    )
   }
 }
 
@@ -57,6 +56,6 @@ TaskModifying.propTypes = {
   approver: PropTypes.object,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
-};
+}
 
-export default TaskModifying;
+export default TaskModifying

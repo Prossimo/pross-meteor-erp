@@ -1,15 +1,15 @@
-import React, { Component, PropTypes } from 'react';
-import styled from 'styled-components';
+import React, { Component, PropTypes } from 'react'
+import styled from 'styled-components'
 
 class TextEditor extends Component {
   constructor(props) {
-    super(props);
-    this.changeContent = this.changeContent.bind(this);
+    super(props)
+    this.changeContent = this.changeContent.bind(this)
   }
 
   changeContent(event) {
-    const content = event.target.value;
-    this.props.onChange(content);
+    const content = event.target.value
+    this.props.onChange(content)
   }
 
   render() {
@@ -37,7 +37,7 @@ class TextEditor extends Component {
         background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
         outline-width: 0;
       }
-    `;
+    `
     return (
       <TextArea
         ref='content'
@@ -45,13 +45,13 @@ class TextEditor extends Component {
         defaultValue={this.props.content}
         onChange={ this.changeContent }
       />
-    );
+    )
   }
 }
 
 TextEditor.propTypes = {
   content: PropTypes.string,
   onChange: PropTypes.func.isRequired,
-};
+}
 
-export default TextEditor;
+export default TextEditor

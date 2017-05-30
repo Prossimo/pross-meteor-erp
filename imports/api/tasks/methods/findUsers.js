@@ -1,5 +1,5 @@
-import SimpleSchema from 'simpl-schema';
-import { Projects, SalesRecords } from '/imports/api/models';
+import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
   name: 'task.findUsers',
@@ -7,9 +7,9 @@ export default new ValidatedMethod({
     keyword: { type: String },
     ignore: { type: String },
   }).validator(),
-  run({ keyword, ignore, parentId }) {
-    if (!this.userId) return [];
-    const $regex = new RegExp(keyword, 'i');
+  run({ keyword, ignore }) {
+    if (!this.userId) return []
+    const $regex = new RegExp(keyword, 'i')
     return Meteor.users.find({
       _id: {
         $ne: ignore,
@@ -25,6 +25,6 @@ export default new ValidatedMethod({
     }, {
       fields: { username: 1, emails: 1, profile: 1 },
       limit: 3,
-    }).fetch();
+    }).fetch()
   },
-});
+})
