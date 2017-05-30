@@ -17,7 +17,7 @@ $ meteor npm run full-test
 
 ### Help links:
 - [deploy tutorial](https://www.phusionpassenger.com/library/walkthroughs/deploy/meteor/digital_ocean/apache/oss/xenial/install_passenger.html)
-- Link to a process diagram: https://drive.google.com/open?id=0B-guFXEigZ5pR2lwOXc1Q3dQQUU
+- Link to a process diagrams: https://drive.google.com/drive/folders/0BwlkF3vox8cEenNLNkFHMzN0bW8?usp=sharing
 - User Stories https://docs.google.com/spreadsheets/d/1ZOcEC-EGrV52NcyFLXONuiL6XBQHvOIT5w9V2MGAMRo/edit?usp=sharing
 - Schema Spreadsheet: https://docs.google.com/spreadsheets/d/1eRJnumg0CAMA79zud0k4TbK1YEZsTTrYCPlsBrNt7X0/edit?usp=sharing
 
