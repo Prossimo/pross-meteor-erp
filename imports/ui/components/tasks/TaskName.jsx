@@ -7,9 +7,11 @@ class TaskName extends Component {
     this.state = {
       editable: false,
       name: props.name,
+      isUpdated: false,
     };
     this.changeState = this.changeState.bind(this);
     this.changeName = this.changeName.bind(this);
+    this.initName = this.initName.bind(this);
   }
 
   changeName(event) {
@@ -21,6 +23,14 @@ class TaskName extends Component {
   changeState(prop, propName, propValue) {
     prop[propName] = propValue;
     this.setState(prevState => prevState);
+  }
+
+  initName() {
+    if (!this.state.isUpdated && this.props.isNew) {
+      this.state.isUpdated = true;
+      this.state.name = '';
+      this.changeState(prevState => prevState);
+    }
   }
 
   render() {
@@ -47,10 +57,13 @@ class TaskName extends Component {
                 defaultValue={this.state.name}
                 onChange={this.changeName}
                 autoFocus={true}
+                onFocus={this.initName}
                 onBlur={()=> this.changeState(this.state, 'editable', false)}
               />
             ) : (
-              <span> &nbsp; { this.state.name } </span>
+              <input
+                defaultValue={this.state.name}
+              />
             )
           }
         </TitleContent>
@@ -62,6 +75,7 @@ class TaskName extends Component {
 TaskName.propTypes = {
   name: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
+  isNew: PropTypes.bool.isRequired,
 };
 
 export default TaskName;
