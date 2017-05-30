@@ -110,6 +110,7 @@ class TaskDetail extends Component {
             <div className='col-md-9'>
               <TaskName
                 name={this.state.task.name}
+                isNew={this.props.isNew}
                 onChange={name => { this.state.task.name = name }}
               />
               <TextEditor
