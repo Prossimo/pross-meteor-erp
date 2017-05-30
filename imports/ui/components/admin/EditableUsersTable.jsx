@@ -119,7 +119,12 @@ class EditableUsersTable extends Component{
   }
 
   activeFormatterStatus(cell, row, enumObject, index) {
-    return cell ? 'Active' : 'Not active yet'
+    switch (cell) {
+      case 'pending': return 'Pending'
+      case 'actived': return 'Actived'
+      // old data that doesn't have status field
+      default: return 'Actived'
+    }
   }
 
   render() {
@@ -140,7 +145,7 @@ class EditableUsersTable extends Component{
 
     const userRoles = Object.values(ROLES)
 
-    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles }) => ({
+    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles, status }) => ({
         _id,
         username,
         firstName,
@@ -148,6 +153,7 @@ class EditableUsersTable extends Component{
         email: emails[0].address,
         role: roles[0],
         isActive: emails[0].verified,
+        status,
       }))
     return (
       <BootstrapTable
@@ -196,7 +202,7 @@ class EditableUsersTable extends Component{
           Email
         </TableHeaderColumn>
         <TableHeaderColumn
-          dataField='isActive'
+          dataField='status'
           dataSort={ true }
           dataFormat={ this.activeFormatterStatus }
           editable={ false }

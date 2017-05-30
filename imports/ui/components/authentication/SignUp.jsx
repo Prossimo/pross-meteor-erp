@@ -1,12 +1,12 @@
-import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
-import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
-import {warning} from "/imports/api/lib/alerts";
+import React from 'react'
+import {FlowRouter} from 'meteor/kadira:flow-router'
+import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js"
+import {warning} from "/imports/api/lib/alerts"
 
 
 class SignUp extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             validation: {
                 email: '',
@@ -24,44 +24,44 @@ class SignUp extends React.Component {
 
     toggle() {
         if (typeof this.props.toggle === 'function') {
-            this.props.toggle();
+            this.props.toggle()
         }
     }
 
     Check(validation) {
-        this.setState({validation: Object.assign(this.state.validation, validation)});
+        this.setState({validation: Object.assign(this.state.validation, validation)})
     }
 
     emailValidationError() {
-        const {validation} = this.state;
+        const {validation} = this.state
 
         if (validation.email) {
-            return validation.email;
+            return validation.email
         }
     }
 
     submit(event) {
 
-        event.preventDefault();
-        const {username, password, email, repeatPassword, validation, firstName, lastName} = this.state;
+        event.preventDefault()
+        const {username, password, email, repeatPassword, validation, firstName, lastName} = this.state
         if (username == '') {
-            validation.username = "Field is required";
-            return this.Check(validation);
+            validation.username = "Field is required"
+            return this.Check(validation)
         } else if (username.length < 3) {
-            validation.username = "Username must be longer";
-            return this.Check(validation);
+            validation.username = "Username must be longer"
+            return this.Check(validation)
         }
         if (!isValidEmail(email)) {
-            validation.email = "Please enter valid e-mail address";
-            return this.Check(validation);
+            validation.email = "Please enter valid e-mail address"
+            return this.Check(validation)
         }
         if (!isValidPassword(password, 6)) {
-            validation.password = "Please enter valid password";
-            return this.Check(validation);
+            validation.password = "Please enter valid password"
+            return this.Check(validation)
         }
         if (password && password !== repeatPassword) {
-            validation.password = "Passwords doesn't match";
-            return this.Check(validation);
+            validation.password = "Passwords doesn't match"
+            return this.Check(validation)
         }
 
         this.userRegistrationData = {
@@ -70,73 +70,73 @@ class SignUp extends React.Component {
                 password,
                 firstName,
                 lastName
-            };
+            }
 
-        this.userRegistration();
+        this.userRegistration()
     }
 
     userRegistration() {
-        userData = this.userRegistrationData;
-        Meteor.call("userRegistration", userData, (err, res) => {console.log("Signup", res);
+        const userData = this.userRegistrationData
+        Meteor.call('userRegistration', userData, (err, res) => {console.log('Signup', res)
             if(err) {
                 console.log(err)
-                return warning(err.message);
+                return warning(err.message)
             }
-            const {validation} = res;
+            const {validation} = res
             if (validation && validation.email || validation.username) {
-                this.Check(validation);
+                this.Check(validation)
             } else {
                 Meteor.loginWithPassword({email: userData.email}, userData.password, (err) => {
-                    if (err) return warning('Login error, please try again!');
-                    FlowRouter.reload();
-                });
+                    if (err) return warning('Login error, please try again!')
+                    FlowRouter.reload()
+                })
             }
         })
     }
 
     focusInput(event) {
-        const {validation} = this.state;
-        event.target.parentElement.classList.add('active');
+        const {validation} = this.state
+        event.target.parentElement.classList.add('active')
         if (validation[event.target.id]) {
-            this.setState({validation: Object.assign(validation, {[event.target.id]: ''})});
+            this.setState({validation: Object.assign(validation, {[event.target.id]: ''})})
         }
     }
 
     blurInput(event) {
-        const value = event.target.value;
-        const {validation} = this.state;
+        const value = event.target.value
+        const {validation} = this.state
         if (value === '') {
-            event.target.parentElement.classList.remove('active');
+            event.target.parentElement.classList.remove('active')
         }
         switch (event.target.id) {
             case 'email':
                 if (!isValidEmail(value))
-                    this.setState({validation: Object.assign(validation, {email: "Please enter valid e-mail address"})});
-                break;
+                    this.setState({validation: Object.assign(validation, {email: "Please enter valid e-mail address"})})
+                break
             case 'username':
                 if (value === '')
-                    this.setState({validation: Object.assign(validation, {username: "Username is required"})});
-                break;
+                    this.setState({validation: Object.assign(validation, {username: "Username is required"})})
+                break
             case 'repeatPassword':
                 if (value !== this.state.password)
-                    this.setState({validation: Object.assign(validation, {password: "Passwords doesn't match"})});
-                break;
+                    this.setState({validation: Object.assign(validation, {password: "Passwords doesn't match"})})
+                break
             default:
-                return true;
+                return true
         }
     }
 
     change(event) {
         this.setState({
             [event.target.id]: event.target.value
-        });
+        })
         if (event.target.value !== '') {
             event.target.parentElement.classList.add('active')
         }
     }
 
     render() {
-        const {validation, firstName, lastName, username, email, password, repeatPassword} = this.state;
+        const {validation, firstName, lastName, username, email, password, repeatPassword} = this.state
         return (
             <div className="sign-up-wrap">
                 <header className="auth-header">
@@ -217,4 +217,4 @@ class SignUp extends React.Component {
         )
     }
 }
-export default SignUp;
+export default SignUp

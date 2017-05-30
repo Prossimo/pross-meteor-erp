@@ -78,7 +78,6 @@ Meteor.methods({
       userData.validation = validation
       return userData
     }
-
     const userId = Accounts.createUser({
       username,
       email,
@@ -88,14 +87,17 @@ Meteor.methods({
         lastName,
         role: [
           {role: ROLES.SALES}
-        ]
-      }
+        ],
+      },
     })
     Roles.addUsersToRoles(userId, [ROLES.SALES])
 
     userData.validation = validation
 
-    if (userId) Meteor.call('initVisiableFields', userId)
+    if (userId) {
+      Meteor.call('initVisiableFields', userId)
+      Meteor.users.update({_id: userId}, {$set: {status: 'pending'}})
+    }
 
     return userData
   },
