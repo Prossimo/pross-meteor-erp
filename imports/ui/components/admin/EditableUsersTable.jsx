@@ -51,7 +51,8 @@ class EditableUsersTable extends Component{
     const userData = {
       firstName: row.firstName,
       lastName: row.lastName,
-      role: row.role
+      role: row.role,
+      status: row.status
     }
 
     Meteor.call('adminEditUser', row._id, userData, (err) => {
@@ -124,6 +125,15 @@ class EditableUsersTable extends Component{
       case 'actived': return 'Actived'
       // old data that doesn't have status field
       default: return 'Actived'
+    }
+  }
+
+  checkEditTypeOfStatus(cell) {
+    switch (cell) {
+      case 'pending': return  { type: 'select', options: { values: ['actived', 'pending'] } }
+      case 'actived': return false
+      // old data that doesn't have status field
+      default: return false
     }
   }
 
@@ -205,7 +215,7 @@ class EditableUsersTable extends Component{
           dataField='status'
           dataSort={ true }
           dataFormat={ this.activeFormatterStatus }
-          editable={ false }
+          editable={ { type: 'select', options: { values: ['actived', 'pending'] } } }
           hiddenOnInsert
         >
           Status
