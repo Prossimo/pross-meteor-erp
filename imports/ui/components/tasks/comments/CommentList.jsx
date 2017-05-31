@@ -86,6 +86,7 @@ class CommentList extends Component {
   }
 
   renderComments(comments, level) {
+    const curName= this.shortenName(Meteor.user())
     return (
       <div>
         {
@@ -135,7 +136,7 @@ class CommentList extends Component {
                           {
                             (this.state.showReply === _id) ? (
                               <div className='reply-comment-box'>
-                                <CommentIcon name={shortName}/>
+                                <CommentIcon name={curName}/>
                                 <textarea
                                   className='reply-comment'
                                   placeholder='Write a reply'
