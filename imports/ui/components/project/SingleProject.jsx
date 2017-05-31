@@ -5,7 +5,7 @@ import Projects from '/imports/api/models/projects/projects';
 import { GET_NEW_PROJECT } from '/imports/api/constants/collections';
 import Activities from './Activities';
 import Tasks from '../tasks/TaskBoard.jsx';
-import Files from '../libs/Files';
+import Files from './Files.jsx';
 
 class SingleProject extends Component {
   constructor(props) {
