@@ -14,6 +14,7 @@ class Files extends Component {
     this.selectFile = this.selectFile.bind(this)
     this.listFiles = this.listFiles.bind(this)
     this.openFile = this.openFile.bind(this)
+    this.goBack = this.goBack.bind(this)
   }
 
   openFile(id, mimeType) {
@@ -53,11 +54,17 @@ class Files extends Component {
     }
   }
 
+  goBack() {
+    this.state.viewPath.pop()
+    this.listFiles()
+  }
+
   render() {
     return (
       <div>
         <div className='text-center'>
           <div className='btn-group'>
+            <button className='btn btn-default btn-sm fa fa-chevron-left' onClick={this.goBack}/>
             <button className='btn btn-default btn-sm fa fa-upload'/>
             <button className='btn btn-default btn-sm fa fa-download'/>
             <button className='btn btn-default btn-sm fa fa-trash'/>
