@@ -195,7 +195,8 @@ export default class PersonForm extends React.Component {
     }
     onChangeDesignation = (item) => {
         this.setState({
-            designation_id: item ? item.value : null
+            designation_id: item ? item.value : null,
+            role: null
         })
     }
     onChangeRole = (item) => {
