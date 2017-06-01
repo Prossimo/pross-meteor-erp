@@ -10,26 +10,26 @@ const PAGE_SIZE = 100
 
 class ThreadStore extends Reflux.Store {
     constructor() {
-        super();
+        super()
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
         this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
 
-        this.threads = [];
-        this.currentThread = null;
+        this.threads = []
+        this.currentThread = null
 
-        this.loading = false;
-        this.fullyLoaded = false;
-        this.currentPage = 1;
+        this.loading = false
+        this.fullyLoaded = false
+        this.currentPage = 1
     }
 
     onLoadThreads = (category, {page = 1, search}={}) => {
         category = category ? category : CategoryStore.currentCategory
         if(!category) return
 
-        this.loading = true;
-        this.trigger();
-        const query = QueryString.stringify({in: category.id, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE});
+        this.loading = true
+        this.trigger()
+        const query = QueryString.stringify({in: category.id, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE})
         NylasAPI.makeRequest({
             path: `/threads?${query}`,
             method: 'GET',
@@ -56,12 +56,12 @@ class ThreadStore extends Reflux.Store {
                 this.fullyLoaded = false
             }
         }).finally(() => {
-            this.loading = false;
-            this.trigger();
+            this.loading = false
+            this.trigger()
 
-            this.currentPage = page ? page : 1;
+            this.currentPage = page ? page : 1
 
-            if(this.currentThread) Actions.loadMessages(this.currentThread);
+            if(this.currentThread) Actions.loadMessages(this.currentThread)
         })
     }
 
@@ -79,9 +79,9 @@ class ThreadStore extends Reflux.Store {
                     accountId: thread.account_id
                 }).then((t) => {
                     if (t && t.version != thread.version) {
-                        Meteor.call('updateThreadAndMessages', sr._id, t, (err,res)=>{
+                        Meteor.call('updateThreadAndMessages', sr._id, t, (err,res) => {
 
-                            setTimeout(()=>{
+                            setTimeout(() => {
                                 Actions.changedConversations(sr._id)
                             }, 18000)
                         })
@@ -102,18 +102,18 @@ class ThreadStore extends Reflux.Store {
                 } else {
                     return false
                 }
-            }).sort((t1, t2)=>t2.last_message_timestamp-t1.last_message_timestamp)
+            }).sort((t1, t2) => t2.last_message_timestamp-t1.last_message_timestamp)
         )
 
     }
 
     isLoading() {
-        return this.loading;
+        return this.loading
     }
 
     selectThread(thread) {
-        Actions.loadMessages(thread);
-        this.currentThread = thread;
+        Actions.loadMessages(thread)
+        this.currentThread = thread
     }
 
     changeThreads(threads) {

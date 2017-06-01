@@ -1,15 +1,15 @@
-import _ from 'underscore';
-import React from 'react';
-import NylasUtils from '../../../api/nylas/nylas-utils';
-import MessageStore from '../../../api/nylas/message-store';
-import MessageItemContainer from './MessageItemContainer';
+import _ from 'underscore'
+import React from 'react'
+import NylasUtils from '../../../api/nylas/nylas-utils'
+import MessageStore from '../../../api/nylas/message-store'
+import MessageItemContainer from './MessageItemContainer'
 
 class MessageList extends React.Component {
 
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this);
+        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this)
 
         this.state = this._getStateFromStore()
         this.state.minified = true
@@ -17,18 +17,18 @@ class MessageList extends React.Component {
     }
 
     componentDidMount() {
-        this.unsubscribes = [];
-        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged));
+        this.unsubscribes = []
+        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged))
     }
 
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
-        });
+        })
     }
 
     onMessageStoreChanged() {
-        let newState = this._getStateFromStore();
+        const newState = this._getStateFromStore()
 
         if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)
             newState.minified = true
@@ -59,7 +59,7 @@ class MessageList extends React.Component {
         let subject = this.state.currentThread.subject
 
         if (!subject || subject.length == 0)
-            subject = "(No Subject)";
+            subject = '(No Subject)'
 
         return (
             <div className="message-subject-wrap">
@@ -87,22 +87,22 @@ class MessageList extends React.Component {
 
 
     renderMessages() {
-        let elements = []
+        const elements = []
 
-        let {messages} = this.state;
-        let lastMessage = _.last(messages);
-        let hasReplyArea = lastMessage && !lastMessage.draft
+        let {messages} = this.state
+        const lastMessage = _.last(messages)
+        const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
         messages.forEach((message, idx) => {
 
-            if (message.type == "minifiedBundle") {
+            if (message.type == 'minifiedBundle') {
                 elements.push(this._renderMinifiedBundle(message))
-                return;
+                return
             }
 
-            collapsed = !this.state.messagesExpandedState[message.id]
-            isLastMsg = (messages.length - 1 == idx)
-            isBeforeReplyArea = isLastMsg && hasReplyArea
+            const collapsed = !this.state.messagesExpandedState[message.id]
+            const isLastMsg = (messages.length - 1 == idx)
+            const isBeforeReplyArea = isLastMsg && hasReplyArea
 
             elements.push(  // Should be replaced message.id to message.clientId in future
                 <MessageItemContainer key={message.id}
@@ -113,7 +113,7 @@ class MessageList extends React.Component {
                                       isBeforeReplyArea={isBeforeReplyArea}
                                       scrollTo={this._scrollTo}/>
             )
-        });
+        })
 
         if (hasReplyArea)
             elements.push(this._renderReplyArea())
@@ -122,10 +122,10 @@ class MessageList extends React.Component {
     }
 
     _messagesWithMinification(messages=[]) {
-        if(!this.state.minified) return messages;
+        if(!this.state.minified) return messages
 
         messages = _.clone(messages)
-        let minifyRanges = []
+        const minifyRanges = []
         let consecutiveCollapsed = 0
 
         messages.forEach((message, idx) => {
@@ -138,7 +138,7 @@ class MessageList extends React.Component {
             else
             {
                 let minifyOffset
-                if(expandState == "default")
+                if(expandState == 'default')
                     minifyOffset = 1
                 else //if expandState is "explicit"
                     minifyOffset = 0
@@ -153,10 +153,10 @@ class MessageList extends React.Component {
         })
 
         let indexOffset = 0
-        for(range of minifyRanges) {
-            start = range.start - indexOffset
+        for(const range of minifyRanges) {
+            const start = range.start - indexOffset
             const minified = {
-                type: "minifiedBundle",
+                type: 'minifiedBundle',
                 messages: messages.slice(start, start + range.length)
             }
             messages.splice(start, range.length, minified)
@@ -169,7 +169,7 @@ class MessageList extends React.Component {
 
     _renderMinifiedBundle(bundle) {
         const BUNDLE_HEIGHT = 36
-        const lines = bundle.messages.slice(0, 10);
+        const lines = bundle.messages.slice(0, 10)
         const h = Math.round(BUNDLE_HEIGHT / lines.length)
 
         return (
@@ -201,9 +201,9 @@ class MessageList extends React.Component {
 
 
     _replyType() {
-        const defaultReplyType = 'reply-all';
-        const lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m)=>!m.draft))
-        if (!lastMessage) return 'reply';
+        const defaultReplyType = 'reply-all'
+        const lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
+        if (!lastMessage) return 'reply'
 
         if (NylasUtils.canReplyAll(lastMessage)) {
             if (defaultReplyType == 'reply-all')
@@ -217,4 +217,4 @@ class MessageList extends React.Component {
 
 }
 
-export default MessageList;
+export default MessageList
