@@ -16,7 +16,7 @@ class ThreadStore extends Reflux.Store {
         this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
 
         this.threads = []
-        this.currentThread = null
+        this._currentThread = {}
 
         this.loading = false
         this.fullyLoaded = false
@@ -28,7 +28,9 @@ class ThreadStore extends Reflux.Store {
         if(!category) return
 
         this.loading = true
+        Actions.loadMessages(this._currentThread[category.id])
         this.trigger()
+
         const query = QueryString.stringify({in: category.id, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE})
         NylasAPI.makeRequest({
             path: `/threads?${query}`,
@@ -60,8 +62,6 @@ class ThreadStore extends Reflux.Store {
             this.trigger()
 
             this.currentPage = page ? page : 1
-
-            if(this.currentThread) Actions.loadMessages(this.currentThread)
         })
     }
 
@@ -112,10 +112,13 @@ class ThreadStore extends Reflux.Store {
     }
 
     selectThread(thread) {
+        this._currentThread[CategoryStore.currentCategory.id] = thread
         Actions.loadMessages(thread)
-        this.currentThread = thread
     }
 
+    currentThread(category) {
+        return this._currentThread[category.id]
+    }
     changeThreads(threads) {
         threads.forEach((t) => {
             const thread = _.findWhere(this.threads, {id: t.id})

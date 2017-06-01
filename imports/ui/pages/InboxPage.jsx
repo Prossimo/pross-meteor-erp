@@ -35,7 +35,7 @@ class InboxPage extends React.Component {
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
             threads: currentCategory ? ThreadStore.getThreads(currentCategory) : [],
-            currentThread: ThreadStore.currentThread
+            currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
         }
 
 
@@ -328,6 +328,7 @@ class InboxPage extends React.Component {
 
     onCategorySelected(category) {
         CategoryStore.selectCategory(category)
+        this.setState({currentThread: ThreadStore.currentThread(category)})
     }
 
     onThreadSelected(thread) {

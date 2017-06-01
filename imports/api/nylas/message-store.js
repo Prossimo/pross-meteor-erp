@@ -41,15 +41,21 @@ class MessageStore extends Reflux.Store {
     }
 
     _onLoadMessages(thread) {
-        thread = thread ? thread : this._currentThread
-        if(!thread || !thread.account_id) return
 
         this._loading = true
 
-        if(this._currentThread && thread.id !== this._currentThread.id) {
+        if(!thread || !this._currentThread || thread.id !== this._currentThread.id) {
             this._messages = []
         }
 
+        this._currentThread = thread
+        this.trigger()
+
+
+        if(!thread || !thread.account_id){
+            this._loading = false
+            return
+        }
         const query = queryString.stringify({thread_id: thread.id})
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
@@ -81,9 +87,6 @@ class MessageStore extends Reflux.Store {
         }).finally(() => {
             this.trigger()
         })
-
-        this._currentThread = thread
-        this.trigger()
     }
 
     _onLoadConversations(salesRecordId) {

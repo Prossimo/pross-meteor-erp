@@ -7,21 +7,21 @@ import AccountStore from './account-store'
 
 class CategoryStore extends Reflux.Store {
     constructor() {
-        super();
+        super()
 
-        this.currentCategory = null;
+        this.currentCategory = null
     }
 
     getCategories(accountId) {
         const account = AccountStore.accountForAccountId(accountId)
 
-        return account? account.categories : [];
+        return account? account.categories : []
     }
 
     selectCategory(category) {
-        this.currentCategory = category;
-        this.trigger();
-        Actions.loadThreads(category);
+        this.currentCategory = category
+        this.trigger()
+        Actions.loadThreads(category)
     }
 
     getInboxCategory(accountId) {
