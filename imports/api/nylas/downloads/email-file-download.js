@@ -58,7 +58,7 @@ class EmailFileDownload extends Download {
             xhr.onprogress = function(e) {
                 self.percent = e.loaded * 100 / e.total
                 if(self.progressCallback) self.progressCallback()
-                console.log(self.percent)
+                //console.log(self.percent)
             }
             xhr.send()
 
