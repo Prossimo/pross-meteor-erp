@@ -23,13 +23,15 @@ class ItemMessageBody extends React.Component{
             const download = downloads[file.id]
             const cidRegexp = new RegExp(`cid:${file.content_id}(['\"]+)`, 'gi')
 
-            if(download && !download.blob) {
-                body = body.replace(cidRegexp, (text, quoteCharacter) => {
-                    const dataUri = CanvasUtils.dataURIForLoadedPercent(download.percent)
-                    return `${dataUri}${quoteCharacter} style=${quoteCharacter} object-position: 50% 50%; object-fit: none; `
-                })
-            } else {
-                body = body.replace(cidRegexp, (text, quoteCharacter) => `${download.blob}${quoteCharacter}`)
+            if(download) {
+                if(!download.blob) {
+                    body = body.replace(cidRegexp, (text, quoteCharacter) => {
+                        const dataUri = CanvasUtils.dataURIForLoadedPercent(download.percent)
+                        return `${dataUri}${quoteCharacter} style=${quoteCharacter} object-position: 50% 50%; object-fit: none; `
+                    })
+                } else {
+                    body = body.replace(cidRegexp, (text, quoteCharacter) => `${download.blob}${quoteCharacter}`)
+                }
             }
         })
 
