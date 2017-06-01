@@ -2,7 +2,16 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 import _ from 'underscore'
+import FileUploader from './FileUploader.jsx'
 
+const FileManager = styled.div `
+  position: relative;
+`
+const LoadingIcon = styled.div `
+  position: absolute;
+  top: 150px;
+  left: 50%
+`
 class Files extends Component {
   constructor(props) {
     super(props)
@@ -17,9 +26,11 @@ class Files extends Component {
     this.listFiles = this.listFiles.bind(this)
     this.openFile = this.openFile.bind(this)
     this.openFileDirectly = this.openFileDirectly.bind(this)
+    this.pickFile = this.pickFile.bind(this)
     this.goBack = this.goBack.bind(this)
     this.renderFiles = this.renderFiles.bind(this)
     this.renderViewPath = this.renderViewPath.bind(this)
+    this.addFileToView = this.addFileToView.bind(this)
   }
 
   openFile(folderId, name, mimeType) {
@@ -104,7 +115,8 @@ class Files extends Component {
   renderFiles() {
     if (this.state.files.length === 0 && !this.state.loading)
       return (<tr className='text-center'><td colSpan={2}>Empty Folder</td></tr>)
-    return this.state.files.map(file => {
+    const files = _.sortBy(this.state.files, ({ modifiedTime }) => - new Date(modifiedTime).getTime())
+    return files.map(file => {
       const { id, name, modifiedTime, iconLink, webViewLink, mimeType } = file
       const formattedTime = moment(modifiedTime).format('YYYY MMM DD hh:mm:ss')
       const FileRow = styled.tr`
@@ -133,21 +145,27 @@ class Files extends Component {
     })
   }
 
+  pickFile() {
+    this.refs.uploader.pickFile()
+  }
+
+  addFileToView(file) {
+    this.state.files.push(file)
+    this.setState(prevState => prevState)
+  }
+
   render() {
-    const LoadingIcon = styled.div `
-      position: absolute;
-      top: 150px;
-      left: 50%
-    `
-    const FileManager = styled.div `
-      position: relative;
-    `
     return (
       <FileManager>
+        <FileUploader
+          ref='uploader'
+          folderId={_.last(this.state.viewPath).folderId}
+          addFileToView={this.addFileToView}
+        />
         <div className='text-center'>
           <div className='btn-group'>
             <button className='btn btn-default btn-sm fa fa-chevron-left' onClick={this.goBack}/>
-            <button className='btn btn-default btn-sm fa fa-upload'/>
+            <button className='btn btn-default btn-sm fa fa-upload' onClick={this.pickFile}/>
             <button className='btn btn-default btn-sm fa fa-download'/>
             <button className='btn btn-default btn-sm fa fa-trash'/>
             <button className='btn btn-default btn-sm fa fa-folder'/>
