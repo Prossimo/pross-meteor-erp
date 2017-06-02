@@ -36,6 +36,8 @@ class Files extends Component {
     this.removeFileFromView = this.removeFileFromView.bind(this)
     this.deleteFile = this.deleteFile.bind(this)
     this.downloadFile = this.downloadFile.bind(this)
+    this.openExternal = this.openExternal.bind(this)
+    this.createNewFile = this.createNewFile.bind(this)
   }
 
   openFile(folderId, name, mimeType) {
@@ -73,11 +75,11 @@ class Files extends Component {
     this.listFiles()
   }
 
-  selectFile(id, name, mimeType, webContentLink) {
+  selectFile(id, name, mimeType, webContentLink, webViewLink) {
     if (this.state.selectedFile.id === id) {
       this.openFile(id, name, mimeType)
     } else {
-      this.setState({ selectedFile: { id, mimeType, webContentLink } })
+      this.setState({ selectedFile: { id, mimeType, webContentLink, webViewLink } })
     }
   }
 
@@ -141,7 +143,7 @@ class Files extends Component {
         <FileRow
           key={id}
           className={this.state.selectedFile.id === id ? 'active' : ''}
-          onClick={ () => this.selectFile(id, name, mimeType, webContentLink)}
+          onClick={ () => this.selectFile(id, name, mimeType, webContentLink, webViewLink)}
         >
           <td><img src={ iconLink }/> { name }</td>
           <td>{ formattedTime }</td>
@@ -154,6 +156,12 @@ class Files extends Component {
     if (this.state.selectedFile
       && this.state.selectedFile.mimeType !== 'application/vnd.google-apps.folder') {
       open(this.state.selectedFile.webContentLink, '_blank')
+    }
+  }
+
+  openExternal() {
+    if (this.state.selectedFile.id) {
+      open(this.state.selectedFile.webViewLink, '_blank')
     }
   }
 
@@ -194,6 +202,50 @@ class Files extends Component {
     this.setState(prevState => prevState)
   }
 
+  createNewFile() {
+    swal({
+      title: 'Select New File Type',
+      html: `
+        <from class='form'>
+          <div class='form-group'>
+            <select class='form-control' id='select'>
+              <option value='application/vnd.google-apps.folder'>Folder</option>
+              <option value='application/vnd.google-apps.document'>Doc</option>
+              <option value='application/vnd.google-apps.spreadsheet'>Spreadsheet</option>
+              <option value='application/vnd.google-apps.presentation'>Slide</option>
+              <option value='application/vnd.google-apps.drawing'>Drawing</option>
+            </select>
+          </div>
+          <div class='form-group'>
+            <input type='text' class='form-control' id='name' placeholder='Name of file/folder'/>
+          </div>
+        </form>
+      `,
+      preConfirm: () => new Promise((resolve, reject) => {
+        const result = {
+          name: $('#name').val(),
+          filetype: $('#select option:selected').val(),
+        }
+        if (!result.name || !result.filetype)
+          return reject('Name is required')
+        resolve(result)
+      })
+    }).then(({name, filetype}) => {
+      const parent = _.last(this.state.viewPath).folderId
+      const file = {
+        name,
+        filetype,
+        parent,
+      }
+      Meteor.call('drive.createFile', file, (error, file) => {
+        if (!error) {
+          this.state.files.push(file)
+          this.setState(prevState => prevState)
+        }
+      })
+    })
+  }
+
   render() {
     return (
       <FileManager>
@@ -211,8 +263,11 @@ class Files extends Component {
               onClick={this.downloadFile}
             />
             <button className={`btn btn-default btn-sm fa fa-trash ${!this.state.selectedFile.id ? 'disabled' : ''}`} onClick={this.deleteFile}/>
-            <button className='btn btn-default btn-sm fa fa-folder'/>
-            <button className='btn btn-default btn-sm fa fa-file'/>
+            <button className='btn btn-default btn-sm fa fa-file' onClick={this.createNewFile}/>
+            <button
+              className={`btn btn-default btn-sm fa fa-external-link ${!this.state.selectedFile.id ? 'disabled' : ''}`}
+              onClick={this.openExternal}
+            />
           </div>
         </div>
         <br/>
