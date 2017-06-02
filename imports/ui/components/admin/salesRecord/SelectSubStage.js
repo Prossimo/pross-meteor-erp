@@ -16,13 +16,20 @@ class SelectSubStage extends Component {
       subStage: ''
     }
   }
-  componentWillReceiveProps(props) {
-    if (this.props.stage !== props.stage) {
-      this.setState({subStage: ''})
+  componentWillMount() {
+    const stages = this.getSubStages()
+    if (!_.isEmpty(stages)) {
+      this.setState({subStage: stages[0]})
     }
   }
-  getSubStages() {
-    const {stage} = this.props
+  componentWillReceiveProps(props) {
+    if (this.props.stage !== props.stage) {
+      const stages = this.getSubStages(props.stage)
+      this.setState({subStage: stages[0]})
+    }
+  }
+  getSubStages(stage) {
+    if (!stage) stage = this.props.stage
     switch (stage) {
       case 'lead': return SUB_STAGES_LEAD
       case 'opportunity': return SUB_STAGES_OPP
