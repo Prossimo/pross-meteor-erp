@@ -15,7 +15,7 @@ import {
 import {SlackMails, SalesRecords, ROLES} from '../models'
 
 import { prossDocDrive } from '../drive'
-
+import { getUserName, getUserEmail } from '/imports/api/lib/filters'
 
 import '../lib/extendMatch.js'
 import google from 'googleapis'
@@ -197,6 +197,7 @@ Meteor.methods({
     if (!res.data.ok) {
       if (res.data.error === 'already_in_channel') throw new Meteor.Error('User already in channel')
     }
+    res.userEmail = getUserEmail(user)
     return res
   },
 
