@@ -17,6 +17,7 @@ import Files from '../files/Files'
 import Invoices from './Invoices'
 import Documents from './Documents'
 import Conversations from './conversations/Conversations'
+import {Modal} from 'react-bootstrap'
 
 class SingleSalesRecord extends React.Component{
   constructor(props){
@@ -80,10 +81,10 @@ class SingleSalesRecord extends React.Component{
         notify: true,
       },
       memberType: this.memberTypeOptions[0],
+      selectedMembers: []
     }
 
     this.renderStakeholders = this.renderStakeholders.bind(this)
-    this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
     this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
     this.changeState = this.changeState.bind(this)
     this.addMember = this.addMember.bind(this)
@@ -92,6 +93,7 @@ class SingleSalesRecord extends React.Component{
     this.removeMember = this.removeMember.bind(this)
     this.removeStakeholder = this.removeStakeholder.bind(this)
     this.changeStage = this.changeStage.bind(this)
+    this.addMemberToState = this.addMemberToState.bind(this)
     /*
     * should not publish all contact to client
     * because searching in contact causes lag in UI, index contact list to provide quick search
@@ -288,52 +290,75 @@ class SingleSalesRecord extends React.Component{
                         Notify
                     </label>
                 </div>
-                <button onClick={this.addStakeholder} className="btnn primary-btn">Add Stakeholder</button>
+                <button onClick={this.addStakeholder} className="btnn primary-btn">Add People</button>
             </div>
         )
     }
   }
 
+  addMemberToState(userId) {
+    const { selectedMembers } = this.state
+    const index = selectedMembers.indexOf(userId)
+    if (index > -1) {
+      selectedMembers.splice(index, 1)
+    } else {
+      selectedMembers.push(userId)
+    }
+    this.setState({selectedMembers})
+  }
+
   renderAddMemberForm(){
     const { salesRecord, users } = this.props
-    const { member: { selectedUser, selectedCategory }} = this.state
-    const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
+    // const { member: { selectedUser, selectedCategory }} = this.state
+    // const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
     const membersIds = salesRecord.members.map(i => i.userId)
-    const selectOptions = users
+    const members = users
       .filter(user => membersIds.indexOf(user._id)<0) // do not contain current user
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
       .map(user => ({
           label: `${getUserName(user, true)} ${getUserEmail(user)}`,
           value: user._id,
+          roles: user.roles.toString()
         }))
+
+    if (_.isEmpty(members)) return (<div>There is no member available now</div>)
+
     if(Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN))
       return(
         <div>
             <div className="form">
                 <div className="form-group">
-                    <Select
-                      value={selectedUser}
-                      placeholder="Choose user"
-                      onChange={(item) => this.changeState(this.state.member, 'selectedUser', item)}
-                      options={selectOptions}
-                      className={'members-select'}
-                      clearable={false}
-                    />
+                  <ul className="list-group">
+                    {
+                      members.map((member) =>
+                       (
+                        <li className="list-group-item" key={member.value}>
+                          <input type="checkbox" onClick={this.addMemberToState.bind('', `${member.value}-${member.roles}`)}/> &nbsp;
+                          {member.label} - {member.roles}
+                        </li>
+                        )
+                      )
+                    }
+                  </ul>
                 </div>
-                <div className="form-group">
-                    <Select
-                      multi
-                      placeholder="User categories"
-                      value={selectedCategory}
-                      onChange={(item) => this.changeState(this.state.member, 'selectedCategory', item)}
-                      options={categoryOptions}
-                      className={'members-select'}
-                      clearable={false}
-                    />
-                </div>
-                <button onClick={this.addMember} className="btnn primary-btn">Add Team member</button>
+                <button onClick={this.addMember} className="btnn primary-btn">Add</button>
             </div>
         </div>
+      )
+  }
+
+  renderAddMemeberModal() {
+      const {showAddMemeberModal} = this.state
+
+      return (
+          <Modal show={showAddMemeberModal} bsSize="large" onHide={() => {
+              this.setState({showAddMemeberModal: false})
+          }}>
+              <Modal.Header closeButton><Modal.Title>Add Team Member</Modal.Title></Modal.Header>
+              <Modal.Body>
+                  {this.renderAddMemberForm()}
+              </Modal.Body>
+          </Modal>
       )
   }
 
@@ -362,30 +387,50 @@ class SingleSalesRecord extends React.Component{
   }
 
   addMember(){
-    const { member: { selectedUser, selectedCategory }} = this.state
+    const { selectedMembers } = this.state
     const { salesRecord } = this.props
-    if(_.isNull(selectedUser)) return warning('Choose user')
+    const members = selectedMembers.map((member) => {
+      const splitedMember = member.split('-')
+      return {
+        userId: splitedMember[0],
+        category: splitedMember[1],
+        isMainStakeholder: false
+      }
+    })
+    this.props.toggleLoader(true)
+    Meteor.call('addMembersToProject', salesRecord._id, members, err => {
+      this.props.toggleLoader(false)
+      if(err) return warning(err.reason? err.reason : 'Add team member failed!')
+      this.setState({showAddMemeberModal: false})
+      info('Add team members to saleRecord success!')
+    })
+    {/*
+      const member = {
+        userId: selectedUser.value,
+        isMainStakeholder: false,
+        category: selectedCategory.map(i => i.value)
+      }
 
-    const member = {
-      userId: selectedUser.value,
-      isMainStakeholder: false,
-      category: selectedCategory.map(i => i.value)
-    }
+      Meteor.call('addMemberToProject', salesRecord._id, member, err => {
+        if(err) return warning(err.reason? err.reason : 'Add team member failed!')
+        this.setState({
+          member: {
+            selectedUser: null,
+            selectedCategory: []
+          }
+        })
+        info('Add team member to salesRecord success!')
+      })
 
-    Meteor.call('addMemberToProject', salesRecord._id, member, err=>{
-      if(err) return warning(err.reason? err.reason : 'Add team member failed!');
-      this.setState({
-        member: {
-          selectedUser: null,
-          selectedCategory: []
-        }
-      });
-      info('Add team member to salesRecord success!');
-    });
 
-    Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, err => {
-      if(err) return warning(err.error)
-      info('User success add to slack channel!')
+    */}
+    Meteor.defer(() => {
+      _.each(members, (member) => {
+        Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, (err, res) => {
+          if(err) return warning(err.error)
+          info(`${res.userEmail} success add to slack channel!`)
+        })
+      })
     })
   }
 
@@ -461,38 +506,27 @@ class SingleSalesRecord extends React.Component{
               </div>
           </div>
           <aside className="right-sidebar">
-            <div className='sidebar-box'>
-              <div className='form-group'>
-                <Select
-                  name='memberType'
-                  value={this.state.memberType}
-                  options={this.memberTypeOptions}
-                  onChange={(item) => this.changeState(this.state, 'memberType', item)}
-                  clearable={false}
-                />
-              </div>
-              {
-                (this.state.memberType.value === 'member') ? (
-                  <div>
-                    { this.renderAddMemberForm() }
-                  </div>
-                ) : (
-                  <div>
-                    { this.renderAddStakeholderForm() }
-                  </div>
-                )
-              }
+            <div className="sidebar-box">
+              <button
+                className="btnn primary-btn"
+                onClick={() => {this.setState({showAddMemeberModal: true})}}
+              >Add Team Member</button>
             </div>
             <div className='sidebar-box'>
-            {
-              (this.state.memberType.value === 'member') ? (
-                this.renderProjectMembers()
-              ) : (
-                this.renderStakeholders()
-              )
-            }
+              <div>
+                { this.renderAddStakeholderForm() }
+              </div>
+            </div>
+            <h4>Stakeholders</h4>
+            <div className='sidebar-box'>
+              { this.renderStakeholders() }
+            </div>
+            <h4>Vendors</h4>
+            <div className='sidebar-box'>
+              { this.renderProjectMembers() }
             </div>
           </aside>
+          {this.renderAddMemeberModal()}
       </div>
     )
   }
