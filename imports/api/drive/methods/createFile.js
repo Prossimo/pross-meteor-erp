@@ -16,6 +16,7 @@ export default new ValidatedMethod({
         mimeType: filetype,
         parents,
       },
+      fields: '*',
     };
     return Meteor.wrapAsync(drive.files.create)(params);
   }
