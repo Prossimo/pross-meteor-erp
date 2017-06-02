@@ -21,7 +21,8 @@ const LoadingIcon = styled.div `
 class Files extends Component {
   constructor(props) {
     super(props)
-    const { project: { folderId, name } } = this.props
+    const p = props.project ? props.project : props.salesRecord
+    const { folderId, name } = p
     this.state = {
       files: [],
       selectedFile: {},
@@ -31,7 +32,7 @@ class Files extends Component {
     this.slack = {
       username: getSlackUsername(props.usersArr[Meteor.userId()]),
       icon_url: getAvatarUrl(props.usersArr[Meteor.userId()]),
-      chanel: props.project.slackChanel,
+      chanel: p.slackChanel,
     }
     this.selectFile = this.selectFile.bind(this)
     this.listFiles = this.listFiles.bind(this)
