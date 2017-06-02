@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import MediaUploader from '../libs/MediaUploader'
 import PropTypes from 'prop-types'
 import { warning } from '/imports/api/lib/alerts'
+import {
+  getSlackUsername,
+  getAvatarUrl
+} from '../../../api/lib/filters'
 
 class FileUploader extends Component {
   constructor() {
@@ -33,7 +37,21 @@ class FileUploader extends Component {
         fields: '*'
       },
       onProgress: ({ loaded, total }) => this.setState({ percentage: Math.round(loaded/total*100) }),
-      onComplete: (remoteFile) => this.props.addFileToView(JSON.parse(remoteFile)) || this.setState({ percentage: 0 })
+      onComplete: (remoteFile) => {
+        this.props.addFileToView(JSON.parse(remoteFile)) || this.setState({ percentage: 0 })
+        const params = {
+          ...this.props.slack,
+          attachments: [
+            {
+              color: '#36a64f',
+              text: `<Uploaded ${JSON.parse(remoteFile).name}>`
+            }
+          ]
+        }
+        const slackText = 'I just uploaded new file'
+        Meteor.call('sendBotMessage', this.props.slack.chanel, slackText, params)
+        this.refs.file.value = ''
+      }
     }).upload()
     this.refs.file.value = ''
   }
@@ -68,6 +86,7 @@ class FileUploader extends Component {
 FileUploader.propTypes = {
   folderId: PropTypes.string.isRequired,
   addFileToView: PropTypes.func.isRequired,
+  slack: PropTypes.object.isRequired,
 }
 
 export default FileUploader
