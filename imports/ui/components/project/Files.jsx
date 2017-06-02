@@ -20,7 +20,7 @@ class Files extends Component {
     const { project: { folderId, name } } = this.props
     this.state = {
       files: [],
-      selectedFile: '',
+      selectedFile: {},
       viewPath: [{ folderId, name }],
       loading: false,
     }
@@ -35,6 +35,7 @@ class Files extends Component {
     this.addFileToView = this.addFileToView.bind(this)
     this.removeFileFromView = this.removeFileFromView.bind(this)
     this.deleteFile = this.deleteFile.bind(this)
+    this.downloadFile = this.downloadFile.bind(this)
   }
 
   openFile(folderId, name, mimeType) {
@@ -59,7 +60,7 @@ class Files extends Component {
     this.setState({
       files: [],
       loading: true,
-      selectedFile: '',
+      selectedFile: {},
     })
     Meteor.call(
       'drive.listFiles',
@@ -72,11 +73,11 @@ class Files extends Component {
     this.listFiles()
   }
 
-  selectFile(selectedFile, name, mimeType) {
-    if (this.state.selectedFile === selectedFile) {
-      this.openFile(selectedFile, name, mimeType)
+  selectFile(id, name, mimeType, webContentLink) {
+    if (this.state.selectedFile.id === id) {
+      this.openFile(id, name, mimeType)
     } else {
-      this.setState({ selectedFile })
+      this.setState({ selectedFile: { id, mimeType, webContentLink } })
     }
   }
 
@@ -121,7 +122,7 @@ class Files extends Component {
       return (<tr className='text-center'><td colSpan={2}>Empty Folder</td></tr>)
     const files = _.sortBy(this.state.files, ({ modifiedTime }) => - new Date(modifiedTime).getTime())
     return files.map(file => {
-      const { id, name, modifiedTime, iconLink, webViewLink, mimeType } = file
+      const { id, name, modifiedTime, iconLink, webViewLink, mimeType, webContentLink } = file
       const formattedTime = moment(modifiedTime).format('YYYY MMM DD hh:mm:ss')
       const FileRow = styled.tr`
         cursor: pointer;
@@ -139,8 +140,8 @@ class Files extends Component {
       return (
         <FileRow
           key={id}
-          className={this.state.selectedFile === id ? 'active' : ''}
-          onClick={ () => this.selectFile(id, name, mimeType)}
+          className={this.state.selectedFile.id === id ? 'active' : ''}
+          onClick={ () => this.selectFile(id, name, mimeType, webContentLink)}
         >
           <td><img src={ iconLink }/> { name }</td>
           <td>{ formattedTime }</td>
@@ -149,8 +150,15 @@ class Files extends Component {
     })
   }
 
+  downloadFile() {
+    if (this.state.selectedFile
+      && this.state.selectedFile.mimeType !== 'application/vnd.google-apps.folder') {
+      open(this.state.selectedFile.webContentLink, '_blank')
+    }
+  }
+
   deleteFile() {
-    if (!this.state.selectedFile) return
+    if (!this.state.selectedFile.id) return
     swal({
       title: 'Are you sure?',
       text: 'You won\'t be able to revert this!',
@@ -160,13 +168,13 @@ class Files extends Component {
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, delete it!'
     }).then(() => {
-      Meteor.call('drive.removeFiles', { fileId: this.state.selectedFile }, error => {
+      Meteor.call('drive.removeFiles', { fileId: this.state.selectedFile.id }, error => {
         !error && swal(
           'Deleted!',
           'Your file has been deleted.',
           'success'
         )
-        !error && this.removeFileFromView(this.state.selectedFile)
+        !error && this.removeFileFromView(this.state.selectedFile.id)
       })
     })
   }
@@ -182,7 +190,7 @@ class Files extends Component {
 
   removeFileFromView(fileId) {
     this.state.files = this.state.files.filter(({ id }) => id !== fileId)
-    if (this.state.selectedFile === fileId) this.state.selectedFile = ''
+    if (this.state.selectedFile.id === fileId) this.state.selectedFile = {}
     this.setState(prevState => prevState)
   }
 
@@ -198,8 +206,11 @@ class Files extends Component {
           <div className='btn-group'>
             <button className={`btn btn-default btn-sm fa fa-chevron-left ${this.state.viewPath.length <= 1 ? 'disabled' : ''}`} onClick={this.goBack}/>
             <button className='btn btn-default btn-sm fa fa-upload' onClick={this.pickFile}/>
-            <button className='btn btn-default btn-sm fa fa-download'/>
-            <button className={`btn btn-default btn-sm fa fa-trash ${!this.state.selectedFile ? 'disabled' : ''}`} onClick={this.deleteFile}/>
+            <button
+              className={`btn btn-default btn-sm fa fa-download ${this.state.selectedFile.mimeType && this.state.selectedFile.mimeType !== 'application/vnd.google-apps.folder' ? '' : 'disabled'}`}
+              onClick={this.downloadFile}
+            />
+            <button className={`btn btn-default btn-sm fa fa-trash ${!this.state.selectedFile.id ? 'disabled' : ''}`} onClick={this.deleteFile}/>
             <button className='btn btn-default btn-sm fa fa-folder'/>
             <button className='btn btn-default btn-sm fa fa-file'/>
           </div>
