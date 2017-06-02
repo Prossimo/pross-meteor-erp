@@ -5,6 +5,10 @@ import _ from 'underscore'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import FileUploader from './FileUploader.jsx'
+import {
+  getSlackUsername,
+  getAvatarUrl
+} from '../../../api/lib/filters'
 
 const FileManager = styled.div `
   position: relative;
@@ -23,6 +27,11 @@ class Files extends Component {
       selectedFile: {},
       viewPath: [{ folderId, name }],
       loading: false,
+    }
+    this.slack = {
+      username: getSlackUsername(props.usersArr[Meteor.userId()]),
+      icon_url: getAvatarUrl(props.usersArr[Meteor.userId()]),
+      chanel: props.project.slackChanel,
     }
     this.selectFile = this.selectFile.bind(this)
     this.listFiles = this.listFiles.bind(this)
@@ -79,7 +88,7 @@ class Files extends Component {
     if (this.state.selectedFile.id === id) {
       this.openFile(id, name, mimeType)
     } else {
-      this.setState({ selectedFile: { id, mimeType, webContentLink, webViewLink } })
+      this.setState({ selectedFile: { id, mimeType, webContentLink, webViewLink, name } })
     }
   }
 
@@ -177,12 +186,25 @@ class Files extends Component {
       confirmButtonText: 'Yes, delete it!'
     }).then(() => {
       Meteor.call('drive.removeFiles', { fileId: this.state.selectedFile.id }, error => {
-        !error && swal(
-          'Deleted!',
-          'Your file has been deleted.',
-          'success'
-        )
-        !error && this.removeFileFromView(this.state.selectedFile.id)
+        if (!error) {
+          swal(
+            'Deleted!',
+            'Your file has been deleted.',
+            'success'
+          )
+          const params = {
+            ...this.slack,
+            attachments: [
+              {
+                color: '#36a64f',
+                text: `<Removed ${this.state.selectedFile.name}>`
+              }
+            ]
+          }
+          const slackText = `I just removed the file named as "${this.state.selectedFile.name}"`
+          Meteor.call('sendBotMessage', this.slack.chanel, slackText, params)
+          this.removeFileFromView(this.state.selectedFile.id)
+        }
       })
     })
   }
@@ -241,6 +263,17 @@ class Files extends Component {
         if (!error) {
           this.state.files.push(file)
           this.setState(prevState => prevState)
+          const params = {
+            ...this.slack,
+            attachments: [
+              {
+                color: '#36a64f',
+                text: `<${file.webViewLink}|Go to file ${file.name}>`
+              }
+            ]
+          }
+          const slackText = `I just added new file named as '${file.name}'`
+          Meteor.call('sendBotMessage', this.slack.chanel, slackText, params)
         }
       })
     })
@@ -253,6 +286,7 @@ class Files extends Component {
           ref='uploader'
           folderId={_.last(this.state.viewPath).folderId}
           addFileToView={this.addFileToView}
+          slack={this.slack}
         />
         <div className='text-center'>
           <div className='btn-group'>
