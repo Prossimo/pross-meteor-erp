@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
 import _ from 'underscore'
+import swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 import FileUploader from './FileUploader.jsx'
 
 const FileManager = styled.div `
@@ -31,6 +33,8 @@ class Files extends Component {
     this.renderFiles = this.renderFiles.bind(this)
     this.renderViewPath = this.renderViewPath.bind(this)
     this.addFileToView = this.addFileToView.bind(this)
+    this.removeFileFromView = this.removeFileFromView.bind(this)
+    this.deleteFile = this.deleteFile.bind(this)
   }
 
   openFile(folderId, name, mimeType) {
@@ -145,12 +149,40 @@ class Files extends Component {
     })
   }
 
+  deleteFile() {
+    if (!this.state.selectedFile) return
+    swal({
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this!',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then(() => {
+      Meteor.call('drive.removeFiles', { fileId: this.state.selectedFile }, error => {
+        !error && swal(
+          'Deleted!',
+          'Your file has been deleted.',
+          'success'
+        )
+        !error && this.removeFileFromView(this.state.selectedFile)
+      })
+    })
+  }
+
   pickFile() {
     this.refs.uploader.pickFile()
   }
 
   addFileToView(file) {
     this.state.files.push(file)
+    this.setState(prevState => prevState)
+  }
+
+  removeFileFromView(fileId) {
+    this.state.files = this.state.files.filter(({ id }) => id !== fileId)
+    if (this.state.selectedFile === fileId) this.state.selectedFile = ''
     this.setState(prevState => prevState)
   }
 
@@ -164,10 +196,10 @@ class Files extends Component {
         />
         <div className='text-center'>
           <div className='btn-group'>
-            <button className='btn btn-default btn-sm fa fa-chevron-left' onClick={this.goBack}/>
+            <button className={`btn btn-default btn-sm fa fa-chevron-left ${this.state.viewPath.length <= 1 ? 'disabled' : ''}`} onClick={this.goBack}/>
             <button className='btn btn-default btn-sm fa fa-upload' onClick={this.pickFile}/>
             <button className='btn btn-default btn-sm fa fa-download'/>
-            <button className='btn btn-default btn-sm fa fa-trash'/>
+            <button className={`btn btn-default btn-sm fa fa-trash ${!this.state.selectedFile ? 'disabled' : ''}`} onClick={this.deleteFile}/>
             <button className='btn btn-default btn-sm fa fa-folder'/>
             <button className='btn btn-default btn-sm fa fa-file'/>
           </div>
