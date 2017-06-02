@@ -6,6 +6,9 @@ import { warning } from '/imports/api/lib/alerts'
 class FileUploader extends Component {
   constructor() {
     super()
+    this.state = {
+      percentage: 0,
+    }
     this.pickFile = this.pickFile.bind(this)
     this.uploadFile = this.uploadFile.bind(this)
   }
@@ -18,20 +21,20 @@ class FileUploader extends Component {
   }
 
   uploadFile(event) {
-    const files = event.target.files
-    _.toArray(files).forEach(file =>
-     new MediaUploader({
-        file,
-        token: this.token,
-        metadata: {
-          parents: [this.props.folderId],
-        },
-        params: {
-          fields: '*'
-        },
-        onComplete: (remoteFile) => this.props.addFileToView(JSON.parse(remoteFile))
-      }).upload()
-    )
+    const file = event.target.files[0]
+    if (!file) return
+    new MediaUploader({
+      file,
+      token: this.token,
+      metadata: {
+        parents: [this.props.folderId],
+      },
+      params: {
+        fields: '*'
+      },
+      onProgress: ({ loaded, total }) => this.setState({ percentage: Math.round(loaded/total*100) }),
+      onComplete: (remoteFile) => this.props.addFileToView(JSON.parse(remoteFile)) || this.setState({ percentage: 0 })
+    }).upload()
     this.refs.file.value = ''
   }
 
@@ -40,7 +43,25 @@ class FileUploader extends Component {
   }
 
   render() {
-    return <input type='file' ref='file' className='hide' onChange={this.uploadFile}/>
+    return (
+      <div>
+        {
+          (this.state.percentage) ? (
+            <div className='progress'>
+              <div
+                className='progress-bar'
+                aria-valuemin='0'
+                aria-valuemax='100'
+                style={{width: `${this.state.percentage}%`}}
+              >
+               { this.state.percentage } %
+              </div>
+            </div>
+          ) : ''
+        }
+        <input type='file' ref='file' className='hide' onChange={this.uploadFile}/>
+      </div>
+    )
   }
 }
 
