@@ -224,25 +224,17 @@ Meteor.methods({
   },
 
   adminCreateUser(user) {
-    check(user, new SimpleSchema({
-      firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      username: {
-        type: String,
-      },
-      email: {
-        type: String,
-        regEx: SimpleSchema.RegEx.Email,
-      },
-      role: {
-        type: String,
-        allowedValues: Object.values(ROLES)
-      }
-    }))
+    check(user, {
+      firstName: String,
+      lastName: String,
+      username: String,
+      email: Match.Where((str) => {
+        check(str, String)
+        const regexp =  /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        return regexp.test(str)
+      }),
+      role: Match.Where((str) => (Object.values(ROLES).includes(str)))
+    })
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
     const { email, username, firstName, lastName, role } = user
     if (Accounts.findUserByEmail(email))
@@ -256,7 +248,8 @@ Meteor.methods({
       profile: {
         firstName,
         lastName,
-      }
+      },
+      status: 'active'
     })
 
     Meteor.users.update(createdUserId, {
@@ -266,7 +259,7 @@ Meteor.methods({
       }
     })
 
-    if (userId) Meteor.call('initVisiableFields', userId)
+    if (createdUserId) Meteor.call('initVisiableFields', createdUserId)
 
     Meteor.defer(() => Accounts.sendEnrollmentEmail(createdUserId))
     return createdUserId

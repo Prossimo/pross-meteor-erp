@@ -68,7 +68,7 @@ Schema.User = new SimpleSchema({
     status: {
       type: String,
       optional: true,
-      allowedValues: ['actived', 'pending', 'banned']
+      allowedValues: ['active', 'pending', 'banned']
     },
     slack: {
         type: Object,
