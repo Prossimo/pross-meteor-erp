@@ -122,7 +122,7 @@ class EditableUsersTable extends Component{
   activeFormatterStatus(cell, row, enumObject, index) {
     switch (cell) {
       case 'pending': return 'Pending'
-      case 'actived': return 'Actived'
+      case 'active': return 'Actived'
       // old data that doesn't have status field
       default: return 'Actived'
     }
@@ -130,8 +130,8 @@ class EditableUsersTable extends Component{
 
   checkEditTypeOfStatus(cell) {
     switch (cell) {
-      case 'pending': return  { type: 'select', options: { values: ['actived', 'pending'] } }
-      case 'actived': return false
+      case 'pending': return  { type: 'select', options: { values: ['active', 'pending'] } }
+      case 'active': return false
       // old data that doesn't have status field
       default: return false
     }
@@ -144,7 +144,8 @@ class EditableUsersTable extends Component{
     }
     const options = {
       handleConfirmDeleteRow: this.customConfirm,
-      afterInsertRow: this.onAfterInsertRow
+      afterInsertRow: this.onAfterInsertRow,
+      ignoreEditable: true
     }
     const cellEditProp = {
       mode: 'click',
@@ -215,7 +216,7 @@ class EditableUsersTable extends Component{
           dataField='status'
           dataSort={ true }
           dataFormat={ this.activeFormatterStatus }
-          editable={ { type: 'select', options: { values: ['actived', 'pending'] } } }
+          editable={ { type: 'select', options: { values: ['active', 'pending'] } } }
           hiddenOnInsert
         >
           Status
