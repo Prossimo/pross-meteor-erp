@@ -179,6 +179,10 @@ class MessageStore extends Reflux.Store {
         return _.clone(this._messagesExpanded)
     }
 
+    addMessage(message) {
+        this._messages.push(message)
+        this.trigger()
+    }
 
 }
 

@@ -8,9 +8,9 @@ class DraftFactory {
         const account = fields.account_id ? AccountStore.accountForAccountId(fields.account_id) : AccountStore.getSelectedAccount()
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        let body = fields.body || ''
+        const body = fields.body || ''
         return Promise.resolve(_.extend({
-            body: body,
+            body,
             subject: '',
             clientId: NylasUtils.generateTempId(),
             from: [NylasUtils.defaultMe(account)],
@@ -18,7 +18,8 @@ class DraftFactory {
             cc: [],
             bcc: [],
             date: new Date().getTime() / 1000,
-            account_id: account.accountId
+            account_id: account.accountId,
+            draft: true
         }, fields))
     }
 
@@ -28,12 +29,12 @@ class DraftFactory {
 
         const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
 
-        let body = ''
+        const body = ''
 
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Re:'),
-            to: to,
-            cc: cc,
+            to,
+            cc,
             thread_id: message.thread_id,
             reply_to_message_id: message.id,
             account_id: message.account_id,
@@ -52,10 +53,10 @@ class DraftFactory {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        let body = ''
+        const body = ''
 
-        const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c)=>NylasUtils.contactDisplayFullname(c)).join(', '));
-        let fields = [];
+        const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c) => NylasUtils.contactDisplayFullname(c)).join(', '))
+        const fields = []
         if (message.from.length > 0) fields.push(`From: ${contactsAsHtml(message.from)}`)
         fields.push(`Subject: ${message.subject}`)
         fields.push(`Date: ${NylasUtils.formattedDateForMessage(message)}`)

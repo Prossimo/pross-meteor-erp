@@ -14,7 +14,7 @@ export default class MessageItemContainer extends React.Component {
     }
 
     constructor(props) {
-        super(props);
+        super(props)
         this.state = this._getStateFromStores()
     }
 
@@ -37,7 +37,7 @@ export default class MessageItemContainer extends React.Component {
     }
 
     focus() {
-        this.refs.message.focus();
+        this.refs.message.focus()
     }
 
     render() {
@@ -53,7 +53,7 @@ export default class MessageItemContainer extends React.Component {
 
 
     _renderMessage({pending}) {
-        const classnames = this._classNames();
+        const classnames = this._classNames()
         return <ItemMessage
             ref="message"
             pending={pending}
@@ -65,7 +65,7 @@ export default class MessageItemContainer extends React.Component {
         />
     }
 
-    _renderComposer() {
+    _renderComposer() {return <div>This should show composer</div>
         /*Composer = ComponentRegistry.findComponentsMatching({role: 'Composer'})[0]
          if (!Composer)
          return <span></span>
@@ -83,12 +83,12 @@ export default class MessageItemContainer extends React.Component {
 
     _classNames() {
         return classnames({
-            "draft": this.props.message.draft,
-            "unread": this.props.message.unread,
-            "collapsed": this.props.collapsed,
-            "message-item-wrap": true,
-            "before-reply-area": this.props.isBeforeReplyArea
-        });
+            'draft': this.props.message.draft,
+            'unread': this.props.message.unread,
+            'collapsed': this.props.collapsed,
+            'message-item-wrap': true,
+            'before-reply-area': this.props.isBeforeReplyArea
+        })
     }
 
     _onSendingStateChanged(draftClientId) {

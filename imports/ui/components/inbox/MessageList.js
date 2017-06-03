@@ -27,7 +27,7 @@ class MessageList extends React.Component {
         })
     }
 
-    onMessageStoreChanged() {
+    onMessageStoreChanged() {console.log(MessageStore.messages())
         const newState = this._getStateFromStore()
 
         if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)

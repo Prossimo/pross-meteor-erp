@@ -7,7 +7,7 @@ import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
 
-ComposeType = {
+const ComposeType = {
     Creating: 'creating',
     Replying: 'replying',
     ReplyingAll: 'replying all',
@@ -15,7 +15,7 @@ ComposeType = {
 }
 class DraftStore extends Reflux.Store {
     constructor() {
-        super();
+        super()
         this.listenTo(Actions.composeNew, this._onComposeNew)
         this.listenTo(Actions.composeReply, this._onComposeReply)
         this.listenTo(Actions.composeForward, this._onComposeForward)
@@ -36,8 +36,8 @@ class DraftStore extends Reflux.Store {
 
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
-                modal: modal,
-                show: show
+                modal,
+                show
             }
 
             this.trigger()
@@ -48,7 +48,7 @@ class DraftStore extends Reflux.Store {
         if (!message) return
 
 
-        let existingDraft = this.draftForReply(message.thread_id, message.id)
+        const existingDraft = this.draftForReply(message.thread_id, message.id)
 
         if (existingDraft) {
             const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
@@ -57,7 +57,7 @@ class DraftStore extends Reflux.Store {
 
             this._draftsViewState[existingDraft.clientId] = {
                 clientId: existingDraft.clientId,
-                modal: modal,
+                modal,
                 show: true
             }
             this.trigger()
@@ -68,7 +68,7 @@ class DraftStore extends Reflux.Store {
 
                 this._draftsViewState[draft.clientId] = {
                     clientId: draft.clientId,
-                    modal: modal,
+                    modal,
                     show: true
                 }
 
@@ -85,7 +85,7 @@ class DraftStore extends Reflux.Store {
 
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
-                modal: modal,
+                modal,
                 show: true
             }
 
@@ -93,8 +93,7 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    createDraftForQuoteEmail = (data = {}) => {
-        return new Promise((resolve, reject) => {
+    createDraftForQuoteEmail = (data = {}) => new Promise((resolve, reject) => {
             DraftFactory.createDraft(data).then((draft) => {
 
                 this._drafts.push(draft)
@@ -106,7 +105,6 @@ class DraftStore extends Reflux.Store {
                 resolve(draft)
             })
         })
-    }
 
     _onSendDraft(clientId) {
         const draft = this.draftForClientId(clientId)
@@ -146,7 +144,7 @@ class DraftStore extends Reflux.Store {
             })
         }
 
-        Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res)=>{
+        Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res) => {
             console.log('======sendMailToSlack', err, res)
         })
 
@@ -225,7 +223,7 @@ class DraftStore extends Reflux.Store {
         if (!draft) return
 
         if(draft.uploads) {
-            draft.uploads.forEach((upload)=>{
+            draft.uploads.forEach((upload) => {
                 upload.cancel()
             })
         }
@@ -244,9 +242,9 @@ class DraftStore extends Reflux.Store {
     }
 
     draftViewStateForModal() {
-        states = _.values(this._draftsViewState)
+        const states = _.values(this._draftsViewState)
 
-        stateForModal = _.findWhere(states, {modal: true})
+        const stateForModal = _.findWhere(states, {modal: true})
 
         return stateForModal
     }
@@ -254,7 +252,7 @@ class DraftStore extends Reflux.Store {
     isUploadingDraftFiles(clientId) {
         const draft = this.draftForClientId(clientId)
 
-        return draft.uploads && draft.uploads.some(upload=>upload.isUploading())
+        return draft.uploads && draft.uploads.some(upload => upload.isUploading())
     }
 }
 
