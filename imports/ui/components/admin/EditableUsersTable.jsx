@@ -122,9 +122,9 @@ class EditableUsersTable extends Component{
   activeFormatterStatus(cell, row, enumObject, index) {
     switch (cell) {
       case 'pending': return 'Pending'
-      case 'active': return 'Actived'
+      case 'active': return 'Active'
       // old data that doesn't have status field
-      default: return 'Actived'
+      default: return 'Active'
     }
   }
 
