@@ -264,7 +264,6 @@ class ItemMessage extends React.Component {
     }
 
     _onClickHeader = (e) => {
-        console.log('_onClickHeader')
 
         if (this.state.detailedHeaders) return
 
