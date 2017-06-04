@@ -44,10 +44,14 @@ class EditableUsersTable extends Component{
     Meteor.call('adminCreateUser', userData, (err) => {
       if (err) return warning(err.reason ? err.reason : err.error)
       info('Successful create user!')
+      Meteor.call('inviteUserToSlack', row.email, (err) => {
+        if (err) return warning(err.reason ? err.reason : err.error)
+        info('Successful invited user to Slack!')
+      })
     })
   }
 
-  onAfterSaveCell(row, cellName, cellValue) {
+  onAfterSaveCell(row) {
     const userData = {
       firstName: row.firstName,
       lastName: row.lastName,
@@ -79,7 +83,7 @@ class EditableUsersTable extends Component{
   }
 
   // validator function pass the user input value and row object. In addition, a bool return value is expected
-  usernameValidator(value, row) {
+  usernameValidator(value) {
     const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } }
     const uniqueUsername = this.props.createdUsers.filter(person => { if (person.username !== value) return true} )
     if (!value) {
@@ -97,7 +101,7 @@ class EditableUsersTable extends Component{
   }
 
   // validator function pass the user input value and row object. In addition, a bool return value is expected
-  emailValidator(value, row) {
+  emailValidator(value) {
     const response = { isValid: true, notification: { type: 'success', msg: '', title: '' } }
     const uniqueUsername = this.props.createdUsers.filter(person => { if (person.email !== value) return true} )
     if (!value) {
@@ -119,7 +123,7 @@ class EditableUsersTable extends Component{
     return response
   }
 
-  activeFormatterStatus(cell, row, enumObject, index) {
+  activeFormatterStatus(cell) {
     switch (cell) {
       case 'pending': return 'Pending'
       case 'active': return 'Active'
