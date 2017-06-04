@@ -1,41 +1,44 @@
-import React from 'react';
-import classNames from 'classnames';
-import AllSalesRecords from '../components/salesRecord/AllSalesRecords';
-import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord';
+import React from 'react'
+import classNames from 'classnames'
+import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
+import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord'
 
 class ProjectsPage extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
 
         this.tabs = [
             {
-                label: "All Deals",
+                label: 'All Deals',
                 component: <AllSalesRecords showAllDeals/>
             },
             {
 
-                label: "Add Deal",
+                label: 'Add Deal',
                 component: <CreateSalesRecord/>
             }
-        ];
+        ]
 
         this.state ={
             activeTab: this.tabs[0]
         }
     }
-
+    componentDidMount() {
+      //update slack user manually
+      Meteor.call('getSlackUsers')
+    }
      getTabs(){
-        const { activeTab } = this.state;
-
-        return <ul>
-            {this.tabs.map(item=>{
-                return (
-                    <li key={item.label}
-                        onClick={this.toggleTab.bind(this, item)}
-                        className={classNames({"active": item === activeTab})}
-                    >{item.label}</li>
-                )
-            })}
+        const { activeTab } = this.state
+        return
+         <ul>
+          {this.tabs.map(item =>
+              (
+                  <li key={item.label}
+                      onClick={this.toggleTab.bind(this, item)}
+                      className={classNames({'active': item === activeTab})}
+                  >{item.label}</li>
+              )
+          )}
         </ul>
     }
 
@@ -44,8 +47,8 @@ class ProjectsPage extends React.Component{
     }
 
     getContent(){
-        const { activeTab } = this.state;
-        if(!activeTab.component) return null;
+        const { activeTab } = this.state
+        if(!activeTab.component) return null
 
         return React.cloneElement(activeTab.component, this.props)
     }
@@ -65,4 +68,4 @@ class ProjectsPage extends React.Component{
         )
     }
 }
-export default ProjectsPage;
+export default ProjectsPage

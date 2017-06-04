@@ -278,7 +278,10 @@ class SingleSalesRecord extends React.Component{
     // const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
     const membersIds = salesRecord.members.map(i => i.userId)
     const members = users
-      .filter(user => membersIds.indexOf(user._id)<0) // do not contain current user
+      .filter(user => (membersIds.indexOf(user._id)<0)
+                        && user.status !== 'pending'
+                        && user.slack
+                      ) // do not contain current user and not in pending status
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
       .map(user => ({
           label: `${getUserName(user, true)} ${getUserEmail(user)}`,

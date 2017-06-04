@@ -239,8 +239,8 @@ class AllSalesRecords extends React.Component{
         // TODO: update salesRecord at here
         const { type } = this.state.possibleColumns.find(({ key }) => key === this.state.edittingCell.key)
         const _id = this.state.edittingCell._id
-        console.log(_id)
-        let { key, value } = this.state.edittingCell
+        let { value } = this.state.edittingCell
+        const { key } = this.state.edittingCell
         switch (type) {
             case 'date':
                 value = value.toDate()

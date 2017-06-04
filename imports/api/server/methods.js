@@ -249,13 +249,13 @@ Meteor.methods({
         firstName,
         lastName,
       },
-      status: 'active'
     })
 
     Meteor.users.update(createdUserId, {
       $set: {
         createdBy: this.userId,
         roles: [role],
+        status: 'active'
       }
     })
 
@@ -266,6 +266,7 @@ Meteor.methods({
   },
 
   adminEditUser(userId, userFields){
+    console.log('userFields', userFields)
     check(userId, String)
     check(userFields, {
       firstName: String,
@@ -273,9 +274,12 @@ Meteor.methods({
       role: String,
       status: String
     })
+
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
     if (Roles.userIsInRole(this.userId), role === ROLES.ADMIN) throw new Meteor.Error('Can not set current user as super admin')
     const { firstName, lastName, role, status } = userFields
+    const user = Meteor.users.findOne({_id: userId}, {fields: {status: 1, emails: 1}})
+
     Meteor.users.update(userId, {
       $set: {
         'profile.firstName': firstName,
@@ -284,6 +288,9 @@ Meteor.methods({
         status
       }
     })
+    if (user.status === 'pending' && status === 'active') {
+      Meteor.call('inviteUserToSlack', getUserEmail(user))
+    }
   },
 
   adminRemoveUser(userIds) {
@@ -564,6 +571,22 @@ Meteor.methods({
     //console.log(file)
 
     return response.data.file.permalink_public
+  },
+
+  inviteUserToSlack(email){
+    check(email, String)
+
+    HTTP.post(`${SLACK_API_ROOT}/users.admin.invite`, {
+      params: {
+        token: SLACK_API_KEY,
+        email
+      }
+    }, requestCb)
+
+    function requestCb(err, res) {
+      if (err || !res.data.ok) {console.log(err); return}
+      // Meteor.call('getSlackUsers')
+    }
   },
 
   getSlackUsers(){
