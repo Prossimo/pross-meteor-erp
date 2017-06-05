@@ -146,10 +146,6 @@ class Aside extends React.Component{
                         label: 'Inbox',
                         route: 'InboxSettings'
                     },
-                    {
-                        label: 'Google Drive',
-                        route: 'GoogleDriveSettings'
-                    }
                 ]
             }
         ]
@@ -166,6 +162,18 @@ class Aside extends React.Component{
                 return item
             })
         }
+
+      if(Roles.userIsInRole(props.currentUser._id, [ROLES.ADMIN])) {
+        this.pages = this.pages.map(item => {
+          if(item.label === 'Settings'){
+            item.subItems.push({
+              label: 'Google Drive',
+              route: 'GoogleDriveSettings'
+            })
+          }
+          return item
+        })
+      }
     }
 
     renderList(){
