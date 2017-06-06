@@ -18,6 +18,9 @@ import Invoices from './Invoices'
 import Documents from './Documents'
 import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
+import { createContainer } from 'meteor/react-meteor-data'
+import People from '/imports/api/models/people/people'
+import Designations from '/imports/api/models/people/designations'
 
 class SingleSalesRecord extends React.Component{
   constructor(props){
@@ -131,42 +134,35 @@ class SingleSalesRecord extends React.Component{
     }
   }
 
-  removeStakeholder(salesRecordId, contactId, event) {
+  removeStakeholder(salesRecordId, peopleId, event) {
     event.preventDefault()
-    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , contactId, (error, result) => {
+    Meteor.call('removeStakeholderFromSalesRecord', salesRecordId , peopleId, (error, result) => {
       if(error) return warning(error.reason? error.reason : 'remove stakeholder failed!')
       info('remove stakeholder success!')
     })
   }
 
   renderStakeholders() {
-    const salesRecord = this.props.salesRecord
-    const stakeholders = salesRecord && salesRecord.stakeholders ? salesRecord.stakeholders : []
     return (
       <ul className="project-members">
       {
-        stakeholders.map(({ contactId, category }) => {
-          let email = 'unknown'
-          const contact = this.contacts[contactId]
-          if (contact && contact.email) {
-            if (contact.email.length > 34)
-              email = `${contact.email.slice(0, 34)  }...`
-            else
-              email = contact.email
-          }
+        this.props.people.map(people => {
+          const { _id, emails, name, role } = people
+          const emailString = (emails || []).map(({ email }) => email).join('')
+          const nameString = emailString ? `${name}(${emailString})` : name
           return (
-            <li key={contactId} className='member-list'>
+            <li key={_id} className='member-list'>
               {
                 Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
-                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeStakeholder(salesRecord._id, contactId, event)}>
+                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeStakeholder(this.props.salesRecord._id, _id, event)}>
                     <span className='fa fa-times pull-right'></span>
                   </a>
                 ) : ''
               }
-              <span className='memberName' onClick={() => this.showContactInfo(contact)}>{ email }</span>
+              <span className='memberName' onClick={() => this.showContactInfo(name, emailString)}>{nameString}</span>
               <div>
               {
-                category.map((name) => (<span className='member-cat' key={name}>{name}</span>))
+                <span className='member-cat' key={role}>{role}</span>
               }
               </div>
             </li>
@@ -448,7 +444,7 @@ class SingleSalesRecord extends React.Component{
         editable={Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)}/>})
   }
 
-  showContactInfo(contact) {
+  showContactInfo(name, email) {
     this.setState({
       showPopup: true,
       popupTitle: 'Stakeholder Info',
@@ -456,11 +452,11 @@ class SingleSalesRecord extends React.Component{
         <div>
           <div className='form-group'>
             <label>Name</label>
-            <p style={{overflow: 'auto'}}>{contact.name}</p>
+            <p style={{overflow: 'auto'}}>{name}</p>
           </div>
           <div className='form-group'>
             <label>Email</label>
-            <p style={{overflow: 'auto'}}>{contact.email}</p>
+            <p style={{overflow: 'auto'}}>{email}</p>
           </div>
         </div>
       )
@@ -531,4 +527,16 @@ class SingleSalesRecord extends React.Component{
     )
   }
 }
-export default SingleSalesRecord
+
+export default createContainer(props => {
+  const { salesRecord: { stakeholders = [] } } = props
+  const peopleIds = stakeholders.map(({ peopleId }) => peopleId)
+  const people = People
+    .find({_id: { $in: peopleIds }})
+    .fetch()
+    .map(p => p.designation = Designations.findOne(p.designation_id) && p )
+
+  return {
+    people,
+  }
+}, SingleSalesRecord)
