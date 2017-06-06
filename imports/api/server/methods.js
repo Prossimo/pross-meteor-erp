@@ -386,9 +386,7 @@ Meteor.methods({
   addStakeholderToSalesRecord(salesRecordId, stakeholder) {
     check(salesRecordId, String)
     check(stakeholder, {
-      contactId: String,
-      destination: Match.OneOf(String, null),
-      category: Match.OneOf([String], []),
+      peopleId: String,
       notify: Boolean,
     })
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')

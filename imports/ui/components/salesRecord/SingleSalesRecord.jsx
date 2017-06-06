@@ -78,9 +78,7 @@ class SingleSalesRecord extends React.Component{
         selectedCategory: [],
       },
       stakeholder: {
-        selectedContact: null,
-        selectedCategory: [],
-        selectedDesignation: null,
+        selectedPeople: null,
         notify: true,
       },
       memberType: this.memberTypeOptions[0],
@@ -146,7 +144,7 @@ class SingleSalesRecord extends React.Component{
     return (
       <ul className="project-members">
       {
-        this.props.people.map(people => {
+        this.props.stakeholders.map(people => {
           const { _id, emails, name, role } = people
           const emailString = (emails || []).map(({ email }) => email).join('')
           const nameString = emailString ? `${name}(${emailString})` : name
@@ -233,46 +231,17 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderAddStakeholderForm() {
-    const { stakeholder: { selectedContact, selectedCategory, selectedDesignation, notify}} = this.state
-    const designationOptions = DESIGNATION_LIST.map(item => ({label: item, value: item}))
-    const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
-    const selectContactOptions = ContactStore.getContacts(1)
-      .filter(({ _id }) => !this.props.salesRecord.stakeholders.map(({ contactId }) => contactId).includes(_id))
-      .map(({ _id, name, email }) => ({
-          label: `${email}`,
-          value: _id,
-      }))
-
+    const { stakeholder: { selectedPeople, notify}} = this.state
+    const peopleOptions = this.props.candidateStakeholders.map(({ name, _id }) => ({ value: _id, label: name }))
     if(Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
         return (
             <div className='form'>
                 <div className='form-group'>
                     <Select
-                      value={selectedContact}
-                      placeholder="Choose stakeholder"
-                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedContact', item)}
-                      options={selectContactOptions}
-                      className={'members-select'}
-                      clearable={false}
-                    />
-                </div>
-                <div className="form-group">
-                    <Select
-                      value={selectedDesignation}
-                      placeholder="Stakeholder designation"
-                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedDesignation', item)}
-                      options={designationOptions}
-                      className={'members-select'}
-                      clearable={false}
-                    />
-                </div>
-                <div className="form-group">
-                    <Select
-                      multi
-                      placeholder="Stakehoder categories"
-                      value={selectedCategory}
-                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedCategory', item)}
-                      options={categoryOptions}
+                      value={selectedPeople}
+                      placeholder="Choose People"
+                      onChange={(item) => this.changeState(this.state.stakeholder, 'selectedPeople', item)}
+                      options={peopleOptions}
                       className={'members-select'}
                       clearable={false}
                     />
@@ -359,13 +328,11 @@ class SingleSalesRecord extends React.Component{
   }
 
   addStakeholder() {
-    const { stakeholder: { selectedContact, selectedDesignation, selectedCategory, notify } } = this.state
+    const { stakeholder: { selectedPeople, notify } } = this.state
     const { salesRecord } = this.props
-    if(_.isNull(selectedContact)) return warning('Choose stakeholder')
+    if(!selectedPeople) return warning('Choose stakeholder')
     const stakeholder = {
-      contactId: selectedContact.value,
-      destination: _.isNull(selectedDesignation) ? null : selectedDesignation.value,
-      category: selectedCategory.map(item => item.value),
+      peopleId: selectedPeople.value,
       notify,
     }
     Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result) => {
@@ -373,9 +340,7 @@ class SingleSalesRecord extends React.Component{
       this.setState({
         stakeholder: {
           notify: true,
-          selectedContact: null,
-          selectedDesignation: null,
-          selectedCategory: [],
+          selectedPeople: null,
         }
       })
       info('Add stakeholder to salesRecord success!')
@@ -529,14 +494,14 @@ class SingleSalesRecord extends React.Component{
 }
 
 export default createContainer(props => {
-  const { salesRecord: { stakeholders = [] } } = props
-  const peopleIds = stakeholders.map(({ peopleId }) => peopleId)
-  const people = People
+  const peopleIds = props.salesRecord.stakeholders.map(({ peopleId }) => peopleId)
+  const stakeholders = People
     .find({_id: { $in: peopleIds }})
     .fetch()
     .map(p => p.designation = Designations.findOne(p.designation_id) && p )
-
+  const candidateStakeholders = People.find({ _id: {$nin: peopleIds} }).fetch()
   return {
-    people,
+    stakeholders,
+    candidateStakeholders,
   }
 }, SingleSalesRecord)
