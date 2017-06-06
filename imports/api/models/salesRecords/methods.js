@@ -48,12 +48,12 @@ Meteor.methods({
     }
   },
 
-  removeStakeholderFromSalesRecord(salesRecordId, contactId) {
+  removeStakeholderFromSalesRecord(salesRecordId, peopleId) {
     check(salesRecordId, String)
-    check(contactId, String)
+    check(peopleId, String)
 
     if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-      return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {contactId}}})
+      return SalesRecords.update(salesRecordId, {$pull: {stakeholders: { peopleId }}})
     }
   },
 
