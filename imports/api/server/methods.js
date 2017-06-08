@@ -183,7 +183,7 @@ Meteor.methods({
     check(userId, String)
     check(channel, String)
 
-    const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}})
+      const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}})
 
     if (!user) throw new Meteor.Error('User don`t integrate with slack')
 
@@ -262,6 +262,13 @@ Meteor.methods({
     if (createdUserId) Meteor.call('initVisiableFields', createdUserId)
 
     Meteor.defer(() => Accounts.sendEnrollmentEmail(createdUserId))
+    // Meteor.defer(() => {Meteor.call('sendEmail', {
+    //    to: email,
+    //    from: 'Prossimo Service',
+    //    replyTo: 'test@gmail.com',
+    //    subject: 'Acive user',
+    //    html: '<div>Your account is actived</div>',
+    // })})
     return createdUserId
   },
 

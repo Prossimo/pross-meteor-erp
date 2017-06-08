@@ -60,7 +60,7 @@ gilbertwat:bootstrap3-daterangepicker
 meteorhacks:picker
 react-meteor-data
 froatsnook:request
-npm-container
+#npm-container
 mdg:validated-method
 reywood:publish-composite
 ultimatejs:tracker-react
@@ -70,3 +70,6 @@ underscore
 fourseven:scss
 random
 picker
+
+
+npm-container

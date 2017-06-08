@@ -20,6 +20,8 @@ class SelectSubStage extends Component {
     const stages = this.getSubStages()
     if (!_.isEmpty(stages)) {
       this.setState({subStage: stages[0]})
+      this.props.onSelectSubStage(stages[0])
+
     }
   }
   componentWillReceiveProps(props) {
