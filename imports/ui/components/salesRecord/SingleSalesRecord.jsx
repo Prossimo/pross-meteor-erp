@@ -368,26 +368,6 @@ class SingleSalesRecord extends React.Component{
       this.setState({showAddMemeberModal: false})
       info('Add team members to saleRecord success!')
     })
-    {/*
-      const member = {
-        userId: selectedUser.value,
-        isMainStakeholder: false,
-        category: selectedCategory.map(i => i.value)
-      }
-
-      Meteor.call('addMemberToProject', salesRecord._id, member, err => {
-        if(err) return warning(err.reason? err.reason : 'Add team member failed!')
-        this.setState({
-          member: {
-            selectedUser: null,
-            selectedCategory: []
-          }
-        })
-        info('Add team member to salesRecord success!')
-      })
-
-
-    */}
     Meteor.defer(() => {
       _.each(members, (member) => {
         Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, (err, res) => {
@@ -485,7 +465,7 @@ class SingleSalesRecord extends React.Component{
             <div className='sidebar-box'>
               { this.renderStakeholders() }
             </div>
-            <h4>Vendors</h4>
+            <h4>Team members</h4>
             <div className='sidebar-box'>
               { this.renderProjectMembers() }
             </div>

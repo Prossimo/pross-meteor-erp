@@ -23,22 +23,18 @@ class ProjectsPage extends React.Component{
             activeTab: this.tabs[0]
         }
     }
-    componentDidMount() {
-      //update slack user manually
-      Meteor.call('getSlackUsers')
-    }
-     getTabs(){
+
+    getTabs(){
         const { activeTab } = this.state
-        return
-         <ul>
-          {this.tabs.map(item =>
-              (
-                  <li key={item.label}
-                      onClick={this.toggleTab.bind(this, item)}
-                      className={classNames({'active': item === activeTab})}
-                  >{item.label}</li>
-              )
-          )}
+        return <ul>
+            {this.tabs.map(item=>{
+                return (
+                    <li key={item.label}
+                        onClick={this.toggleTab.bind(this, item)}
+                        className={classNames({"active": item === activeTab})}
+                    >{item.label}</li>
+                )
+            })}
         </ul>
     }
 
