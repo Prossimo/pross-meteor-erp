@@ -104,7 +104,9 @@ class SingleSalesRecord extends React.Component{
       this.contacts[contact._id] = contact
     })
   }
-
+  componentDidMount() {
+    Meteor.call('getSlackUsers')
+  }
 
   toggleTab(activeTab){
     this.setState({activeTab})
@@ -284,7 +286,7 @@ class SingleSalesRecord extends React.Component{
                       ) // do not contain current user and not in pending status
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
       .map(user => ({
-          label: `${getUserName(user, true)} ${getUserEmail(user)}`,
+          label: `${getUserName(user, true)}, ${getUserEmail(user)}`,
           value: user._id,
           roles: user.roles.toString()
         }))
@@ -302,7 +304,7 @@ class SingleSalesRecord extends React.Component{
                        (
                         <li className="list-group-item" key={member.value}>
                           <input type="checkbox" onClick={this.addMemberToState.bind('', `${member.value}-${member.roles}`)}/> &nbsp;
-                          {member.label} - {member.roles}
+                          {member.label}, {member.roles}
                         </li>
                         )
                       )

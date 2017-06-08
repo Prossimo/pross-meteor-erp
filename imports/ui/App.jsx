@@ -86,7 +86,11 @@ export default createContainer(() => {
 
     const currentUser = Meteor.users.findOne(Meteor.userId())
     const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch()
-    const users = Meteor.users.find().fetch()
+    const users = Meteor.users.find({}, {
+        sort: [
+            ["profile.firstName", "asc"],
+        ]
+    }).fetch()
     const usersArr = {}
     users.forEach(item => {
         usersArr[item._id] = item
