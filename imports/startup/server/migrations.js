@@ -24,7 +24,7 @@ Migrations.add({
     name: 'Add company types',
     up() {
         console.log('=== migrate up to version 2')
-        const types = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultat', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
+        const types = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultant', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
 
         types.forEach((type) => CompanyTypes.insert({name:type}))
     },
@@ -41,7 +41,7 @@ Migrations.add({
         const designations = [{
             name: 'Stakeholder',
             role_addable: true,
-            roles: ['Developer', 'Architectect', 'GC', 'Contractor', 'Installer', 'Energy Consultant', 'Facade Consultant']
+            roles: ['Developer', 'Architect', 'GC', 'Contractor', 'Installer', 'Energy Consultant', 'Facade Consultant']
         },{
             name: 'Vendor',
             role_addable: true,
