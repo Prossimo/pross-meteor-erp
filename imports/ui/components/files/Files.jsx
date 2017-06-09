@@ -48,6 +48,18 @@ class Files extends Component {
     this.downloadFile = this.downloadFile.bind(this)
     this.openExternal = this.openExternal.bind(this)
     this.createNewFile = this.createNewFile.bind(this)
+    this.checkRemoteFolder = _.once(({ folderId, name, type, _id }) => {
+      Meteor.call('drive.getFiles', { fileId: folderId }, error => {
+        if (error) {
+          switch (type) {
+            case 'project':
+              return Meteor.call('drive.createProjectFolder', { projectId:  _id, name}, this.listFiles)
+            case 'salesRecord':
+              return Meteor.call('drive.createSalesRecordFolder', { salesRecordId: _id, name }, this.listFiles)
+          }
+        }
+      })
+    })
   }
 
   openFile(folderId, name, mimeType) {
@@ -281,6 +293,25 @@ class Files extends Component {
   }
 
   render() {
+    const { salesRecord, project } = this.props
+    if (project) {
+      const { _id, folderId, name } = project
+      this.checkRemoteFolder({
+        _id,
+        type: 'project',
+        folderId ,
+        name,
+      })
+    }
+    if (salesRecord) {
+      const { _id, folderId, name } = salesRecord
+      this.checkRemoteFolder({
+        _id,
+        type: 'salesRecord',
+        folderId,
+        name,
+      })
+    }
     return (
       <FileManager>
         <FileUploader
