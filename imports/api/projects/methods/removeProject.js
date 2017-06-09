@@ -10,15 +10,11 @@ const SLACK_API_KEY = config.slack.apiKey
 
 Meteor.methods({
   removeProject({ _id, isRemoveFolders, isRemoveSlack }) {
-    check({
-      _id,
-      isRemoveFolders,
-      isRemoveSlack,
-    }, new SimpleSchema({
-      _id: { type: String },
-      isRemoveFolders: { type: Boolean },
-      isRemoveSlack: { type: Boolean },
-    }))
+    new SimpleSchema({
+      _id: String,
+      isRemoveFolders: Boolean,
+      isRemoveSlack: Boolean,
+    }).validate({ _id, isRemoveFolders, isRemoveSlack })
 
     if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
       const project = Projects.findOne(_id)
