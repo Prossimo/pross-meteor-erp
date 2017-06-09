@@ -11,39 +11,37 @@ class TaskQueue extends Reflux.Store {
         this._currentSequentialId = Date.now()
 
         this.listenTo(Actions.queueTask, this.enqueue)
-        this.listenTo(Actions.queueTasks, (tasks)=>{
-            if(!(tasks && tasks.length>0)) return;
+        this.listenTo(Actions.queueTasks, (tasks) => {
+            if(!(tasks && tasks.length>0)) return
 
-            tasks.forEach((t)=>this.enqueue(t))
+            tasks.forEach((t) => this.enqueue(t))
         })
     }
 
-    queue = () => {
-        return this._queue
-    }
+    queue = () => this._queue
 
     enqueue = (task) => {
         if (!(task instanceof Task))
             throw new Error('You must queue a `Task` instance')
 
         if (!task.id)
-            throw new Error("Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`")
+            throw new Error('Tasks must have an ID prior to being queued. Check that your Task constructor is calling `super`')
 
         if (!task.queueState)
-            throw new Error("Tasks must have a queueState prior to being queued. Check that your Task constructor is calling `super`")
+            throw new Error('Tasks must have a queueState prior to being queued. Check that your Task constructor is calling `super`')
 
         task.sequentialId == ++this._currentSequentialId
 
         this._dequeueObsoleteTasks(task)
 
         task.runLocal().then(() => {
-            this._queue.push(task);
+            this._queue.push(task)
             this._updateSoon()
         })
     }
 
     _dequeueObsoleteTasks = (task) => {
-        obsolete = _.filter(this._queue, (otherTask) => {
+        const obsolete = _.filter(this._queue, (otherTask) => {
             // Do not interrupt tasks which are currently processing
             if (otherTask.queueState.isProcessing) return false
 
@@ -54,7 +52,7 @@ class TaskQueue extends Reflux.Store {
             return task.shouldDequeueOtherTask(otherTask)
         })
 
-        for (otherTask of obsolete) {
+        for (const otherTask of obsolete) {
             otherTask.queueState.status = Task.Status.Continue
             otherTask.queueState.debugStatus = Task.DebugStatus.DequeuedObsolete
             this.dequeue(otherTask)
@@ -62,10 +60,10 @@ class TaskQueue extends Reflux.Store {
     }
 
     dequeue = (taskOrId) => {
-        task = this._resolveTaskArgument(taskOrId)
+        const task = this._resolveTaskArgument(taskOrId)
 
         if (!task)
-            throw new Error("Couldn't find task in queue to dequeue")
+            throw new Error('Couldn\'t find task in queue to dequeue')
 
         if (task.queueState.isProcessing) {
 
@@ -104,18 +102,18 @@ class TaskQueue extends Reflux.Store {
     }
 
     _processQueue = () => {
-        started = 0
+        let started = 0
 
         if (this._processQueueTimeout) {
             clearTimeout(this._processQueueTimeout)
             this._processQueueTimeout = null
         }
 
-        now = Date.now()
-        reprocessIn = Number.MAX_VALUE
+        const now = Date.now()
+        let reprocessIn = Number.MAX_VALUE
 
 
-        for (var i = this._queue.length-1; i >= 0; i-=1) {
+        for (let i = this._queue.length-1; i >= 0; i-=1) {
             const task = this._queue[i]
             if (this._taskIsBlocked(task)) {
                 task.queueState.debugStatus = Task.DebugStatus.WaitingOnDependency
@@ -175,7 +173,7 @@ class TaskQueue extends Reflux.Store {
     }
 
     _ensurePeriodicUpdates = () => {
-        anyIsProcessing = _.any(this._queue, (task) => task.queueState.isProcessing)
+        const anyIsProcessing = _.any(this._queue, (task) => task.queueState.isProcessing)
 
         // The task queue triggers periodically as tasks are processed, even if no
         // major events have occurred. This allows tasks which have state, like
@@ -191,18 +189,14 @@ class TaskQueue extends Reflux.Store {
         }
     }
 
-    _taskIsBlocked = (task) => {
-        return _.any(this._queue, (otherTask) => task.isDependentOnTask(otherTask) && task != otherTask)
-    }
+    _taskIsBlocked = (task) => _.any(this._queue, (otherTask) => task.isDependentOnTask(otherTask) && task != otherTask)
 
-    _tasksDependingOn = (task) => {
-        return _.filter(this._queue, (otherTask) => otherTask.isDependentOnTask(task) && task != otherTask)
-    }
+    _tasksDependingOn = (task) => _.filter(this._queue, (otherTask) => otherTask.isDependentOnTask(task) && task != otherTask)
 
 
     // Recursively notifies tasks of dependent errors
     _notifyOfDependentError = (failedTask, err) => {
-        downstream = this._tasksDependingOn(failedTask) || []
+        const downstream = this._tasksDependingOn(failedTask) || []
         return Promise.map(downstream, (downstreamTask) => {
             if (!downstreamTask) return Promise.resolve(null)
 
@@ -211,9 +205,9 @@ class TaskQueue extends Reflux.Store {
             if(this._seenDownstream[downstreamTask.id]) return Promise.resolve(null)
             this._seenDownstream[downstreamTask.id] = true
 
-            responseHash = Promise.props({
+            const responseHash = Promise.props({
                 returnValue: downstreamTask.onDependentTaskError(failedTask, err),
-                downstreamTask: downstreamTask
+                downstreamTask
             })
 
 

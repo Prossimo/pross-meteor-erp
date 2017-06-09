@@ -6,6 +6,8 @@ import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
 import {SalesRecords} from '/imports/api/models'
 import NylasUtils from './nylas-utils'
+import DatabaseStore from './database-store'
+import ThreadStore from './thread-store'
 
 class MessageStore extends Reflux.Store {
     constructor(salesRecord=null) {
@@ -24,7 +26,6 @@ class MessageStore extends Reflux.Store {
     }
 
     _setStoreDefaults(messages) {
-        this._currentThread = null
         this._messages = []
         this._messagesExpanded = {}
         this._loading = false
@@ -38,17 +39,18 @@ class MessageStore extends Reflux.Store {
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
         this.listenTo(Actions.changedConversations, this._onLoadConversations)
+        this.listenTo(DatabaseStore, this._onDatabaseStoreChanged)
+        this.listenTo(ThreadStore, this._onThreadStoreChanged)
     }
 
     _onLoadMessages(thread) {
-
+        const currentThread = ThreadStore.currentThread()
         this._loading = true
 
-        if(!thread || !this._currentThread || thread.id !== this._currentThread.id) {
+        if(!thread || !currentThread || thread.id !== currentThread.id) {
             this._messages = []
         }
 
-        this._currentThread = thread
         this.trigger()
 
 
@@ -62,28 +64,23 @@ class MessageStore extends Reflux.Store {
             method: 'GET',
             accountId: thread.account_id
         }).then((result) => {
-            //console.log('onLoadMessage result',  result)
-            if(result && thread.id === this._currentThread.id) {
-                this._messages = result
+            if(result && result.length) {
+                if(thread.id === currentThread.id) {
 
-                this._messages.sort((m1, m2) => m1.date-m2.date)
+                    this._loading = false
 
-                this._loading = false
+                    if(currentThread.unread) {
+                        const markAsReadId = currentThread.id
+                        setTimeout(() => {
+                            if(markAsReadId!=currentThread.id || !currentThread.unread) return
 
-                this._expandMessagesToDefault()
-                this._fetchExpandedAttachments(this._messages)
-
-
-                if(this._currentThread.unread) {
-                    const markAsReadId = this._currentThread.id
-                    setTimeout(() => {
-                        if(markAsReadId!=this._currentThread.id || !this._currentThread.unread) return
-
-                        const t = new ChangeUnreadTask({thread:this._currentThread, unread:false})
-                        Actions.queueTask(t)
-                    }, 2000)
+                            const t = new ChangeUnreadTask({thread:currentThread, unread:false})
+                            Actions.queueTask(t)
+                        }, 2000)
+                    }
                 }
             }
+
         }).finally(() => {
             this.trigger()
         })
@@ -102,6 +99,27 @@ class MessageStore extends Reflux.Store {
         }
     }
 
+    _onThreadStoreChanged = () => {
+        this.refreshMessages()
+    }
+    _onDatabaseStoreChanged = (objName) => {
+        if(objName === 'message') {
+            this.refreshMessages()
+        }
+    }
+
+    refreshMessages() {
+        const thread = ThreadStore.currentThread()
+        if(!thread) return
+
+        DatabaseStore.findObjects('message', {thread_id:thread.id}).then((messages) => {
+            this._messages = messages
+            this._messages.sort((m1, m2) => m1.date-m2.date)
+            this._expandMessagesToDefault()
+            this._fetchExpandedAttachments(this._messages)
+            this.trigger()
+        })
+    }
     _onToggleMessageExpanded(id) {
         const message = _.findWhere(this._messages, {id})
 
@@ -172,7 +190,7 @@ class MessageStore extends Reflux.Store {
     }
 
     currentThread() {
-        return this._currentThread
+        return ThreadStore.currentThread()
     }
 
     messagesExpanded() {

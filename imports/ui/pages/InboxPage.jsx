@@ -34,7 +34,7 @@ class InboxPage extends React.Component {
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
-            threads: currentCategory ? ThreadStore.getThreads(currentCategory) : [],
+            threads: currentCategory ? ThreadStore.getThreads() : [],
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
         }
 
@@ -71,14 +71,13 @@ class InboxPage extends React.Component {
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
         this.setState({
-            currentCategory,
-            threads: ThreadStore.getThreads(currentCategory),
+            currentCategory
         })
     }
 
     onThreadStoreChanged = () => {
         this.setState({
-            threads: ThreadStore.getThreads(CategoryStore.currentCategory),
+            threads: ThreadStore.getThreads(),
             loadingThreads: ThreadStore.loading
         })
     }

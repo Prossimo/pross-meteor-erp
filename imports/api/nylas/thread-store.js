@@ -5,6 +5,7 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
 import SalesRecord from '../models/salesRecords/salesRecords'
+import DatabaseStore from './database-store'
 
 const PAGE_SIZE = 100
 
@@ -14,6 +15,8 @@ class ThreadStore extends Reflux.Store {
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
         this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
+        this.listenTo(DatabaseStore, this.onDatabaseStoreChanged)
+        this.listenTo(CategoryStore, this.onCategoryStoreChanged)
 
         this.threads = []
         this._currentThread = {}
@@ -38,20 +41,6 @@ class ThreadStore extends Reflux.Store {
             accountId: category.account_id
         }).then((threads) => {
             //console.log('loadThreads result', threads)
-
-            if (threads && threads.length) {
-
-                threads.forEach((t) => {
-                    const thread = _.findWhere(this.threads, {id: t.id})
-
-                    if (!thread) {
-                        this.threads.push(t)
-                    } else if (thread.version != t.version) {
-                        this.threads[_.indexOf(this.threads, thread)] = t
-                    }
-                })
-            }
-
             if (!threads || threads.length < PAGE_SIZE) {
                 this.fullyLoaded = true
             } else {
@@ -91,20 +80,34 @@ class ThreadStore extends Reflux.Store {
         })
     }
 
-    getThreads(category) {
-        const categoryId = category.id
-        return (
-            this.threads.filter((thread) => {
-                if (thread.folders) {
-                    return _.findWhere(thread.folders, {id: categoryId}) != null
-                } else if (thread.labels) {
-                    return _.findWhere(thread.labels, {id: categoryId}) != null
-                } else {
-                    return false
+    onDatabaseStoreChanged = (objName) => {
+        if(objName === 'thread') {
+            this.refreshThreads()
+        }
+    }
+
+    onCategoryStoreChanged = () => {
+        this.refreshThreads()
+    }
+
+    refreshThreads() {
+        const category = CategoryStore.currentCategory
+        if(!category) return
+
+        DatabaseStore.findObjects('thread', {account_id:category.account_id}).then((threads) => {
+            this.threads = threads.filter((thread) => {
+                if (category.object === 'folder') {
+                    return _.findWhere(thread.folders, {id: category.id}) !== undefined
+                } else if (category.object === 'label') {
+                    return _.findWhere(thread.labels, {id: category.id}) !== undefined
                 }
             }).sort((t1, t2) => t2.last_message_timestamp-t1.last_message_timestamp)
-        )
 
+            this.trigger()
+        })
+    }
+    getThreads() {
+        return this.threads
     }
 
     isLoading() {
@@ -114,9 +117,13 @@ class ThreadStore extends Reflux.Store {
     selectThread(thread) {
         this._currentThread[CategoryStore.currentCategory.id] = thread
         Actions.loadMessages(thread)
+        this.trigger()
     }
 
-    currentThread(category) {
+    currentThread(category=null) {
+        if(!category) category = CategoryStore.currentCategory
+        if(!category) return null
+
         return this._currentThread[category.id]
     }
     changeThreads(threads) {
