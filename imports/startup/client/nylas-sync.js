@@ -3,7 +3,8 @@ import '/imports/api/nylas/contact-store'
 import '/imports/api/nylas/thread-store'
 
 
-fetchContacts = () => {
+/*
+const fetchContacts = () => {
     if (Meteor.userId()) {
         Actions.loadContacts()
 
@@ -13,7 +14,7 @@ fetchContacts = () => {
 
 const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 6)
 
-fetchThreads = () => {
+const fetchThreads = () => {
     if (Meteor.userId()) {
         Actions.loadThreads()
     }
@@ -21,10 +22,10 @@ fetchThreads = () => {
 
 setInterval(fetchThreads, 1 * 1000 * 6)
 
-fetchSalesRecordThreads = () => {
+const fetchSalesRecordThreads = () => {
     if (Meteor.userId()) {
         Actions.fetchSalesRecordThreads()
     }
 }
 
-setInterval(fetchSalesRecordThreads, 1 * 1000 * 6)
+setInterval(fetchSalesRecordThreads, 1 * 1000 * 6)*/

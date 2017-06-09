@@ -1,29 +1,29 @@
 import '../models/users/users'
-import _ from 'underscore';
-import request from 'request';
-import config from '../config/config';
-import { APIError, TimeoutError } from './errors';
+import _ from 'underscore'
+import request from 'request'
+import config from '../config/config'
+import { APIError, TimeoutError } from './errors'
 
 
-const TimeoutErrorCodes = [0, "ETIMEDOUT", "ESOCKETTIMEDOUT", "ECONNRESET", "ENETDOWN", "ENETUNREACH"];
-const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, "ENOTFOUND", "ECONNREFUSED", "EHOSTDOWN", "EHOSTUNREACH"]
-const CancelledErrorCode = [-123, "ECONNABORTED"];
+const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
+const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, 'ENOTFOUND', 'ECONNREFUSED', 'EHOSTDOWN', 'EHOSTUNREACH']
+const CancelledErrorCode = [-123, 'ECONNABORTED']
 
 let AccountStore = null
 
 class NylasAPIRequest {
     constructor(api, options) {
-        options.method = options.method || 'GET';
-        options.url = options.path ? `${api.APIRoot}${options.path}` : options.url;
-        options.json = options.json || true;
-        options.timeout = options.timeout || 15000;
+        options.method = options.method || 'GET'
+        options.url = options.path ? `${api.APIRoot}${options.path}` : options.url
+        options.json = options.json || true
+        options.timeout = options.timeout || 15000
 
         if (!(options.method === 'GET' || options.formData)) {
-            options.body = options.body || {};
+            options.body = options.body || {}
         }
 
-        this.api = api;
-        this.options = options;
+        this.api = api
+        this.options = options
     }
 
     run() {
@@ -32,55 +32,55 @@ class NylasAPIRequest {
                 const err = new APIError({
                     statusCode: 400,
                     body: 'Cannot make Nylas request without specifying `auth` or an `accountId`.'
-                });
-                return Promise.reject(err);
+                })
+                return Promise.reject(err)
             }
-            const token = this.api.accessTokenForAccountId(this.options.accountId);
+            const token = this.api.accessTokenForAccountId(this.options.accountId)
             if(!token) {
                 const err = new APIError({
                     statusCode: 400,
                     body: `Cannot make Nylas request for account ${this.options.accountId} auth token.`
-                });
-                return Promise.reject(err);
+                })
+                return Promise.reject(err)
             }
 
             this.options.auth = {
                 user: token,
                 pass: '',
                 sendImmediately: true
-            };
+            }
         }
 
 
         return new Promise((resolve, reject) => {
-            const req = request(this.options, (error, response, body)=>{
+            const req = request(this.options, (error, response, body) => {
                 if(error || response.statusCode > 299) {
                     if(!response || !response.statusCode) {
-                        response = response || {};
-                        response.statusCode = TimeoutErrorCodes[0];
+                        response = response || {}
+                        response.statusCode = TimeoutErrorCodes[0]
                     }
-                    const apiError = new APIError({error, response, body, requestOptions: this.options});
-                    if(this.options.error) this.options.error(apiError);
+                    const apiError = new APIError({error, response, body, requestOptions: this.options})
+                    if(this.options.error) this.options.error(apiError)
 
-                    reject(apiError);
+                    reject(apiError)
                 } else {
-                    if(this.options.success) this.options.success(body);
-                    resolve(body);
+                    if(this.options.success) this.options.success(body)
+                    resolve(body)
                 }
-            });
+            })
 
             req.on('abort', () => {
                 const cancelled = new APIError({
                     statusCode: CancelledErrorCode,
                     body: 'Request Aborted'
-                });
-                reject(cancelled);
-            });
+                })
+                reject(cancelled)
+            })
 
             if(this.options.started) {
-                this.options.started(req);
+                this.options.started(req)
             }
-        });
+        })
     }
 }
 
@@ -92,9 +92,9 @@ class NylasAPI {
 
 
     constructor() {
-        this.AppID = config.nylas.appId;
-        this.AppSecret = config.nylas.appSecret;
-        this.APIRoot = config.nylas.apiRoot;
+        this.AppID = config.nylas.appId
+        this.AppSecret = config.nylas.appSecret
+        this.APIRoot = config.nylas.apiRoot
     }
 
     accessTokenForAccountId (aid) {
@@ -106,17 +106,16 @@ class NylasAPI {
         //console.log("makeRequest", options);
         const success = (body) => { //console.log("========NyalsAPIRequest result", body);
             if(options.beforeProcessing) {
-                body = options.beforeProcessing(body);
+                body = options.beforeProcessing(body)
             }
-            if(options.returnsModel) {
-                this.handleModelResponse(body).then((objects)=>{
-                    return Promise.resolve(body);
-                });
+
+            if(/*options.returnsModel*/Meteor.isClient) {
+                return this.handleModelResponse(body).then((objects) => Promise.resolve(body))
             }
-            return Promise.resolve(body);
+            return Promise.resolve(body)
         }
 
-        const error = (err) => { console.error("=========NyalsAPIRequest error", err);
+        const error = (err) => { console.error('=========NyalsAPIRequest error', err)
             /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {
@@ -135,65 +134,75 @@ class NylasAPI {
             return Promise.reject(err)
         }
 
-        const req = new NylasAPIRequest(this, options);
-        return req.run().then(success, error);
+        const req = new NylasAPIRequest(this, options)
+        return req.run().then(success, error)
     }
 
     handleModelResponse(jsons) {
+
         if(!jsons) {
-            return Promise.reject(new Error("handleModelResponse with no JSON provided"));
+            return Promise.reject(new Error('handleModelResponse with no JSON provided'))
         }
 
-        if(jsons instanceof Array) {
-            jsons = [jsons];
+        if(!jsons instanceof Array) {
+            jsons = [jsons]
         }
 
         if(jsons.length == 0) {
-            return Promise.resolve([]);
+            return Promise.resolve([])
         }
 
-        const type = jsons[0].object;
+        const objName = jsons[0].object
 
-        const klass = this.apiObjectToClassMap[type];
-
-        if(!klass) {
-            console.warn(`NylasAPI::handleModelResponse: Received unknown API object type: ${type}`);
-            return Promise.resolve([]);
-        }
-
-        const uniquedJSONs = _.uniq(jsons, false, (model)=>{
-            model.id;
-        });
+        const uniquedJSONs = _.uniq(jsons, false, (model) => model.id)
 
         if(uniquedJSONs.length < jsons.length) {
-            console.warn("NylasAPI::handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?")
+            console.warn('NylasAPI::handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?')
         }
 
-        const unlockedJSONs = _.filter(uniquedJSONs, (json)=>{
+        const unlockedJSONs = _.filter(uniquedJSONs, (json) => 
             /*if(!this.lockTracker.acceptRemoteChangesTo(klass, json.id)) {
                 if(json.delta) json.delta.ignoredBecause = "Model is locked, possibly because it's already been deleted.";
                 return false;
             }*/
-            return true;
-        });
+             true)
 
         if(unlockedJSONs.length == 0) {
-            return Promise.resolve([]);
+            return Promise.resolve([])
         }
+        if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
 
-        const ids = _.pluck(unlockedJSONs, 'id');
+        const ids = _.pluck(unlockedJSONs, 'id')
 
-        let responseModels = [];
+        const DatabaseStore = require('./database-store')
+        return DatabaseStore.findObjects(objName, {id:{in:ids}}).then((models) => {
+            const existingModels = {}
+            models.forEach((model) => {
+                existingModels[model.id] = model
+            })
+            const responseModels = [], changedModels = []
 
-        return Promise.resolve(unlockedJSONs);
+            unlockedJSONs.forEach((json) => {
+                let model = existingModels[json.id]
+
+                if(!model || (model.version && json.version && json.version>model.version)) {
+                    model = _.clone(json)
+                    changedModels.push(model)
+                }
+                responseModels.push(model)
+            })
+
+
+            return DatabaseStore.persistObjects(objName, changedModels).then(() => Promise.resolve(responseModels))
+        })
     }
 
     handleModel404(modelUrl) {
-        return Promise.resolve();
+        return Promise.resolve()
     }
 
     handleAuthenticationFailure(modelUrl, apiToken, body, errorCode) {
-        return Promise.resolve();
+        return Promise.resolve()
     }
 
     makeDraftDeletionRequest = (draft) => {
@@ -203,7 +212,7 @@ class NylasAPI {
         this.makeRequest({
             path: `/drafts/${draft.id}`,
             accountId: draft.account_id,
-            method: "DELETE",
+            method: 'DELETE',
             body: {version: draft.version},
             returnsModel: false
         })

@@ -1,27 +1,27 @@
 /* eslint no-unused-vars: 0*/
-import _ from 'underscore';
-import {generateTempId} from '../nylas-utils';
-import {PermanentErrorCodes} from '../nylas-api';
-import {APIError} from '../errors';
+import _ from 'underscore'
+import {generateTempId} from '../nylas-utils'
+import {PermanentErrorCodes} from '../nylas-api'
+import {APIError} from '../errors'
 
 const TaskStatus = {
-    Retry: "RETRY",
-    Success: "SUCCESS",
-    Continue: "CONTINUE",
-    Failed: "FAILED",
-};
+    Retry: 'RETRY',
+    Success: 'SUCCESS',
+    Continue: 'CONTINUE',
+    Failed: 'FAILED',
+}
 
 const TaskDebugStatus = {
-    JustConstructed: "JUST CONSTRUCTED",
-    UncaughtError: "UNCAUGHT ERROR",
-    DequeuedObsolete: "DEQUEUED (Obsolete)",
-    DequeuedDependency: "DEQUEUED (Dependency Failure)",
-    WaitingOnQueue: "WAITING ON QUEUE",
-    WaitingToRetry: "WAITING TO RETRY",
-    WaitingOnDependency: "WAITING ON DEPENDENCY",
-    RunningLocal: "RUNNING LOCAL",
-    ProcessingRemote: "PROCESSING REMOTE",
-};
+    JustConstructed: 'JUST CONSTRUCTED',
+    UncaughtError: 'UNCAUGHT ERROR',
+    DequeuedObsolete: 'DEQUEUED (Obsolete)',
+    DequeuedDependency: 'DEQUEUED (Dependency Failure)',
+    WaitingOnQueue: 'WAITING ON QUEUE',
+    WaitingToRetry: 'WAITING TO RETRY',
+    WaitingOnDependency: 'WAITING ON DEPENDENCY',
+    RunningLocal: 'RUNNING LOCAL',
+    ProcessingRemote: 'PROCESSING REMOTE',
+}
 
 // Public: Tasks are a robust way to handle any mutating changes that need
 // to interface with a remote API.
@@ -165,9 +165,9 @@ export default class Task {
     //
     // On construction, all Tasks instances are given a unique `id`.
     constructor() {
-        this._rememberedToCallSuper = true;
-        this.id = generateTempId();
-        this.sequentialId = null; // set when queued
+        this._rememberedToCallSuper = true
+        this.id = generateTempId()
+        this.sequentialId = null // set when queued
         this.queueState = {
             isProcessing: false,
             localError: null,
@@ -177,77 +177,77 @@ export default class Task {
             remoteComplete: false,
             status: null,
             debugStatus: Task.DebugStatus.JustConstructed,
-        };
+        }
     }
 
     // Private: This is a internal wrapper around `performLocal`
     runLocal() {
         if (!this._rememberedToCallSuper) {
-            throw new Error("Your must call `super` from your Task's constructors");
+            throw new Error('Your must call `super` from your Task\'s constructors')
         }
 
         if (this.queueState.localComplete) {
-            return Promise.resolve();
+            return Promise.resolve()
         }
 
-        this.queueState.debugStatus = Task.DebugStatus.RunningLocal;
+        this.queueState.debugStatus = Task.DebugStatus.RunningLocal
         try {
             return this.performLocal()
                 .then(() => {
-                    this.queueState.localComplete = true;
-                    this.queueState.localError = null;
-                    this.queueState.debugStatus = Task.DebugStatus.WaitingOnQueue;
-                    return Promise.resolve();
+                    this.queueState.localComplete = true
+                    this.queueState.localError = null
+                    this.queueState.debugStatus = Task.DebugStatus.WaitingOnQueue
+                    return Promise.resolve()
                 })
-                .catch(this._handleLocalError);
+                .catch(this._handleLocalError)
         } catch (err) {
-            return this._handleLocalError(err);
+            return this._handleLocalError(err)
         }
     }
 
     _handleLocalError = (err) => {
-        this.queueState.localError = err;
-        this.queueState.status = Task.Status.Failed;
-        this.queueState.debugStatus = Task.DebugStatus.UncaughtError;
-        return Promise.reject(err);
+        this.queueState.localError = err
+        this.queueState.status = Task.Status.Failed
+        this.queueState.debugStatus = Task.DebugStatus.UncaughtError
+        return Promise.reject(err)
     }
 
     // Private: This is an internal wrapper around `performRemote`
     runRemote() {
-        this.queueState.debugStatus = Task.DebugStatus.ProcessingRemote;
+        this.queueState.debugStatus = Task.DebugStatus.ProcessingRemote
 
         if (this.queueState.localComplete === false) {
-            throw new Error("runRemote called before performLocal complete, this is an assertion failure.")
+            throw new Error('runRemote called before performLocal complete, this is an assertion failure.')
         }
 
         if (this.queueState.remoteComplete) {
-            this.queueState.status = Task.Status.Continue;
-            return Promise.resolve(Task.Status.Continue);
+            this.queueState.status = Task.Status.Continue
+            return Promise.resolve(Task.Status.Continue)
         }
 
         try {
             return this.performRemote()
                 .then((compositeStatus) => {
-                        const [status, err] = this._compositeStatus(compositeStatus);
+                        const [status, err] = this._compositeStatus(compositeStatus)
 
                     if (status === Task.Status.Failed) {
                         // We reject here to end up on the same path as people who may
                         // have manually `reject`ed the promise
-                        return Promise.reject(err);
+                        return Promise.reject(err)
                     }
 
-                    this.queueState.status = status;
-                    this.queueState.remoteAttempts += 1;
-                    this.queueState.remoteComplete = [Task.Status.Success, Task.Status.Continue].includes(status);
-                    this.queueState.remoteError = null;
-                    return Promise.resolve(status);
+                    this.queueState.status = status
+                    this.queueState.remoteAttempts += 1
+                    this.queueState.remoteComplete = [Task.Status.Success, Task.Status.Continue].includes(status)
+                    this.queueState.remoteError = null
+                    return Promise.resolve(status)
                 })
                 .catch((compositeStatus) => {
-                    const [status, err] = this._compositeStatus(compositeStatus);
-                    return this._handleRemoteError(err, status);
+                    const [status, err] = this._compositeStatus(compositeStatus)
+                    return this._handleRemoteError(err, status)
                 })
         } catch (err) {
-            return this._handleRemoteError(err);
+            return this._handleRemoteError(err)
         }
     }
 
@@ -260,39 +260,39 @@ export default class Task {
     // This always returns in the form of `[status, err]`
     _compositeStatus(compositeStatus) {
         if (compositeStatus instanceof Error) {
-            return [Task.Status.Failed, compositeStatus];
+            return [Task.Status.Failed, compositeStatus]
         }
 
         if (_.isString(compositeStatus)) {
             if (_.values(Task.Status).includes(compositeStatus)) {
-                return [compositeStatus, null];
+                return [compositeStatus, null]
             }
-            const err = new Error(`performRemote returned ${compositeStatus}, which is not a Task.Status`);
-            return [Task.Status.Failed, err];
+            const err = new Error(`performRemote returned ${compositeStatus}, which is not a Task.Status`)
+            return [Task.Status.Failed, err]
         }
 
         if (_.isArray(compositeStatus)) {
-            const [status, err] = compositeStatus;
-            return [status, err];
+            const [status, err] = compositeStatus
+            return [status, err]
         }
-        const err = new Error(`performRemote returned ${compositeStatus}, which is not a Task.Status`);
-        return [Task.Status.Failed, err];
+        const err = new Error(`performRemote returned ${compositeStatus}, which is not a Task.Status`)
+        return [Task.Status.Failed, err]
     }
 
     _handleRemoteError = (err, status) => {
         // Sometimes users just indicate that a task Failed, but don't provide
         // the error object
-        const exitError = err || new Error(`Unspecified error in ${Task.constructor.name}.performRemote`);
+        const exitError = err || new Error(`Unspecified error in ${Task.constructor.name}.performRemote`)
 
         if (status !== Task.Status.Failed) {
-            this.queueState.debugStatus = Task.DebugStatus.UncaughtError;
+            this.queueState.debugStatus = Task.DebugStatus.UncaughtError
         }
 
-        this.queueState.status = Task.Status.Failed;
-        this.queueState.remoteAttempts += 1;
-        this.queueState.remoteError = exitError;
+        this.queueState.status = Task.Status.Failed
+        this.queueState.remoteAttempts += 1
+        this.queueState.remoteError = exitError
 
-        return Promise.reject(exitError);
+        return Promise.reject(exitError)
     }
 
     // -----------------------------------------------------------------------
@@ -302,7 +302,7 @@ export default class Task {
     validateRequiredFields = (fields = []) => {
         for (const field of fields) {
             if (!this[field]) {
-                throw new Error(`Must pass ${field}`);
+                throw new Error(`Must pass ${field}`)
             }
         }
     }
@@ -317,7 +317,7 @@ export default class Task {
             }
             return Promise.resolve(Task.Status.Retry)
         }
-        return Promise.resolve([Task.Status.Failed, err]);
+        return Promise.resolve([Task.Status.Failed, err])
     }
 
 
@@ -409,7 +409,7 @@ export default class Task {
     //
     // Returns a {Promise} that resolves when your updates are complete.
     performLocal() {
-        return Promise.resolve();
+        return Promise.resolve()
     }
 
     // Public: **Required** | Put the actual API request code here.
@@ -472,7 +472,7 @@ export default class Task {
     //
     // Returns a {Promise} that resolves to a valid `Task.Status` type.
     performRemote() {
-        return Promise.resolve(Task.Status.Success);
+        return Promise.resolve(Task.Status.Success)
     }
 
     // Public: determines which other tasks this one is dependent on.
@@ -490,7 +490,7 @@ export default class Task {
     //
     // Returns `true` (is dependent on) or `false` (is not dependent on)
     isDependentOnTask(other) {
-        return false;
+        return false
     }
 
     // Public: determines which other tasks this one should dequeue when
@@ -508,7 +508,7 @@ export default class Task {
     //
     // Returns `true` (should dequeue) or `false` (should not dequeue)
     shouldDequeueOtherTask(other) {
-        return false;
+        return false
     }
 
     onDependentTaskError(other, error) {
@@ -521,7 +521,7 @@ export default class Task {
     //
     // Returns `true` (is an Undo Task) or `false` (is not an Undo Task)
     isUndo() {
-        return false;
+        return false
     }
 
     // Public: Determines whether or not this task can be undone via the
@@ -529,21 +529,21 @@ export default class Task {
     //
     // Returns `true` (can be undone) or `false` (can't be undone)
     canBeUndone() {
-        return false;
+        return false
     }
 
     // Public: Return from `createIdenticalTask` and set a flag so your
     // `performLocal` and `performRemote` methods know that this is an undo
     // task.
     createUndoTask() {
-        throw new Error("Unimplemented");
+        throw new Error('Unimplemented')
     }
 
     // Public: Return a deep-cloned task to be used for an undo task
     createIdenticalTask() {
-        const json = this.toJSON();
-        delete json.queueState;
-        return (new this.constructor).fromJSON(json);
+        const json = this.toJSON()
+        delete json.queueState
+        return (new this.constructor).fromJSON(json)
     }
 
     // Public: code to run if (someone tries to dequeue your task while it is)
@@ -565,19 +565,19 @@ export default class Task {
     // Public: A string displayed to users indicating how many items your
     // task affected.
     numberOfImpactedItems() {
-        return 1;
+        return 1
     }
 
     // Private: Allows for serialization of tasks
     toJSON() {
-        return this;
+        return this
     }
 
     // Private: Allows for deserialization of tasks
     fromJSON(json) {
         for (const key of Object.keys(json)) {
-            this[key] = json[key];
+            this[key] = json[key]
         }
-        return this;
+        return this
     }
 }

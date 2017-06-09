@@ -1,54 +1,51 @@
 /* eslint no-unused-vars: 0*/
-import _ from 'underscore';
-import Task from './task';
-import NylasAPI from '../nylas-api';
-import Actions from '../actions';
-import {APIError} from '../errors';
-import ThreadStore from '../thread-store';
+import _ from 'underscore'
+import Task from './task'
+import NylasAPI from '../nylas-api'
+import {APIError} from '../errors'
+import DatabaseStore from '../database-store'
 
 // MapLimit is a small helper method that implements a promise version of
 // Async.mapLimit. It runs the provided fn on each item in the `input` array,
 // but only runs `numberInParallel` copies of `fn` at a time, resolving
 // with an output array, or rejecting with an error if (any execution of)
 // `fn` returns an error.
-const mapLimit = (input, numberInParallel, fn) => {
-    return new Promise((resolve, reject) => {
-        let idx = 0;
-        let inflight = 0;
-        const output = [];
-        let outputError = null;
+const mapLimit = (input, numberInParallel, fn) => new Promise((resolve, reject) => {
+        let idx = 0
+        let inflight = 0
+        const output = []
+        let outputError = null
 
         if (input.length === 0) {
-            return resolve([]);
+            return resolve([])
         }
 
         const startNext = () => {
-            const startIdx = idx;
-            idx += 1;
-            inflight += 1;
+            const startIdx = idx
+            idx += 1
+            inflight += 1
             fn(input[startIdx]).then((result) => {
-                output[startIdx] = result;
+                output[startIdx] = result
                 if (outputError) {
-                    return;
+                    return
                 }
 
-                inflight -= 1;
+                inflight -= 1
                 if (idx < input.length) {
-                    startNext();
+                    startNext()
                 } else if (inflight === 0) {
-                    resolve(output);
+                    resolve(output)
                 }
             }).catch((err) => {
-                outputError = err;
-                reject(outputError);
-            });
-        };
+                outputError = err
+                reject(outputError)
+            })
+        }
 
         for (let i = 0; i < Math.min(numberInParallel, input.length); i++) {
-            startNext();
+            startNext()
         }
-    });
-}
+    })
 
 /*
  Public: The ChangeMailTask is a base class for all tasks that modify sets
@@ -71,15 +68,15 @@ const mapLimit = (input, numberInParallel, fn) => {
 export default class ChangeMailTask extends Task {
 
     constructor({threads, thread, messages, message} = {}) {
-        super();
+        super()
 
-        this.threads = threads || [];
+        this.threads = threads || []
         if (thread) {
-            this.threads.push(thread);
+            this.threads.push(thread)
         }
-        this.messages = messages || [];
+        this.messages = messages || []
         if (message) {
-            this.messages.push(message);
+            this.messages.push(message)
         }
     }
 
@@ -94,7 +91,7 @@ export default class ChangeMailTask extends Task {
     // Returns an object whos key-value pairs represent the desired changed
     // object.
     changesToModel(model) {
-        throw new Error("You must override this method.");
+        throw new Error('You must override this method.')
     }
 
     // Public: Override this method and return an object that will be the
@@ -105,7 +102,7 @@ export default class ChangeMailTask extends Task {
     // Returns an object that will be passed as the `body` to the actual API
     // `request` object
     requestBodyForModel(model) {
-        throw new Error("You must override this method.");
+        throw new Error('You must override this method.')
     }
 
     // Public: Override to indicate whether actions need to be taken for all
@@ -120,19 +117,19 @@ export default class ChangeMailTask extends Task {
     // Note that API requests are only made for threads if (threads are)
     // present.
     processNestedMessages() {
-        return false;
+        return false
     }
 
     // Public: Returns categories that this task will add to the set of threads
     // Must be overriden
     categoriesToAdd() {
-        return [];
+        return []
     }
 
     // Public: Returns categories that this task will remove the set of threads
     // Must be overriden
     categoriesToRemove() {
-        return [];
+        return []
     }
 
     // Public: Subclasses should override `performLocal` and call super once
@@ -146,99 +143,100 @@ export default class ChangeMailTask extends Task {
     performLocal() {
 
         if (this._isUndoTask && !this._restoreValues) {
-            return Promise.reject(new Error("ChangeMailTask: No _restoreValues provided for undo task."))
+            return Promise.reject(new Error('ChangeMailTask: No _restoreValues provided for undo task.'))
         }
         // Lock the models with the optimistic change tracker so they aren't reverted
         // while the user is seeing our optimistic changes.
         if (!this._isReverting) {
-            this._lockAll();
+            this._lockAll()
         }
 
-        return this._performLocalThreads().then(() =>
-            this._performLocalMessages()
-        );
+        return this._performLocalThreads().then(() => this._performLocalMessages())
     }
 
     _performLocalThreads() {
-        const changed = this._applyChanges(this.threads);
+        const changed = this._applyChanges(this.threads)
 
         if (changed.length === 0) {
-            return Promise.resolve();
+            return Promise.resolve()
         }
 
-        ThreadStore.changeThreads(changed);
-        return Promise.resolve();
+        return DatabaseStore.persistObjects('thread', changed).then(() => {
+            if (!this.processNestedMessages()) {
+                return Promise.resolve()
+            }
+        })
     }
 
     _performLocalMessages() {
-        const changed = this._applyChanges(this.messages);
+        const changed = this._applyChanges(this.messages)
 
         if (changed.length === 0) {
-            return Promise.resolve();
+            return Promise.resolve()
         }
 
-        return Promise.resolve();
+        return DatabaseStore.persistObjects('message', changed).then(() => Promise.resolve())
     }
 
     _applyChanges(modelArray) {
-        const changed = [];
+        const changed = []
 
         if (this._shouldChangeBackwards()) {
             modelArray.forEach((model, idx) => {
                 if (this._restoreValues[model.id]) {
-                    const updated = _.extend(_.clone(model), this._restoreValues[model.id]);
-                    modelArray[idx] = updated;
-                    changed.push(updated);
+                    const updated = _.extend(_.clone(model), this._restoreValues[model.id])
+                    modelArray[idx] = updated
+                    changed.push(updated)
                 }
-            });
+            })
         } else {
-            this._restoreValues = this._restoreValues || {};
+            this._restoreValues = this._restoreValues || {}
             modelArray.forEach((model, idx) => {
-                const fieldsNew = this.changesToModel(model);
-                const fieldsCurrent = _.pick(model, Object.keys(fieldsNew));
+                const fieldsNew = this.changesToModel(model)
+                const fieldsCurrent = _.pick(model, Object.keys(fieldsNew))
                 if (!_.isEqual(fieldsCurrent, fieldsNew)) {
-                    this._restoreValues[model.id] = fieldsCurrent;
-                    const updated = _.extend(_.clone(model), fieldsNew);
-                    modelArray[idx] = updated;
-                    changed.push(updated);
+                    this._restoreValues[model.id] = fieldsCurrent
+                    const updated = _.extend(_.clone(model), fieldsNew)
+                    modelArray[idx] = updated
+                    changed.push(updated)
                 }
-            });
+            })
         }
 
-        return changed;
+        return changed
     }
 
     _shouldChangeBackwards() {
-        return this._isReverting || this._isUndoTask;
+        return this._isReverting || this._isUndoTask
     }
 
     performRemote() {
         return this._performRequests(this.objectClass(), this.objectArray())
             .then(() => {
-                this._ensureLocksRemoved();
-                Actions.changedThreads();
-                return Promise.resolve(Task.Status.Success);
+                this._ensureLocksRemoved()
+
+                return Promise.resolve(Task.Status.Success)
             })
             .catch(APIError, (err) => {
                 if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-                    return Promise.resolve(Task.Status.Retry);
+                    return Promise.resolve(Task.Status.Retry)
                 }
-                this._isReverting = true;
+                this._isReverting = true
                 return this.performLocal().then(() => {
-                    this._ensureLocksRemoved();
-                    return Promise.resolve([Task.Status.Failed, err]);
-                });
-            });
+                    this._ensureLocksRemoved()
+                    return Promise.resolve([Task.Status.Failed, err])
+                })
+            })
     }
 
     _performRequests(klass, models) {
         return mapLimit(models, 5, (model) => {
             // Don't bother making a web request if (performLocal didn't modify this model)
             if (!this._restoreValues[model.id]) {
-                return Promise.resolve();
+                return Promise.resolve()
             }
 
-            const endpoint = (klass === 'Thread') ? 'threads' : 'messages';
+            const endpoint = (klass === 'Thread') ? 'threads' : 'messages'
 
             return NylasAPI.makeRequest({
                 path: `/${endpoint}/${model.id}`,
@@ -247,70 +245,70 @@ export default class ChangeMailTask extends Task {
                 body: this.requestBodyForModel(model),
                 returnsModel: true,
                 beforeProcessing: (body) => {
-                    this._removeLock(model);
-                    return body;
+                    this._removeLock(model)
+                    return body
                 },
             })
                 .catch((err) => {
                     if (err instanceof APIError && err.statusCode === 404) {
-                        return Promise.resolve();
+                        return Promise.resolve()
                     }
-                    return Promise.reject(err);
+                    return Promise.reject(err)
                 })
-        });
+        })
     }
 
     // Task lifecycle
 
     canBeUndone() {
-        return true;
+        return true
     }
 
     isUndo() {
-        return this._isUndoTask === true;
+        return this._isUndoTask === true
     }
 
     createUndoTask() {
         if (this._isUndoTask) {
-            throw new Error("ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.");
+            throw new Error('ChangeMailTask::createUndoTask Cannot create an undo task from an undo task.')
         }
         if (!this._restoreValues) {
-            throw new Error("ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.");
+            throw new Error('ChangeMailTask::createUndoTask Cannot undo a task which has not finished performLocal yet.')
         }
 
-        const task = this.createIdenticalTask();
-        task._restoreValues = this._restoreValues;
-        task._isUndoTask = true;
-        return task;
+        const task = this.createIdenticalTask()
+        task._restoreValues = this._restoreValues
+        task._isUndoTask = true
+        return task
     }
 
     createIdenticalTask() {
-        const task = new this.constructor(this);
+        const task = new this.constructor(this)
 
         // Never give the undo task the Model objects - make it look them up!
         // This ensures that they never revert other fields
-        const toIds = (arr) => _.map(arr, v => _.isString(v) ? v : v.id);
-        task.threads = toIds(this.threads);
-        task.messages = (this.threads.length > 0) ? [] : toIds(this.messages);
-        return task;
+        const toIds = (arr) => _.map(arr, v => _.isString(v) ? v : v.id)
+        task.threads = toIds(this.threads)
+        task.messages = (this.threads.length > 0) ? [] : toIds(this.messages)
+        return task
     }
 
     objectIds() {
         return [].concat(this.threads, this.messages).map((v) =>
             _.isString(v) ? v : v.id
-        );
+        )
     }
 
     objectClass() {
-        return (this.threads && this.threads.length) ? 'Thread' : 'Message';
+        return (this.threads && this.threads.length) ? 'Thread' : 'Message'
     }
 
     objectArray() {
-        return (this.threads && this.threads.length) ? this.threads : this.messages;
+        return (this.threads && this.threads.length) ? this.threads : this.messages
     }
 
     numberOfImpactedItems() {
-        return this.objectArray().length;
+        return this.objectArray().length
     }
 
     // To ensure that complex offline actions are synced correctly, label/folder additions
@@ -319,11 +317,11 @@ export default class ChangeMailTask extends Task {
     isDependentOnTask(other) {
         // Only wait on other tasks that are older and also involve the same threads
         if (!(other instanceof ChangeMailTask)) {
-            return false;
+            return false
         }
-        const otherOlder = other.sequentialId < this.sequentialId;
-        const otherSameObjs = _.intersection(other.objectIds(), this.objectIds()).length > 0;
-        return otherOlder && otherSameObjs;
+        const otherOlder = other.sequentialId < this.sequentialId
+        const otherSameObjs = _.intersection(other.objectIds(), this.objectIds()).length > 0
+        return otherOlder && otherSameObjs
     }
 
     // Helpers used in subclasses
