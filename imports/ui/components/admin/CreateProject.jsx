@@ -43,7 +43,7 @@ export default class CreateProject extends Component {
             //info(`Success add new project & integration with Slack`);
             this.props.toggleLoader(false)
             if (error) {
-                warning(`Problems with creating new project. ${error.error}`);
+                warning(error.reason || error.message);
             } else {
                 info(`Success add new project`);
                 FlowRouter.go('Project', { id: projectId });

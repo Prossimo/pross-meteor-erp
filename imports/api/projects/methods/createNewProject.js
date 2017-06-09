@@ -3,6 +3,8 @@ import {Roles} from 'meteor/alanning:roles'
 import config from '/imports/api/config/config'
 import { Projects, ROLES } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
+import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 const { slack: { apiRoot, apiKey, botId } } = config
 const slackRequest  = ({ action, params }) => {
@@ -17,18 +19,17 @@ const slackRequest  = ({ action, params }) => {
   return data
 }
 
-Meteor.methods({
-  createNewProject(project) {
-    check(project, {
-      name: String,
-      members: [
-        {
-          userId: String,
-          isAdmin: Boolean,
-        },
-      ],
-    })
-
+return new ValidatedMethod({
+  name: 'createNewProject',
+  validate: new SimpleSchema({
+    name: String,
+    members: Array,
+    'members.$': Object,
+    'members.$.userId': String,
+    'members.$.isAdmin': Boolean,
+  }).validator(),
+  run({ name, members }) {
+    const project = { name, members }
     // CHECK ROLE
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
       throw new Meteor.Error('Access denied')
@@ -83,5 +84,5 @@ Meteor.methods({
 
     })
     return projectId
-  },
+  }
 })
