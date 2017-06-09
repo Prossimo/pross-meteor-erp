@@ -32,14 +32,14 @@ export default class PeopleList extends TrackerReact(React.Component) {
         const {removedPerson} = nextProps
 
         if(removedPerson) {
-            this.setState({removedPerson:removedPerson})
+            this.setState({ removedPerson })
         }
     }
 
     loadData() {
         const {keyword, page, removedPerson} = this.state
 
-        let filters = {removed:{$ne:true}}
+        const filters = {removed:{$ne:true}}
         if(keyword && keyword.length) {
             const regx = {$regex: keyword, $options: 'i'}
             filters['$or'] = [{email: regx}, {name: regx}]
@@ -47,8 +47,8 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         const result = People.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
         if(result.length!=PAGESIZE) this.fullyLoaded = true
-        result.forEach((c)=>{
-            const index = this.people.findIndex((c1)=>c1._id==c._id)
+        result.forEach(c => {
+            const index = this.people.findIndex(c1 => c1._id==c._id)
             if(index >= 0) {
                 this.people.splice(index, 1, c)
             } else {
@@ -57,7 +57,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
         })
 
         if(removedPerson) {
-            const index = this.people.findIndex((c) => c._id == removedContact._id)
+            const index = this.people.findIndex(c => c._id == removedPerson._id)
             if(index>-1) this.people.splice(index, 1)
         }
 
@@ -79,7 +79,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary" onClick={()=>this.setState({showModal:true, creating:true})}><i className="fa fa-user-plus"/></Button>
+                    <Button bsStyle="primary" onClick={() => this.setState({showModal:true, creating:true})}><i className="fa fa-user-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -116,13 +116,11 @@ export default class PeopleList extends TrackerReact(React.Component) {
     }
 
     renderRows() {
-        const {selectedPerson} = this.state
-
         const people = this.loadData()
         if (!people || people.length == 0) return
 
 
-        compare = (c1, c2) => {
+        const compare = (c1, c2) => {
             if (c1.name > c2.name) return 1
             else if (c1.name < c2.name) return -1
             else {
@@ -134,7 +132,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         const trs = []
 
-        people.sort(compare).forEach((person, index) => {
+        people.sort(compare).forEach(person => {
             trs.push(<tr key={person._id}>
                 <td width="5%"><Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button></td>
                 <td width="15%">{person.name}</td>
@@ -250,9 +248,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         this.setState({expanded})
     }
-    isExpanded = (person) => {
-        return _.findIndex(this.state.expanded, {_id:person._id}) > -1
-    }
+    isExpanded = (person) => _.findIndex(this.state.expanded, {_id:person._id}) > -1
 
 
     onScrollList = (evt) => {
@@ -260,7 +256,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
             if (this.scrollTimeout) {
-                clearTimeout(this.scrollTimeout);
+                clearTimeout(this.scrollTimeout)
             }
 
             this.scrollTimeout = setTimeout(() => {
@@ -273,13 +269,13 @@ export default class PeopleList extends TrackerReact(React.Component) {
     }
 
     onChangeSearch = (evt) => {
-        if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
             this.people = []
             this.fullyLoaded = false
-            this.setState({keyword:keyword,page:1})
+            this.setState({keyword,page:1})
         }, 500)
     }
 
@@ -294,14 +290,14 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
         if (confirm(`Are you sure to remove ${person.name}?`)) {
             try {
-                removePerson.call({_id:person._id})
+                removePerson.call({_id:person._id}, error => !error && this.setState({ removedPerson: person }))
             } catch(e) {
                 console.error(e)
             }
         }
     }
 
-    onSavedPerson = (contact, updating) => {
+    onSavedPerson = () => {
         this.setState({showModal: false})
     }
 }
