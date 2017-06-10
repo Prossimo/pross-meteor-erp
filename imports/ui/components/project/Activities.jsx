@@ -72,7 +72,7 @@ export default createContainer(props => {
   subscribers.push(Meteor.subscribe('project.slackMessages', projectId))
   const { slackChanel } = Projects.findOne(projectId)
   return {
-    messages: SlackMessages.find({ channel: slackChanel }).fetch(),
+    messages: SlackMessages.find({ channel: slackChanel }, { sort: { createAt: -1 } }).fetch(),
     subscribers,
   }
 }, Activities)
