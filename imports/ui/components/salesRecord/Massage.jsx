@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { getUserName, getAvatarUrl } from '../../../api/lib/filters'
 import styled from 'styled-components'
 import moment from 'moment'
+import { SlackUsers } from '/imports/api/models'
 
 class Massage extends Component{
   constructor(props){
@@ -22,38 +23,52 @@ class Massage extends Component{
   }
 
   formatMessage() {
+    console.log(SlackUsers.find().fetch())
     const { message } = this.props
+    let formattedMessage = null
     // RENDER TEXT MESSAGE
     if (message.text) {
       message.text = message.text ? message.text.replace(/\<\@(.)+\|/, '<@') : ''
-      return (
-        <div className='text'>{ message.text }</div>
-      )
+      formattedMessage = <div className='text'>{ message.text }</div>
     }
     // RENDER ATTACHMENT
     if (message.attachments && message.attachments.length > 0) {
-      return message.attachments.map( ({ text, pretext, title, id, color }) => {
-        const Attachment = styled.div `
-          padding-left: 10px;
-          background-color: rgba(204,204,204,0.2);
-          font-size: 0.9em;
-          .content {
-            padding-left: 10px;
-            border-left: 3px solid #${color};
-          }
-        `
-        return (
-          <Attachment key={id}>
-            <div>{ pretext }</div>
-            <div className='content'>
-              <div><strong>{ title }</strong></div>
-              <div>{ text }</div>
-            </div>
-          </Attachment>
-        )
-      })
+      formattedMessage = (
+        <div>
+        {formattedMessage}
+        {
+          message.attachments.map( ({ text, pretext, title, id, color, title_link }) => {
+            let url = /\<(\S+)\|(.+)\>/.exec(text)
+            const Attachment = styled.div `
+              padding-left: 10px;
+              background-color: rgba(204,204,204,0.2);
+              font-size: 0.9em;
+              .content {
+                padding-left: 10px;
+                border-left: 3px solid #${color};
+              }
+            `
+            return (
+              <Attachment key={id}>
+                <div>{ pretext }</div>
+                <div className='content'>
+                  <div><strong><a href={title_link} target='_blank'>{title}</a></strong></div>
+                  {
+                    url ? (
+                      <a href={url[1]}>{url[2]}</a>
+                    ) : (
+                      <div>{_.unescape(text)}</div>
+                    )
+                  }
+                </div>
+              </Attachment>
+            )
+          })
+        }
+        </div>
+      )
     }
-    return null
+    return formattedMessage
   }
 
   render() {

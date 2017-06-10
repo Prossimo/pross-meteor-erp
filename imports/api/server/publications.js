@@ -112,7 +112,7 @@ Meteor.startup(() => {
 
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if (salesRecord.slackChanel) {
-            return SlackMessages.find({channel: salesRecord.slackChanel, subtype: {$ne: 'bot_message'}})
+            return SlackMessages.find({channel: salesRecord.slackChanel}, {sort: { createdAt: -1 }})
         } else {
             return []
         }
