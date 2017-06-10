@@ -38,13 +38,14 @@ class FileUploader extends Component {
       },
       onProgress: ({ loaded, total }) => this.setState({ percentage: Math.round(loaded/total*100) }),
       onComplete: (remoteFile) => {
-        this.props.addFileToView(JSON.parse(remoteFile)) || this.setState({ percentage: 0 })
+        remoteFile = JSON.parse(remoteFile)
+        this.props.addFileToView(remoteFile) || this.setState({ percentage: 0 })
         const params = {
           ...this.props.slack,
           attachments: [
             {
               color: '#36a64f',
-              text: `<Uploaded ${JSON.parse(remoteFile).name}>`
+              text: `<${remoteFile.webViewLink}|Go to file ${remoteFile.name}>`
             }
           ]
         }
