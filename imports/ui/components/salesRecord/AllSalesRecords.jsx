@@ -454,6 +454,10 @@ class AllSalesRecords extends React.Component{
 
     componentDidMount() {
         const _this = this
+
+        //init tooltip
+        $('[data-toggle="tooltip"]').tooltip()
+
         Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields) => {
             if (!error) {
                 const possibleColumns = _this.state.possibleColumns
@@ -512,6 +516,7 @@ class AllSalesRecords extends React.Component{
           <div className="text-right input-group-btn">
           <button
             className={`btn btn-default ${!active ? 'active' : ''}`}
+            data-toggle="tooltip" title="List View"
             onClick={() => {
               this.setState({showKanbanView: false})
             }}
@@ -520,8 +525,9 @@ class AllSalesRecords extends React.Component{
           </button>
           <button
             className={`btn btn-default ${active}`}
+            data-toggle="tooltip" title="Kaban View"
             onClick={() => {
-            this.setState({showKanbanView: true})
+              this.setState({showKanbanView: true})
             }}
           >
             <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
