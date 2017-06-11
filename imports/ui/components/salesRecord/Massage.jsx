@@ -23,7 +23,6 @@ class Massage extends Component{
   }
 
   formatMessage() {
-    console.log(SlackUsers.find().fetch())
     const { message } = this.props
     let formattedMessage = null
     // RENDER TEXT MESSAGE

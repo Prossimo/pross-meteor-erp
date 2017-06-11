@@ -70,6 +70,7 @@ underscore
 fourseven:scss
 random
 picker
+percolate:synced-cron
 
 
 npm-container
