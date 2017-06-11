@@ -85,7 +85,7 @@ class SingleSalesRecord extends React.Component{
       selectedMembers: []
     }
 
-    this.renderStakeholders = this.renderStakeholders.bind(this)
+    this.renderPeople = this.renderPeople.bind(this)
     this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
     this.changeState = this.changeState.bind(this)
     this.addMember = this.addMember.bind(this)
@@ -142,36 +142,38 @@ class SingleSalesRecord extends React.Component{
     })
   }
 
-  renderStakeholders() {
+  renderPeople(user) {
     return (
-      <ul className="project-members">
-      {
-        this.props.stakeholders.map(people => {
-          const { _id, emails, name, role } = people
-          const emailString = (emails || []).map(({ email }) => email).join('')
-          const nameString = emailString ? `${name}(${emailString})` : name
-          return (
-            <li key={_id} className='member-list'>
-              {
-                Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
-                  <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeStakeholder(this.props.salesRecord._id, _id, event)}>
-                    <span className='fa fa-times pull-right'></span>
-                  </a>
-                ) : ''
-              }
-              <span className='memberName' onClick={() => this.showContactInfo(name, emailString)}>{nameString}</span>
-              <div>
-              {
-                <span className='member-cat' key={role}>{role}</span>
-              }
-              </div>
-            </li>
-          )
-        })
-      }
-      </ul>
-    )
 
+          <ul className="project-members">
+          {
+            this.props.stakeholders.map(people => {
+              const { _id, emails, name, role, designation } = people
+              if (designation.name !== user.designation) return ''
+              const emailString = (emails || []).map(({ email }) => email).join('')
+              const nameString = emailString ? `${name}(${emailString})` : name
+              return (
+                <li key={_id} className='member-list'>
+                  {
+                    Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
+                      <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeStakeholder(this.props.salesRecord._id, _id, event)}>
+                        <span className='fa fa-times pull-right'></span>
+                      </a>
+                    ) : ''
+                  }
+                  <span className='memberName' onClick={() => this.showContactInfo(name, emailString)}>{nameString}</span>
+                  <div>
+                  {
+                    <span className='member-cat' key={role}>{role}</span>
+                  }
+                  </div>
+                </li>
+              )
+            })
+          }
+          </ul>
+
+    )
   }
 
   removeMember(salesRecordId, userId, event) {
@@ -463,15 +465,31 @@ class SingleSalesRecord extends React.Component{
                 { this.renderAddStakeholderForm() }
               </div>
             </div>
-            <h4>Stakeholders</h4>
-            <div className='sidebar-box'>
-              { this.renderStakeholders() }
-            </div>
             <h4>Team members</h4>
             <div className='sidebar-box'>
               { this.renderProjectMembers() }
             </div>
+
+            {
+              this.props.designations.map((d) => {
+              const existPeople = this.props.stakeholders.filter(stake =>
+                stake.designation.name === d.name
+              )
+              if (_.isEmpty(existPeople)) return '' 
+              return (
+                  <div key={d._id}>
+                    <h4>{d.name}</h4>
+                    <div className="sidebar-box">
+                      {
+                        this.renderPeople({designation: d.name})
+                      }
+                    </div>
+                  </div>
+                )
+              })
+            }
           </aside>
+
           {this.renderAddMemeberModal()}
       </div>
     )
@@ -483,9 +501,11 @@ export default createContainer(props => {
   const stakeholders = People
     .find({_id: { $in: peopleIds }})
     .fetch()
-    .map(p => p.designation = Designations.findOne(p.designation_id) && p )
+    .map(p => {p.designation = Designations.findOne(p.designation_id); return p})
   const candidateStakeholders = People.find({ _id: {$nin: peopleIds} }).fetch()
+  const designations = Designations.find().fetch()
   return {
+    designations,
     stakeholders,
     candidateStakeholders,
   }
