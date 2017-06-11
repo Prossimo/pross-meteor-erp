@@ -21,6 +21,13 @@ export const STAGES = [
   'ticket'
 ]
 
+export const STAGES_MAP = [
+  {value: 'lead', label: 'Lead'},
+  {value: 'opportunity', label: 'Opportunity'},
+  {value: 'order', label: 'Order'},
+  {value: 'ticket', label: 'Ticket'}
+]
+
 export const SUB_STAGES = [
   'proposed', 'contacted', 'qualifying', 'meetingScheduled', 'takeoffs', 'firstQuote',
   'clientReview', 'closing', 'coldProject', 'production', 'packing', 'shipping', 'delivery',
