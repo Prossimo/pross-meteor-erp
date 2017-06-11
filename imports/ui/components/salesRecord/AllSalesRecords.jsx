@@ -157,12 +157,20 @@ class AllSalesRecords extends React.Component{
                     editable: true,
                 },
                 {
-                    key: 'subStage',
-                    label: 'Sub Stage',
-                    selected: false,
-                    options: [],
-                    type: 'select',
-                    editable: true
+                  key: 'stage',
+                  label: 'Stage',
+                  selected: false,
+                  options: [],
+                  type: 'select',
+                  editable: false
+                },
+                {
+                  key: 'subStage',
+                  label: 'Sub Stage',
+                  selected: false,
+                  options: [],
+                  type: 'select',
+                  editable: true
                 }
             ],
             showKanbanView: false
@@ -310,6 +318,7 @@ class AllSalesRecords extends React.Component{
                                     )
                                 case 'select':
                                     options = key === 'subStage' ? this.getSubStages(project.stage) : options
+                                    // options = key === 'stage' ? ['leads', 'opportunities', 'orders', 'tickets'] : options
                                     return (
                                         <td key={key}>
                                             <div>
