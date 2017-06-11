@@ -14,11 +14,13 @@ import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
 
+
 import {
   SUB_STAGES_LEAD,
   SUB_STAGES_OPP,
   SUB_STAGES_ORDER,
-  SUB_STAGE_TICKET
+  SUB_STAGE_TICKET,
+  STAGES_MAP
 } from '../../../api/constants/project'
 
 class AllSalesRecords extends React.Component{
@@ -162,7 +164,7 @@ class AllSalesRecords extends React.Component{
                   selected: false,
                   options: [],
                   type: 'select',
-                  editable: false
+                  editable: true
                 },
                 {
                   key: 'subStage',
@@ -186,6 +188,7 @@ class AllSalesRecords extends React.Component{
         this.renderKanbanView = this.renderKanbanView.bind(this)
         this.renderSwitchLabels = this.renderSwitchLabels.bind(this)
         this.removeProject = this.removeProject.bind(this)
+        this.updateStage = this.updateStage.bind(this)
     }
 
     handleMouseLeave() {
@@ -275,11 +278,30 @@ class AllSalesRecords extends React.Component{
         })
     }
 
-    renderSaveButton() {
+    updateStage() {
+      const _id = this.state.edittingCell._id
+      let { value } = this.state.edittingCell
+      value = value.value ? value.value : value
+      Meteor.call('changeStageOfSalesRecord', _id, value, (error) => {
+        if(error) return warning(`Problems with updating project. ${error.error}`)
+        this.handleMouseLeave()
+        this.setState({
+            edittingCell: {
+                key: null,
+                rowIndex: null,
+                value: null,
+                _id: null
+            }
+        })
+        return info('Success update project')
+      })
+    }
+
+    renderSaveButton(key) {
         return (
             <button
                 className='btn btn-warning btn-sm pull-right'
-                onClick={ this.updateProject }
+                onClick={ key === 'stage' ? this.updateStage.bind('', key) : this.updateProject }
             >
                 <i className='fa fa-save'/> Save
             </button>
@@ -318,7 +340,7 @@ class AllSalesRecords extends React.Component{
                                     )
                                 case 'select':
                                     options = key === 'subStage' ? this.getSubStages(project.stage) : options
-                                    // options = key === 'stage' ? ['leads', 'opportunities', 'orders', 'tickets'] : options
+                                    options = key === 'stage' ? STAGES_MAP : options
                                     return (
                                         <td key={key}>
                                             <div>
@@ -328,7 +350,7 @@ class AllSalesRecords extends React.Component{
                                                     options={options}
                                                     onChange={this.handleChange}
                                                 />
-                                                { this.renderSaveButton() }
+                                              { this.renderSaveButton(key) }
                                             </div>
                                         </td>
                                     )
