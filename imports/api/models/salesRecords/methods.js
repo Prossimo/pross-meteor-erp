@@ -6,6 +6,7 @@ import config from '../../config/config'
 import NylasAPI from '../../nylas/nylas-api'
 import {SalesRecords, Threads, Messages, ROLES} from '../index'
 import {prossDocDrive} from '../../drive'
+import { getSubStages } from '../../lib/filters.js'
 
 const SLACK_API_ROOT = config.slack.apiRoot
 const SLACK_API_KEY = config.slack.apiKey
@@ -44,7 +45,17 @@ Meteor.methods({
     check(stage, String)
     const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId})
     if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-      SalesRecords.update(salesRecordId, {$set: {stage}})
+      const subStage = getSubStages(stage, {gettingFirstStage: true})
+      SalesRecords.update(salesRecordId, {$set: { stage, subStage }})
+    }
+  },
+
+  changeSubStageOfSalesRecord(salesRecordId, subStage) {
+    check(salesRecordId, String)
+    check(subStage, String)
+    const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId})
+    if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+      SalesRecords.update(salesRecordId, {$set: { subStage }})
     }
   },
 
