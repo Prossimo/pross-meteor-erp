@@ -288,7 +288,8 @@ class SingleSalesRecord extends React.Component{
                       ) // do not contain current user and not in pending status
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
       .map(user => ({
-          label: `${getUserName(user, true)}, ${getUserEmail(user)}`,
+          name: getUserName(user, true),
+          email: getUserEmail(user),
           value: user._id,
           roles: user.roles.toString()
         }))
@@ -300,18 +301,28 @@ class SingleSalesRecord extends React.Component{
         <div>
             <div className="form">
                 <div className="form-group">
-                  <ul className="list-group">
-                    {
-                      members.map((member) =>
-                       (
-                        <li className="list-group-item" key={member.value}>
-                          <input type="checkbox" onClick={this.addMemberToState.bind('', `${member.value}-${member.roles}`)}/> &nbsp;
-                          {member.label}, {member.roles}
-                        </li>
+                  <table className="table">
+                    <tr>
+                      <th></th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Roles</th>
+                    </tr>
+                    <tbody>
+                      {
+                        members.map((member) =>
+                         (
+                          <tr key={member.value}>
+                            <td><input type="checkbox" onClick={this.addMemberToState.bind('', `${member.value}-${member.roles}`)}/> &nbsp;</td>
+                            <td>{member.name}</td>
+                            <td>{member.email}</td>
+                            <td>{member.roles}</td>
+                          </tr>
+                          )
                         )
-                      )
-                    }
-                  </ul>
+                      }
+                    </tbody>
+                  </table>
                 </div>
                 <button onClick={this.addMember} className="btnn primary-btn">Add</button>
             </div>
@@ -475,7 +486,7 @@ class SingleSalesRecord extends React.Component{
               const existPeople = this.props.stakeholders.filter(stake =>
                 stake.designation.name === d.name
               )
-              if (_.isEmpty(existPeople)) return '' 
+              if (_.isEmpty(existPeople)) return ''
               return (
                   <div key={d._id}>
                     <h4>{d.name}</h4>
