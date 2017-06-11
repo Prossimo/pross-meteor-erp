@@ -108,9 +108,9 @@ class CreateSalesRecord extends React.Component {
     if(this.props.salesRecord) {
       Meteor.call('updateSalesRecord', this.props.salesRecord._id, data, this.props.thread, (err, res) => {
         this.props.toggleLoader(false)
-        if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
+        if (err) return warning(`Problems with updating new Deal. ${err.error}`)
 
-        info('Success update SalesRecord')
+        info('Success update Deal')
         setTimeout(() => {
           FlowRouter.go(FlowRouter.path('SalesRecord', {id: this.props.salesRecord._id}))
         }, 300)
@@ -118,7 +118,7 @@ class CreateSalesRecord extends React.Component {
     } else {
       Meteor.call('insertSalesRecord', data, this.props.thread, (err, res) => {
         this.props.toggleLoader(false)
-        if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)
+        if (err) return warning(`Problems with creating new Deal. ${err.error}`)
 
         info('Success add new Deal & integration with Slack')
         setTimeout(() => {
