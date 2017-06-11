@@ -1,5 +1,5 @@
-import prossDocDrive from './methods/';
+import prossDocDrive from './methods'
 
 export {
-    prossDocDrive,
+  prossDocDrive,
 }
