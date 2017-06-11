@@ -446,7 +446,7 @@ class SingleSalesRecord extends React.Component{
 
   render() {
     const { salesRecord } = this.props
-    const sidebarTitle = 'SalesRecord members'
+    const sidebarTitle = 'Deal members'
     const projectName = salesRecord.name
     const defaultStage = this.stageOptions.find(({ value }) => value === salesRecord.stage)
     return (
