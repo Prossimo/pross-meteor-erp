@@ -21,6 +21,7 @@ import {Modal} from 'react-bootstrap'
 import { createContainer } from 'meteor/react-meteor-data'
 import People from '/imports/api/models/people/people'
 import Designations from '/imports/api/models/people/designations'
+import SelectSubStage from '../admin/salesRecord/SelectSubStage'
 
 class SingleSalesRecord extends React.Component{
   constructor(props){
@@ -225,6 +226,15 @@ class SingleSalesRecord extends React.Component{
       Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error) => {
         if (error) return warning(error.reason ? error.reason : 'Change stage failed!')
         info('Change stage sucess')
+      })
+    }
+  }
+
+  changeSubStage(salesRecordId, item) {
+    if (item) {
+      Meteor.call('changeSubStageOfSalesRecord', salesRecordId, item.value, (error) => {
+        if (error) return warning(error.reason ? error.reason : 'Change sub stage failed!')
+        info('Change sub stage sucess')
       })
     }
   }
@@ -448,11 +458,19 @@ class SingleSalesRecord extends React.Component{
                     <div className='row'>
                       <h2 className="col-md-10">{projectName}</h2>
                       <Select
+                        style={{marginBottom: '5px'}}
                         className='col-md-2'
                         value={defaultStage}
                         options={this.stageOptions}
                         clearable={false}
                         onChange={(item) => this.changeStage(salesRecord._id, item)}
+                      />
+                      <SelectSubStage
+                        update
+                        style={'col-md-2'}
+                        stage={defaultStage.value}
+                        subStage={salesRecord.subStage}
+                        onSelectSubStage={(item) => { this.changeSubStage(salesRecord._id, item)}}
                       />
                     </div>
                   </div>

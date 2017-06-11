@@ -17,17 +17,25 @@ class SelectSubStage extends Component {
     }
   }
   componentWillMount() {
-    const stages = this.getSubStages()
-    if (!_.isEmpty(stages)) {
-      this.setState({subStage: stages[0]})
-      this.props.onSelectSubStage(stages[0])
-
+    const {update, subStage} = this.props
+    if (update) {
+      this.setState({subStage: subStage})
+    } else {
+      const stages = this.getSubStages()
+      if (!_.isEmpty(stages)) {
+        this.setState({subStage: stages[0]})
+        this.props.onSelectSubStage(stages[0])
+      }
     }
   }
   componentWillReceiveProps(props) {
     if (this.props.stage !== props.stage) {
-      const stages = this.getSubStages(props.stage)
-      this.setState({subStage: stages[0]})
+      if (props.update) {
+        this.setState({subStage: props.subStage})
+      } else {
+        const stages = this.getSubStages(props.stage)
+        this.setState({subStage: stages[0]})
+      }
     }
   }
   getSubStages(stage) {
@@ -45,17 +53,15 @@ class SelectSubStage extends Component {
     this.props.onSelectSubStage(value)
   }
   render() {
+    const { style = '', update = false } = this.props
     return (
-      <div>
-        <label>Sub Stage</label>
         <Select
+          className={style}
           value={this.state.subStage}
           onChange={this.changeSelectionValue}
           options={this.getSubStages()}
-          className={'members-select'}
           clearable={false}
         />
-      </div>
     )
   }
 }
