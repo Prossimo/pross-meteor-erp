@@ -78,32 +78,33 @@ if(Meteor.isServer) {
             adminId = createAdminUser()
         })
 
-        let data = {
-            name: 'John Smith',
-            twitter: 'http://www.twitter.com/john',
-            facebook: 'http://www.facebook.com/john',
-            linkedin: 'http://www.linkedin.com/john',
-            designation_id: Factory.create('designation')._id,
-            role: 'Manager',
-            emails: [{
-                email: 'john@prossimo.us.office',
-                type: 'office',
-                is_default: true
-            }],
-            phone_numbers: [{
-                number: '1-234-5678',
-                type: 'office',
-                is_default: true
-            }],
-            company_id: Factory.create('company')._id,
-            position: 'Project Manager'
-        }
+
 
         it('should insert person correctly by factory and method', () => {
             let person = Factory.create('person')
             assert.typeOf(person, 'object')
             assert.typeOf(person.created_at, 'date')
 
+            const data = {
+                name: 'John Smith',
+                twitter: 'http://www.twitter.com/john',
+                facebook: 'http://www.facebook.com/john',
+                linkedin: 'http://www.linkedin.com/john',
+                designation_id: Factory.create('designation')._id,
+                role: 'Manager',
+                emails: [{
+                    email: 'john@prossimo.us.office',
+                    type: 'office',
+                    is_default: true
+                }],
+                phone_numbers: [{
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: true
+                }],
+                company_id: Factory.create('company')._id,
+                position: 'Project Manager'
+            }
             const personId = insertPerson._execute({userId:adminId}, data)
 
             assert.typeOf(personId, 'string')
@@ -126,10 +127,100 @@ if(Meteor.isServer) {
             assert.equal(person.position, data.position)
         })
 
+        it('should not insert person with invalid data', () => {
+            const data = {
+                name: 'John Smith',
+                twitter: 'http://www.twitter.com/john',
+                facebook: 'http://www.facebook.com/john',
+                linkedin: 'http://www.linkedin.com/john',
+                designation_id: Factory.create('designation')._id,
+                role: 'Manager',
+                emails: [{
+                    email: 'john@prossimo.us.office',
+                    type: 'office',
+                    is_default: true
+                }],
+                phone_numbers: [{
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: true
+                }],
+                company_id: Factory.create('company')._id,
+                position: 'Project Manager'
+            }
+
+            // duplicated email
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: 'john@prossimo.us.office',
+                    type: 'home',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+            // duplicated email.is_default true
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: 'john@prossimo.us.office1',
+                    type: 'home',
+                    is_default: true
+                }))
+            }, Meteor.Error())
+
+            // duplicated phone_number
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+            // duplicated phone_number.is_default
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                    number: '2-234-5678',
+                    type: 'office',
+                    is_default: true
+                }))
+            }, Meteor.Error())
+
+            // existing person with same email
+            const person = Factory.create('person')
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: person.emails[0].email,
+                    type: 'home',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+        })
+
         it('should update person correctly by method', () => {
+            const data = {
+                name: 'John Smith',
+                twitter: 'http://www.twitter.com/john',
+                facebook: 'http://www.facebook.com/john',
+                linkedin: 'http://www.linkedin.com/john',
+                designation_id: Factory.create('designation')._id,
+                role: 'Manager',
+                emails: [{
+                    email: 'john@prossimo.us.office',
+                    type: 'office',
+                    is_default: true
+                }],
+                phone_numbers: [{
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: true
+                }],
+                company_id: Factory.create('company')._id,
+                position: 'Project Manager'
+            }
             const _id = insertPerson._execute({userId:adminId}, data)
 
-            data = {
+            const updateData = {
                 _id,
                 name: 'John Smith1',
                 twitter: 'http://www.twitter.com/john1',
@@ -150,30 +241,102 @@ if(Meteor.isServer) {
                 company_id: Factory.create('company')._id,
                 position: 'Project Manager1'
             }
-            const results = updatePerson._execute({userId:adminId}, data)
+            const results = updatePerson._execute({userId:adminId}, updateData)
 
             assert.equal(results, 1)
 
             const person = People.findOne(_id)
 
-            assert.equal(person.name, data.name)
-            assert.equal(person.twitter, data.twitter)
-            assert.equal(person.facebook, data.facebook)
-            assert.equal(person.linkedin, data.linkedin)
-            assert.equal(person.designation_id, data.designation_id)
-            assert.equal(person.role, data.role)
+            assert.equal(person.name, updateData.name)
+            assert.equal(person.twitter, updateData.twitter)
+            assert.equal(person.facebook, updateData.facebook)
+            assert.equal(person.linkedin, updateData.linkedin)
+            assert.equal(person.designation_id, updateData.designation_id)
+            assert.equal(person.role, updateData.role)
             assert.typeOf(person.phone_numbers, 'array')
             assert.equal(person.phone_numbers.length, 1)
-            assert.deepEqual(person.phone_numbers[0], data.phone_numbers[0])
+            assert.deepEqual(person.phone_numbers[0], updateData.phone_numbers[0])
             assert.typeOf(person.emails, 'array')
             assert.equal(person.emails.length, 1)
-            assert.deepEqual(person.emails[0], data.emails[0])
-            assert.equal(person.company_id, data.company_id)
-            assert.equal(person.position, data.position)
+            assert.deepEqual(person.emails[0], updateData.emails[0])
+            assert.equal(person.company_id, updateData.company_id)
+            assert.equal(person.position, updateData.position)
         })
+        it('should not update person with invalid data', () => {
+            const person = Factory.create('person')
+            // duplicated emails
+            const data = {
+                _id: person._id,
+                name: 'John Smith',
+                twitter: 'http://www.twitter.com/john',
+                facebook: 'http://www.facebook.com/john',
+                linkedin: 'http://www.linkedin.com/john',
+                designation_id: Factory.create('designation')._id,
+                role: 'Manager',
+                emails: [{
+                    email: 'john@prossimo.us.office',
+                    type: 'office',
+                    is_default: true
+                }],
+                phone_numbers: [{
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: true
+                }],
+                company_id: Factory.create('company')._id,
+                position: 'Project Manager'
+            }
 
+            // duplicated email
+            assert.throws(() => {
+                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: 'john@prossimo.us.office',
+                    type: 'home',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+            // duplicated email.is_default true
+            assert.throws(() => {
+                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: 'john@prossimo.us.office1',
+                    type: 'home',
+                    is_default: true
+                }))
+            }, Meteor.Error())
+
+            // duplicated phone_number
+            assert.throws(() => {
+                updatePerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                    number: '1-234-5678',
+                    type: 'office',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+            // duplicated phone_number.is_default
+            assert.throws(() => {
+                updatePerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                    number: '2-234-5678',
+                    type: 'office',
+                    is_default: true
+                }))
+            }, Meteor.Error())
+
+            // existing person with same email
+            const person1 = Factory.create('person')
+            assert.throws(() => {
+                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                    email: person1.emails[0].email,
+                    type: 'home',
+                    is_default: false
+                }))
+            }, Meteor.Error())
+
+        })
         it('should remove person correctly by method', () => {
-            const _id = insertPerson._execute({userId:adminId}, data)
+
+            const _id = Factory.create('person')._id
 
             removePerson._execute({userId:adminId}, {_id})
 
