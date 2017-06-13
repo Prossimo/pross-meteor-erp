@@ -8,13 +8,26 @@ import Designations from './designations'
 import Contacts from '../contacts/contacts'
 import {ROLES} from '../users/users'
 
-
-
 export const insertPerson = new ValidatedMethod({
     name: 'people.insert',
     validate: People.schema.pick('name','twitter','facebook','linkedin','designation_id','role','is_user','emails','phone_numbers','company_id','position').extend({contact_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}}).validator({clean:true}),
     run({name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position, contact_id}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const uniquedEmails = _.uniq(emails, true, ({email}) => email)
+        if(uniquedEmails.length !== emails.length) throw new Meteor.Error('Duplicated email')
+
+        const defaultEmails = _.filter(emails, ({is_default}) => is_default)
+        if(defaultEmails.length > 1) throw new Meteor.Error('Duplicated default emails')
+
+        const uniquedPhoneNumbers = _.uniq(phone_numbers, true, ({number}) => number)
+        if(uniquedPhoneNumbers.length !== phone_numbers.length) throw new Meteor.Error('Duplicated phone number')
+
+        const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
+        if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
+
+        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}})
+        if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
         const data = {
             name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position,
@@ -40,6 +53,22 @@ export const updatePerson = new ValidatedMethod({
         if(!person) throw new Meteor.Error(`Not found person with _id ${_id}`)
 
         if(person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
+
+        const uniquedEmails = _.uniq(emails, true, ({email}) => email)
+        if(uniquedEmails.length !== emails.length) throw new Meteor.Error('Duplicated email')
+
+        const defaultEmails = _.filter(emails, ({is_default}) => is_default)
+        if(defaultEmails.length > 1) throw new Meteor.Error('Duplicated default emails')
+
+        const uniquedPhoneNumbers = _.uniq(phone_numbers, true, ({number}) => number)
+        if(uniquedPhoneNumbers.length !== phone_numbers.length) throw new Meteor.Error('Duplicated phone number')
+
+        const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
+        if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
+
+        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}})
+        if(existingPeople && existingPeople._id!==person._id && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
+
 
         const data = {
             name: _.isUndefined(name) ? null : name,
@@ -69,7 +98,7 @@ export const removePerson = new ValidatedMethod({
         const person = People.findOne({_id})
         if(!person) throw new Meteor.Error(`Not found person with _id ${_id}`)
 
-        if(person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
+        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
 
         People.remove(_id)
     }
@@ -90,6 +119,13 @@ export const insertPeople = new ValidatedMethod({
     }).validator({clean:true,filter:false}),
     run({people}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const uniquedEmails = _.uniq(_.pluck(people, 'email'))
+        if(uniquedEmails.length !== people.length) throw new Meteor.Error('Duplicated email')
+
+        const existingPeople = People.find({'emails.email':{$in:uniquedEmails}})
+        if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
+
 
         const ids = []
         people.forEach((p) => {
