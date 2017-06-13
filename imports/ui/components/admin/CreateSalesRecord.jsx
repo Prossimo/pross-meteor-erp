@@ -136,7 +136,7 @@ class CreateSalesRecord extends React.Component {
     }
   }
 
-  updateMembers(members) {console.log('CreateSalesRecord updateMembers', members)
+  updateMembers(members) {
     this.members = members
   }
 

@@ -39,14 +39,14 @@ export default class ContactsList extends TrackerReact(React.Component) {
         const {removedContact} = nextProps
 
         if(removedContact) {
-            this.setState({removedContact:removedContact})
+            this.setState({removedContact})
         }
     }
 
     loadContacts() {
         const {keyword, page, removedContact} = this.state
 
-        let filters = {removed:{$ne:true}}
+        const filters = {removed:{$ne:true}}
         if(keyword && keyword.length) {
             const regx = {$regex: keyword, $options: 'i'}
             filters['$or'] = [{email: regx}, {name: regx}]
@@ -54,8 +54,8 @@ export default class ContactsList extends TrackerReact(React.Component) {
 
         const result = Contacts.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
         if(result.length!=PAGESIZE) this.fullyLoaded = true
-        result.forEach((c)=>{
-            const index = this.contacts.findIndex((c1)=>c1._id==c._id)
+        result.forEach((c) => {
+            const index = this.contacts.findIndex((c1) => c1._id==c._id)
             if(index >= 0) {
                 this.contacts.splice(index, 1, c)
             } else {
@@ -86,7 +86,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
                     {/*<Button bsStyle="primary" onClick={()=>{this.props.onCreateContact&&this.props.onCreateContact()}}><i className="fa fa-user-plus"/></Button>*/}
-                    <Button bsStyle="primary" onClick={()=>{this.props.onConvertToPeople&&this.props.onConvertToPeople()}} disabled={this.state.selectedContacts.length===0}><i className="fa fa-address-book"/></Button>
+                    <Button bsStyle="primary" onClick={() => {this.props.onConvertToPeople&&this.props.onConvertToPeople()}} disabled={this.state.selectedContacts.length===0}><i className="fa fa-address-book"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -126,7 +126,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
         if (!contacts || contacts.length == 0) return
 
 
-        compare = (c1, c2) => {
+        const compare = (c1, c2) => {
             if (c1.name > c2.name) return 1
             else if (c1.name < c2.name) return -1
             else {
@@ -139,7 +139,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
             const selected = _.findIndex(selectedContacts, {_id:contact._id})>-1
             return (
                 <tr className={selected ? 'focused' : ''} key={contact._id} onClick={(e) => this.selectContact(contact)}>
-                    <td width="5%"><input type="checkbox" checked={selected} onChange={(e)=>{
+                    <td width="5%"><input type="checkbox" checked={selected} onChange={(e) => {
                         e.stopPropagation()
                         if(e.target.checked) {
                             this.selectContact(contact)
@@ -189,7 +189,7 @@ export default class ContactsList extends TrackerReact(React.Component) {
 
         if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
             if (this.scrollTimeout) {
-                clearTimeout(this.scrollTimeout);
+                clearTimeout(this.scrollTimeout)
             }
 
             this.scrollTimeout = setTimeout(() => {
@@ -202,13 +202,13 @@ export default class ContactsList extends TrackerReact(React.Component) {
     }
 
     onChangeSearch = (evt) => {
-        if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
             this.contacts = []
             this.fullyLoaded = false
-            this.setState({keyword:keyword,page:1})
+            this.setState({keyword,page:1})
         }, 500)
     }
 }

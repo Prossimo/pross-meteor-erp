@@ -397,17 +397,6 @@ Meteor.methods({
     })
   },
 
-  addStakeholderToSalesRecord(salesRecordId, stakeholder) {
-    check(salesRecordId, String)
-    check(stakeholder, {
-      peopleId: String,
-      notify: Boolean,
-    })
-    if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
-    stakeholder.isMainStakeholder = false
-    SalesRecords.update(salesRecordId, {$push: { stakeholders: stakeholder }})
-  },
-
   addMemberToProject(salesRecordId, member){
     check(salesRecordId, String)
     check(member, {

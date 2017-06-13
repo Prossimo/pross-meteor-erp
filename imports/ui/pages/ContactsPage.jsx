@@ -11,7 +11,7 @@ import PeopleForm from '../components/people/PeopleForm'
 
 export default class ContactsPage extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             showContactModal: false,
@@ -118,7 +118,7 @@ export default class ContactsPage extends React.Component {
             Meteor.call('removeContact', contact._id, (err, res) => {
                 if (err) {
                     console.log(err)
-                    return warning(err.message);
+                    return warning(err.message)
                 }
 
                 const {selectedContacts} = this.state

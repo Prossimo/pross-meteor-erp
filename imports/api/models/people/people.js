@@ -1,39 +1,39 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import {Factory} from 'meteor/dburles:factory';
-import {_} from 'meteor/underscore';
-import faker from 'faker';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
+import {Factory} from 'meteor/dburles:factory'
+import {_} from 'meteor/underscore'
+import faker from 'faker'
 import PeopleDesignations from './designations'
 import Companies from '../companies/companies'
 
 class PeopleCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.created_at = ourDoc.created_at || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.created_at = ourDoc.created_at || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
     remove(selector) {
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-const People = new PeopleCollection("People");
+const People = new PeopleCollection('People')
 
 // Deny all client-side updates since we will be using methods to manage this collection
 People.deny({
     insert() {
-        return true;
+        return true
     },
     update() {
-        return true;
+        return true
     },
     remove() {
-        return true;
+        return true
     }
-});
+})
 
 People.EmailTypes = ['main', 'office', 'personal']
 People.PhoneNumberTypes = ['office', 'mobile', 'home']
@@ -70,9 +70,9 @@ People.schema = new SimpleSchema({
     user_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
-});
+})
 
-People.attachSchema(People.schema);
+People.attachSchema(People.schema)
 
 People.publicFields = {
     name: 1,
@@ -89,7 +89,7 @@ People.publicFields = {
     user_id: 1,
     created_at: 1,
     modified_at: 1
-};
+}
 
 Factory.define('person', People, {
     name: faker.name.findName(),
@@ -113,15 +113,15 @@ Factory.define('person', People, {
 })
 
 People.helpers({
-    designation: function() {
+    designation() {
         if(!this.designation_id) return null
         return PeopleDesignations.findOne(this.designation_id)
     },
-    company: function() {
+    company() {
         if(!this.company_id) return null
         return Companies.findOne(this.company_id)
     },
-    defaultEmail: function() {
+    defaultEmail() {
         if(!this.emails || this.emails.length==0) return null
 
         let email = this.emails[0].email
@@ -131,6 +131,6 @@ People.helpers({
 
         return email
     }
-});
+})
 
-export default People;
+export default People
