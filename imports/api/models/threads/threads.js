@@ -1,36 +1,36 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import NylasAccounts from '../nylasaccounts/nylas-accounts';
-import Messages from '../messages/messages';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
+import NylasAccounts from '../nylasaccounts/nylas-accounts'
+import Messages from '../messages/messages'
 
 class ThreadsCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.created_at = ourDoc.created_at || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.created_at = ourDoc.created_at || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
     remove(selector) {
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-const Threads = new ThreadsCollection("Threads");
+const Threads = new ThreadsCollection('Threads')
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Threads.deny({
     insert() {
-        return true;
+        return true
     },
     update() {
-        return true;
+        return true
     },
     remove() {
-        return true;
+        return true
     }
-});
+})
 
 Threads.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
@@ -39,14 +39,14 @@ Threads.schema = new SimpleSchema({
     account_id: {type: String},
     subject: {type: String, optional: true},
     participants: {type: Array, optional: true},
-    "participants.$": {
+    'participants.$': {
         type: Object
     },
-    "participants.$.name": {
+    'participants.$.name': {
         type: String,
         optional: true
     },
-    "participants.$.email": {
+    'participants.$.email': {
         type: String,
         regEx: SimpleSchema.RegEx.Email
     },
@@ -57,25 +57,49 @@ Threads.schema = new SimpleSchema({
     starred: {type: Boolean, optional: true},
     snippet: {type: String, optional: true},
     message_ids: {type: Array, optional: true},
-    "message_ids.$": {
+    'message_ids.$': {
         type: String
     },
     version: {type: Number},
     folders: {type: Array, optional: true},
-    "folders.$": {
+    'folders.$': {
         type: Object
     },
+    'folders.$.id': {
+        type: String,
+        optional:true
+    },
+    'folders.$.display_name': {
+        type: String,
+        optional:true
+    },
+    'folders.$.name': {
+        type: String,
+        optional:true
+    },
     labels: {type: Array, optional: true},
-    "labels.$": {
+    'labels.$': {
         type: Object
+    },
+    'labels.$.id': {
+        type: String,
+        optional:true
+    },
+    'labels.$.display_name': {
+        type: String,
+        optional:true
+    },
+    'labels.$.name': {
+        type: String,
+        optional:true
     },
 
     salesRecordId: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
-});
+})
 
-Threads.attachSchema(Threads.schema);
+Threads.attachSchema(Threads.schema)
 
 Threads.publicFields = {
     id: 1,
@@ -97,7 +121,7 @@ Threads.publicFields = {
 
     created_at: 1,
     modified_at: 1
-};
+}
 
 Threads.helpers({
     account() {
@@ -108,6 +132,6 @@ Threads.helpers({
         console.log(messages)
         return messages
     }
-});
+})
 
-export default Threads;
+export default Threads

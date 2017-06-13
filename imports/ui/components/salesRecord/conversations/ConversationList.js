@@ -1,8 +1,8 @@
-import _ from 'underscore';
-import React from 'react';
-import TrackerReact from 'meteor/ultimatejs:tracker-react';
-import NylasUtils from '/imports/api/nylas/nylas-utils';
-import MessageItemContainer from '../../inbox/MessageItemContainer';
+import _ from 'underscore'
+import React from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
+import NylasUtils from '/imports/api/nylas/nylas-utils'
+import MessageItemContainer from '../../inbox/MessageItemContainer'
 import {ConversationStore} from '/imports/api/nylas/message-store'
 
 class ConversationList extends TrackerReact(React.Component) {
@@ -11,7 +11,7 @@ class ConversationList extends TrackerReact(React.Component) {
         salesRecord: React.PropTypes.object
     }
     constructor(props) {
-        super(props);
+        super(props)
 
 
 
@@ -21,8 +21,6 @@ class ConversationList extends TrackerReact(React.Component) {
 
         this.state = this._getStateFromStore()
         this.state.minified = true
-
-        console.log('constructor')
     }
 
     _getStateFromStore() {
@@ -32,19 +30,19 @@ class ConversationList extends TrackerReact(React.Component) {
         }
     }
     componentDidMount() {
-        this.unsubscribes = [];
-        this.unsubscribes.push(this.store.listen(this.onStoreChanged));
+        this.unsubscribes = []
+        this.unsubscribes.push(this.store.listen(this.onStoreChanged))
         console.log('componentDidMount')
     }
 
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
-        });
+        })
     }
 
     onStoreChanged = () => {
-        let newState = this._getStateFromStore();
+        const newState = this._getStateFromStore()
 
         this.setState(newState)
     }
@@ -59,17 +57,17 @@ class ConversationList extends TrackerReact(React.Component) {
     }
 
     renderMessages() {
-        let elements = []
+        const elements = []
 
-        let {messages} = this.state;
-        let lastMessage = _.last(messages);
-        let hasReplyArea = lastMessage && !lastMessage.draft
+        let {messages} = this.state
+        const lastMessage = _.last(messages)
+        const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
         messages.forEach((message, idx) => {
 
-            if (message.type == "minifiedBundle") {
+            if (message.type == 'minifiedBundle') {
                 elements.push(this._renderMinifiedBundle(message))
-                return;
+                return
             }
 
             collapsed = !this.state.messagesExpandedState[message.id]
@@ -87,7 +85,7 @@ class ConversationList extends TrackerReact(React.Component) {
                                       salesRecordId={this.props.salesRecord._id}
                 />
             )
-        });
+        })
 
         if (hasReplyArea)
             elements.push(this._renderReplyArea())
@@ -96,10 +94,10 @@ class ConversationList extends TrackerReact(React.Component) {
     }
 
     _messagesWithMinification(messages=[]) {
-        if(!this.state.minified) return messages;
+        if(!this.state.minified) return messages
 
         messages = _.clone(messages)
-        let minifyRanges = []
+        const minifyRanges = []
         let consecutiveCollapsed = 0
 
         messages.forEach((message, idx) => {
@@ -112,7 +110,7 @@ class ConversationList extends TrackerReact(React.Component) {
             else
             {
                 let minifyOffset
-                if(expandState == "default")
+                if(expandState == 'default')
                     minifyOffset = 1
                 else //if expandState is "explicit"
                     minifyOffset = 0
@@ -130,7 +128,7 @@ class ConversationList extends TrackerReact(React.Component) {
         for(range of minifyRanges) {
             start = range.start - indexOffset
             const minified = {
-                type: "minifiedBundle",
+                type: 'minifiedBundle',
                 messages: messages.slice(start, start + range.length)
             }
             messages.splice(start, range.length, minified)
@@ -143,7 +141,7 @@ class ConversationList extends TrackerReact(React.Component) {
 
     _renderMinifiedBundle(bundle) {
         const BUNDLE_HEIGHT = 36
-        const lines = bundle.messages.slice(0, 10);
+        const lines = bundle.messages.slice(0, 10)
         h = Math.round(BUNDLE_HEIGHT / lines.length)
 
         return (
@@ -175,9 +173,9 @@ class ConversationList extends TrackerReact(React.Component) {
 
 
     _replyType() {
-        const defaultReplyType = 'reply-all';
-        const lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m)=>!m.draft))
-        if (!lastMessage) return 'reply';
+        const defaultReplyType = 'reply-all'
+        const lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
+        if (!lastMessage) return 'reply'
 
         if (NylasUtils.canReplyAll(lastMessage)) {
             if (defaultReplyType == 'reply-all')
@@ -191,4 +189,4 @@ class ConversationList extends TrackerReact(React.Component) {
 
 }
 
-export default ConversationList;
+export default ConversationList

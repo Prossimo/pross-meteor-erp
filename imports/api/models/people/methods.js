@@ -132,7 +132,7 @@ export const insertPeople = new ValidatedMethod({
             const person = _.clone(p)
             person.user_id = this.userId
 
-            person.emails = [{email:person.email}]
+            person.emails = [{email:person.email, is_default:true}]
             delete person.email
 
             const contactId = person.contact_id

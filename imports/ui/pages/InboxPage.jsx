@@ -4,12 +4,10 @@ import Spinner from '../components/utils/spinner'
 import {warning} from '/imports/api/lib/alerts'
 import Actions from '../../api/nylas/actions'
 import '../../api/nylas/tasks/task-queue'
-import Contacts from '../../api/models/contacts/contacts'
 import NylasUtils from '../../api/nylas/nylas-utils'
 import AccountStore from '../../api/nylas/account-store'
 import CategoryStore from '../../api/nylas/category-store'
 import ThreadStore from '../../api/nylas/thread-store'
-import MessageStore from '../../api/nylas/message-store'
 import DraftStore from '../../api/nylas/draft-store'
 import ItemCategory from '../components/inbox/ItemCategory'
 import ItemThread from '../components/inbox/ItemThread'
@@ -18,7 +16,8 @@ import Toolbar from '../components/inbox/Toolbar'
 import ComposeModal from '../components/inbox/composer/ComposeModal'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/admin/CreateSalesRecord'
-import SalesRecordSelect from '../components/admin/salesRecord/SalesRecordSelect'
+import PeopleForm from '../components/people/PeopleForm'
+import {People} from '/imports/api/models'
 
 
 class InboxPage extends React.Component {
@@ -108,6 +107,7 @@ class InboxPage extends React.Component {
                     <div style={{height: '100%'}}>
                         {this.renderInbox()}
                         {this.renderSalesRecordModal()}
+                        {this.renderPeopleModal()}
                         <ComposeModal isOpen={composeState && composeState.show}
                                       clientId={composeState && composeState.clientId}
                                       onClose={this.onCloseComposeModal}/>
@@ -172,9 +172,23 @@ class InboxPage extends React.Component {
 
     onSelectMenuSalesRecord = (option, salesRecord) => {
         this.setState({
-            showSalesRecordModal: true,
             bindingSalesRecord: option == 'bind',
             selectedSalesRecord: salesRecord
+        })
+
+        const {participants} = this.state.currentThread
+        const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email':p.email}) == null)
+        if(noStoredParticipants && noStoredParticipants.length) {
+            this.setState({
+                noStoredParticipants,
+                showPeopleModal: true
+            })
+
+            return
+        }
+
+        this.setState({
+            showSalesRecordModal: true
         })
     }
 
@@ -200,6 +214,33 @@ class InboxPage extends React.Component {
         )
     }
 
+    renderPeopleModal() {
+        const {showPeopleModal, noStoredParticipants} = this.state
+
+        if(!noStoredParticipants || noStoredParticipants.length == 0) return ''
+
+        return (
+            <Modal bsSize="large" show={showPeopleModal} onHide={() => {
+                this.setState({showPeopleModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to people</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <PeopleForm
+                        people={noStoredParticipants}
+                        onSaved={this.onSavedPeople}
+                    />
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    onSavedPeople = () => {
+        this.setState({
+            showPeopleModal: false
+        }, () => {
+            this.setState({showSalesRecordModal:true})
+        })
+    }
     onCloseSalesRecordModal = () => {
         this.setState({
             showSalesRecordModal: false,

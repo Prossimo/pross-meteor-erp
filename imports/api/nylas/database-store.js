@@ -301,6 +301,7 @@ class DatabaseStore extends Reflux.Store {
                             const item = result.rows.item(i)
                             Object.keys(item).forEach((key) => {
                                 if(isJsonString(item[key])) item[key] = JSON.parse(item[key])
+                                if(Schema[objName][key]['type']!=='string' && item[key] == 'undefined') item[key] = undefined
                             })
                             data.push(item)
                         }

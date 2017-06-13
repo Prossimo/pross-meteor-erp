@@ -144,7 +144,7 @@ export default class ContactsPage extends React.Component {
         this.setState({showPersonModal: false})
     }
 
-    onSavedPeople = (person_id) => {
+    onSavedPeople = () => {
         this.setState({showPeopleModal: false})
     }
 }

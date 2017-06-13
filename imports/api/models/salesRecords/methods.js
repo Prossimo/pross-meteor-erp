@@ -177,7 +177,7 @@ Meteor.methods({
 
     // Insert conversations attached
     if (thread) {
-      //console.log("thread to be attached", thread)
+      console.log('thread to be attached', thread)
       thread.salesRecordId = salesRecordId
       Threads.insert(thread)
 
@@ -193,7 +193,12 @@ Meteor.methods({
 
           Fiber(() => {
             messages.forEach((message) => {
-              Messages.insert(message)
+                const existingMessage = Messages.findOne({id:message.id})
+                if(!existingMessage) {
+                    Messages.insert(message)
+                } else {
+                    Messages.update({_id:existingMessage._id}, {$set:message})
+                }
             })
           }).run()
         }
@@ -253,11 +258,9 @@ Meteor.methods({
         category: [String]
       }],
       stakeholders: [{
-        contactId: String,
-        destination: String,
-        category: [String],
         isMainStakeholder: Boolean,
         notify: Boolean,
+        peopleId: String,
       }],
       actualDeliveryDate: Date,
       productionStartDate: Date,
@@ -289,7 +292,7 @@ Meteor.methods({
 
     // Insert conversations attached
     if (thread) {
-      //console.log("thread to be attached", thread)
+      console.log('thread to be attached', thread)
       thread.salesRecordId = id
       const existingThread = Threads.findOne({id:thread.id, salesRecordId:id})
       if(existingThread) {

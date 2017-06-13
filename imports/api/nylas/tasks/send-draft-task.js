@@ -8,15 +8,15 @@ import AccountStore from '../account-store'
 
 export default class SendDraftTask extends Task {
     constructor(clientId) {
-        super();
+        super()
         this.clientId = clientId
-        this.uploaded = [];
-        this.draft = null;
-        this.message = null;
+        this.uploaded = []
+        this.draft = null
+        this.message = null
     }
 
     label() {
-        return "Sending message...";
+        return 'Sending message...'
     }
 
     performRemote() {
@@ -27,31 +27,31 @@ export default class SendDraftTask extends Task {
                 this.message = responseJSON
             })
             .then(this.onSuccess)
-            .catch(this.onError);
+            .catch(this.onError)
     }
 
     assertDraftValidity = () => {
         this.draft = DraftStore.draftForClientId(this.clientId)
 
         if (!this.draft.from[0]) {
-            return Promise.reject(new Error("SendDraftTask - you must populate `from` before sending."));
+            return Promise.reject(new Error('SendDraftTask - you must populate `from` before sending.'))
         }
 
-        const account = AccountStore.accountForEmail(this.draft.from[0].email);
+        const account = AccountStore.accountForEmail(this.draft.from[0].email)
         if (!account) {
-            return Promise.reject(new Error("SendDraftTask - you can only send drafts from a configured account."));
+            return Promise.reject(new Error('SendDraftTask - you can only send drafts from a configured account.'))
         }
         if (this.draft.account_id !== account.accountId) {
-            return Promise.reject(new Error("The from address has changed since you started sending this draft. Double-check the draft and click 'Send' again."));
+            return Promise.reject(new Error('The from address has changed since you started sending this draft. Double-check the draft and click \'Send\' again.'))
         }
-        if (this.draft.uploads && (this.draft.uploads.length > 0)) { console.log("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again..")
-            return Promise.reject(new Error("Files have been added since you started sending this draft. Double-check the draft and click 'Send' again.."));
+        if (this.draft.uploads && (this.draft.uploads.length > 0)) { console.log('Files have been added since you started sending this draft. Double-check the draft and click \'Send\' again..')
+            return Promise.reject(new Error('Files have been added since you started sending this draft. Double-check the draft and click \'Send\' again..'))
         }
-        return Promise.resolve();
+        return Promise.resolve()
     }
 
     sendMessage = () => {
-        let draft = _.clone(this.draft)
+        const draft = _.clone(this.draft)
         if(!draft.hideSignature){
             const signature = AccountStore.signatureForAccountId(draft.account_id)
             if(signature) draft.body += `<br><br><div class="gmail_quote">${signature}</div>`
@@ -59,9 +59,9 @@ export default class SendDraftTask extends Task {
 
         if(draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
 
-        console.log('Started sendMessage', draft)
+
         return NylasAPI.makeRequest({
-            path: "/send",
+            path: '/send',
             accountId: this.draft.account_id,
             method: 'POST',
             body: draft,
@@ -77,13 +77,13 @@ export default class SendDraftTask extends Task {
 
                 // If the thread was deleted
                 if (err.message && err.message.indexOf('Invalid thread') === 0) {
-                    this.draft.thread_id = null;
-                    this.draft.reply_to_message_id = null;
-                    return this.sendMessage();
+                    this.draft.thread_id = null
+                    this.draft.reply_to_message_id = null
+                    return this.sendMessage()
                 }
 
                 return Promise.reject(err)
-            });
+            })
 
 
     }
@@ -92,10 +92,10 @@ export default class SendDraftTask extends Task {
         Actions.sendDraftSuccess({
             message: this.message,
             clientId: this.clientId
-        });
-        NylasAPI.makeDraftDeletionRequest(this.draft);
+        })
+        NylasAPI.makeDraftDeletionRequest(this.draft)
 
-        return Promise.resolve(Task.Status.Success);
+        return Promise.resolve(Task.Status.Success)
     }
 
     onError = (err) => {
@@ -103,21 +103,21 @@ export default class SendDraftTask extends Task {
             return Promise.resolve(Task.Status.Continue)
         }
 
-        let message = err.message;
+        let message = err.message
 
         if (err instanceof APIError) {
             if (!NylasAPI.PermanentErrorCodes.includes(err.statusCode)) {
-                return Promise.resolve(Task.Status.Retry);
+                return Promise.resolve(Task.Status.Retry)
             }
 
-            message = `Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large.`;
+            message = 'Sorry, this message could not be sent. Please try again, and make sure your message is addressed correctly and is not too large.'
             if (err.statusCode === 402 && err.body.message) {
                 if (err.body.message.indexOf('at least one recipient') !== -1) {
-                    message = `This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)`;
+                    message = 'This message could not be delivered to at least one recipient. (Note: other recipients may have received this message - you should check Sent Mail before re-sending this message.)'
                 } else {
-                    message = `Sorry, this message could not be sent because it was rejected by your mail provider. (${err.body.message})`;
+                    message = `Sorry, this message could not be sent because it was rejected by your mail provider. (${err.body.message})`
                     if (err.body.server_error) {
-                        message += `\n\n${err.body.server_error}`;
+                        message += `\n\n${err.body.server_error}`
                     }
                 }
             }
@@ -127,10 +127,10 @@ export default class SendDraftTask extends Task {
             threadId: this.draft.thread_id,
             clientId: this.clientId,
             errorMessage: message
-        });
+        })
 
 
-        return Promise.resolve([Task.Status.Failed, err]);
+        return Promise.resolve([Task.Status.Failed, err])
     }
 
 }
