@@ -297,6 +297,13 @@ Meteor.methods({
     })
     if (user.status === 'pending' && status === 'active') {
       Meteor.call('inviteUserToSlack', getUserEmail(user))
+      Meteor.defer(() => {Meteor.call('sendEmail', {
+         to: user.emails[0].address,
+         from: 'Prossimo Service',
+         replyTo: 'test@gmail.com',
+         subject: 'Acive user',
+         html: '<div>Your account is actived</div>',
+      })})
     }
   },
 
