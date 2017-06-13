@@ -12,16 +12,16 @@ export default class ComposeModal extends React.Component {
     }
 
     constructor(props) {
-        super(props);
+        super(props)
 
-        draft = DraftStore.draftForClientId(props.clientId)
+        this.draft = DraftStore.draftForClientId(props.clientId)
     }
 
     render() {
         const {isOpen, clientId, onClose, salesRecordId} = this.props
         return (
             <Modal show={isOpen} onHide={onClose} bsSize="large">
-                <Modal.Header closeButton><Modal.Title>{draft && draft.reply_to_message_id ? "Edit Message" : "Compose New Mail"}</Modal.Title></Modal.Header>
+                <Modal.Header closeButton><Modal.Title>{this.draft && this.draft.reply_to_message_id ? 'Edit Message' : 'Compose New Mail'}</Modal.Title></Modal.Header>
                 <Modal.Body><ComposeView clientId={clientId} lazySend={this.props.lazySend}/></Modal.Body>
             </Modal>
         )

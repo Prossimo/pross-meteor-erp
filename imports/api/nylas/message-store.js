@@ -22,6 +22,7 @@ class MessageStore extends Reflux.Store {
             this._messages.sort((m1, m2) => m1.date - m2.date)
 
             this._expandMessagesToDefault()
+            this._fetchExpandedAttachments(this._messages)
         }
     }
 
@@ -63,7 +64,7 @@ class MessageStore extends Reflux.Store {
             path: `/messages?${query}`,
             method: 'GET',
             accountId: thread.account_id
-        }).then((result) => {
+        }).then((result) => {console.log('onLoadMessages result', result)
             if(result && result.length) {
                 if(thread.id === currentThread.id) {
 

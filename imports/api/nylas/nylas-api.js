@@ -144,7 +144,7 @@ class NylasAPI {
             return Promise.reject(new Error('handleModelResponse with no JSON provided'))
         }
 
-        if(!jsons instanceof Array) {
+        if(!(jsons instanceof Array)) {
             jsons = [jsons]
         }
 

@@ -7,6 +7,7 @@ import { STAGES, SUB_STAGES } from '../../constants/project'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import Contacts from '../contacts/contacts'
+import People from '../people/people'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -112,11 +113,11 @@ Factory.define('salesRecord', SalesRecords, {
 })
 
 
-SalesRecords.before.insert(function (userId, doc) {
+SalesRecords.before.insert((userId, doc) => {
     doc.createdAt = new Date()
 })
 
-SalesRecords.before.update(function (userId, doc, fieldNames, modifier, options) {
+SalesRecords.before.update((userId, doc, fieldNames, modifier, options) => {
     // modifier.$set = modifier.$set || {}
     doc.modifiedAt = Date.now()
 })
@@ -131,8 +132,10 @@ SalesRecords.helpers({
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
     contactsForStakeholders() {
-        const contactIds = _.pluck(this.stakeholders, 'contactId')
-        return Contacts.find({_id:{$in:contactIds}}).fetch()
+        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        const people = People.find({_id:{$in:peopleIds}}).fetch()
+
+        return people.map(p => ({name:p.name, email:p.defaultEmail()}))
     }
 })
 

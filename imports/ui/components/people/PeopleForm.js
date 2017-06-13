@@ -1,7 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
-import {warning} from "/imports/api/lib/alerts"
+import {warning} from '/imports/api/lib/alerts'
 import {PeopleDesignations, Companies} from '/imports/api/models'
 import {insertPeople} from '/imports/api/models/people/methods'
 
@@ -65,7 +65,7 @@ export default class PeopleForm extends React.Component {
                         </thead>
                         <tbody>
                         {
-                            people.map((person, index)=> {
+                            people.map((person, index) => {
                                 let designation, designationValue, roleOptions = [], roleValue, roleAddable = false
                                 if (person.designation_id) {
                                     designation = _.findWhere(designations, {_id: person.designation_id})

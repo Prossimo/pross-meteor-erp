@@ -30,7 +30,7 @@ export default class ParticipantsInputField extends React.Component {
             multi
             options={options}
             value={values}
-            valueRenderer={(item)=>item.value}
+            valueRenderer={(item) => item.value}
             onChange={this._onChange}
             onInputChange={this._onInputChange}
             clearable={true}
@@ -41,7 +41,7 @@ export default class ParticipantsInputField extends React.Component {
             multi
             options={options}
             value={values}
-            valueRenderer={(item)=>item.value}
+            valueRenderer={(item) => item.value}
             onChange={this._onChange}
             clearable={true}
             placeholder="Select email address in the list..."
@@ -58,12 +58,10 @@ export default class ParticipantsInputField extends React.Component {
     _getValuesFromContacts = (contacts) => {
         if(!contacts) return []
 
-        return contacts.map((c)=>{return {value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name ? c.name : ""}})
+        return contacts.map((c) => ({value: c.email, label: NylasUtils.contactDisplayFullname(c), name: c.name ? c.name : ''}))
     }
 
-    _getContactsFromValues = (values) => {
-        return values && values.map((item)=>{return {email:item.value, name:item.name}})
-    }
+    _getContactsFromValues = (values) => values && values.map((item) => ({email:item.value, name:item.name}))
 
     _onChange = (items) => {
         this.setState({values: items})
@@ -72,10 +70,10 @@ export default class ParticipantsInputField extends React.Component {
     }
 
     _onInputChange = (val) => {
-        if(this.timeout) { clearTimeout(this.timeout); }
+        if(this.timeout) { clearTimeout(this.timeout) }
 
         this.timeout = setTimeout(() => {
-            ContactStore.searchContacts(val, {limit:10}).then((contacts)=>{
+            ContactStore.searchContacts(val, {limit:10}).then((contacts) => {
                 this.setState({options: this._getValuesFromContacts(contacts)})
             })
         }, 500)

@@ -1,5 +1,5 @@
-import React from 'react';
-import { createContainer  } from 'meteor/react-meteor-data';
+import React from 'react'
+import { createContainer  } from 'meteor/react-meteor-data'
 
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import DraftStore from '/imports/api/nylas/draft-store'
@@ -12,7 +12,7 @@ export default class ConversationsView extends React.Component{
         salesRecord: React.PropTypes.object
     }
     constructor(props){
-        super(props);
+        super(props)
 
         this.state = {
         }
@@ -20,14 +20,14 @@ export default class ConversationsView extends React.Component{
 
 
     componentDidMount() {
-        this.unsubscribes = [];
-        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged));
+        this.unsubscribes = []
+        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
     }
 
     componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
-        });
+        })
     }
     onDraftStoreChanged = () => {
         this.setState({
@@ -36,7 +36,7 @@ export default class ConversationsView extends React.Component{
     }
 
     render() {
-        const { composeState } = this.state;
+        const { composeState } = this.state
 
         const {salesRecord} = this.props
         return (
