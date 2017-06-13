@@ -502,7 +502,7 @@ class SingleSalesRecord extends React.Component{
             {
               this.props.designations.map((d) => {
               const existPeople = this.props.stakeholders.filter(stake =>
-                stake.designation.name === d.name
+                stake.designation && stake.designation.name === d.name
               )
               if (_.isEmpty(existPeople)) return ''
               return (
