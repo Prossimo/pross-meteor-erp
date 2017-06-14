@@ -488,6 +488,10 @@ class AllSalesRecords extends React.Component{
 
         //init tooltip
         $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').on('show.bs.tooltip', function() {
+          // Only one tooltip should ever be open at a time
+          $('.tooltip').not(this).hide()
+        })
 
         Meteor.call('getVisibleFields', 'salesRecord', (error, selectedFields) => {
             if (!error) {
@@ -548,6 +552,7 @@ class AllSalesRecords extends React.Component{
           <button
             className={`btn btn-default ${!active ? 'active' : ''}`}
             data-toggle="tooltip" title="List View"
+            data-replacement="auto"
             onClick={() => {
               this.setState({showKanbanView: false})
             }}
@@ -557,6 +562,7 @@ class AllSalesRecords extends React.Component{
           <button
             className={`btn btn-default ${active}`}
             data-toggle="tooltip" title="Kaban View"
+            data-replacement="auto"
             onClick={() => {
               this.setState({showKanbanView: true})
             }}
