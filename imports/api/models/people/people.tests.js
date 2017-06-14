@@ -133,8 +133,6 @@ if(Meteor.isServer) {
                 twitter: 'http://www.twitter.com/john',
                 facebook: 'http://www.facebook.com/john',
                 linkedin: 'http://www.linkedin.com/john',
-                designation_id: Factory.create('designation')._id,
-                role: 'Manager',
                 emails: [{
                     email: 'john@prossimo.us.office',
                     type: 'office',
@@ -148,7 +146,12 @@ if(Meteor.isServer) {
                 company_id: Factory.create('company')._id,
                 position: 'Project Manager'
             }
-
+            // no designation_id and role
+            assert.throws(() => {
+                insertPerson._execute({userId:adminId}, data)
+            }, Meteor.Error())
+            data.designation_id = Factory.create('designation')._id
+            data.role = 'Manager'
             // duplicated email
             assert.throws(() => {
                 insertPerson._execute({userId:adminId}, _.clone(data).emails.push({

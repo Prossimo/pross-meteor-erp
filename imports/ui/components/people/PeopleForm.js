@@ -85,8 +85,8 @@ export default class PeopleForm extends React.Component {
                                     <tr key={index}>
                                         <td><FormControl type="text" value={person.name} onChange={(e) => this.changeState(person, 'name', e.target.value)}/></td>
                                         <td><FormControl type="email" value={person.email} onChange={(e) => this.changeState(person, 'email', e.target.value)}/></td>
-                                        <td><Select clearable={false} options={designationOptions} value={designationValue} onChange={(item) => this.changeState(person, 'designation_id', item.value)}/></td>
-                                        <td><Select clearable={false} options={roleOptions} value={roleValue} onChange={(item) => this.changeState(person, 'role', item.value)}/></td>
+                                        <td><Select clearable={false} required options={designationOptions} value={designationValue} onChange={(item) => this.changeState(person, 'designation_id', item.value)}/></td>
+                                        <td><Select clearable={false} required options={roleOptions} value={roleValue} onChange={(item) => this.changeState(person, 'role', item.value)}/></td>
                                         <td><Select clearable={false} options={companyOptions} value={companyValue} onChange={(item) => this.changeState(person, 'company_id', item.value)}/></td>
                                         <td><FormControl type="text" value={person.position} onChange={(e) => this.changeState(person, 'position', e.target.value)}/></td>
                                         <td><Button bsSize="xsmall" onClick={() => this.onClickRemovePerson(index)}><i className="fa fa-trash"/></Button></td>
@@ -118,6 +118,7 @@ export default class PeopleForm extends React.Component {
             if (this.props.onSaved) this.props.onSaved()
         } catch (e) {
             console.log(e)
+            warning(e.error)
         }
 
     }

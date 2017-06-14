@@ -26,7 +26,7 @@ export const insertPerson = new ValidatedMethod({
         const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
         if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
 
-        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}})
+        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}}).fetch()
         if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
         const data = {
@@ -66,7 +66,7 @@ export const updatePerson = new ValidatedMethod({
         const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
         if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
 
-        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}})
+        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}}).fetch()
         if(existingPeople && existingPeople._id!==person._id && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
 
@@ -123,7 +123,7 @@ export const insertPeople = new ValidatedMethod({
         const uniquedEmails = _.uniq(_.pluck(people, 'email'))
         if(uniquedEmails.length !== people.length) throw new Meteor.Error('Duplicated email')
 
-        const existingPeople = People.find({'emails.email':{$in:uniquedEmails}})
+        const existingPeople = People.find({'emails.email':{$in:uniquedEmails}}).fetch()
         if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
 

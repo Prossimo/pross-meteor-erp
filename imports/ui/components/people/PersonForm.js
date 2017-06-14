@@ -114,6 +114,7 @@ export default class PersonForm extends React.Component {
                                 options={designationOptions}
                                 value={designationValue}
                                 onChange={this.onChangeDesignation}
+                                required
                             />
                         </Col>
                     </FormGroup>
@@ -128,6 +129,7 @@ export default class PersonForm extends React.Component {
                                     options={roleOptions}
                                     value={roleValue}
                                     onChange={this.onChangeRole}
+                                    required
                                 /></div>
                                 {roleAddable && <Button onClick={this.onClickAddRole}><i className="fa fa-plus"/></Button>}
                             </div>
@@ -244,6 +246,7 @@ export default class PersonForm extends React.Component {
             if (this.props.onSaved) this.props.onSaved(personId)
         } catch (e) {
             console.log(e)
+            warning(e.error)
         }
 
     }
