@@ -136,6 +136,13 @@ SalesRecords.helpers({
         const people = People.find({_id:{$in:peopleIds}}).fetch()
 
         return people.map(p => ({name:p.name, email:p.defaultEmail()}))
+    },
+    noticeableContactsForStakeholders() {
+        const peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
+        const people = People.find({_id:{$in:peopleIds}}).fetch()
+
+        return people.map(p => ({name:p.name, email:p.defaultEmail()}))
+
     }
 })
 

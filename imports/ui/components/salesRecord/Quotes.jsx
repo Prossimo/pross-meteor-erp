@@ -81,22 +81,22 @@ class QuoteItem extends React.Component {
             .filter(revision => revision !== latest)
             .sort((a, b) => a.revisionNumber > b.revisionNumber ? -1 : 1)
             .map(revision => (
-                    <li className="revision-item"
-                        key={revision.fileId}>
-                        <p>Revision
-                            <span className="revision-label"> # {revision.revisionNumber}</span></p>
-                        <p>
-                            <i className="fa fa-calendar-o"/> {moment(revision.createAt).format('MMMM Do YYYY')}</p>
-                        <p>Total price {currencyFormatter.format(revision.totalPrice, {
-                            code: 'USD',
-                            locale: 'en-US',
-                            decimalDigits: 1
-                        })}</p>
-                        <a href={revision.url}
-                           download={revision.fileName}
-                           className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
-                    </li>
-                ))
+                <li className="revision-item"
+                    key={revision.fileId}>
+                    <p>Revision
+                        <span className="revision-label"> # {revision.revisionNumber}</span></p>
+                    <p>
+                        <i className="fa fa-calendar-o"/> {moment(revision.createAt).format('MMMM Do YYYY')}</p>
+                    <p>Total price {currencyFormatter.format(revision.totalPrice, {
+                        code: 'USD',
+                        locale: 'en-US',
+                        decimalDigits: 1
+                    })}</p>
+                    <a href={revision.url}
+                       download={revision.fileName}
+                       className="btnn primary-btn"><i className="fa fa-download"/> PDF</a>
+                </li>
+            ))
         return (
             <li className="single-quota">
                 <div className="flex-container">
@@ -172,9 +172,26 @@ class Quotes extends React.Component {
     showAddQuoteForm() {
         const {salesRecord, usersArr, currentUser, quotes} = this.props
 
-        const to = salesRecord.contactsForStakeholders().map((c) => ({name:c.name, email:c.email}))
-        const salesRecordId = salesRecord._id
-        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
+        const to = salesRecord.noticeableContactsForStakeholders().map((c) => ({name: c.name, email: c.email}))
+        if (to && to.length) {
+            const salesRecordId = salesRecord._id
+            DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
+                this.setState({
+                    showPopup: true,
+                    popupTitle: 'Add new quote',
+                    popupData: <AddQuoteForm
+                        currentUser={currentUser}
+                        usersArr={usersArr}
+                        quotes={quotes}
+                        salesRecord={salesRecord}
+                        draftClientId={draft.clientId}
+                        saved={() => {
+                            this.setState({showPopup: false})
+                        }}
+                    />
+                })
+            })
+        } else {
             this.setState({
                 showPopup: true,
                 popupTitle: 'Add new quote',
@@ -183,13 +200,12 @@ class Quotes extends React.Component {
                     usersArr={usersArr}
                     quotes={quotes}
                     salesRecord={salesRecord}
-                    draftClientId={draft.clientId}
                     saved={() => {
                         this.setState({showPopup: false})
                     }}
                 />
             })
-        })
+        }
     }
 
     renderPopup() {
@@ -210,9 +226,24 @@ class Quotes extends React.Component {
     addRevision(quote) {
         const {salesRecord, usersArr, currentUser} = this.props
 
-        const to = salesRecord.contactsForStakeholders().map((c) => ({name:c.name, email:c.email}))
-        const salesRecordId = salesRecord._id
-        DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
+        const to = salesRecord.noticeableContactsForStakeholders().map((c) => ({name: c.name, email: c.email}))
+        if (to && to.length) {
+            const salesRecordId = salesRecord._id
+            DraftStore.createDraftForQuoteEmail({to, salesRecordId}).then((draft) => {
+                this.setState({
+                    showPopup: true,
+                    popupTitle: `Add revision to ${quote.name}`,
+                    popupData: <AddQuoteRevisionForm currentUser={currentUser}
+                                                     usersArr={usersArr}
+                                                     quote={quote}
+                                                     salesRecord={salesRecord}
+                                                     draftClientId={draft.clientId}
+                                                     saved={() => {
+                                                         this.setState({showPopup: false})
+                                                     }}/>
+                })
+            })
+        } else {
             this.setState({
                 showPopup: true,
                 popupTitle: `Add revision to ${quote.name}`,
@@ -220,13 +251,11 @@ class Quotes extends React.Component {
                                                  usersArr={usersArr}
                                                  quote={quote}
                                                  salesRecord={salesRecord}
-                                                 draftClientId={draft.clientId}
                                                  saved={() => {
                                                      this.setState({showPopup: false})
                                                  }}/>
             })
-        })
-
+        }
     }
 
     renderQuotes() {
@@ -235,8 +264,8 @@ class Quotes extends React.Component {
         if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>
 
         return <ul className="quotes-list">{quotes.map(quote => <QuoteItem key={quote._id}
-                              addRevision={this.addRevision.bind(this)}
-                              quote={quote}/>)}
+                                                                           addRevision={this.addRevision.bind(this)}
+                                                                           quote={quote}/>)}
         </ul>
     }
 

@@ -16,11 +16,12 @@ export default class SelectPeople extends Component {
         if (!people) {
             people = People.find().fetch()
         }
-        this.peopleOptions = people.map(({name, _id, notify, isMain}) => ({
-            notify: notify!=null ? notify : false,
-            isMain: isMain!=null ? isMain : false,
-            name,
-            _id,
+        this.peopleOptions = people.map((person) => ({
+            notify: person.notify!=null ? person.notify : true,
+            isMain: person.isMain!=null ? person.isMain : false,
+            name: person.name,
+            email: person.defaultEmail(),
+            _id: person._id,
         })).map(person => ({label: person.name, value: person._id, ...person}))
 
         this.state = {
@@ -92,10 +93,10 @@ export default class SelectPeople extends Component {
                 <tbody>
                 {
                     this.state.selectedPeople.map(person => {
-                        const {_id, name, isMain, notify} = person
+                        const {_id, name, email, isMain, notify} = person
                         return (
                             <tr key={_id}>
-                                <td>{ name }</td>
+                                <td><div>{ name }</div><div>{email}</div></td>
                                 <td>
                                     <div className='radio'>
                                         <label>
