@@ -1,8 +1,8 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
-import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js"
+import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import config from '../../../api/config/config'
-import {warning} from "/imports/api/lib/alerts";
+import {warning} from '/imports/api/lib/alerts'
 import Actions from '../../../api/nylas/actions'
 
 export default class NylasSigninForm extends React.Component {
@@ -41,14 +41,14 @@ export default class NylasSigninForm extends React.Component {
 
         return (
             <div style={{maxWidth: 500,minWidth: 400}}>
-                <h3 style={{textAlign:'center'}}>Add {this.props.isAddingTeamInbox ? "a Team" : "an Individual"} Inbox</h3><br/>
+                <h3 style={{textAlign:'center'}}>Add {this.props.isAddingTeamInbox ? 'a Team' : 'an Individual'} Inbox</h3><br/>
                 <Form horizontal onSubmit={this.onSubmitSignIn}>
                     <FormGroup controlId="formHorizontalEmail">
                         <Col componentClass={ControlLabel} sm={3}>
                             Full Name
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="text" placeholder="Name" value={name} onChange={(evt)=>this.setState({name:evt.target.value})} disabled={isProcessing}/>
+                            <FormControl type="text" placeholder="Name" value={name} onChange={(evt) => this.setState({name:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.name}</span>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalEmail">
@@ -56,7 +56,7 @@ export default class NylasSigninForm extends React.Component {
                             Email
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="email" placeholder="Email" value={email} onChange={(evt)=>this.setState({email:evt.target.value})} disabled={isProcessing}/>
+                            <FormControl type="email" placeholder="Email" value={email} onChange={(evt) => this.setState({email:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.email}</span>
                     </FormGroup>
 
@@ -65,7 +65,7 @@ export default class NylasSigninForm extends React.Component {
                             Password
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="password" placeholder="Password" value={password} onChange={(evt)=>this.setState({password:evt.target.value})} disabled={isProcessing}/>
+                            <FormControl type="password" placeholder="Password" value={password} onChange={(evt) => this.setState({password:evt.target.value})} disabled={isProcessing}/>
                         </Col><span style={validationStyle}>{validation.password}</span>
                     </FormGroup>
 
@@ -74,7 +74,7 @@ export default class NylasSigninForm extends React.Component {
                             Provider
                         </Col>
                         <Col sm={9}>
-                            <FormControl componentClass="select" value={provider} onChange={(evt)=>this.setState({provider:evt.target.value})} disabled={isProcessing}>
+                            <FormControl componentClass="select" value={provider} onChange={(evt) => this.setState({provider:evt.target.value})} disabled={isProcessing}>
                                 <option value="">-----</option>
                                 <option value="gmail">Gmail</option>
                                 <option value="exchange">Exchange</option>
@@ -97,25 +97,25 @@ export default class NylasSigninForm extends React.Component {
     }
 
     onSubmitSignIn = (evt) => {
-        evt.preventDefault();
-        const {name, email, password, provider, validation} = this.state;
+        evt.preventDefault()
+        const {name, email, password, provider, validation} = this.state
 
         if (name == '') {
             validation.name = 'Name is required'
-            return this.setState({validation:Object.assign(this.state.validation, validation)});
+            return this.setState({validation:Object.assign(this.state.validation, validation)})
         }
 
         if (!isValidEmail(email)) {
             validation.email = 'Please enter valid e-mail address'
-            return this.setState({validation:Object.assign(this.state.validation, validation)});
+            return this.setState({validation:Object.assign(this.state.validation, validation)})
         }
         if (provider == '') {
             validation.provider = 'Email provider is required'
-            return this.setState({validation:Object.assign(this.state.validation, validation)});
+            return this.setState({validation:Object.assign(this.state.validation, validation)})
         }
         if (!isValidPassword(password, 6)) {
             validation.password = 'Please enter valid password'
-            return this.setState({validation:Object.assign(this.state.validation, validation)});
+            return this.setState({validation:Object.assign(this.state.validation, validation)})
         }
 
 
@@ -125,11 +125,11 @@ export default class NylasSigninForm extends React.Component {
             password,
             provider,
             isTeamAccount: this.props.isAddingTeamInbox
-        };
+        }
 
-        if(provider == 'gmail') {console.log('gmail inbox redirectUri', config.google.redirectUri)
-            const url = require('url');
-            googleUrl = url.format({
+        if(provider == 'gmail') {//console.log('gmail inbox redirectUri', config.google.redirectUri)
+            const url = require('url')
+            const googleUrl = url.format({
                 protocol: 'https',
                 host: 'accounts.google.com/o/oauth2/auth',
                 query: {
@@ -146,27 +146,27 @@ export default class NylasSigninForm extends React.Component {
                     login_hint: email,
                     prompt: 'consent'
                 }
-            });
+            })
             
-            window.open(googleUrl, "Google authentication", "width=730,height=650");
+            window.open(googleUrl, 'Google authentication', 'width=730,height=650')
 
-            window.addEventListener("message", this.receiveMessageFromGoolgeAuthWindow, false);
+            window.addEventListener('message', this.receiveMessageFromGoolgeAuthWindow, false)
         } else {
-            this.signin();
+            this.signin()
         }
     }
 
     signin = () => {
         this.setState({isProcessing: true})
-        signinData = this.signinData;
-        Meteor.call("addNylasAccount", signinData, (err, res) => {console.log("Signin to Inbox", err, res);
+        const signinData = this.signinData
+        Meteor.call('addNylasAccount', signinData, (err, res) => {console.log('Signin to Inbox', err, res)
             if(err) {
                 console.log(err)
                 this.setState({isProcessing: true})
-                return warning(err.message);
+                return warning(err.message)
             }
 
-            setTimeout(()=>{
+            setTimeout(() => {
                 Actions.changedAccounts()
                 if(this.props.onCompleted) this.props.onCompleted()
             }, 6000)
@@ -174,50 +174,50 @@ export default class NylasSigninForm extends React.Component {
     }
 
     receiveMessageFromGoolgeAuthWindow = (event) => {
-        console.log("Event arrived from other window", event);
+        console.log('Event arrived from other window', event)
 
         try {
-            const json = JSON.parse(event.data);
-            const code = json.googleAuthCode;
+            const json = JSON.parse(event.data)
+            const code = json.googleAuthCode
             if(code) {
                 const request = require('request')
-                options = {
+                const options = {
                     method: 'POST',
                     url: 'https://www.googleapis.com/oauth2/v4/token',
                     form: {
-                        code: code,
+                        code,
                         grant_type: 'authorization_code',
                         client_id: config.google.clientId,
                         client_secret: config.google.clientSecret,
                         redirect_uri: config.google.redirectUri
                     },
                     json: true
-                };
+                }
                 request(options, (error, response, body) => {
-                    console.log("GoogleAPIToken result", error, response, body);
+                    console.log('GoogleAPIToken result', error, response, body)
 
                     if(!error && body) {
 
-                        const googleAccessToken = body.access_token;
-                        const googleRefreshToken = body.refresh_token;
+                        const googleAccessToken = body.access_token
+                        const googleRefreshToken = body.refresh_token
 
                         if(googleAccessToken && googleRefreshToken) {
                             request({
                                 method: 'GET',
                                 url: `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleAccessToken}`,
                                 json: true
-                            }, (error, response, body)=>{
-                                console.log("GoogleUserInfo api result", error, response, body);
+                            }, (error, response, body) => {
+                                console.log('GoogleUserInfo api result', error, response, body)
                                 if(!error && body) {
 
-                                    const googleEmail = body.email;
+                                    const googleEmail = body.email
 
                                     if(googleEmail != this.signinData.email) {
-                                        return warning('Registraion email is different from Google authentication email!');
+                                        return warning('Registraion email is different from Google authentication email!')
                                     } else {
-                                        this.signinData.googleRefreshToken = googleRefreshToken;
+                                        this.signinData.googleRefreshToken = googleRefreshToken
 
-                                        this.signin();
+                                        this.signin()
                                     }
                                 }
                             })
@@ -227,7 +227,7 @@ export default class NylasSigninForm extends React.Component {
                 })
             }
         } catch (e) {
-            return false;
+            return false
         }
 
     }
