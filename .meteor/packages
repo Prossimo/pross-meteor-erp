@@ -71,6 +71,7 @@ fourseven:scss
 random
 picker
 percolate:synced-cron
+templating
 
 
 npm-container
