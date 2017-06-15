@@ -184,6 +184,13 @@ class Files extends Component {
   openExternal() {
     if (this.state.selectedFile.id) {
       open(this.state.selectedFile.webViewLink, '_blank')
+    } else {
+      const { folderId } = _.last(this.state.viewPath)
+      Meteor.call(
+        'drive.getFiles',
+        { fileId: folderId },
+        (error, result) => !error && open(result.webViewLink, '_blank')
+      )
     }
   }
 
@@ -331,7 +338,7 @@ class Files extends Component {
             <button className={`btn btn-default btn-sm fa fa-trash ${!this.state.selectedFile.id ? 'disabled' : ''}`} onClick={this.deleteFile}/>
             <button className='btn btn-default btn-sm fa fa-file' onClick={this.createNewFile}/>
             <button
-              className={`btn btn-default btn-sm fa fa-external-link ${!this.state.selectedFile.id ? 'disabled' : ''}`}
+              className='btn btn-default btn-sm fa fa-external-link'
               onClick={this.openExternal}
             />
           </div>
