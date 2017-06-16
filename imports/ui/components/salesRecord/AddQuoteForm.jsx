@@ -1,286 +1,268 @@
 import React from 'react'
+import { FlowRouter } from 'meteor/kadira:flow-router'
 import {Alert} from 'react-bootstrap'
 import Files from '/imports/api/models/files/files'
-import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters'
-import { generateEmailHtml } from '/imports/api/lib/functions'
+import { getSlackUsername, getAvatarUrl } from '../../../api/lib/filters'
 import { warning, info } from '/imports/api/lib/alerts'
 import TemplateSelect from '../mailtemplates/TemplateSelect'
 import TemplateOverview from '../mailtemplates/TemplateOverview'
 import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
+import { FS } from 'meteor/cfs:base-package'
 import ComposeModal from '../inbox/composer/ComposeModal'
 
 class AddQuoteForm extends React.Component{
-    static propTypes = {
-        currentUser: React.PropTypes.object,
-        usersArr: React.PropTypes.object,
-        quotes: React.PropTypes.array,
-        salesRecord: React.PropTypes.object,
-        draftClientId: React.PropTypes.string,
-        saved: React.PropTypes.func
-    }
-    constructor(props){
-        super(props)
+  static propTypes = {
+    currentUser: React.PropTypes.object,
+    usersArr: React.PropTypes.object,
+    quotes: React.PropTypes.array,
+    salesRecord: React.PropTypes.object,
+    draftClientId: React.PropTypes.string,
+    saved: React.PropTypes.func
+  }
+  constructor(props){
+    super(props)
 
-        this.state = {
-            currentFile: null,
-            quoteName: '',
-            totalCost: '',
-            alertsActive: true
+    this.state = {
+      currentFile: null,
+      quoteName: '',
+      totalCost: '',
+      alertsActive: true
+    }
+  }
+
+  changeFileInput = (event) => {
+    if(event.target.files.length){
+      if(event.target.files[0].type !== 'application/pdf') {
+        return warning('You can add only PDF files!')
+      }
+      this.setState({
+        currentFile: event.target.files[0]
+      })
+    }
+  }
+
+  renderAttachedFile(){
+    const { currentFile } = this.state
+    if(!currentFile) return null
+
+    return (
+      <div className="attached-file">
+      <span className="file-name">{currentFile.name}</span>
+      </div>
+    )
+  }
+
+  onChangeTitle = (event) => {
+    this.setState({quoteName: event.target.value})
+  }
+
+  formSubmit(event){
+    event.preventDefault()
+
+    const { currentFile, quoteName, totalCost, alertsActive } = this.state
+    const { salesRecord, usersArr } = this.props
+    if(!currentFile)return warning('You must add PDF file')
+    if(quoteName === '')return warning('Empty quote name')
+    if(totalCost === '')return warning('Empty total cost field')
+
+    const quoteData = {
+      name: quoteName,
+      createAt: new Date(),
+      projectId: salesRecord._id,
+      revisions: [
+        {
+          revisionNumber: 0,
+          totalPrice: parseFloat(totalCost),
+          fileName: currentFile.name,
+          fileId: null,
+          createBy: Meteor.userId(),
+          createAt: new Date(),
         }
+      ],
     }
 
-    componentDidMount() {
-
+    const file = new FS.File(currentFile)
+    file.metadata = {
+      userId: Meteor.userId(),
+      projectId: salesRecord._id,
+      createAt: new Date
     }
 
-    componentWillUnmount() {
+    const draftClientId = this.props.draftClientId
+    const addQuoteCb = (err) => { console.log(this.props)
+      if(err) return console.log(err)
 
+      if(this.props.saved) this.props.saved()
+      info('Add new quote')
+
+      if(alertsActive && draftClientId) {
+        Actions.sendDraft(draftClientId)
+      }
     }
 
-    changeFileInput = (event) => {
-        if(event.target.files.length){
-            if(event.target.files[0].type !== 'application/pdf') {
-                return warning('You can add only PDF files!')
-            }
+    const fileInsertCb = (err, res) => {
+      if (err) return console.log(err)
+      this.setState({
+        currentFile: null,
+        quoteName: ''
+      })
 
-            this.setState({
-                currentFile: event.target.files[0]
-            })
-        }
+      quoteData.revisions[0].fileId = res._id
+      Meteor.call('addNewQuote', quoteData, addQuoteCb)
+
+      if(typeof salesRecord.slackChanel === 'undefined') return
+
+      const params = {
+        username: getSlackUsername(usersArr[Meteor.userId()]),
+        icon_url: getAvatarUrl(usersArr[Meteor.userId()]),
+        attachments: [
+          {
+            'color': '#36a64f',
+            'text': `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${salesRecord.name}>`
+          }
+        ]
+      }
+
+      const slackText = `I just added new quote "${quoteData.name}"`
+
+      Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, params, (err,res) => {
+        console.log(err,res)
+      })
     }
 
-    renderAttachedFile(){
-        const { currentFile } = this.state
-        if(!currentFile) return null
+    Files.insert(file, fileInsertCb)
+  }
 
-        return (
-            <div className="attached-file">
-                <span className="file-name">{currentFile.name}</span>
-            </div>
-        )
-    }
+  onChangeCost = (event) => {
+    this.setState({totalCost: event.target.value})
+  }
 
-    onChangeTitle = (event) => {
-        this.setState({quoteName: event.target.value})
-    }
+  toggleAlertStakeholders = () => {
+    const { alertsActive } = this.state
+    this.setState({alertsActive: !alertsActive})
+  }
 
-    formSubmit(event){
-        event.preventDefault()
+  render() {
+    const { quoteName, totalCost, alertsActive, showComposeModal, selectedMailTemplate, shouldCompileMailTemplate } = this.state
+    const {draftClientId} = this.props
+    let templateData
 
-        const { currentFile, quoteName, totalCost, alertsActive } = this.state
-        const { salesRecord, usersArr, currentUser } = this.props
-        if(!currentFile)return warning('You must add PDF file')
-        if(quoteName === '')return warning('Empty quote name')
-        if(totalCost === '')return warning('Empty total cost field')
-
-        const quoteData = {
-            name: quoteName,
-            createAt: new Date(),
-            projectId: salesRecord._id,
-            revisions: [
-                {
-                    revisionNumber: 0,
-                    totalPrice: parseFloat(totalCost),
-                    fileName: currentFile.name,
-                    fileId: null,
-                    createBy: Meteor.userId(),
-                    createAt: new Date(),
-                }
-            ],
-        }
-
-        const file = new FS.File(currentFile)
-        file.metadata = {
-            userId: Meteor.userId(),
-            projectId: salesRecord._id,
-            createAt: new Date
-        }
-
-        const memberEmails = salesRecord.members.map(member => getUserEmail(member.user))
-
-        const sendEmailCb = (err,res) => {
-            if(err)return warning('Email sending failed')
-
-            info(res)
-        }
-
-
-        const draftClientId = this.props.draftClientId
-        const addQuoteCb = (err) => { console.log(this.props)
-            if(err) return console.log(err)
-
-            if(this.props.saved) this.props.saved()
-            info('Add new quote')
-
-            if(alertsActive && draftClientId) {
-                Actions.sendDraft(draftClientId)
-            }
-        }
-
-        const fileInsertCb = (err, res) => {
-            if (err) return console.log(err)
-            this.setState({
-                currentFile: null,
-                quoteName: ''
-            })
-
-            quoteData.revisions[0].fileId = res._id
-            Meteor.call('addNewQuote', quoteData, addQuoteCb)
-
-            if(typeof salesRecord.slackChanel === 'undefined') return
-
-            const params = {
-                username: getSlackUsername(usersArr[Meteor.userId()]),
-                icon_url: getAvatarUrl(usersArr[Meteor.userId()]),
-                attachments: [
-                    {
-                        'color': '#36a64f',
-                        'text': `<${FlowRouter.url(FlowRouter.current().path)}|Go to project ${salesRecord.name}>`
-                    }
-                ]
-            }
-
-            const slackText = `I just added new quote "${quoteData.name}"`
-
-            Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, params, (err,res) => {
-                console.log(err,res)
-            })
-        }
-
-        Files.insert(file, fileInsertCb)
-    }
-
-    onChangeCost = (event) => {
-        this.setState({totalCost: event.target.value})
-    }
-
-    toggleAlertStakeholders = () => {
-        const { alertsActive } = this.state
-        this.setState({alertsActive: !alertsActive})
-    }
-
-    render() {
-        const { quoteName, totalCost, alertsActive, showComposeModal, selectedMailTemplate, shouldCompileMailTemplate } = this.state
-        const {draftClientId} = this.props
-        let templateData
-
-        if(draftClientId) {
-            if(shouldCompileMailTemplate && selectedMailTemplate) {
-                templateData = this.compileTemplate(selectedMailTemplate)
-            } else {
-                const draft = DraftStore.draftForClientId(this.props.draftClientId)
-                templateData = {
-                    subject: draft.subject,
-                    body: draft.body
-                }
-            }
-        }
-
-        return (
-            <div className="add-quote-form">
-                <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
-                    <div className="field-wrap">
-                        <span className="label">Quote title</span>
-                        <input type="text"
-                               onChange={this.onChangeTitle}
-                               value={quoteName}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="label">Total price ($)</span>
-                        <input type="number"
-                               onChange={this.onChangeCost}
-                               value={totalCost}/>
-                    </div>
-                    <div className="field-wrap">
-                        <span className="revision-field">Revision # <span className="revision-label">0</span></span>
-                    </div>
-
-                    <div className="field-wrap">
-                        <span className="label">Add pdf file</span>
-                        <label htmlFor="form-quote-file"
-                               className="file-label"/>
-                        <input type="file"
-                               id="form-quote-file"
-                               onChange={this.changeFileInput}/>
-                        {this.renderAttachedFile()}
-                    </div>
-                    {
-                        draftClientId && (
-                            <div>
-                                <input type="checkbox"
-                                       id="alert-checkbox"
-                                       onChange={this.toggleAlertStakeholders}
-                                       checked={alertsActive}
-                                       className="hidden-checkbox"/>
-                                <label htmlFor="alert-checkbox"
-                                       className="check-label">Alert stakeholders</label>
-                                {alertsActive && (NylasUtils.hasNylasAccounts() ? <TemplateSelect onChange={this.onSelectMailTemplate} selectedTemplate={selectedMailTemplate}/> : <Alert bsStyle="warning">You need to set inbox to email!</Alert>)}
-                                {alertsActive && selectedMailTemplate && (
-                                    <div style={{position:'relative'}}>
-                                        <TemplateOverview template={templateData}/>
-                                        <i className="fa fa-edit" style={{position:'absolute',top:5,right:5}} onClick={this.onClickEditMail}></i>
-                                        <ComposeModal isOpen={showComposeModal}
-                                                      clientId={this.props.draftClientId}
-                                                      onClose={this.onCloseComposeModal}
-                                                      lazySend={true}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        )
-                    }
-
-                    <div className="submit-wrap">
-                        <button className="btnn primary-btn">Add quote</button>
-                    </div>
-                </form>
-            </div>
-        )
-    }
-
-    onSelectMailTemplate = (template) => {
-        this.setState({
-            selectedMailTemplate: template,
-            shouldCompileMailTemplate: true
-        })
-
-
-    }
-
-    compileTemplate = (template) => {
-        if(!template || !this.props.draftClientId) return
-
-        const tplData = {
-            project: this.props.salesRecord.name,
-            quote: this.state.quoteName,
-            cost: this.state.totalCost
-        }
-
-        const compiledData = {
-            subject: RegExpUtils.compileTemplate(template.subject, tplData),
-            body: RegExpUtils.compileTemplate(template.body, tplData)
-        }
-
-        DraftStore.changeDraftForClientId(this.props.draftClientId, compiledData)
-
-        return compiledData
-    }
-
-    onClickEditMail = () => {
-        this.setState({showComposeModal:true})
-    }
-
-    onCloseComposeModal = () => {
-        this.setState({showComposeModal:false})
-
-        if(!this.props.draftClientId) return
-
+    if(draftClientId) {
+      if(shouldCompileMailTemplate && selectedMailTemplate) {
+        templateData = this.compileTemplate(selectedMailTemplate)
+      } else {
         const draft = DraftStore.draftForClientId(this.props.draftClientId)
-
-        this.setState({
-            shouldCompileMailTemplate: false
-        })
+        templateData = {
+          subject: draft.subject,
+          body: draft.body
+        }
+      }
     }
+
+    return (
+        <div className="add-quote-form">
+            <form className="default-form" onSubmit={this.formSubmit.bind(this)}>
+                <div className="field-wrap">
+                    <span className="label">Quote title</span>
+                    <input type="text"
+                           onChange={this.onChangeTitle}
+                           value={quoteName}/>
+                </div>
+                <div className="field-wrap">
+                    <span className="label">Total price ($)</span>
+                    <input type="number"
+                           onChange={this.onChangeCost}
+                           value={totalCost}/>
+                </div>
+                <div className="field-wrap">
+                    <span className="revision-field">Revision # <span className="revision-label">0</span></span>
+                </div>
+
+                <div className="field-wrap">
+                    <span className="label">Add pdf file</span>
+                    <label htmlFor="form-quote-file"
+                         className="file-label"/>
+                    <input type="file"
+                       id="form-quote-file"
+                       accept="application/pdf"
+                       onChange={this.changeFileInput}/>
+                    {this.renderAttachedFile()}
+                </div>
+                {
+                    draftClientId && (
+                        <div>
+                            <input type="checkbox"
+                                   id="alert-checkbox"
+                                   onChange={this.toggleAlertStakeholders}
+                                   checked={alertsActive}
+                                   className="hidden-checkbox"/>
+                            <label htmlFor="alert-checkbox"
+                                   className="check-label">Alert stakeholders</label>
+                            {alertsActive && (NylasUtils.hasNylasAccounts() ? <TemplateSelect onChange={this.onSelectMailTemplate} selectedTemplate={selectedMailTemplate}/> : <Alert bsStyle="warning">You need to set inbox to email!</Alert>)}
+                            {alertsActive && selectedMailTemplate && (
+                                <div style={{position:'relative'}}>
+                                    <TemplateOverview template={templateData}/>
+                                    <i className="fa fa-edit" style={{position:'absolute',top:5,right:5}} onClick={this.onClickEditMail}></i>
+                                    <ComposeModal isOpen={showComposeModal}
+                                                  clientId={this.props.draftClientId}
+                                                  onClose={this.onCloseComposeModal}
+                                                  lazySend={true}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )
+                }
+
+                <div className="submit-wrap">
+                    <button className="btnn primary-btn">Add quote</button>
+                </div>
+            </form>
+        </div>
+    )
+  }
+
+  onSelectMailTemplate = (template) => {
+    this.setState({
+      selectedMailTemplate: template,
+      shouldCompileMailTemplate: true
+    })
+  }
+
+  compileTemplate = (template) => {
+    if(!template || !this.props.draftClientId) return
+
+    const tplData = {
+      project: this.props.salesRecord.name,
+      quote: this.state.quoteName,
+      cost: this.state.totalCost
+    }
+
+    const compiledData = {
+      subject: RegExpUtils.compileTemplate(template.subject, tplData),
+      body: RegExpUtils.compileTemplate(template.body, tplData)
+    }
+
+    DraftStore.changeDraftForClientId(this.props.draftClientId, compiledData)
+
+    return compiledData
+  }
+
+  onClickEditMail = () => {
+    this.setState({showComposeModal:true})
+  }
+
+  onCloseComposeModal = () => {
+    this.setState({showComposeModal:false})
+
+    if(!this.props.draftClientId) return
+
+    DraftStore.draftForClientId(this.props.draftClientId)
+
+    this.setState({
+      shouldCompileMailTemplate: false
+    })
+  }
 }
 
 export default AddQuoteForm
