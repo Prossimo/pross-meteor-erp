@@ -242,9 +242,12 @@ Meteor.methods({
     if (Accounts.findUserByUsername(username))
       throw new Meteor.Error('validUsername', `"${username}" is already exist`)
 
+    // create a random password
+    const password = Math.random().toString(36).substr(7)
     const createdUserId = Accounts.createUser({
       username,
       email,
+      password,
       profile: {
         firstName,
         lastName,
@@ -261,14 +264,23 @@ Meteor.methods({
 
     if (createdUserId) Meteor.call('initVisiableFields', createdUserId)
 
-    Meteor.defer(() => Accounts.sendEnrollmentEmail(createdUserId))
-    // Meteor.defer(() => {Meteor.call('sendEmail', {
-    //    to: email,
-    //    from: 'Prossimo Service',
-    //    replyTo: 'test@gmail.com',
-    //    subject: 'Acive user',
-    //    html: '<div>Your account is actived</div>',
-    // })})
+    // Meteor.defer(() => Accounts.sendEnrollmentEmail(createdUserId))
+    Meteor.defer(() => { Meteor.call('sendEmail', {
+       to: email,
+       from: 'Prossimo Service',
+       replyTo: 'noreply@gmail.com',
+       subject: '[Prossimo] Active user',
+       html:
+      `<div>
+        <p>Your account is active </p>
+        <p>Account information: </p>
+        <ul>
+          <li> Email: ${email}</li>
+          <li> Password: ${password}</li>
+        </ul>
+        <p> Please change to new password after you access application<p>
+       <div>`,
+    })})
     return createdUserId
   },
 
@@ -300,9 +312,12 @@ Meteor.methods({
       Meteor.defer(() => {Meteor.call('sendEmail', {
          to: user.emails[0].address,
          from: 'Prossimo Service',
-         replyTo: 'test@gmail.com',
-         subject: 'Acive user',
-         html: '<div>Your account is actived</div>',
+         replyTo: 'noreply@gmail.com',
+         subject: '[Prossimo] Active user',
+         html:
+        `<div>
+          <p>Your account is active, now </p>
+         <div>`,
       })})
     }
   },
