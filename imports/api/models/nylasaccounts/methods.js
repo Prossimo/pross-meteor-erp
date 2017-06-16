@@ -5,6 +5,7 @@ import config from '../../config/config'
 import NylasAccounts from './nylas-accounts'
 import {ROLES} from '../users/users'
 
+const bound = Meteor.bindEnvironment((callback) => callback())
 
 Meteor.methods({
     addNylasAccount(data)
@@ -96,14 +97,27 @@ Meteor.methods({
                     }
                 }).then((categories) => {
 
-                    const inbox = _.findWhere(categories, {name: 'inbox'})
+                    /*const inbox = _.findWhere(categories, {name: 'inbox'})
                     const drafts = _.findWhere(categories, {name: 'drafts'})
                     const sent = _.findWhere(categories, {name: 'sent'})
                     const trash = _.findWhere(categories, {name: 'trash'})
-                    const archive = _.findWhere(categories, {name: account.organization_unit == 'label' ? 'all' : 'archive'})
+                    const archive = _.findWhere(categories, {name: account.organization_unit == 'label' ? 'all' : 'archive'})*/
 
 
-                    const Fiber = require('fibers')
+                     bound(() => {
+                         NylasAccounts.insert({
+                             accessToken: account.access_token,
+                             accountId: account.account_id,
+                             emailAddress: account.email_address,
+                             provider: account.provider,
+                             organizationUnit: account.organization_unit,
+                             name: account.name,
+                             isTeamAccount,
+                             userId: !isTeamAccount ? currentUserId : null,
+                             categories
+                         })
+                     })
+                    /*const Fiber = require('fibers')
 
                     Fiber(() => {
                         NylasAccounts.insert({
@@ -115,9 +129,9 @@ Meteor.methods({
                             name: account.name,
                             isTeamAccount,
                             userId: !isTeamAccount ? currentUserId : null,
-                            categories: [inbox, drafts, sent, trash, archive]
+                            categories
                         })
-                    }).run()
+                    }).run()*/
 
                     return true
                 }))).catch((error) => {
