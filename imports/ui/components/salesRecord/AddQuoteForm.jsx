@@ -89,13 +89,6 @@ class AddQuoteForm extends React.Component{
       ],
     }
 
-    //const file = new FS.File(currentFile)
-    //file.metadata = {
-      //userId: Meteor.userId(),
-      //projectId: salesRecord._id,
-      //createAt: new Date
-    //}
-
     const draftClientId = this.props.draftClientId
     const addQuoteCb = (err) => { console.log(this.props)
       if(err) return console.log(err)
