@@ -3,6 +3,7 @@ import React from 'react'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import MessageStore from '../../../api/nylas/message-store'
 import MessageItemContainer from './MessageItemContainer'
+import Actions from '/imports/api/nylas/actions'
 
 class MessageList extends React.Component {
 
@@ -215,6 +216,21 @@ class MessageList extends React.Component {
         }
     }
 
+    _lastMessage() {
+        const messages = this.state.messages || []
+        return _.last(_.filter(messages, m => !m.draft))
+    }
+    _onClickReplyArea = () => {
+        if(!this.state.currentThread) return
+        Actions.composeReply({
+            thread: this.state.currentThread,
+            message: this._lastMessage(),
+            type: this._replyType(),
+            behavior: 'prefer-existing-if-pristine',
+            modal: true
+        })
+
+    }
 }
 
 export default MessageList

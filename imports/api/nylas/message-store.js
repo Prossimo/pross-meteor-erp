@@ -64,7 +64,7 @@ class MessageStore extends Reflux.Store {
             path: `/messages?${query}`,
             method: 'GET',
             accountId: thread.account_id
-        }).then((result) => {console.log('onLoadMessages result', result)
+        }).then((result) => {//console.log('onLoadMessages result', result)
             if(result && result.length) {
                 if(thread.id === currentThread.id) {
 
