@@ -7,8 +7,8 @@ import { warning, info } from '/imports/api/lib/alerts'
 import TemplateSelect from '../mailtemplates/TemplateSelect'
 import TemplateOverview from '../mailtemplates/TemplateOverview'
 import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
-import { FS } from 'meteor/cfs:base-package'
 import ComposeModal from '../inbox/composer/ComposeModal'
+import MediaUploader from '../libs/MediaUploader'
 
 class AddQuoteForm extends React.Component{
   static propTypes = {
@@ -19,6 +19,7 @@ class AddQuoteForm extends React.Component{
     draftClientId: React.PropTypes.string,
     saved: React.PropTypes.func
   }
+
   constructor(props){
     super(props)
 
@@ -28,6 +29,13 @@ class AddQuoteForm extends React.Component{
       totalCost: '',
       alertsActive: true
     }
+  }
+
+  componentDidMount() {
+    Meteor.call('drive.getAccessToken', {}, (error, token) => {
+      if (error) return warning('could not connect to google drive')
+      this.token = token
+    })
   }
 
   changeFileInput = (event) => {
@@ -81,12 +89,12 @@ class AddQuoteForm extends React.Component{
       ],
     }
 
-    const file = new FS.File(currentFile)
-    file.metadata = {
-      userId: Meteor.userId(),
-      projectId: salesRecord._id,
-      createAt: new Date
-    }
+    //const file = new FS.File(currentFile)
+    //file.metadata = {
+      //userId: Meteor.userId(),
+      //projectId: salesRecord._id,
+      //createAt: new Date
+    //}
 
     const draftClientId = this.props.draftClientId
     const addQuoteCb = (err) => { console.log(this.props)
@@ -107,7 +115,7 @@ class AddQuoteForm extends React.Component{
         quoteName: ''
       })
 
-      quoteData.revisions[0].fileId = res._id
+      quoteData.revisions[0].fileId = res.id
       Meteor.call('addNewQuote', quoteData, addQuoteCb)
 
       if(typeof salesRecord.slackChanel === 'undefined') return
@@ -130,7 +138,27 @@ class AddQuoteForm extends React.Component{
       })
     }
 
-    Files.insert(file, fileInsertCb)
+    Meteor.call(
+      'drive.listFiles',
+      { query: `'${salesRecord.folderId}' in parents and name = 'CLIENT QUOTE'` },
+      (error, { files }) => {
+        if (error) return alert('folder CLIENT QUOTE is not found!')
+        const clientQuoteId = _.first(files).id
+        new MediaUploader({
+          file: currentFile,
+          token: this.token,
+          metadata: {
+            parents: [clientQuoteId],
+          },
+          params: {
+            fields: '*'
+          },
+          onComplete(remoteFile) {
+            remoteFile = JSON.parse(remoteFile)
+            fileInsertCb(null, remoteFile )
+          }
+        }).upload()
+      })
   }
 
   onChangeCost = (event) => {
