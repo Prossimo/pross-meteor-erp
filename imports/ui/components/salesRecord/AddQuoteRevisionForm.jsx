@@ -30,7 +30,8 @@ class AddQuoteForm extends React.Component{
             currentFile: null,
             totalCost: '',
             revisionNumber: defaultRevisionNumber,
-            alertsActive: true
+            alertsActive: true,
+            isUploading: false,
         }
     }
 
@@ -132,6 +133,7 @@ class AddQuoteForm extends React.Component{
             }
         }
         // step # 1 - load pdf to FS
+        this.setState({ isUploading: true })
         Meteor.call(
           'drive.listFiles',
           { query: `'${salesRecord.folderId}' in parents and name = 'CLIENT QUOTE'` },
@@ -246,7 +248,13 @@ class AddQuoteForm extends React.Component{
                         )
                     }
                     <div className="submit-wrap">
-                        <button className="btnn primary-btn">Add revision</button>
+                      {
+                        (this.state.isUploading) ? (
+                          <button className="btnn primary-btn"><i className="fa fa-spinner fa-spin fa-2x fa-fw"/></button>
+                        ) : (
+                          <button className="btnn primary-btn">Add revision</button>
+                        )
+                      }
                     </div>
                 </form>
             </div>
