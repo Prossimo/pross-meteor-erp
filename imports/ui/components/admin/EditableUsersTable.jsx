@@ -41,18 +41,19 @@ class EditableUsersTable extends Component{
       email: row.email,
       role: row.role
     }
-    cb = (err) => {
-      if (err) return warning(err.reason ? err.reason : err.error)
+    Meteor.call('adminCreateUser', userData, (err) => {
+      if (err) {
+        cb('Error')
+        return warning(err.reason ? err.reason : err.error)
+      }
+      cb()
       info('Successful create user!')
       Meteor.call('inviteUserToSlack', row.email, (err) => {
         if (err) return warning(err.reason ? err.reason : err.error)
         info('Successful invited user to Slack!')
       })
-      // workaround to close the Modal
-      $('.close').trigger('click')
-    }
-    Meteor.call('adminCreateUser', userData, cb)
-    return true
+    })
+    return false
   }
 
   onAfterSaveCell(row) {
