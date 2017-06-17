@@ -13,7 +13,7 @@ class EditableUsersTable extends Component{
     this.activeFormatterStatus = this.activeFormatterStatus.bind(this)
     this.usernameValidator = this.usernameValidator.bind(this)
     this.emailValidator = this.emailValidator.bind(this)
-    this.onAfterInsertRow = this.onAfterInsertRow.bind(this)
+    this.handleAddRowWithASyncError = this.handleAddRowWithASyncError.bind(this)
     this.customConfirm = this.customConfirm.bind(this)
     this.onAfterSaveCell = this.onAfterSaveCell.bind(this)
     this.onBeforeSaveCell = this.onBeforeSaveCell.bind(this)
@@ -33,7 +33,7 @@ class EditableUsersTable extends Component{
     }
   }
 
-  onAfterInsertRow(row) {
+  handleAddRowWithASyncError(row, colInfo, cb) {
     const userData = {
       firstName: row.firstName,
       lastName: row.lastName,
@@ -41,14 +41,18 @@ class EditableUsersTable extends Component{
       email: row.email,
       role: row.role
     }
-    Meteor.call('adminCreateUser', userData, (err) => {
+    cb = (err) => {
       if (err) return warning(err.reason ? err.reason : err.error)
       info('Successful create user!')
       Meteor.call('inviteUserToSlack', row.email, (err) => {
         if (err) return warning(err.reason ? err.reason : err.error)
         info('Successful invited user to Slack!')
       })
-    })
+      // workaround to close the Modal
+      $('.close').trigger('click')
+    }
+    Meteor.call('adminCreateUser', userData, cb)
+    return true
   }
 
   onAfterSaveCell(row) {
@@ -148,8 +152,9 @@ class EditableUsersTable extends Component{
     }
     const options = {
       handleConfirmDeleteRow: this.customConfirm,
-      afterInsertRow: this.onAfterInsertRow,
-      ignoreEditable: true
+      // afterInsertRow: this.onAfterInsertRow,
+      ignoreEditable: true,
+      onAddRow: this.handleAddRowWithASyncError,
     }
     const cellEditProp = {
       mode: 'click',
@@ -160,7 +165,7 @@ class EditableUsersTable extends Component{
 
     const userRoles = Object.values(ROLES)
 
-    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles, status }) => ({
+    const createdUsers = this.props.createdUsers.map(({ _id, username, profile: { firstName, lastName }, emails, roles = [], status }) => ({
         _id,
         username,
         firstName,
