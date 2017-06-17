@@ -37,9 +37,7 @@ class MyTasks extends Component {
           </td>
         </tr>
       )
-    }
-
-    )
+    })
   }
   render() {
     return (
