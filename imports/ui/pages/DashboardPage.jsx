@@ -1,18 +1,20 @@
-import React from 'react';
+import React from 'react'
+import MyTasks from '../components/dashboard/MyTasks'
 
 
 class DashboardPage extends React.Component{
-    constructor(props){
-        super(props);
-
-    }
-
     render() {
         return (
             <div className="dashboard-page">
-                <h1>Dashboard Page</h1>
+                <div className="tab-container">
+                  <h3>Dashboard</h3>
+                  <hr />
+                  <div className="col-md-8">
+                    <MyTasks />
+                  </div>
+                </div>
             </div>
         )
     }
 }
-export default DashboardPage;
+export default DashboardPage
