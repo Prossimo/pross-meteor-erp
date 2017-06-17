@@ -37,6 +37,14 @@ Tasks.schema = new SimpleSchema({
   parentId: {
     type: String,
   },
+  parentType: {
+    type: String,
+    optional: true,
+    allowedValues: [
+      'project',
+      'salesrecord'
+    ]
+  },
   isRemoved: {
     type: Boolean,
     defaultValue: false,

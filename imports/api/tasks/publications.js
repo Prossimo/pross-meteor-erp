@@ -94,3 +94,24 @@ Meteor.publishComposite('task.details', function({ _id }) {
     ],
   }
 })
+
+/*
+* publish tasks by userId
+* */
+
+Meteor.publishComposite('task.byUserId', function() {
+  const userId = this.userId
+  if (!userId) return this.ready()
+  return {
+    find() {
+      return Tasks.find({
+        isRemoved: false,
+        $or: [{assignee: userId}, {approver: userId}]
+      }, {
+        fields: {
+          isRemoved: 0,
+        },
+      })
+    },
+  }
+})

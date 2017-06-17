@@ -41,6 +41,7 @@ class TaskDetail extends Component {
 
   saveTask() {
     const parentId = FlowRouter.current().params.id
+    const parentType = FlowRouter.current().route.name.toLowerCase()
     const { name, assignee, approver, dueDate, description, status } = this.state.task
     const task = {
       name,
@@ -50,6 +51,7 @@ class TaskDetail extends Component {
       dueDate: moment(`${moment(dueDate).format('YYYY-MM-DD')} 23:59:59`).toDate(),
       status,
       parentId,
+      parentType
     }
 
     if (this.props.isNew) {

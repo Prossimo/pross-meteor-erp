@@ -37,6 +37,9 @@ export default new ValidatedMethod({
     parentId: {
       type: String,
     },
+    parentType: {
+      type: String
+    }
   }).validator(),
   run(task) {
     if (!this.userId) return
