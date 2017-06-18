@@ -26,7 +26,6 @@ class ConversationList extends TrackerReact(React.Component) {
 
     _getStateFromStore() {
         return {
-            messages: this.store.messages(),
             messagesExpandedState: this.store.messagesExpanded()
         }
     }
@@ -59,7 +58,12 @@ class ConversationList extends TrackerReact(React.Component) {
     renderMessages() {
         const elements = []
 
-        let messages = this.store.messages()
+        this.messages = this.store.messages(() => {
+            setTimeout(() => {
+                this.setState(this._getStateFromStore())
+            }, 100)
+        })
+        let messages = this.messages
         const lastMessage = _.last(messages)
         const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
@@ -188,7 +192,7 @@ class ConversationList extends TrackerReact(React.Component) {
     }
 
     _lastMessage() {
-        const messages = this.state.messages || []
+        const messages = this.messages || []
         return _.last(_.filter(messages, m => !m.draft))
     }
     _onClickReplyArea = () => {
