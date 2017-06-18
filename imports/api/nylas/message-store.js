@@ -168,17 +168,17 @@ class MessageStore extends Reflux.Store {
         }
     }
 
-    messages() {
+    messages(cb) {
         if(this.salesRecord) {
             const messages = this.salesRecord.messages()
-            if(messages.length != this._messages.length) {
+            if(messages.length != this._messages.length) {console.log('trigger _expandMessagesToDefault')
                 this._messages = messages
 
                 this._messages.sort((m1, m2) => m1.date - m2.date)
 
                 this._expandMessagesToDefault()
                 this._fetchExpandedAttachments(this._messages)
-                this.trigger()
+                if(cb) cb()
             }
         }
 
