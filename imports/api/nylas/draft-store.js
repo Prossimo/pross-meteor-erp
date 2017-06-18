@@ -130,18 +130,7 @@ class DraftStore extends Reflux.Store {
 
         const salesRecordId = draft.salesRecordId
         if (salesRecordId) {    // Update conversations for sales record
-            NylasAPI.makeRequest({
-                path: `/threads/${message.thread_id}`,
-                method: 'GET',
-                accountId: message.account_id
-            }).then((thread) => {
-                if (thread) {
-
-                    Meteor.call('insertOrUpdateThreadWithMessage', salesRecordId, thread, message, (err, res) => {
-                        Actions.changedConversations(salesRecordId)
-                    })
-                }
-            })
+            Meteor.call('insertMessageForSalesRecord', salesRecordId, message)
         }
 
         Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res) => {

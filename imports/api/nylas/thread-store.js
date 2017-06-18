@@ -14,7 +14,6 @@ class ThreadStore extends Reflux.Store {
         super()
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
-        this.listenTo(Actions.fetchSalesRecordThreads, this.onFetchSalesRecordThreads)
         this.listenTo(DatabaseStore, this.onDatabaseStoreChanged)
         this.listenTo(CategoryStore, this.onCategoryStoreChanged)
 
@@ -51,32 +50,6 @@ class ThreadStore extends Reflux.Store {
             this.trigger()
 
             this.currentPage = page ? page : 1
-        })
-    }
-
-    onFetchSalesRecordThreads() {
-        // For auto attach conversation
-
-        SalesRecord.find().fetch().forEach((sr) => {
-            const salesRecordId = sr._id
-
-            sr.threads().forEach((thread) => {
-
-                NylasAPI.makeRequest({
-                    path: `/threads/${thread.id}`,
-                    method: 'GET',
-                    accountId: thread.account_id
-                }).then((t) => {
-                    if (t && t.version != thread.version) {
-                        Meteor.call('updateThreadAndMessages', sr._id, t, (err,res) => {
-
-                            setTimeout(() => {
-                                Actions.changedConversations(sr._id)
-                            }, 18000)
-                        })
-                    }
-                })
-            })
         })
     }
 

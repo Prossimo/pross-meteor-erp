@@ -213,6 +213,8 @@ FlowRouter.notFound = {
     }
 }
 
+
+// callback urls
 FlowRouter.route('/auth/google/callback', {
     name: 'GoogleCallback',
     action() {

@@ -4,6 +4,7 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import MessageItemContainer from '../../inbox/MessageItemContainer'
 import {ConversationStore} from '/imports/api/nylas/message-store'
+import Actions from '/imports/api/nylas/actions'
 
 class ConversationList extends TrackerReact(React.Component) {
 
@@ -32,7 +33,6 @@ class ConversationList extends TrackerReact(React.Component) {
     componentDidMount() {
         this.unsubscribes = []
         this.unsubscribes.push(this.store.listen(this.onStoreChanged))
-        console.log('componentDidMount')
     }
 
     componentWillUnmount() {
@@ -59,7 +59,7 @@ class ConversationList extends TrackerReact(React.Component) {
     renderMessages() {
         const elements = []
 
-        let {messages} = this.state
+        let messages = this.store.messages()
         const lastMessage = _.last(messages)
         const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
@@ -70,9 +70,9 @@ class ConversationList extends TrackerReact(React.Component) {
                 return
             }
 
-            collapsed = !this.state.messagesExpandedState[message.id]
-            isLastMsg = (messages.length - 1 == idx)
-            isBeforeReplyArea = isLastMsg && hasReplyArea
+            const collapsed = !this.state.messagesExpandedState[message.id]
+            const isLastMsg = (messages.length - 1 == idx)
+            const isBeforeReplyArea = isLastMsg && hasReplyArea
 
             elements.push(  // Should be replaced message.id to message.clientId in future
                 <MessageItemContainer key={message.id}
@@ -125,8 +125,8 @@ class ConversationList extends TrackerReact(React.Component) {
         })
 
         let indexOffset = 0
-        for(range of minifyRanges) {
-            start = range.start - indexOffset
+        for(const range of minifyRanges) {
+            const start = range.start - indexOffset
             const minified = {
                 type: 'minifiedBundle',
                 messages: messages.slice(start, start + range.length)
@@ -142,7 +142,7 @@ class ConversationList extends TrackerReact(React.Component) {
     _renderMinifiedBundle(bundle) {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10)
-        h = Math.round(BUNDLE_HEIGHT / lines.length)
+        const h = Math.round(BUNDLE_HEIGHT / lines.length)
 
         return (
             <div className="minified-bundle"
@@ -185,6 +185,21 @@ class ConversationList extends TrackerReact(React.Component) {
         } else {
             return 'reply'
         }
+    }
+
+    _lastMessage() {
+        const messages = this.state.messages || []
+        return _.last(_.filter(messages, m => !m.draft))
+    }
+    _onClickReplyArea = () => {
+        Actions.composeReply({
+            message: this._lastMessage(),
+            type: this._replyType(),
+            behavior: 'prefer-existing-if-pristine',
+            modal: true,
+            salesRecordId: this.props.salesRecord._id
+        })
+
     }
 
 }
