@@ -70,8 +70,8 @@ class QuoteItem extends React.Component {
   }
 
   downloadPDF({ fileId }) {
-    Meteor.call('drive.getFiles', { fileId }, (error, { webContentLink }) => {
-      webContentLink && open(webContentLink, '_blank')
+    Meteor.call('drive.getFiles', { fileId }, (error, { webViewLink }) => {
+      webViewLink && open(webViewLink, '_blank')
     })
   }
 
