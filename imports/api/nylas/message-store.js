@@ -39,7 +39,6 @@ class MessageStore extends Reflux.Store {
         this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded)
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
-        this.listenTo(Actions.changedConversations, this._onLoadConversations)
         this.listenTo(DatabaseStore, this._onDatabaseStoreChanged)
         this.listenTo(ThreadStore, this._onThreadStoreChanged)
     }
@@ -85,19 +84,6 @@ class MessageStore extends Reflux.Store {
         }).finally(() => {
             this.trigger()
         })
-    }
-
-    _onLoadConversations(salesRecordId) {
-        if(this.salesRecord && this.salesRecord._id==salesRecordId) {
-            this._messages = SalesRecords.findOne({_id: salesRecordId}).messages()
-            this._messages.sort((m1, m2) => m1.date - m2.date)
-
-            this._loading = false
-            this._expandMessagesToDefault()
-            this._fetchExpandedAttachments(this._messages)
-
-            this.trigger()
-        }
     }
 
     _onThreadStoreChanged = () => {
@@ -148,7 +134,7 @@ class MessageStore extends Reflux.Store {
         this.trigger()
     }
     _expandMessagesToDefault() {
-        const visibleMessages = this.messages()
+        const visibleMessages = this._messages
 
         visibleMessages.forEach((message, idx) => {
             if(message.unread || message.draft || idx==visibleMessages.length - 1)
@@ -183,6 +169,19 @@ class MessageStore extends Reflux.Store {
     }
 
     messages() {
+        if(this.salesRecord) {
+            const messages = this.salesRecord.messages()
+            if(messages.length != this._messages.length) {
+                this._messages = messages
+
+                this._messages.sort((m1, m2) => m1.date - m2.date)
+
+                this._expandMessagesToDefault()
+                this._fetchExpandedAttachments(this._messages)
+                this.trigger()
+            }
+        }
+
         return this._messages
     }
 

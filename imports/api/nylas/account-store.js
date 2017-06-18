@@ -2,12 +2,13 @@ import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
 import CategoryStore from './category-store'
+import {NylasAccounts} from '../models'
 
 class AccountStore extends Reflux.Store {
     constructor() {
-        super();
+        super()
 
-        this._accounts = [];
+        this._accounts = []
 
         this.listenTo(Actions.changedAccounts, this.onChangedAccounts)
     }
@@ -22,7 +23,7 @@ class AccountStore extends Reflux.Store {
         const currentCategory = CategoryStore.currentCategory
         let allCategories = []
 
-        accounts.forEach((account)=>{
+        accounts.forEach((account) => {
             allCategories = allCategories.concat(account.categories)
         })
 
@@ -48,13 +49,13 @@ class AccountStore extends Reflux.Store {
 
     accountForAccountId(accountId) {
         if(accountId)
-            return _.findWhere(this.accounts(), {accountId: accountId})
+            return _.findWhere(this.accounts(), {accountId})
 
         return this.defaultAccount()
     }
 
     tokenForAccountId(accountId) {
-        const account = this.accountForAccountId(accountId)
+        const account = NylasAccounts.findOne({accountId})//this.accountForAccountId(accountId)
 
         return account ? account.accessToken : null
     }

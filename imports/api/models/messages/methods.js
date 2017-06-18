@@ -1,17 +1,32 @@
 import Messages from './messages'
+import Threads from '../threads/threads'
+import NylasAPI from '../../nylas/nylas-api'
 
+const bound = Meteor.bindEnvironment((callback) => callback())
 
 Meteor.methods({
-    insertMessage(data)
+    insertMessageForSalesRecord(salesRecordId, message)
     {
-        /*check(data, {
-            id: Match.Maybe(String),
-            account_id: Match.Maybe(String),
-            email: String,
-            name: Match.Maybe(String),
-            phone_numbers: Match.Maybe(Array)
-        });*/
+        check(salesRecordId, String)
+        check(message, Object)
 
-        return Messages.insert(data)
+        NylasAPI.makeRequest({
+            path: `/threads/${message.thread_id}`,
+            method: 'GET',
+            accountId: message.account_id
+        }).then((thread) => {
+            if (thread) {
+                bound(() => {
+                    const existingThreads = Threads.find({id:thread.id}).fetch()
+                    if(existingThreads && existingThreads.length) {
+                        Threads.update({id:thread.id}, {$set:thread})
+                    } else {
+                        Threads.insert(_.extend(thread, {salesRecordId}))
+                    }
+
+                    return Messages.insert(message)
+                })
+            }
+        })
     }
-});
+})
