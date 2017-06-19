@@ -51,7 +51,11 @@ export default class Toolbar extends React.Component {
         if(existingThread) {
             return (
                 <div style={{marginTop:12, float:'right'}}>
-                    <Button bsStyle="default" bsSize="small" onClick={() => {FlowRouter.go('SalesRecord', {id: existingThread.salesRecordId})}}>Deal <i className="fa fa-caret-right"/></Button>
+                    <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
+                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:existingThread.salesRecordId})}>Go to deal</MenuItem>
+                        <MenuItem divider/>
+                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('unbind')}>Unbind from deal</MenuItem>
+                    </DropdownButton>
                 </div>
             )
         }
@@ -70,7 +74,7 @@ export default class Toolbar extends React.Component {
                         </InputGroup>
                     </MenuItem>
                     {
-                        salesRecords.map((sr) => <MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
+                        salesRecords.map((sr) => <MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', {salesRecord:sr})}>{sr.name}</MenuItem>)
                     }
                 </DropdownButton>
             </div>

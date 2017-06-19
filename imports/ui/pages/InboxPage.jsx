@@ -1,3 +1,4 @@
+/* global FlowRouter */
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import Spinner from '../components/utils/spinner'
@@ -18,6 +19,7 @@ import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/admin/CreateSalesRecord'
 import PeopleForm from '../components/people/PeopleForm'
 import {People} from '/imports/api/models'
+import {removeThread} from '/imports/api/models/threads/methods'
 
 
 class InboxPage extends React.Component {
@@ -170,26 +172,37 @@ class InboxPage extends React.Component {
         )
     }
 
-    onSelectMenuSalesRecord = (option, salesRecord) => {
-        this.setState({
-            bindingSalesRecord: option == 'bind',
-            selectedSalesRecord: salesRecord
-        })
+    onSelectMenuSalesRecord = (option, {salesRecord, salesRecordId}={}) => {
+        if(option === 'create' || option === 'bind') {
 
-        const {participants} = this.state.currentThread
-        const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email':p.email}) == null)
-        if(noStoredParticipants && noStoredParticipants.length) {
             this.setState({
-                noStoredParticipants,
-                showPeopleModal: true
+                bindingSalesRecord: option == 'bind',
+                selectedSalesRecord: salesRecord
             })
 
-            return
-        }
+            const {participants} = this.state.currentThread
+            const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email':p.email}) == null)
+            if(noStoredParticipants && noStoredParticipants.length) {
+                this.setState({
+                    noStoredParticipants,
+                    showPeopleModal: true
+                })
 
-        this.setState({
-            showSalesRecordModal: true
-        })
+                return
+            }
+
+            this.setState({
+                showSalesRecordModal: true
+            })
+        } else if(option === 'goto') {
+            FlowRouter.go('SalesRecord', {id: salesRecordId})
+        } else if(option === 'unbind') {
+            try {
+                removeThread.call({id:this.state.currentThread.id})
+            } catch (err) {
+                console.error(err)
+            }
+        }
     }
 
     renderSalesRecordModal() {
