@@ -1,6 +1,10 @@
+import { Meteor } from 'meteor/meteor'
+import {Roles} from 'meteor/alanning:roles'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import SimpleSchema from 'simpl-schema'
 import Messages from './messages'
-import Threads from '../threads/threads'
 import NylasAPI from '../../nylas/nylas-api'
+import Threads from '../threads/threads'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -28,5 +32,18 @@ Meteor.methods({
                 })
             }
         })
+    }
+})
+
+export const updateMessage = new ValidatedMethod({
+    name: 'message.update',
+    validate: Messages.schema.validator({clean:true}),
+    run({_id, ...data}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const message = Messages.findOne(_id)
+        if(!message) throw new Meteor.Error(`Could not found message with _id:${_id}` )
+
+        Messages.update({_id}, {$set:data})
     }
 })

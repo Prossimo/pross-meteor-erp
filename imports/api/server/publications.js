@@ -39,6 +39,8 @@ import {
 
 import '/imports/api/models/companies/publications'
 import '/imports/api/models/people/publications'
+import '/imports/api/models/threads/publications'
+import '/imports/api/models/messages/publications'
 
 Meteor.startup(() => {
     //

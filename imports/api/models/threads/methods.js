@@ -1,59 +1,18 @@
-import queryString from 'query-string'
+import { Meteor } from 'meteor/meteor'
+import {Roles} from 'meteor/alanning:roles'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import SimpleSchema from 'simpl-schema'
 import Threads from './threads'
-import Messages from '../messages/messages'
-import NylasAPI from '../../nylas/nylas-api'
 
-const bound = Meteor.bindEnvironment((callback) => callback())
+export const updateThread = new ValidatedMethod({
+    name: 'thread.update',
+    validate: Threads.schema.validator({clean:true}),
+    run({_id, ...data}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-Meteor.methods({
-    updateThreadAndMessages({thread_id, account_id}) {
-        check(thread_id, String)
-        check(account_id, String)
+        const thread = Threads.findOne(_id)
+        if(!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}` )
 
-        NylasAPI.makeRequest({
-            path: `/threads/${thread_id}`,
-            method: 'GET',
-            accountId: account_id
-        }).then((t) => {
-
-            const existingThread = Threads.findOne({id:threadId})
-            if(existingThread) {
-
-                Threads.update({_id:existingThread._id}, {$set:_.extend(thread, {salesRecordId})})
-
-                const query = queryString.stringify({thread_id: thread.id})
-                NylasAPI.makeRequest({
-                    path: `/messages?${query}`,
-                    method: 'GET',
-                    accountId: thread.account_id
-                }).then((messages) => {
-                    if (messages && messages.length) {
-
-                        bound(() => {
-                            messages.forEach((message) => {
-                                const existingMessage = Messages.findOne({id:message.id})
-                                if(!existingMessage) {
-                                    Messages.insert(message)
-                                } else {
-                                    Messages.update({_id:existingMessage._id}, {$set:message})
-                                }
-                            })
-                        })
-                        /*const Fiber = require('fibers')
-
-                         Fiber(() => {
-                         messages.forEach((message) => {
-                         const existingMessage = Messages.findOne({id:message.id})
-                         if(!existingMessage) {
-                         Messages.insert(message)
-                         } else {
-                         Messages.update({_id:existingMessage._id}, {$set:message})
-                         }
-                         })
-                         }).run()*/
-                    }
-                })
-            }
-        })
+        Threads.update({_id}, {$set:data})
     }
 })
