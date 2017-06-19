@@ -1,11 +1,12 @@
+/* global FlowRouter */
 import React from 'react'
 import ComposeButton from './composer/ComposeButton'
 import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
-import {DropdownButton, MenuItem, FormControl, InputGroup} from 'react-bootstrap'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
+import {SalesRecords, Threads} from '/imports/api/models'
 
 
 export default class Toolbar extends React.Component {
@@ -19,7 +20,7 @@ export default class Toolbar extends React.Component {
 
 
         this.state = {
-            salesRecords: SalesRecord.find({}, {sort:{name:1}}).fetch()
+            salesRecords: SalesRecords.find({}, {sort:{name:1}}).fetch()
         }
     }
 
@@ -44,6 +45,16 @@ export default class Toolbar extends React.Component {
 
     renderSalesRecordMenu() {
         const {thread} = this.props
+        if(!thread) return ''
+
+        const existingThread = Threads.findOne({id: thread.id})
+        if(existingThread) {
+            return (
+                <div style={{marginTop:12, float:'right'}}>
+                    <Button bsStyle="default" bsSize="small" onClick={() => {FlowRouter.go('SalesRecord', {id: existingThread.salesRecordId})}}>Deal <i className="fa fa-caret-right"/></Button>
+                </div>
+            )
+        }
         const {salesRecords} = this.state
 
         return (
@@ -59,7 +70,7 @@ export default class Toolbar extends React.Component {
                         </InputGroup>
                     </MenuItem>
                     {
-                        salesRecords.map((sr)=><MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
+                        salesRecords.map((sr) => <MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', sr)}>{sr.name}</MenuItem>)
                     }
                 </DropdownButton>
             </div>
@@ -69,14 +80,14 @@ export default class Toolbar extends React.Component {
 
 
     onChangeSearchSalesRecord = (evt) => {
-        if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
             if(keyword.length) {
-                this.setState({salesRecords: SalesRecord.find({name:{$regex: keyword, $options: 'i'}}, {sort:{name:1}}).fetch()})
+                this.setState({salesRecords: SalesRecords.find({name:{$regex: keyword, $options: 'i'}}, {sort:{name:1}}).fetch()})
             } else {
-                this.setState({salesRecords: SalesRecord.find({}, {sort:{name:1}}).fetch()})
+                this.setState({salesRecords: SalesRecords.find({}, {sort:{name:1}}).fetch()})
             }
         }, 500)
     }

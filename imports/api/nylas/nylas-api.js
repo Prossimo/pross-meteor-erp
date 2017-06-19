@@ -3,6 +3,9 @@ import _ from 'underscore'
 import request from 'request'
 import config from '../config/config'
 import { APIError, TimeoutError } from './errors'
+import {Threads, Messages} from '../models'
+import {updateThread} from '../models/threads/methods'
+import {updateMessage} from '../models/messages/methods'
 
 
 const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
@@ -172,8 +175,35 @@ class NylasAPI {
         }
         if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
 
-        const ids = _.pluck(unlockedJSONs, 'id')
+        // Update server database
+        if(objName === 'thread') {
+            // Update threads on the server database
+            Threads.find({id:{$in:_.pluck(unlockedJSONs, 'id')}}).fetch().forEach((t) => {
+                const thread = _.findWhere(unlockedJSONs, {id:t.id})
+                if(t.version != thread.version) {
+                    try {
+                        updateThread.call({_id:t._id, ..._.extend(thread, {salesRecordId:t.salesRecordId})})
+                        //console.log('updated thread on the server database')
+                    } catch (err) {
+                        console.error(err)
+                    }
+                }
+            })
+        } else if(objName === 'message') {
+            // Update messages on the server database
+            Messages.find({id:{$in:_.pluck(unlockedJSONs, 'id')}}).fetch().forEach((m) => {
+                const message = _.findWhere(unlockedJSONs, {id:m.id})
+                try {
+                    updateMessage.call({_id:m._id, ...message})
+                    //console.log('updated message on the server database')
+                } catch (err) {
+                    console.error(err, message)
+                }
+            })
+        }
 
+        // Update client database
+        const ids = _.pluck(unlockedJSONs, 'id')
         const DatabaseStore = require('./database-store')
         return DatabaseStore.findObjects(objName, {id:{in:ids}}).then((models) => {
             const existingModels = {}

@@ -4,7 +4,6 @@ import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
-import SalesRecord from '../models/salesRecords/salesRecords'
 import DatabaseStore from './database-store'
 
 const PAGE_SIZE = 100
