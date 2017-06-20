@@ -3,7 +3,7 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import MessageItemContainer from '../../inbox/MessageItemContainer'
-import {ConversationStore} from '/imports/api/nylas/message-store'
+import ConversationStore from '/imports/api/nylas/conversation-store'
 import Actions from '/imports/api/nylas/actions'
 
 class ConversationList extends TrackerReact(React.Component) {

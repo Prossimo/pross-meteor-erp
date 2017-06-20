@@ -6,6 +6,7 @@ import SendDraftTask from './tasks/send-draft-task'
 import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
+import {insertMessageForSalesRecord} from '/imports/api/models/messages/methods'
 
 const ComposeType = {
     Creating: 'creating',
@@ -130,7 +131,11 @@ class DraftStore extends Reflux.Store {
 
         const salesRecordId = draft.salesRecordId
         if (salesRecordId) {    // Update conversations for sales record
-            Meteor.call('insertMessageForSalesRecord', salesRecordId, message)
+            try {
+                insertMessageForSalesRecord.call({salesRecordId,message})
+            } catch(err) {
+                console.error(err)
+            }
         }
 
         Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res) => {
