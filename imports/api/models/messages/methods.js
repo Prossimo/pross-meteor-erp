@@ -5,33 +5,20 @@ import SimpleSchema from 'simpl-schema'
 import Messages from './messages'
 import NylasAPI from '../../nylas/nylas-api'
 import Threads from '../threads/threads'
+import {insertThread, updateThread} from '../threads/methods'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
-Meteor.methods({
-    insertMessageForSalesRecord(salesRecordId, message)
-    {
-        check(salesRecordId, String)
-        check(message, Object)
 
-        NylasAPI.makeRequest({
-            path: `/threads/${message.thread_id}`,
-            method: 'GET',
-            accountId: message.account_id
-        }).then((thread) => {
-            if (thread) {
-                bound(() => {
-                    const existingThreads = Threads.find({id:thread.id}).fetch()
-                    if(existingThreads && existingThreads.length) {
-                        Threads.update({id:thread.id}, {$set:thread})
-                    } else {
-                        Threads.insert(_.extend(thread, {salesRecordId}))
-                    }
+export const insertMessage = new ValidatedMethod({
+    name: 'message.insert',
+    validate: Messages.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
+    run(message) {
+        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-                    return Messages.insert(message)
-                })
-            }
-        })
+        Messages.insert(message)
+
+        return true
     }
 })
 
@@ -45,5 +32,37 @@ export const updateMessage = new ValidatedMethod({
         if(!message) throw new Meteor.Error(`Could not found message with _id:${_id}` )
 
         Messages.update({_id}, {$set:data})
+    }
+})
+
+export const insertMessageForSalesRecord = new ValidatedMethod({
+    name: 'message.insertForSalesRecord',
+    validate: new SimpleSchema({
+        salesRecordId:{type:String},
+        message: Messages.schema.omit('_id','created_at','modified_at')
+    }).validator({clean:true}),
+    run({salesRecordId, message}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        NylasAPI.makeRequest({
+            path: `/threads/${message.thread_id}`,
+            method: 'GET',
+            accountId: message.account_id
+        }).then((thread) => {
+            if (thread) {
+                bound(() => {
+                    console.log('Thread', thread)
+                    const existingThread = Threads.findOne({id:thread.id})
+                    if(existingThread) {
+                        //Threads.update({id:thread.id}, {$set:thread})
+                        updateThread.call({_id:existingThread._id, ...thread})
+                    } else {
+                        insertThread.call(_.extend(thread, {salesRecordId}))
+                    }
+
+                    return insertMessage.call(message)
+                })
+            }
+        })
     }
 })

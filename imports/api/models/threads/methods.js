@@ -5,6 +5,18 @@ import SimpleSchema from 'simpl-schema'
 import Threads from './threads'
 import Messages from '../messages/messages'
 
+export const insertThread = new ValidatedMethod({
+    name: 'thread.insert',
+    validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
+    run(thread) {
+        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        Threads.insert(thread)
+
+        return true
+    }
+})
+
 export const updateThread = new ValidatedMethod({
     name: 'thread.update',
     validate: Threads.schema.validator({clean: true}),

@@ -4,26 +4,16 @@ import queryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
-import {SalesRecords} from '/imports/api/models'
 import NylasUtils from './nylas-utils'
 import DatabaseStore from './database-store'
 import ThreadStore from './thread-store'
 
 class MessageStore extends Reflux.Store {
-    constructor(salesRecord=null) {
+    constructor() {
         super()
 
         this._registerListeners()
         this._setStoreDefaults()
-
-        if(salesRecord) {
-            this.salesRecord = salesRecord
-            this._messages = salesRecord.messages()
-            this._messages.sort((m1, m2) => m1.date - m2.date)
-
-            this._expandMessagesToDefault()
-            this._fetchExpandedAttachments(this._messages)
-        }
     }
 
     _setStoreDefaults(messages) {
@@ -169,19 +159,6 @@ class MessageStore extends Reflux.Store {
     }
 
     messages(cb) {
-        if(this.salesRecord) {
-            const messages = this.salesRecord.messages()
-            if(messages.length != this._messages.length) {console.log('trigger _expandMessagesToDefault')
-                this._messages = messages
-
-                this._messages.sort((m1, m2) => m1.date - m2.date)
-
-                this._expandMessagesToDefault()
-                this._fetchExpandedAttachments(this._messages)
-                if(cb) cb()
-            }
-        }
-
         return this._messages
     }
 
@@ -204,5 +181,4 @@ class MessageStore extends Reflux.Store {
 
 }
 
-export const ConversationStore = MessageStore
 module.exports = new MessageStore()
