@@ -215,7 +215,7 @@ class NylasAPI {
             unlockedJSONs.forEach((json) => {
                 let model = existingModels[json.id]
 
-                if(!model || (model.version && json.version && json.version>model.version)) {
+                if(!model || (model.version && json.version && json.version>model.version) || !_.isEqual(model, json)) {
                     model = _.clone(json)
                     changedModels.push(model)
                 }

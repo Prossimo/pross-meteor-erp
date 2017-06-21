@@ -49,18 +49,19 @@ export default class Toolbar extends React.Component {
 
         const existingThread = Threads.findOne({id: thread.id})
         if(existingThread) {
+            const salesRecord = SalesRecords.findOne(existingThread.salesRecordId)
             return (
                 <div style={{marginTop:12, float:'right'}}>
-                    <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
-                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:existingThread.salesRecordId})}>Go to deal</MenuItem>
+                    <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-sales-record" disabled={!thread}>
+                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:existingThread.salesRecordId})}>Go to this deal</MenuItem>
                         <MenuItem divider/>
-                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('unbind')}>Unbind from deal</MenuItem>
+                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('unbind')}>Unbind from this deal</MenuItem>
                     </DropdownButton>
                 </div>
             )
         }
-        const {salesRecords} = this.state
 
+        const {salesRecords} = this.state
         return (
             <div style={{marginTop:12, float:'right'}}>
                 <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
