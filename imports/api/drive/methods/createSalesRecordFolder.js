@@ -17,10 +17,12 @@ export default new ValidatedMethod({
     const { value: dealTempletFolder } = Settings.findOne({ key: 'DEAL_TEMPLATE_FOLDER' })
     const { id: folderId } = createFolder.call({ name, parent: salesRecordParentFolderId })
     const { id: taskFolderId } = createFolder.call({ name: 'Tasks', parent: folderId })
+    const { id: emailFolderId } = createFolder.call({ name: 'Attachments', parent: folderId })
     SalesRecords.update(salesRecordId, {
       $set: {
         folderId,
         taskFolderId,
+        emailFolderId,
       },
     })
 
