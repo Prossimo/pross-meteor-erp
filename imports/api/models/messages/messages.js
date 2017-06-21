@@ -137,7 +137,8 @@ Messages.schema = new SimpleSchema({
         type: Object
     },
     created_at: {type: Date, denyUpdate: true, optional: true},
-    modified_at: {type: Date, denyInsert: true, optional: true}
+    modified_at: {type: Date, denyInsert: true, optional: true},
+    isAttachmentBackup: {type: Boolean, optional: true},
 })
 
 Messages.attachSchema(Messages.schema)
