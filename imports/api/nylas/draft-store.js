@@ -138,10 +138,6 @@ class DraftStore extends Reflux.Store {
             }
         }
 
-        Meteor.call('sendMailToSlack', message, draft.thread_id, salesRecordId, (err,res) => {
-            console.log('======sendMailToSlack', err, res)
-        })
-
         this.removeDraftForClientId(clientId)
         this.trigger()
     }

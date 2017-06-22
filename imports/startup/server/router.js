@@ -57,7 +57,7 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
     const query = params.query
 
-    console.log('Nylas WebHook result', query, JSON.stringify(req.body))
+    console.log('===> Nylas WebHook request body', query, JSON.stringify(req.body))
     const deltas = req.body.deltas
     if(deltas && deltas.length) {
         const data = deltas[0]
@@ -69,40 +69,45 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                 const thread_id = attributes.thread_id
 
                 if(account_id && thread_id && message_id) {
-                    console.log('Started fetch threads3', account_id, thread_id, message_id)
-                    const existingThreads = Threads.find({id:thread_id}).fetch()
-                    if(existingThreads && existingThreads.length) {
-                        const nylasAccount = NylasAccounts.findOne({accountId:account_id})
-                        if(nylasAccount) {
-                            const {accessToken} = nylasAccount
+                    console.log('Started fetch threads', account_id, thread_id, message_id)
+                    const nylasAccount = NylasAccounts.findOne({accountId:account_id})
+                    if(nylasAccount) {
+                        const {accessToken} = nylasAccount
 
-                            const auth = {
-                                user: accessToken,
-                                pass: '',
-                                sendImmediately: true
-                            }
+                        const auth = {
+                            user: accessToken,
+                            pass: '',
+                            sendImmediately: true
+                        }
+                        NylasAPI.makeRequest({
+                            path: `/threads/${thread_id}`,
+                            method: 'GET',
+                            auth
+                        }).then((thread) => {
                             NylasAPI.makeRequest({
-                                path: `/threads/${thread_id}`,
+                                path: `/messages/${message_id}`,
                                 method: 'GET',
                                 auth
-                            }).then((thread) => {
-                                NylasAPI.makeRequest({
-                                    path: `/messages/${message_id}`,
-                                    method: 'GET',
-                                    auth
-                                }).then((message) => {
-                                    bound(() => {
+                            }).then((message) => {
+                                bound(() => {
+                                    const existingThreads = Threads.find({id:thread_id}).fetch()
+                                    if(existingThreads && existingThreads.length) {
                                         Threads.update({id:thread_id}, {$set:thread})
 
                                         const existingMessage = Messages.findOne({id:message.id})
                                         if(!existingMessage) {
                                             Messages.insert(message)
                                         }
-                                    })
+                                    }
+
+                                    console.log('Sending mail to slack...')
+                                    Meteor.call('sendMailToSlack', message)
                                 })
                             })
-                        }
+                        })
                     }
+
+
                 }
             }
         }

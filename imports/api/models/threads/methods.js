@@ -9,6 +9,7 @@ export const insertThread = new ValidatedMethod({
     name: 'thread.insert',
     validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
     run(thread) {
+        console.log(this.userId, Meteor.userId())
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         Threads.insert(thread)
