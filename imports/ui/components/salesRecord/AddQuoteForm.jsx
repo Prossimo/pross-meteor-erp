@@ -127,9 +127,7 @@ class AddQuoteForm extends React.Component{
 
       const slackText = `I just added new quote "${quoteData.name}"`
 
-      Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, params, (err,res) => {
-        console.log(err,res)
-      })
+      Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, params)
     }
 
     this.setState({ isUploading: true })

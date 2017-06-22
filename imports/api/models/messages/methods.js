@@ -51,16 +51,16 @@ export const insertMessageForSalesRecord = new ValidatedMethod({
         }).then((thread) => {
             if (thread) {
                 bound(() => {
-                    console.log('Thread', thread)
-                    const existingThread = Threads.findOne({id:thread.id})
-                    if(existingThread) {
-                        //Threads.update({id:thread.id}, {$set:thread})
-                        updateThread.call({_id:existingThread._id, ...thread})
-                    } else {
-                        insertThread.call(_.extend(thread, {salesRecordId}))
-                    }
+                    if(Meteor.isServer) {
+                        const existingThread = Threads.findOne({id:thread.id})
+                        if(existingThread) {
+                            Threads.update({id:thread.id}, {$set:thread})
+                        } else {
+                            Threads.insert(_.extend(thread, {salesRecordId}))
+                        }
 
-                    return insertMessage.call(message)
+                        Messages.insert(message)
+                    }
                 })
             }
         })

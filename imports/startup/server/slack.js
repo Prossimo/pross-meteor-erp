@@ -1,5 +1,7 @@
 const SlackBot = Npm.require('slackbots')
+import {SlackMails} from '/imports/api/models'
 
+const bound = Meteor.bindEnvironment(callback => callback())
 
 Meteor.startup(() => {
     //todo add reload ws connection
@@ -18,21 +20,35 @@ Meteor.startup(() => {
 
     //todo replace
     Meteor.methods({
-        async sendBotMessage(channel, msg, params) {
+        async sendBotMessage(channel, msg, params, thread_id) {
+            check(channel, String)
+            check(msg, String)
+            check(params, Object)
+            check(thread_id, Match.Maybe(String))
+
             if (params && params.username) params.as_user = false
 
 
             try {
                 return await bot.postMessage(channel, msg, params).then((body) => {
                     console.log(body)
+
+                    if(thread_id) {
+                        bound(() => {
+                            const existingSlackMail = SlackMails.findOne({thread_id})
+                            if(!existingSlackMail) {
+                                SlackMails.insert({thread_id, thread_ts: body.ts})
+                            }
+                        })
+                    }
                     return body
                 }).catch((err) => {
-                    console.log(err)
+                    console.error(err)
                     throw Meteor.Error(err)
                 })
             } catch (err) {
-                console.log(`ERROR: ${err.message}`)
-                throw err
+                console.error(err)
+                throw Meteor.Error(err)
             }
         }
     })
