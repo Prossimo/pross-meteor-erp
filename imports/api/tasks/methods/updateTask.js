@@ -36,6 +36,11 @@ export default new ValidatedMethod({
     },
     parentId: {
       type: String,
+      optional: true,
+    },
+    parentType: {
+      type: String,
+      optional: true,
     },
     _id: {
       type: String,
