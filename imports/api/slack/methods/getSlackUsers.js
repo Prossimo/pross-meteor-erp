@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor'
 import { users } from '../restful'
 import { SlackUsers } from '/imports/api/models'
 

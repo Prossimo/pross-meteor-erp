@@ -55,11 +55,6 @@ oauth2Client.setCredentials({
 
 const googleDrive = google.drive({version: 'v3', auth: oauth2Client})
 
-const SLACK_API_ROOT = config.slack.apiRoot
-const SLACK_API_KEY = config.slack.apiKey
-const SLACK_BOT_ID = config.slack.botId
-const SLACK_BOT_TOKEN = config.slack.botToken
-
 Meteor.methods({
     userRegistration(userData){
         check(userData, {
@@ -179,28 +174,6 @@ Meteor.methods({
                 [key]: value,
             }
         })
-    },
-
-    addUserToSlackChannel(userId, channel){
-        check(userId, String)
-        check(channel, String)
-
-        const user = Meteor.users.findOne({_id: userId, slack: {$exists: true}})
-
-        if (!user) throw new Meteor.Error('User don`t integrate with slack')
-
-        const res = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
-            params: {
-                token: SLACK_API_KEY,
-                channel,
-                user: user.slack.id
-            }
-        })
-        if (!res.data.ok) {
-            if (res.data.error === 'already_in_channel') throw new Meteor.Error('User already in channel')
-        }
-        res.userEmail = getUserEmail(user)
-        return res
     },
 
     sendEmail(mailData) {
@@ -458,17 +431,6 @@ Meteor.methods({
         })
     },
 
-
-    postSlackMessage(channel, message){
-        HTTP.post(`${SLACK_API_ROOT}/chat.postMessage`, {
-            params: {
-                token: SLACK_API_KEY,
-                channel,
-                text: message
-            }
-        })
-    },
-
     parseSlackMessage(data){
         data.createAt = new Date()
         switch (data.subtype) {
@@ -485,142 +447,6 @@ Meteor.methods({
 
         data.publicLink = Meteor.call('getPublicPermalink', data.file.id)
         SlackMessages.insert(data)
-    },
-
-    sendMailToSlack(message) {
-        check(message, Object)
-
-        const thread = Threads.findOne({id: message.thread_id})
-        let salesRecord
-        if (thread) {
-            salesRecord = SalesRecords.findOne({_id: thread.salesRecordId})
-        }
-
-        let threadable = false
-        let slackChannelId = salesRecord ? salesRecord.slackChanel : null
-
-        if (!slackChannelId) {
-            const channelsListRes = HTTP.get(`${SLACK_API_ROOT}/channels.list`, {
-                params: {
-                    token: SLACK_API_KEY,
-                }
-            })
-
-            if (channelsListRes.statusCode != 200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
-
-            const channels = channelsListRes.data.channels
-            const inboxChannel = _.find(channels, {name: 'inbox'})
-            if (!inboxChannel) {
-                const channelsCreateRes = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
-                    params: {
-                        token: SLACK_API_KEY,
-                        name: 'inbox',
-                        validate: true
-                    }
-                })
-                if (channelsCreateRes.statusCode != 200 || !channelsCreateRes.data.ok) throw new Meteor.Error('Could not create inbox slack channel')
-                slackChannelId = channelsCreateRes.data.channel.id
-            } else {
-                slackChannelId = inboxChannel.id
-            }
-            threadable = true
-        }
-
-        if (!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')
-
-        let thread_ts = null
-        const slackMail = SlackMails.findOne({thread_id: message.thread_id})
-        if (slackMail) thread_ts = slackMail.thread_ts
-
-        const to = []
-        message.to.forEach((c) => {
-            to.push(c.email)
-        })
-        message.cc.forEach((c) => {
-            to.push(c.email)
-        })
-        message.bcc.forEach((c) => {
-            to.push(c.email)
-        })
-        const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
-
-        const $ = cheerio.load(message.body)
-        $('blockquote').remove()
-        const p = $('p')
-        for( let i = 0; i < p.length; i++ ) {
-          if(/wrote:/.test(p.eq(i).text())) p.eq(i).remove()
-        }
-        const params = {
-            username: 'prossimobot',//getSlackUsername(Meteor.user()),
-            //icon_url: getAvatarUrl(Meteor.user()),
-            attachments: [
-                {
-                    'fallback': message.snippet,
-                    'color': '#36a64f',
-                    //"pretext": "Optional text that appears above the attachment block",
-                    //"author_name": "Bobby Tables",
-                    //"author_link": "http://flickr.com/bobby/",
-                    //"author_icon": "http://flickr.com/icons/bobby.jpg",
-                    'title': message.subject,
-                    //"title_link": "https://api.slack.com/",
-                    text: toMarkdown($.html()),
-                    // "fields": [
-                    //     {
-                    //         "title": "Priority",
-                    //         "value": "High",
-                    //         "short": false
-                    //     }
-                    // ],
-                    'image_url': 'http://my-website.com/path/to/image.jpg',
-                    'thumb_url': 'http://example.com/path/to/thumb.png',
-                    'footer': 'Prossimo CRM',
-                    'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
-                    'ts': new Date().getTime() / 1000
-                }
-            ],
-            as_user: false
-        }
-        if (threadable && thread_ts) params.thread_ts = thread_ts
-
-        Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id)
-    },
-    getPublicPermalink(fileId){
-        check(fileId, String)
-
-        const response = HTTP.get(`${SLACK_API_ROOT}/files.sharedPublicURL`, {
-            params: {
-                token: SLACK_API_KEY,
-                file: fileId
-            }
-        })
-
-        if (!response.data.ok) return
-        //console.log(response);
-
-        const file = HTTP.get(response.data.file.url_private_download, {params: {token: SLACK_API_KEY}})
-
-        //console.log(file)
-
-        return response.data.file.permalink_public
-    },
-
-    inviteUserToSlack(email){
-        check(email, String)
-
-        HTTP.post(`${SLACK_API_ROOT}/users.admin.invite`, {
-            params: {
-                token: SLACK_API_KEY,
-                email
-            }
-        }, requestCb)
-
-        function requestCb(err, res) {
-            if (err || !res.data.ok) {
-                console.log(err);
-                return
-            }
-            // Meteor.call('getSlackUsers')
-        }
     },
 
     updateUserProfileField(field, data){

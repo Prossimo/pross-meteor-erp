@@ -3,10 +3,7 @@ import {Roles} from 'meteor/alanning:roles'
 import SimpleSchema from 'simpl-schema'
 import { ROLES, Projects } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
-import config from '/imports/api/config/config'
-
-const SLACK_API_ROOT = config.slack.apiRoot
-const SLACK_API_KEY = config.slack.apiKey
+import { slackClient } from '/imports/api/slack'
 
 Meteor.methods({
   removeProject({ _id, isRemoveFolders, isRemoveSlack }) {
@@ -26,16 +23,10 @@ Meteor.methods({
 
         // Run later
         Meteor.defer(() => {
+          // Remove slack channel
+          isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
           // Remove folder
           isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
-
-          // Remove slack channel
-          isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
-            params: {
-              token: SLACK_API_KEY,
-              channel: slackChanel,
-            },
-          })
         })
       }
     }

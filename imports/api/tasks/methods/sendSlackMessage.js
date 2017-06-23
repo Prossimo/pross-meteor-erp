@@ -1,41 +1,7 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
-import { HTTP } from 'meteor/http'
 import { SalesRecords, Projects, Tasks } from '/imports/api/models'
-import { slack } from '/imports/api/config/config'
-
-const { apiRoot } = slack
-const token = 'xoxb-143253157236-cBzs3iNbCDuxCOIHTPnI2LHG'
-
-// SEND SLACK MESSAGE
-const sendMessage = ({ channel, text, attachments }) => {
-  const params = {
-    token,
-    channel,
-    username: 'prossimobot',
-    as_user: false,
-  }
-  text && (params.text = text)
-  attachments && (params.attachments = attachments)
-  HTTP.post(`${apiRoot}/chat.postMessage`, {
-    params,
-  })
-}
-
-// SEND SLACK ATTACHMENTS
-const sendAttachment = ({ pretext, title, text, color, title_link, channel }) => {
-  const attachment = {
-    pretext,
-    title,
-    text,
-    color,
-    title_link,
-  }
-  sendMessage({
-    channel,
-    attachments: JSON.stringify([attachment]),
-  })
-}
+import { slackClient } from '/imports/api/slack'
 
 const RED = '#FF4C4C'
 const ORANGE = '#FFA64C'
@@ -73,61 +39,61 @@ export default new ValidatedMethod({
             let pretext = `A new comment from @${user.username} has been added`
             if (user.slack && user.slack.id)
               pretext = `A new comment from <@${user.slack.id}> has been added`
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext,
               title,
               text: comment.content,
               color: BLUE,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
 
           case 'REMOVE_FILE': {
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext: 'A attachment file has been removed',
               title,
               text,
               color: RED,
               title_link,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
 
           case 'ATTACH_FILE': {
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext: 'A file have been attached',
               title,
               text,
               color: BLUE,
               title_link,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
 
           case 'UPDATE_TASK': {
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext: `A task have been updated at ${status} board`,
               title,
               text,
               color: ORANGE,
               title_link,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
 
           case 'REMOVE_TASK': {
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext: `A task have been removed from ${status} board`,
               title,
               text,
               color: RED,
               title_link,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
 
@@ -136,14 +102,14 @@ export default new ValidatedMethod({
             let pretext = `New task has assigned to @${user.username} in ${status} board`
             if (user.slack && user.slack.id)
               pretext = `New task has assigned to <@${user.slack.id}> in ${status} board`
-            sendAttachment({
+            const attachments = slackClient.attachments.create({
               pretext,
               title,
               text,
               color: BLUE,
               title_link,
-              channel,
             })
+            slackClient.chat.postAttachments({ channel, attachments })
             break
           }
         }
