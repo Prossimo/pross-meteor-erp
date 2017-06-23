@@ -12,7 +12,7 @@ import {
     Settings,
     Projects
 } from '../models'
-import {SlackMails, SalesRecords, ROLES, Threads} from '../models'
+import {SlackMails, SalesRecords, ROLES, Threads, NylasAccounts} from '../models'
 
 import {prossDocDrive} from '../drive'
 import {getUserName, getUserEmail} from '/imports/api/lib/filters'
@@ -494,6 +494,9 @@ Meteor.methods({
             salesRecord = SalesRecords.findOne({_id: thread.salesRecordId})
         }
 
+        const nylasAccount = NylasAccounts.findOne({accountId:message.account_id})
+        if(!nylasAccount || (!nylasAccount.isTeamAccount && !salesRecord)) return
+
         let threadable = false
         let slackChannelId = salesRecord ? salesRecord.slackChanel : null
 
@@ -580,6 +583,7 @@ Meteor.methods({
         }
         if (threadable && thread_ts) params.thread_ts = thread_ts
 
+        console.log('Sending mail to slack...')
         Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id)
     },
     getPublicPermalink(fileId){

@@ -100,7 +100,6 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                         }
                                     }
 
-                                    console.log('Sending mail to slack...')
                                     Meteor.call('sendMailToSlack', message)
                                 })
                             })
