@@ -623,24 +623,6 @@ Meteor.methods({
         }
     },
 
-    getSlackUsers(){
-        HTTP.get(`${SLACK_API_ROOT}/users.list`, {
-            params: {
-                token: SLACK_API_KEY,
-            }
-        }, requestCb)
-
-        function requestCb(err, res) {
-            if (err || !res.data.ok) return
-            const {members} = res.data
-            members.length && members.forEach(item => {
-                if (!SlackUsers.findOne({id: item.id})) {
-                    SlackUsers.insert(item)
-                }
-            })
-        }
-    },
-
     updateUserProfileField(field, data){
         check(field, String)
         check(data, Match.OneOf(String, Number))

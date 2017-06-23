@@ -1,16 +1,13 @@
 import {Roles} from 'meteor/alanning:roles'
-import  {HTTP} from 'meteor/http'
+import {HTTP} from 'meteor/http'
 import SimpleSchema from 'simpl-schema'
 import queryString from 'query-string'
+import { slackClient } from '/imports/api/slack'
 import config from '../../config/config'
 import NylasAPI from '../../nylas/nylas-api'
 import {SalesRecords, Threads, Messages, ROLES} from '../index'
 import {prossDocDrive} from '../../drive'
 import {getSubStages} from '../../lib/filters.js'
-
-const SLACK_API_ROOT = config.slack.apiRoot
-const SLACK_API_KEY = config.slack.apiKey
-const SLACK_BOT_ID = config.slack.botId
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 Meteor.methods({
@@ -30,12 +27,7 @@ Meteor.methods({
                     // Remove folder
                     isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
                     // Remove slack channel
-                    isRemoveSlack && HTTP.post(`${SLACK_API_ROOT}/channels.archive`, {
-                        params: {
-                            token: SLACK_API_KEY,
-                            channel: slackChanel,
-                        }
-                    })
+                    isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
                 })
             }
         }
@@ -131,13 +123,7 @@ Meteor.methods({
 
         check(thread, Match.Maybe(Object))
 
-        const responseCreateChannel = HTTP.post(`${SLACK_API_ROOT}/channels.create`, {
-            params: {
-                token: SLACK_API_KEY,
-                name: data.name
-            }
-        })
-
+        const responseCreateChannel = slackClient.channels.create({ name: data.name })
         //console.log("Create slack channel response", responseCreateChannel)
         if (!responseCreateChannel.data.ok) {
             if (responseCreateChannel.data.error = 'name_taken') {
@@ -149,26 +135,17 @@ Meteor.methods({
 
         data.slackChanel = responseCreateChannel.data.channel.id
 
-        const responseInviteBot = HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
-            params: {
-                token: SLACK_API_KEY,
-                channel: responseCreateChannel.data.channel.id,
-                user: SLACK_BOT_ID
-            }
+        const responseInviteBot = slackClient.channels.inviteBot({
+          channel: responseCreateChannel.data.channel.id,
         })
 
         if (!responseInviteBot.data.ok) throw new Meteor.Error('Bot cannot add to channel')
 
         Meteor.users.find({_id: {$in: data.members.map(item => item.userId)}, slack: {$exists: true}})
-            .forEach(user => {
-                HTTP.post(`${SLACK_API_ROOT}/channels.invite`, {
-                    params: {
-                        token: SLACK_API_KEY,
-                        channel: responseCreateChannel.data.channel.id,
-                        user: user.slack.id
-                    }
-                })
-            })
+            .forEach(user => slackClient.channels.invite({
+              channel: responseCreateChannel.data.channel.id,
+              user: user.slack.id,
+            }))
 
 
         const salesRecordId = SalesRecords.insert(data)
