@@ -4,6 +4,8 @@ import {Roles} from 'meteor/alanning:roles'
 import  {HTTP} from 'meteor/http'
 import {check, Match} from 'meteor/check'
 import SimpleSchema from 'simpl-schema'
+import cheerio from 'cheerio'
+import toMarkdown from 'to-markdown'
 import {
     Files,
     SlackUsers,
@@ -530,10 +532,6 @@ Meteor.methods({
         const slackMail = SlackMails.findOne({thread_id: message.thread_id})
         if (slackMail) thread_ts = slackMail.thread_ts
 
-        const {getSlackUsername, getAvatarUrl} = require('../lib/filters')
-
-
-        const from = message.from[0].email
         const to = []
         message.to.forEach((c) => {
             to.push(c.email)
@@ -546,8 +544,12 @@ Meteor.methods({
         })
         const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
-        const slackify = require('slackify-html')
-        const text = slackify(message.body)
+        const $ = cheerio.load(message.body)
+        $('blockquote').remove()
+        const p = $('p')
+        for( let i = 0; i < p.length; i++ ) {
+          if(/wrote:/.test(p.eq(i).text())) p.eq(i).remove()
+        }
         const params = {
             username: 'prossimobot',//getSlackUsername(Meteor.user()),
             //icon_url: getAvatarUrl(Meteor.user()),
@@ -561,7 +563,7 @@ Meteor.methods({
                     //"author_icon": "http://flickr.com/icons/bobby.jpg",
                     'title': message.subject,
                     //"title_link": "https://api.slack.com/",
-                    text,
+                    text: toMarkdown($.html()),
                     // "fields": [
                     //     {
                     //         "title": "Priority",
