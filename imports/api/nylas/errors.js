@@ -9,14 +9,14 @@
 // `reject` or `resolve` with one argument (not three).
 class APIError extends Error {
     constructor({error, response, body, requestOptions, statusCode} = {}) {
-        super();
+        super()
 
         this.error = error
         this.body = body
         this.response = response
-        this.statusCode = statusCode ? statusCode : (response ? response.statusCode : null);
-        this.requestOptions = requestOptions || (response && response.requestOptions);
-        this.name = 'APIError';
+        this.statusCode = statusCode ? statusCode : (response ? response.statusCode : null)
+        this.requestOptions = requestOptions || (response && response.requestOptions)
+        this.name = 'APIError'
         if(body) {
             this.message = body.message ? body.message : body
             this.errorTitle = body.error ? body.error : null
@@ -28,10 +28,10 @@ class APIError extends Error {
 
 
 class TimeoutError extends Error {
-    constructor() {super();}
+    constructor() {super()}
 }
 
 module.exports = {
-    APIError: APIError,
-    TimeoutError: TimeoutError
+    APIError,
+    TimeoutError
 }
