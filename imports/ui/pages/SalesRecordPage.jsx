@@ -1,67 +1,74 @@
 import React from 'react'
 import classNames from 'classnames'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
-import CreateSalesRecord from '/imports/ui/components/admin/CreateSalesRecord'
+import CreateSalesRecordModal from '/imports/ui/components/admin/CreateSalesRecordModal'
 
 class ProjectsPage extends React.Component{
     constructor(props){
         super(props)
-
-        this.tabs = [
-            {
-                label: 'All Deals',
-                component: <AllSalesRecords showAllDeals/>
-            },
-            {
-
-                label: 'Add Deal',
-                component: <CreateSalesRecord/>
-            }
-        ]
-
-        this.state ={
-            activeTab: this.tabs[0]
+        this.state = {
+            keyword: '',
+            open: false
         }
+        this.getTabs = this.getTabs.bind(this);
+        this.openAddModal = this.openAddModal.bind(this);
+    }
+    
+    openAddModal() {
+      this.setState({
+        open: true
+      })
     }
 
     getTabs(){
-        const { activeTab } = this.state
-        return <ul>
-            {this.tabs.map(item=>{
-                return (
-                    <li key={item.label}
-                        onClick={this.toggleTab.bind(this, item)}
-                        className={classNames({"active": item === activeTab})}
-                    >{item.label}</li>
-                )
-            })}
-        </ul>
-    }
-
-    toggleTab(activeTab){
-        this.setState({activeTab})
-    }
-
-    getContent(){
-        const { activeTab } = this.state
-        if(!activeTab.component) return null
-
-        return React.cloneElement(activeTab.component, this.props)
+      let showsearchbar = false;
+      return <div>
+          <div className="sale-title">
+            All Deals
+          </div>
+          <div style={{float: 'left', width: 100, marginLeft: 50}}>
+            <button
+              className="btn btn-primary"
+              onClick={this.openAddModal}
+            >
+              <span className="fa fa-plus"></span> Add Deal
+            </button>
+          </div>
+          {showsearchbar &&
+          <div style={{float: 'left', width: 250, marginLeft: 50}}>
+              <InputGroup>
+                  <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
+                  <FormControl type="text" placeholder="Search..." onChange={this.onChangeSearch}/>
+              </InputGroup>
+          </div>
+          }
+      </div>
     }
 
     render() {
-        return (
-            <div className="projects-page">
-             	<div className="tab-container">
-              		<div className="tab-controls">
-                		{this.getTabs()}
-              		</div>
-              		<div className="tab-content">
-                		{this.getContent()}
-              		</div>
-             	</div>
-            </div>
-        )
+      const props = _.clone(this.props);
+      props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper })=> {
+        const keyfilter = new RegExp(this.state.keyword,'i');
+        return (this.state.keyword == null || (name.search(keyfilter) > -1));
+      });
+      props.stage = 'lead';
+
+      return (
+          <div className="projects-page">
+           	<div className="tab-container">
+            		<div className="tab-controls">
+              		{this.getTabs()}
+            		</div>
+            		<div className="tab-content">
+              		<AllSalesRecords {...props} />
+            		</div>
+           	</div>
+            <CreateSalesRecordModal
+              open={this.state.open}
+              {...props}
+            />
+          </div>
+      )
     }
 }
 export default ProjectsPage
