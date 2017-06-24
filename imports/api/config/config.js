@@ -2,7 +2,7 @@ const twilioAppSid = {
   'http://localhost:3000/': 'APcbc5a71582dd8c085ef5580496229d18',
   'http://crm.prossimo.us/': 'AP5516d514602651aab27c3d87370fe12f',
   'https://crm.prossimo.us/': 'APcce106e0cf8236a9d9009b69f0cc5b00'
-};
+}
 
 module.exports = {
   nylas: {
@@ -37,4 +37,4 @@ module.exports = {
     redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
     refreshToken: '1/WE2FqFkUAH4UX54YEXMXzlboX7dfcL_u6D0g187yKyc',
   },
-};
+}

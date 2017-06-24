@@ -4,21 +4,21 @@ import config from '/imports/api/config/config'
 const {
   slack: {
     apiRoot: SLACK_API_ROOT,
-    apiKey: SLACK_API_KEY,
     botId: SLACK_BOT_ID,
+    botToken: SLACK_BOT_TOKEN,
   }
 } = config
 
 const slackClient = {
   makeRequest: (path, options = {}) => HTTP.get(`${SLACK_API_ROOT}/${path}`, {
     params: {
-      token: SLACK_API_KEY,
+      token: SLACK_BOT_TOKEN,
       ...options,
     }
   }),
   rawRequest: ({ url }) => HTTP.get(url, {
     params: {
-      token: SLACK_API_KEY,
+      token: SLACK_BOT_TOKEN,
     }
   })
 }
@@ -40,7 +40,8 @@ const channels = {
 
 const chat = {
   postMessage: ({ channel, text }) => slackClient.makeRequest('chat.postMessage', { channel, text }),
-  postAttachments: ({ channel, attachments }) => slackClient.makeRequest('chat.postMessage', { channel, username: 'prossimobot', as_user: false, attachments })
+  postAttachments: ({ channel, attachments }) => slackClient.makeRequest('chat.postMessage', { channel, username: 'prossimobot', as_user: false, attachments }),
+  postRawMessage: ({ channel, text, attachments, icon_url, as_user, username }) => slackClient.makeRequest('chat.postMessage', { channel, as_user, username, attachments, icon_url, text }),
 }
 
 const files = {
