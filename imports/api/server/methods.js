@@ -7,7 +7,7 @@ import {
     Quotes,
     Settings,
 } from '../models'
-import { SalesRecords, ROLES } from '../models'
+import {SlackMails, SalesRecords, ROLES, Threads, NylasAccounts} from '../models'
 
 import {prossDocDrive} from '../drive'
 import {getUserEmail} from '/imports/api/lib/filters'

@@ -48,9 +48,14 @@ class AddQuoteForm extends React.Component{
                 return  warning('You can add only PDF files!')
             }
 
+            const file = event.target.files[0]
             this.setState({
-                currentFile: event.target.files[0]
+                currentFile: file
             })
+
+            if(this.props.draftClientId) {
+                Actions.addAttachment({clientId: this.props.draftClientId, file})
+            }
         }
     }
 
@@ -111,9 +116,14 @@ class AddQuoteForm extends React.Component{
             //// step # 3 - notify slack/email
             Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, slackMsgParans)
 
-            if(!alertsActive) return
-
-            Actions.sendDraft(draftClientId)
+            if(alertsActive && draftClientId) {
+                const draftInterval = setInterval(() => {
+                    if(!DraftStore.isUploadingDraftFiles(draftClientId)) {
+                        Actions.sendDraft(draftClientId)
+                        clearInterval(draftInterval)
+                    }
+                }, 5000)
+            }
         }
 
         const fileInsertCb = (err, res) => {
