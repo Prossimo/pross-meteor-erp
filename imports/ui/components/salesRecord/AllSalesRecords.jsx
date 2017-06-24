@@ -540,42 +540,48 @@ class AllSalesRecords extends React.Component{
         })
     }
     renderKanbanView() {
+      const { stage , salesRecords} = this.props;
+      const isSubStage = !this.props.showAllDeals
+      const columns = isSubStage ?
+          this.getSubStages(stage).map((sub) => {return {id: sub.value, title: sub.label}}) :
+          STAGES_MAP.map((stage) => {return {id: stage.value, title: stage.label}})
       return (
-        <KanbanView {...this.props} />
+        <KanbanView
+          columns={columns}
+          salesRecords={salesRecords}
+          isSubStage={isSubStage}
+        />
       )
     }
     renderSwitchLabels() {
-      if (this.props.showAllDeals) {
-        const active = this.state.showKanbanView ? 'active' : ''
-        return (
-          <div className="text-right input-group-btn">
-          <button
-            className={`btn btn-default ${!active ? 'active' : ''}`}
-            data-toggle="tooltip" title="List View"
-            data-replacement="auto"
-            onClick={() => {
-              this.setState({showKanbanView: false})
-            }}
-          >
-            <span className="fa fa-list" aria-hidden="true"></span>
-          </button>
-          <button
-            className={`btn btn-default ${active}`}
-            data-toggle="tooltip" title="Kaban View"
-            data-replacement="auto"
-            onClick={() => {
-              this.setState({showKanbanView: true})
-            }}
-          >
-            <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
-          </button>
-        </div>
-        )
-      }
-      return ''
+      const active = this.state.showKanbanView ? 'active' : ''
+      return (
+        <div className="text-right input-group-btn">
+        <button
+          className={`btn btn-default ${!active ? 'active' : ''}`}
+          data-toggle="tooltip" title="List View"
+          data-replacement="auto"
+          onClick={() => {
+            this.setState({showKanbanView: false})
+          }}
+        >
+          <span className="fa fa-list" aria-hidden="true"></span>
+        </button>
+        <button
+          className={`btn btn-default ${active}`}
+          data-toggle="tooltip" title="Kaban View"
+          data-replacement="auto"
+          onClick={() => {
+            this.setState({showKanbanView: true})
+          }}
+        >
+          <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
+        </button>
+      </div>
+      )
     }
     render() {
-      const showKaban = this.props.showAllDeals && this.state.showKanbanView
+      const showKaban = this.state.showKanbanView
       return (
         <div className="">
           {this.renderSwitchLabels()}
