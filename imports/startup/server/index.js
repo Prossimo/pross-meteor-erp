@@ -1,9 +1,7 @@
 //require('babel-runtime/core-js/promise').default = require('bluebird')
-//import './cronjob'
 
 import './migrations'
 import './boot'
-import './slack'
 import './checkLogin'
 import '../../api/server/publications'
 import '../../api/server/methods'

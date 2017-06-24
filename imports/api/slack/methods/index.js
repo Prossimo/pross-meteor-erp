@@ -5,6 +5,7 @@ import sendMailToSlack from './sendMailToSlack'
 import getPublicPermalink from './getPublicPermalink'
 import inviteUserToSlack from './inviteUserToSlack'
 import sendBotMessage from './sendBotMessage'
+import parseSlackMessage from './parseSlackMessage'
 
 export {
   getSlackUsers,
@@ -14,4 +15,5 @@ export {
   getPublicPermalink,
   inviteUserToSlack,
   sendBotMessage,
+  parseSlackMessage,
 }

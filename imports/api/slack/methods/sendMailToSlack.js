@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor'
 import { check } from 'meteor/check'
 import cheerio from 'cheerio'
-import toMarkdown from 'to-markdown'
 import slackClient from '../restful'
+import slackify from 'slackify-html'
 import { Threads, SalesRecords, SlackMails } from '/imports/api/models'
 
 Meteor.methods({
@@ -59,31 +59,19 @@ Meteor.methods({
       if(/wrote:/.test(p.eq(i).text())) p.eq(i).remove()
     }
     const params = {
-      username: 'prossimobot',//getSlackUsername(Meteor.user()),
-      //icon_url: getAvatarUrl(Meteor.user()),
+      username: 'prossimobot',
       attachments: [
         {
           'fallback': message.snippet,
           'color': '#36a64f',
-          //"pretext": "Optional text that appears above the attachment block",
-          //"author_name": "Bobby Tables",
-          //"author_link": "http://flickr.com/bobby/",
-          //"author_icon": "http://flickr.com/icons/bobby.jpg",
           'title': message.subject,
-          //"title_link": "https://api.slack.com/",
-          text: toMarkdown($.html()),
-          // "fields": [
-          //     {
-          //         "title": "Priority",
-          //         "value": "High",
-          //         "short": false
-          //     }
-          // ],
+          text: slackify($.html()),
           'image_url': 'http://my-website.com/path/to/image.jpg',
           'thumb_url': 'http://example.com/path/to/thumb.png',
           'footer': 'Prossimo CRM',
           'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
-          'ts': new Date().getTime() / 1000
+          'ts': new Date().getTime() / 1000,
+          'mrkdwn_in': ['text']
         }
       ],
       as_user: false

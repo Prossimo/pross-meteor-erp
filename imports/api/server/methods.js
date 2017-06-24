@@ -1,23 +1,16 @@
 import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import  {HTTP} from 'meteor/http'
 import {check, Match} from 'meteor/check'
-import SimpleSchema from 'simpl-schema'
-import cheerio from 'cheerio'
-import toMarkdown from 'to-markdown'
 import {
     Files,
-    SlackUsers,
     Quotes,
-    SlackMessages,
     Settings,
-    Projects
 } from '../models'
-import {SlackMails, SalesRecords, ROLES, Threads} from '../models'
+import { SalesRecords, ROLES } from '../models'
 
 import {prossDocDrive} from '../drive'
-import {getUserName, getUserEmail} from '/imports/api/lib/filters'
+import {getUserEmail} from '/imports/api/lib/filters'
 
 import '../lib/extendMatch.js'
 import google from 'googleapis'
@@ -431,23 +424,6 @@ Meteor.methods({
         })
     },
 
-    parseSlackMessage(data){
-        data.createAt = new Date()
-        switch (data.subtype) {
-            case 'file_share':
-                Meteor.call('addSlackFileMsg', data)
-                break
-            default:
-                SlackMessages.insert(data)
-        }
-    },
-
-    addSlackFileMsg(data){
-        if (!data.file && !data.file.id) return
-
-        data.publicLink = Meteor.call('getPublicPermalink', data.file.id)
-        SlackMessages.insert(data)
-    },
 
     updateUserProfileField(field, data){
         check(field, String)

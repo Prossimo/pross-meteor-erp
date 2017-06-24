@@ -5,4 +5,5 @@ import './hooks'
 export {
   slack,
   slackClient,
+  slackHelpers,
 }

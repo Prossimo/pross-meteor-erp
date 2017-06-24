@@ -6,8 +6,10 @@ const twilioAppSid = {
 
 module.exports = {
   nylas: {
-    appId: '4xnb7gd7t7la2kxls35j3k7t3',
-    appSecret: '9tbqdscu0b5q16r422t76onnx',
+    appId: 'ewcnqlxp6luvmw7p8g79xtvo7',
+    appSecret: '6oyqovz2z210yzw7ygodqn3ji',
+    //appId: '4xnb7gd7t7la2kxls35j3k7t3',
+    //appSecret: '9tbqdscu0b5q16r422t76onnx',
     apiRoot: 'https://api.nylas.com',
   },
   google: {
