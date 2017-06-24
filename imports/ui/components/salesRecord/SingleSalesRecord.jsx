@@ -150,7 +150,7 @@ class SingleSalesRecord extends React.Component{
           {
             this.props.stakeholders.map(people => {
               const { _id, emails, name, role, designation } = people
-              if (designation.name !== user.designation) return ''
+              if (designation && designation.name !== user.designation) return ''
               const emailString = (emails || []).map(({ email }) => email).join('')
               const nameString = emailString ? `${name}(${emailString})` : name
               return (
