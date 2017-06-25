@@ -8,13 +8,12 @@ import {warning} from '/imports/api/lib/alerts'
 
 export default class TemplatesView extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             showTemplateModal: false,
             creating: false,
-            selectedTemplate: null,
-            reloadData: false
+            selectedTemplate: null
         }
     }
 
@@ -25,11 +24,10 @@ export default class TemplatesView extends React.Component {
                     onSelectTemplate={(template) => this.setState({selectedTemplate: template})}
                     onCreateTemplate={() => this.setState({showTemplateModal: true, creating:true})}
                     selectedTemplate={this.state.selectedTemplate}
-                    reloadData={this.state.reloadData}
                 />
                 <TemplateOverview style={{padding:20}}
                     template={this.state.selectedTemplate}
-                    showToolbar={true}
+                    showToolbar={Meteor.user().isAdmin()}
                     onRemoveTemplate={this.onRemoveTemplate}
                     onEditTemplate={() => this.setState({showTemplateModal: true, creating:false})}
                 />
@@ -60,12 +58,11 @@ export default class TemplatesView extends React.Component {
             Meteor.call('removeTemplate', template._id, (err, res) => {
                 if (err) {
                     console.log(err)
-                    return warning(err.message);
+                    return warning(err.message)
                 }
 
                 this.setState({
-                    selectedTemplate: null,
-                    reloadData: true
+                    selectedTemplate: null
                 })
             })
         }
@@ -74,8 +71,7 @@ export default class TemplatesView extends React.Component {
     onSavedTemplate = (template) => {console.log(template)
         this.setState({
             showTemplateModal: false,
-            selectedTemplate: template,
-            reloadData: true
+            selectedTemplate: template
         })
     }
 }

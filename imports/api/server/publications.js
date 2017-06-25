@@ -31,7 +31,6 @@ import {
     GET_MY_CONTACTS,
     GET_MESSAGES,
     GET_THREADS,
-    GET_MAILTEMPLATES,
     GET_ALL_USERS,
     GET_SLACK_MAILS
 } from '../constants/collections'
@@ -41,6 +40,7 @@ import '/imports/api/models/companies/publications'
 import '/imports/api/models/people/publications'
 import '/imports/api/models/threads/publications'
 import '/imports/api/models/messages/publications'
+import '/imports/api/models/mailtemplates/publications'
 
 Meteor.startup(() => {
     //
@@ -165,10 +165,7 @@ Meteor.startup(() => {
         //return Threads.find({salesRecordId})
          Threads.find({}))
 
-    Meteor.publish(GET_MAILTEMPLATES, function () {
 
-        return MailTemplates.find({userId:this.userId})
-    })
 
     Meteor.publish(GET_SLACK_MAILS, function () {
         if(!this.userId) {

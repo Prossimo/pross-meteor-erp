@@ -1,7 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
-import {warning} from "/imports/api/lib/alerts"
+import {warning} from '/imports/api/lib/alerts'
 
 
 export default class TemplateForm extends React.Component {
@@ -15,7 +15,8 @@ export default class TemplateForm extends React.Component {
 
         this.state = {
             subject: props.template ? props.template.subject : '',
-            body: props.template ? props.template.body : ''
+            body: props.template ? props.template.body : '',
+            isDefault: props.template ? props.template.isDefault : false
         }
     }
 
@@ -27,7 +28,7 @@ export default class TemplateForm extends React.Component {
                         Subject
                     </Col>
                     <Col sm={10}>
-                        <FormControl type="text" placeholder="Name" value={this.state.subject} onChange={(evt)=>this.setState({subject:evt.target.value})}/>
+                        <FormControl type="text" placeholder="Name" value={this.state.subject} onChange={(evt) => this.setState({subject:evt.target.value})}/>
                     </Col>
                 </FormGroup>
 
@@ -39,13 +40,21 @@ export default class TemplateForm extends React.Component {
                         {this.renderBodyEditor()}
                     </Col>
                 </FormGroup>
+                <FormGroup controlId="formHorizontalDefault">
+                    <Col sm={2}>
+                        Default?
+                    </Col>
+                    <Col sm={10}>
+                        <FormControl type="checkbox" checked={this.state.isDefault} onChange={(evt) => this.setState({isDefault:evt.target.checked})}/>
+                    </Col>
+                </FormGroup>
 
                 <FormGroup>
                     <Col sm={12} style={{textAlign:'right'}}>
                         <Button type="submit" bsStyle="primary">Save</Button>
                     </Col>
                 </FormGroup>
-                {"* You can use <%template_variable_name%> for templating"}
+                {'* You can use <%template_variable_name%> for templating'}
             </Form>
         )
     }
@@ -74,7 +83,7 @@ export default class TemplateForm extends React.Component {
                             theme="snow"
                             modules = {modules}
                             formats = {formats}
-                            onChange={(text)=>this.setState({body:text})}>
+                            onChange={(text) => this.setState({body:text})}>
                 </ReactQuill>
             </div>
         )
@@ -83,17 +92,17 @@ export default class TemplateForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        const data = {subject, body} = this.state
+        const data = {subject, body, isDefault} = this.state
 
         if(this.props.template) {
-            Meteor.call('updateTemplate', this.props.template._id, data, (err,res)=>{
-                if(err) warning(err.message);
+            Meteor.call('updateTemplate', this.props.template._id, data, (err,res) => {
+                if(err) warning(err.message)
 
                 if(this.props.onSaved) this.props.onSaved(res)
             })
         } else {
-            Meteor.call('insertTemplate', data, (err,res)=>{
-                if(err) warning(err.message);
+            Meteor.call('insertTemplate', data, (err,res) => {
+                if(err) warning(err.message)
                 if(this.props.onSaved) this.props.onSaved(res)
             })
         }
