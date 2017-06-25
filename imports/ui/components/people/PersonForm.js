@@ -9,6 +9,7 @@ import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
 import RoleForm from './RoleForm'
 
+const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
 
 export default class PersonForm extends React.Component {
     static propTypes = {
@@ -75,7 +76,7 @@ export default class PersonForm extends React.Component {
                         </Col>
                         <Col sm={9}>
                             <FormControl type="text" placeholder="Name" value={name}
-                                         onChange={(evt) => this.setState({name: evt.target.value})}/>
+                                         onChange={(evt) => this.setState({name: evt.target.value})} required/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalTwitter">
@@ -83,8 +84,8 @@ export default class PersonForm extends React.Component {
                             Twitter
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="url" placeholder="Twitter" value={twitter}
-                                         onChange={(evt) => this.setState({twitter: evt.target.value})}/>
+                            <FormControl type="text" placeholder="Twitter" value={twitter}
+                                         onChange={(evt) => this.setState({twitter: evt.target.value})} pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalFacebook">
@@ -92,8 +93,8 @@ export default class PersonForm extends React.Component {
                             Facebook
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="url" placeholder="Facebook" value={facebook}
-                                         onChange={(evt) => this.setState({facebook: evt.target.value})}/>
+                            <FormControl type="text" placeholder="Facebook" value={facebook}
+                                         onChange={(evt) => this.setState({facebook: evt.target.value})} pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalLinkedin">
@@ -101,8 +102,8 @@ export default class PersonForm extends React.Component {
                             LinkedIn
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="url" placeholder="LinkedIn" value={linkedin}
-                                         onChange={(evt) => this.setState({linkedin: evt.target.value})}/>
+                            <FormControl type="text" placeholder="LinkedIn" value={linkedin}
+                                         onChange={(evt) => this.setState({linkedin: evt.target.value})} pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalDesignation">
