@@ -14,7 +14,7 @@ export default class TemplateSelect extends React.Component {
         const templates = MailTemplates.find().fetch()
         this.state = {
             templates,
-            selectedTemplate: props.selectedTemplate ? props.selectedTemplate : _.findWhere(templates, {isDefault:true})
+            selectedTemplate: props.selectedTemplate
         }
     }
 
