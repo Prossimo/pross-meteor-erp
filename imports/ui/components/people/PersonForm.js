@@ -4,7 +4,7 @@ import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from '/imports/api/lib/alerts'
 import {PeopleDesignations, Companies, People, ROLES} from '/imports/api/models'
-import {insertPerson, updatePerson} from '/imports/api/models/people/methods'
+import {insertPerson, updatePerson, removeRole} from '/imports/api/models/people/methods'
 import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
 import RoleForm from './RoleForm'
@@ -128,6 +128,7 @@ export default class PersonForm extends React.Component {
                                 <div style={{flex:1}}>
                                     <Select
                                     options={roleOptions}
+                                    optionRenderer={roleAddable ? (option) => <div style={{display:'flex'}}><span style={{flex:1}}>{option.label}</span><span onMouseDown={(evt) => {evt.stopPropagation(); evt.preventDefault(); this.onRemoveRole(option.value)}}>×</span></div> : null}
                                     value={roleValue}
                                     onChange={this.onChangeRole}
                                     required
@@ -250,5 +251,14 @@ export default class PersonForm extends React.Component {
             warning(e.error)
         }
 
+    }
+
+    onRemoveRole = (role) => {
+        try {
+            removeRole.call({_id:this.state.designation_id, role})
+        } catch (err) {
+            console.error(err)
+            warning(err.error)
+        }
     }
 }
