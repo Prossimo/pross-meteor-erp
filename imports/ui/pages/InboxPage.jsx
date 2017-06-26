@@ -1,5 +1,6 @@
 /* global FlowRouter */
 import React from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import Spinner from '../components/utils/spinner'
 import {warning} from '/imports/api/lib/alerts'
@@ -22,7 +23,7 @@ import {People} from '/imports/api/models'
 import {removeThread} from '/imports/api/models/threads/methods'
 
 
-class InboxPage extends React.Component {
+class InboxPage extends TrackerReact(React.Component) {
     constructor(props) {
         super(props)
 
@@ -144,8 +145,8 @@ class InboxPage extends React.Component {
                 <div className="content-panel">
                     <div className="column-panel" style={{
                         order: 1,
-                        minWidth: 150,
-                        maxWidth: 200,
+                        minWidth: 250,
+                        maxWidth: 250,
                         borderRight: '1px solid rgba(221,221,221,0.6)',
                         paddingRight: 5,
                         overflowY: 'auto',

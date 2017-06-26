@@ -63,7 +63,7 @@ Meteor.methods({
                 pass: '',
                 sendImmediately: true
             }
-        }).then((result) => 
+        }).then((result) =>
 
             // Call API for getting token
              NylasAPI.makeRequest({
@@ -83,7 +83,7 @@ Meteor.methods({
                 error: (error) => {
                     console.error('NylasAPI makeRequest(\'/connect/token\') error', error)
                 }
-            }).then((account) => 
+            }).then((account) =>
 
                 // Folders or labels list
 
@@ -96,13 +96,6 @@ Meteor.methods({
                         sendImmediately: true
                     }
                 }).then((categories) => {
-
-                    /*const inbox = _.findWhere(categories, {name: 'inbox'})
-                    const drafts = _.findWhere(categories, {name: 'drafts'})
-                    const sent = _.findWhere(categories, {name: 'sent'})
-                    const trash = _.findWhere(categories, {name: 'trash'})
-                    const archive = _.findWhere(categories, {name: account.organization_unit == 'label' ? 'all' : 'archive'})*/
-
 
                      bound(() => {
                          NylasAccounts.insert({
@@ -117,21 +110,6 @@ Meteor.methods({
                              categories
                          })
                      })
-                    /*const Fiber = require('fibers')
-
-                    Fiber(() => {
-                        NylasAccounts.insert({
-                            accessToken: account.access_token,
-                            accountId: account.account_id,
-                            emailAddress: account.email_address,
-                            provider: account.provider,
-                            organizationUnit: account.organization_unit,
-                            name: account.name,
-                            isTeamAccount,
-                            userId: !isTeamAccount ? currentUserId : null,
-                            categories
-                        })
-                    }).run()*/
 
                     return true
                 }))).catch((error) => {
@@ -142,6 +120,7 @@ Meteor.methods({
 
     removeNylasAccount(account)
     {
+        check(account, Object)
         if (!account.userId && !Roles.userIsInRole(Meteor.userId(), [...ADMIN_ROLE_LIST]))
             throw new Meteor.Error('You can not remove team account without admin role')
         if (account.userId && Meteor.userId() != account.userId)
@@ -150,20 +129,50 @@ Meteor.methods({
         NylasAccounts.remove({_id: account._id})
     },
 
-    updateNylasAccount(id, data) {
-        const account = NylasAccounts.findOne({_id:id})
+    updateNylasAccount(_id, data) {
+        check(_id, String)
+        check(data, Object)
+        const account = NylasAccounts.findOne({_id})
 
         if(!account)
             throw new Meteor.Error('Could not find nylas account')
 
-        NylasAccounts.update({_id:id}, {$set:data})
+        NylasAccounts.update({_id}, {$set:data})
     },
 
     nylasAccountForAccountId(accountId) {
+        check(accountId, String)
         const accounts = Meteor.user().nylasAccounts()
 
         if(!accounts || accounts.length == 0) return null
 
         return _.find(accounts, {accountId})
+    },
+
+    fetchUnreads(_id) {
+        check(_id, String)
+
+        const account = NylasAccounts.findOne({_id})
+        if(!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
+
+        account.categories.forEach((category, index) => {
+            setTimeout(() => {
+                NylasAPI.makeRequest({
+                    path: `/threads?in=${category.id}&unread=true&view=count`,
+                    method: 'GET',
+                    auth: {
+                        user: account.accessToken,
+                        pass: '',
+                        sendImmediately: true
+                    }
+                }).then((result) => {
+                    bound(() => {
+                        NylasAccounts.update({_id,'categories.id':category.id}, {$set:{'categories.$.unreads':result.count}})
+                    })
+                }).catch((err) => {
+                    console.error(err)
+                })
+            }, 1000 * 10 * index)
+        })
     }
 })
