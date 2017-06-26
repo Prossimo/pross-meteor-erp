@@ -4,6 +4,7 @@ import config from '/imports/api/config/config'
 const {
   slack: {
     apiRoot: SLACK_API_ROOT,
+    apiKey: SLACK_API_TOKEN,
     botId: SLACK_BOT_ID,
     botToken: SLACK_BOT_TOKEN,
   }
@@ -12,15 +13,21 @@ const {
 const slackClient = {
   makeRequest: (path, options = {}) => HTTP.get(`${SLACK_API_ROOT}/${path}`, {
     params: {
+      token: SLACK_API_TOKEN,
+      ...options,
+    }
+  }),
+  makeRawRequest: ({ url }) => HTTP.get(url, {
+    params: {
+      token: SLACK_API_TOKEN,
+    }
+  }),
+  makeBotRequest: (path, options = {}) => HTTP.get(`${SLACK_API_ROOT}/${path}`, {
+    params: {
       token: SLACK_BOT_TOKEN,
       ...options,
     }
   }),
-  rawRequest: ({ url }) => HTTP.get(url, {
-    params: {
-      token: SLACK_BOT_TOKEN,
-    }
-  })
 }
 
 const users = {
@@ -39,14 +46,14 @@ const channels = {
 }
 
 const chat = {
-  postMessage: ({ channel, text }) => slackClient.makeRequest('chat.postMessage', { channel, text }),
-  postAttachments: ({ channel, attachments }) => slackClient.makeRequest('chat.postMessage', { channel, username: 'prossimobot', as_user: false, attachments }),
-  postRawMessage: ({ channel, text, attachments, icon_url, as_user, username }) => slackClient.makeRequest('chat.postMessage', { channel, as_user, username, attachments, icon_url, text }),
+  postMessage: ({ channel, text }) => slackClient.makeBotRequest('chat.postMessage', { channel, text }),
+  postAttachments: ({ channel, attachments }) => slackClient.makeBotRequest('chat.postMessage', { channel, username: 'prossimobot', as_user: false, attachments }),
+  postRawMessage: ({ channel, text, attachments, icon_url, as_user, username }) => slackClient.makeBotRequest('chat.postMessage', { channel, as_user, username, attachments, icon_url, text }),
 }
 
 const files = {
   sharedPublicURL: ({ file }) => slackClient.makeRequest('files.sharedPublicURL', { file }),
-  get: ({ url }) => slackClient.rawRequest({ url }),
+  get: ({ url }) => slackClient.makeRawRequest({ url }),
 }
 
 const attachments = {
