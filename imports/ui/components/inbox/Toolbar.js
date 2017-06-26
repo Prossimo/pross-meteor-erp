@@ -48,8 +48,8 @@ export default class Toolbar extends React.Component {
         if(!thread) return ''
 
         const existingThread = Threads.findOne({id: thread.id})
-        if(existingThread) {
-            const salesRecord = SalesRecords.findOne(existingThread.salesRecordId)
+        const salesRecord = existingThread ? SalesRecords.findOne(existingThread.salesRecordId) : null
+        if(salesRecord) {
             return (
                 <div style={{marginTop:12, float:'right'}}>
                     <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-sales-record" disabled={!thread}>

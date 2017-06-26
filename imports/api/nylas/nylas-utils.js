@@ -12,8 +12,12 @@ let NylasUtils
 module.exports = NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     isMe: (email) => AccountStore.accountForEmail(email)!=null,
-
     isFromMe: (message) => message.from[0] && NylasUtils.isMe(message.from[0].email),
+    isOwner: (accountId, email) => {
+        const account = AccountStore.accountForAccountId(accountId)
+        if(!account || account.emailAddress!=email) return false
+        return true
+    },
     isValidContact: (contact) => {
         if (!contact.email) return false
 
