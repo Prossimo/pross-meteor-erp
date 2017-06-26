@@ -1,4 +1,3 @@
-import { HTTP } from 'meteor/http'
 import {Roles} from 'meteor/alanning:roles'
 import { Projects, ROLES } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
@@ -24,37 +23,32 @@ return new ValidatedMethod({
     // INSERT
     const projectId = Projects.insert(project)
 
-    // RUN LATER
-    Meteor.defer(() => {
-      // CREATE NEW CHANNEL
-      let data = slackClient.channels.create({ name: project.name })
-      // RETRY WITH UNIQUE NAME
-      if (!data.ok) {
-        data = slackClient.channels.create({ name: `${project.name}-${Random.id()}` })
-      }
+    // CREATE NEW CHANNEL
+    let { data } = slackClient.channels.create({ name: project.name })
+    // RETRY WITH UNIQUE NAME
+    if (!data.ok) {
+      data = slackClient.channels.create({ name: `${project.name}-${Random.id()}` })
+    }
+    if (data.ok) {
+      const slackChanel = data.channel.id
+      // INVITE MEMBERS to CHANNEL
+      Meteor.users.find({
+        _id: { $in: project.members.map(({ userId }) => userId) },
+        slack: { $exists: true },
+      }).forEach(
+        ({ slack: { id } }) => slackClient.channels.invite({ channel: slackChanel, user: id })
+      )
+      // UPDATE slackChanel
+      Projects.update(projectId, {
+        $set: { slackChanel },
+      })
 
-      if (data.ok) {
-        const slackChanel = data.channel.id
+      // INVITE SLACKBOT to CHANNEL
+      slackClient.channels.inviteBot({ channel: slackChanel })
 
-        // INVITE MEMBERS to CHANNEL
-        Meteor.users.find({
-          _id: { $in: project.members.map(({ userId }) => userId) },
-          slack: { $exists: true },
-        }).forEach(
-          ({ slack: { id } }) => slackClient.channels.invite({ channel: slackChanel, user: id })
-        )
-
-        // INVITE SLACKBOT to CHANNEL
-        slackClient.channels.inviteBot({ channel: slackChanel })
-
-        // CREATE DRIVE
-        prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
-        // UPDATE slackChanel
-        Projects.update(projectId, {
-          $set: { slackChanel },
-        })
-      }
-    })
+      // CREATE DRIVE
+      prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+    }
 
     return projectId
   }

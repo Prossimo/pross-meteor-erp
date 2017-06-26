@@ -43,6 +43,7 @@ const channels = {
   invite: ({ channel, user }) => slackClient.makeRequest('channels.invite', { channel, user }),
   inviteBot: ({ channel }) => slackClient.makeRequest('channels.invite', { channel, user: SLACK_BOT_ID }),
   list: () => slackClient.makeRequest('channels.list'),
+  rename: ({ channel, name }) => slackClient.makeRequest('channels.rename', { channel, name }),
 }
 
 const chat = {
