@@ -1,7 +1,6 @@
 import React from 'react'
 import { FlowRouter } from 'meteor/kadira:flow-router'
 import {Alert} from 'react-bootstrap'
-import Files from '/imports/api/models/files/files'
 import { getSlackUsername, getAvatarUrl } from '../../../api/lib/filters'
 import { warning, info } from '/imports/api/lib/alerts'
 import TemplateSelect from '../mailtemplates/TemplateSelect'
@@ -9,6 +8,7 @@ import TemplateOverview from '../mailtemplates/TemplateOverview'
 import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
 import ComposeModal from '../inbox/composer/ComposeModal'
 import MediaUploader from '../libs/MediaUploader'
+import {MailTemplates} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component{
   static propTypes = {
@@ -29,6 +29,8 @@ class AddQuoteForm extends React.Component{
       totalCost: '',
       alertsActive: true,
       isUploading: false,
+      selectedMailTemplate: MailTemplates.findOne({isDefault:true}),
+      shouldCompileMailTemplate: true
     }
   }
 
