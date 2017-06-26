@@ -1,12 +1,12 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import Contacts from '../contacts/contacts';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
+import Contacts from '../contacts/contacts'
 
 class NylasAccountsCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.createdAt = ourDoc.createdAt || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.createdAt = ourDoc.createdAt || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
@@ -17,25 +17,25 @@ class NylasAccountsCollection extends Mongo.Collection {
 
             Contacts.remove({account_id:{$in:ids}, edited:{$ne:true}})
         }
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-const NylasAccounts = new NylasAccountsCollection("NylasAccounts");
+const NylasAccounts = new NylasAccountsCollection('NylasAccounts')
 
 // Deny all client-side updates since we will be using methods to manage this collection
 NylasAccounts.deny({
     insert() {
-        return false;
+        return false
     },
     update() {
-        return false;
+        return false
     },
     remove() {
-        return false;
+        return false
     }
-});
+})
 
 NylasAccounts.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
@@ -55,30 +55,34 @@ NylasAccounts.schema = new SimpleSchema({
     signature: {type: String, optional: true},
 
     categories: {type: Array, optional: true},
-    "categories.$": {
+    'categories.$': {
         type: Object
     },
-    "categories.$.account_id": {
+    'categories.$.account_id': {
         type: String
     },
-    "categories.$.id": {
+    'categories.$.id': {
         type: String
     },
-    "categories.$.display_name": {
+    'categories.$.display_name': {
         type: String,
         optional: true
     },
-    "categories.$.name": {
+    'categories.$.name': {
         type: String,
         optional: true
     },
-    "categories.$.object": {
+    'categories.$.object': {
         type: String
+    },
+    'categories.$.unreads': {
+        type: Number,
+        optional: true
     }
 
-});
+})
 
-NylasAccounts.attachSchema(NylasAccounts.schema);
+NylasAccounts.attachSchema(NylasAccounts.schema)
 
 NylasAccounts.publicFields = {
     accessToken: 1,
@@ -93,6 +97,6 @@ NylasAccounts.publicFields = {
     signature: 1,
     createdAt: 1,
     modifiedAt: 1
-};
+}
 
-export default NylasAccounts;
+export default NylasAccounts

@@ -1,5 +1,6 @@
-import React from 'react';
-import Utils from '../../utils/Utils';
+import React from 'react'
+import {Badge} from 'react-bootstrap'
+import Utils from '../../utils/Utils'
 
 class ItemCategory extends React.Component {
     /*static propTypes = {
@@ -9,22 +10,24 @@ class ItemCategory extends React.Component {
     }*/
 
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     render() {
-
+        const {category} = this.props
         return (
             <div
-                className={`item${this.props.selected ? " focused" : ""}`}
+                style={{display:'flex'}}
+                className={`item${this.props.selected ? ' focused' : ''}`}
                 onClick={(evt) => {
                     this.props.onClick(evt)
                 }}>
-                <span><img src={Utils.iconForCategory(this.props.category)} width="16px"/></span>&nbsp;
-                <span>{this.props.category.display_name}</span>
+                <span><img src={Utils.iconForCategory(category)} width="16px"/></span>&nbsp;
+                <span style={{flex:1}}>{category.display_name}</span>
+                {category.unreads>0 && <Badge pullRight>{category.unreads}</Badge>}
             </div>
         )
     }
 }
 
-export default ItemCategory;
+export default ItemCategory
