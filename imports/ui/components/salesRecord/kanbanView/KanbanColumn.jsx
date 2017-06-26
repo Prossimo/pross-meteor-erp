@@ -3,17 +3,25 @@ import KanbanItem from './KanbanItem'
 import { info, warning  } from '/imports/api/lib/alerts'
 
 class KanbanColumn extends Component {
+  constructor() {
+    super()
+    this.handleDrop = this.handleDrop.bind(this)
+  }
   handleDrop(event) {
+    const { isSubStage } = this.props
     const deal = JSON.parse(event.dataTransfer.getData('deal'))
-    Meteor.call('updateProjectProperty', deal._id, { key: 'stage' , value: event.currentTarget.id }, (error) => {
+    const key = isSubStage ? 'subStage' : 'stage'
+    Meteor.call('updateProjectProperty', deal._id,
+      { key , value: event.currentTarget.id }, (error) => {
         if(error) return warning(`Problems with updating project. ${error.error}`)
         return info('Success update project')
     })
   }
   render() {
-    const { deals = [], colName, id } = this.props
+    const { deals = [], colName, id, isSubStage, style } = this.props
+
     return (
-      <div className="col-md-3 column-container">
+      <div className={`${style} column-container`}>
         <div className="column-wrapper"
           id={id}
           onDragOver={event => event.preventDefault()}

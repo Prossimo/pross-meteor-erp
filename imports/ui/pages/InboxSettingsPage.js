@@ -4,7 +4,7 @@ import AccountStore from '../../api/nylas/account-store'
 import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
-import {warning} from "/imports/api/lib/alerts"
+import {warning} from '/imports/api/lib/alerts'
 import TemplatesView from '../components/mailtemplates/TemplatesView'
 
 export default class InboxSettingsPage extends React.Component {
@@ -30,7 +30,7 @@ export default class InboxSettingsPage extends React.Component {
         if (this.unsubscribes) {
             this.unsubscribes.forEach((unsubscribe) => {
                 unsubscribe()
-            });
+            })
         }
     }
 
@@ -60,7 +60,7 @@ export default class InboxSettingsPage extends React.Component {
     }
 
     renderInboxesComponent = (isTeamAccount = false) => {
-        let accounts = this.state.accounts.filter((account) => account.isTeamAccount == isTeamAccount)
+        const accounts = this.state.accounts.filter((account) => account.isTeamAccount == isTeamAccount)
 
         const {addingIndividualInbox, addingTeamInbox} = this.state
         if (addingIndividualInbox && !isTeamAccount || addingTeamInbox && isTeamAccount) {
@@ -113,7 +113,7 @@ export default class InboxSettingsPage extends React.Component {
             Meteor.call('removeNylasAccount', account, (err, res) => {
                 if (err) {
                     console.log(err)
-                    return warning(err.message);
+                    return warning(err.message)
                 }
 
                 Actions.changedAccounts()

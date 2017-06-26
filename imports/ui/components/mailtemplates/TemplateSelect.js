@@ -13,8 +13,8 @@ export default class TemplateSelect extends React.Component {
 
         const templates = MailTemplates.find().fetch()
         this.state = {
-            templates: templates,
-            selectedTemplate: props.selectedTemplate
+            templates,
+            selectedTemplate: props.selectedTemplate ? props.selectedTemplate : _.findWhere(templates, {isDefault:true})
         }
     }
 
@@ -29,16 +29,17 @@ export default class TemplateSelect extends React.Component {
     render() {
         const {templates, selectedTemplate} = this.state
 
-        const options = templates.map((t)=>({value:t._id, label:t.subject}))
+        const options = templates.map((t) => ({value:t._id, label:t.subject}))
         const value = selectedTemplate ? {value:selectedTemplate._id, label:selectedTemplate.subject} : null
         return (
             <Select
+                required
                 className="select-wrap"
                 options={options}
                 value={value}
-                valueRenderer={(item)=>item.label}
+                valueRenderer={(item) => item.label}
                 onChange={this.onChange}
-                clearable={true}
+                clearable={false}
                 placeholder="Selecte a template?"
             />
         )
@@ -50,7 +51,7 @@ export default class TemplateSelect extends React.Component {
             this.props.onChange(null)
             return
         }
-        const template = this.state.templates.find((t)=>t._id===item.value)
+        const template = this.state.templates.find((t) => t._id===item.value)
         this.setState({selectedTemplate:template})
         this.props.onChange(template)
     }

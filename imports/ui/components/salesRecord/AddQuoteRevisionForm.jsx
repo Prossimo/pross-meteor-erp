@@ -108,7 +108,8 @@ class AddQuoteForm extends React.Component{
             ]
         }
         const slackText = `I just ${needUpdate?'updated':'added'} revision #${revisionNumber}"`
-        const draftClientId = this.props.draftClientId
+        const {draftClientId} = this.props
+        const {selectedMailTemplate} = this.state
         const revisionCb = (err) => {
             if(this.props.saved) this.props.saved()
             info(`${needUpdate?'Update':'Add'} revision success!`)
@@ -116,7 +117,7 @@ class AddQuoteForm extends React.Component{
             //// step # 3 - notify slack/email
             Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, slackMsgParans)
 
-            if(alertsActive && draftClientId) {
+            if(alertsActive && draftClientId && selectedMailTemplate) {
                 const draftInterval = setInterval(() => {
                     if(!DraftStore.isUploadingDraftFiles(draftClientId)) {
                         Actions.sendDraft(draftClientId)
