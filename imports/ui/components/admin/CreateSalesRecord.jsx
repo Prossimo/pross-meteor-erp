@@ -16,6 +16,7 @@ import SelectMembers from './salesRecord/SelectMembers'
 import SelectPeople from './salesRecord/SelectPeople'
 import {ROLES, People} from '/imports/api/models'
 import SelectSubStage from './salesRecord/SelectSubStage'
+import NylasUtils from '/imports/api/nylas/nylas-utils'
 
 class CreateSalesRecord extends React.Component {
     static propTypes = {
@@ -66,7 +67,7 @@ class CreateSalesRecord extends React.Component {
         this.updateStakeholders = this.updateStakeholders.bind(this)
 
         if (props.thread) {
-            const {participants} = props.thread
+            const {participants, account_id} = props.thread
             const people = salesRecord ? People.find({_id: {$in: _.pluck(salesRecord.stakeholders, 'peopleId')}}).fetch().map((p) => {
                 const stakeholder = salesRecord.stakeholders.find((s) => s.peopleId === p._id)
                 return _.extend(p, {
@@ -74,7 +75,7 @@ class CreateSalesRecord extends React.Component {
                     isMain: stakeholder.isMainStakeholder
                 })
             }) : []
-            const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email')}}).fetch()
+            const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
             threadPeople.forEach((p) => {
                 if(!_.find(people, {_id:p._id})) {
                     people.push(p)
