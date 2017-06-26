@@ -6,32 +6,32 @@ import faker from 'faker'
 
 class DesignationsCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.created_at = ourDoc.created_at || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.created_at = ourDoc.created_at || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
     remove(selector) {
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-const Designations = new DesignationsCollection("PeopleDesignations");
+const Designations = new DesignationsCollection('PeopleDesignations')
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Designations.deny({
     insert() {
-        return true;
+        return true
     },
     update() {
-        return true;
+        return true
     },
     remove() {
-        return true;
+        return true
     }
-});
+})
 
 Designations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
@@ -41,16 +41,16 @@ Designations.schema = new SimpleSchema({
     'roles.$': {type: String},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
-});
+})
 
-Designations.attachSchema(Designations.schema);
+Designations.attachSchema(Designations.schema)
 
 Designations.publicFields = {
     name: 1,
     role_addable: 1,
     created_at: 1,
     modified_at: 1
-};
+}
 
 Factory.define('designation', Designations, {
     name: faker.name.jobType(),
@@ -59,6 +59,6 @@ Factory.define('designation', Designations, {
 })
 
 Designations.helpers({
-});
+})
 
-export default Designations;
+export default Designations
