@@ -18,3 +18,18 @@ const fetchThreads = () => {
     }
 }
 setInterval(fetchThreads, 1 * 1000 * 6)
+
+const fetchUnreadsCount = () => {
+    if (Meteor.userId()) {
+        Meteor.user().nylasAccounts().forEach((account, index) => {
+            setTimeout(() => {
+                Meteor.call('fetchUnreads', account._id, (err, res) => {
+                    if(err) console.error(err)
+                })
+            }, 1000 * 30 * index)
+        })
+
+        //clearInterval(fetchUnreadsCountInterval)
+    }
+}
+const fetchUnreadsCountInterval = setInterval(fetchUnreadsCount, 60 * 1000)

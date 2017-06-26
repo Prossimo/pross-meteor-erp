@@ -82,7 +82,7 @@ export default class ConversationStore extends Reflux.Store {
 
     messages(cb) {
         const messages = this.salesRecord.messages()
-        if(messages.length != this._messages.length) {console.log('trigger _expandMessagesToDefault')
+        if(messages.length != this._messages.length) {
             this._messages = messages
 
             this._messages.sort((m1, m2) => m1.date - m2.date)
