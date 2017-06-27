@@ -163,7 +163,7 @@ class TaskDetail extends Component {
                 }
                 {
                   (this.state.isAttach) ? (
-                    <UploadFrom close={() => this.changeState(this.state, 'isAttach', false)}/>
+                    <UploadFrom taskFolderId={this.props.taskFolderId} taskId={this.props.task._id} close={() => this.changeState(this.state, 'isAttach', false)}/>
                   ) : ''
                 }
               </div>

@@ -19,6 +19,8 @@
       display: flex;
       padding-bottom: 10px;
       .attachment-icon {
+        overflow: hidden;
+        text-overflow: ellipsis;
         width: 60px;
         height: 60px;
         background-color: #cecece;
@@ -69,6 +71,7 @@
       color: #8c8c8c;
     }
     .form {
+      background-color: white;
       .attach {
         margin-left: 5px;
       }

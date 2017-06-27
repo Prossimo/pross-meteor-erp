@@ -17,7 +17,8 @@ class Attachments extends Component {
         const msg = error.reason ? error.reason : error.message
         swal('Attachments', msg, 'error')
       } else {
-        window.open(result.webContentLink, '_blank')
+        const link = result.webContentLink || result.webViewLink
+        window.open(link, '_blank')
       }
     })
   }
