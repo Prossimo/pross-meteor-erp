@@ -2,7 +2,6 @@ import { Meteor } from 'meteor/meteor'
 import { check } from 'meteor/check'
 import cheerio from 'cheerio'
 import slackClient from '../restful'
-import slackify from 'slackify-html'
 import { Threads, SalesRecords, SlackMails } from '/imports/api/models'
 
 Meteor.methods({
@@ -51,13 +50,15 @@ Meteor.methods({
       to.push(c.email)
     })
     const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
-
     const $ = cheerio.load(message.body)
-    $('blockquote').remove()
-    const p = $('p')
-    for( let i = 0; i < p.length; i++ ) {
-      if(/wrote:/.test(p.eq(i).text())) p.eq(i).remove()
+    const children = $('body').children()
+    let textMail = ''
+    for(let i = 0; i < children.length; i++) {
+      const text = children.eq(i).text()
+      if (text.includes('wrote:')) break
+      textMail += `${text} \n`
     }
+    console.log(textMail)
     const params = {
       username: 'prossimobot',
       attachments: [
@@ -65,7 +66,7 @@ Meteor.methods({
           'fallback': message.snippet,
           'color': '#36a64f',
           'title': message.subject,
-          text: slackify($.html()),
+          text: textMail,
           'image_url': 'http://my-website.com/path/to/image.jpg',
           'thumb_url': 'http://example.com/path/to/thumb.png',
           'footer': 'Prossimo CRM',
