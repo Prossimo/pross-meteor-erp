@@ -10,6 +10,8 @@ import EmailsInput from './EmailsInput'
 import RoleForm from './RoleForm'
 
 const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
+const HTTP_PROTOCOL = 'http://'
+const HTTPS_PROTOCOL = 'https://'
 
 export default class PersonForm extends React.Component {
     static propTypes = {
@@ -221,7 +223,7 @@ export default class PersonForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        const data = {
+        var {
             name,
             twitter,
             facebook,
@@ -234,6 +236,24 @@ export default class PersonForm extends React.Component {
             position,
             contact_id
         } = this.state
+
+        if(twitter && twitter.length>0 && twitter.indexOf(HTTP_PROTOCOL) == -1 && twitter.indexOf(HTTPS_PROTOCOL) == -1) twitter = `http://${twitter}`
+        if(facebook && facebook.length>0 && facebook.indexOf(HTTP_PROTOCOL) == -1 && facebook.indexOf(HTTPS_PROTOCOL) == -1) facebook = `http://${facebook}`
+        if(linkedin && linkedin.length>0 && linkedin.indexOf(HTTP_PROTOCOL) == -1 && linkedin.indexOf(HTTPS_PROTOCOL) == -1) linkedin = `http://${linkedin}`
+
+        const data = {
+            name,
+            twitter,
+            facebook,
+            linkedin,
+            designation_id,
+            role,
+            emails,
+            phone_numbers,
+            company_id,
+            position,
+            contact_id
+        }
 
         let personId
         try {
