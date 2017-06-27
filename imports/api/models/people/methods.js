@@ -33,6 +33,7 @@ export const insertPerson = new ValidatedMethod({
             name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position,
             user_id: this.userId
         }
+        console.log('PersonData', data)
 
         const person_id =  People.insert(data)
 
@@ -68,7 +69,6 @@ export const updatePerson = new ValidatedMethod({
 
         const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}}).fetch()
         if(existingPeople && existingPeople._id!==person._id && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
-
 
         const data = {
             name: _.isUndefined(name) ? null : name,
