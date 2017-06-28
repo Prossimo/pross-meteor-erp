@@ -3,14 +3,14 @@ import '/imports/api/nylas/contact-store'
 import '/imports/api/nylas/thread-store'
 
 
-const fetchContacts = () => {
+/*const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
     if (Meteor.userId()) {
         Actions.loadContacts()
 
         clearInterval(fetchContactsInterval)
     }
 }
-const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 6)
+const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 6)*/
 
 const fetchThreads = () => {
     if (Meteor.userId()) {
@@ -19,7 +19,7 @@ const fetchThreads = () => {
 }
 setInterval(fetchThreads, 1 * 1000 * 6)
 
-const fetchUnreadsCount = () => {
+/*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {
         Meteor.user().nylasAccounts().forEach((account, index) => {
             setTimeout(() => {
@@ -32,4 +32,4 @@ const fetchUnreadsCount = () => {
         //clearInterval(fetchUnreadsCountInterval)
     }
 }
-const fetchUnreadsCountInterval = setInterval(fetchUnreadsCount, 60 * 1000)
+const fetchUnreadsCountInterval = setInterval(fetchUnreadsCount, 60 * 1000)*/
