@@ -34,6 +34,7 @@ class AccountStore extends Reflux.Store {
         Actions.loadContacts()
     }
     accounts() {
+        if(!Meteor.user()) return null
         this._accounts = Meteor.user().nylasAccounts()
 
         return this._accounts
