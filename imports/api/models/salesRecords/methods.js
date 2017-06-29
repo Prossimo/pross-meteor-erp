@@ -81,8 +81,8 @@ Meteor.methods({
     },
     // NOTICE: it must be saleRecord
     insertSalesRecord(data, thread){
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
-            throw new Meteor.Error('Access denied')
+        if (!this.userId) {
+            throw new Meteor.Error('No authorized')
         }
         check(data, {
             name: String,
@@ -224,8 +224,8 @@ Meteor.methods({
     },
 
     updateSalesRecord(_id, data, thread){
-        if (!Roles.userIsInRole(this.userId, [ROLES.SALES, ROLES.ADMIN])) {
-            throw new Meteor.Error('Access denied')
+        if (!this.userId) {
+            throw new Meteor.Error('No authorized')
         }
         check(_id, String)
         check(data, {
@@ -266,6 +266,8 @@ Meteor.methods({
         check(thread, Match.Maybe(Object))
 
 
+        const sr = SalesRecords.findOne(_id)
+        if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
         SalesRecords.update({_id}, {$set: data})
 
 

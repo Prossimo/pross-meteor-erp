@@ -260,7 +260,7 @@ Meteor.methods({
             firstName: String,
             lastName: String,
             role: String,
-            status: String
+            status: Match.Maybe(String)
         })
 
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')

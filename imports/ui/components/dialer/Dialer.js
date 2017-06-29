@@ -1,24 +1,25 @@
+/* global Twilio */
 import React from 'react'
-import '../popup/PopoverStore';
-import PopoverActions from '../popup/PopoverActions';
+import '../popup/PopoverStore'
+import PopoverActions from '../popup/PopoverActions'
 
-var NumberInputText = React.createClass({
-    render: function () {
+const NumberInputText = React.createClass({
+    render () {
         return (
             <div className="input-group input-group-sm">
                 <input type="tel" className="form-control" placeholder="555-666-7777"
                        value={this.props.currentNumber} onChange={this.props.handleOnChange}/>
             </div>
-        );
+        )
     }
-});
+})
 
-var CountrySelectBox = React.createClass({
-    render: function () {
-        var self = this;
+const CountrySelectBox = React.createClass({
+    render () {
+        const self = this
 
-        var CountryOptions = self.props.countries.map(function (country) {
-            var flagClass = 'flag flag-' + country.code;
+        const CountryOptions = self.props.countries.map((country) => {
+            const flagClass = `flag flag-${  country.code}`
 
             return (
                 <li key={country.code}>
@@ -27,8 +28,8 @@ var CountrySelectBox = React.createClass({
                         <span> { country.name } (+{ country.cc })</span>
                     </a>
                 </li>
-            );
-        });
+            )
+        })
 
         return (
             <div className="input-group-btn">
@@ -41,49 +42,49 @@ var CountrySelectBox = React.createClass({
                     {CountryOptions}
                 </ul>
             </div>
-        );
+        )
     }
-});
+})
 
-var LogBox = React.createClass({
-    render: function () {
+const LogBox = React.createClass({
+    render () {
         return (
             <div className="status">
                 <div className="log">{this.props.text}</div>
                 <p>{this.props.smallText}</p>
             </div>
-        );
+        )
     }
-});
+})
 
-var CallButton = React.createClass({
-    render: function () {
+const CallButton = React.createClass({
+    render () {
         return (
-            <button className={'btn btn-circle btn-success ' + (this.props.onPhone ? 'btn-danger' : 'btn-success')}
+            <button className={`btn btn-circle btn-success ${  this.props.onPhone ? 'btn-danger' : 'btn-success'}`}
                     onClick={this.props.handleOnClick} disabled={this.props.disabled}>
-                <i className={'fa fa-fw fa-phone ' + (this.props.onPhone ? 'fa-close' : 'fa-phone')}></i>
+                <i className={`fa fa-fw fa-phone ${  this.props.onPhone ? 'fa-close' : 'fa-phone'}`}></i>
             </button>
-        );
+        )
     }
-});
+})
 
-var MuteButton = React.createClass({
-    render: function () {
+const MuteButton = React.createClass({
+    render () {
         return (
             <button className="btn btn-circle btn-default" onClick={this.props.handleOnClick}>
-                <i className={'fa fa-fw fa-microphone ' + (this.props.muted ? 'fa-microphone-slash' : 'fa-microphone')}></i>
+                <i className={`fa fa-fw fa-microphone ${  this.props.muted ? 'fa-microphone-slash' : 'fa-microphone'}`}></i>
             </button>
-        );
+        )
     }
-});
+})
 
-var DTMFTone = React.createClass({
+const DTMFTone = React.createClass({
     // Handle numeric buttons
     sendDigit(digit) {
-        Twilio.Device.activeConnection().sendDigits(digit);
+        Twilio.Device.activeConnection().sendDigits(digit)
     },
 
-    render: function () {
+    render () {
         return (
             <div className="keys">
                 <div className="key-row">
@@ -107,11 +108,11 @@ var DTMFTone = React.createClass({
                     <button className="btn btn-circle btn-default" onClick={() => this.props.onClick('#')}>#</button>
                 </div>
             </div>
-        );
+        )
     }
-});
+})
 
-var Dialer = React.createClass({
+const Dialer = React.createClass({
     getInitialState() {
         return {
             muted: false,
@@ -139,35 +140,35 @@ var Dialer = React.createClass({
 
     // Initialize after component creation
     componentDidMount() {
-        var self = this;
+        const self = this
 
         // Fetch Twilio capability token from our Node.js server
         Meteor.call('getTwilioToken', (err, token) => {
             if (err) {
-                console.log(err);
-                self.setState({log: 'Could not fetch token, see console.log'});
+                console.log(err)
+                self.setState({log: 'Could not fetch token, see console.log'})
             } else {
-                console.log('Twilio Token', token);
-                Twilio.Device.setup(token);
+                console.log('Twilio Token', token)
+                Twilio.Device.setup(token)
             }
-        });
+        })
 
         // Configure event handlers for Twilio Device
-        Twilio.Device.disconnect(function () {
+        Twilio.Device.disconnect(() => {
             self.setState({
                 onPhone: false,
                 log: 'Call ended.'
-            });
-        });
+            })
+        })
 
-        Twilio.Device.ready(function () {
-            self.log = 'Connected';
-        });
+        Twilio.Device.ready(() => {
+            self.log = 'Connected'
+        })
     },
 
     // Handle country code selection
     handleChangeCountryCode(countryCode) {
-        this.setState({countryCode: countryCode});
+        this.setState({countryCode})
     },
 
     // Handle number input
@@ -175,15 +176,15 @@ var Dialer = React.createClass({
         this.setState({
             currentNumber: e.target.value,
             isValidNumber: /^([0-9]|#|\*)+$/.test(e.target.value.replace(/[-()\s]/g, ''))
-        });
+        })
     },
 
     // Handle muting
     handleToggleMute() {
-        var muted = !this.state.muted;
+        const muted = !this.state.muted
 
-        this.setState({muted: muted});
-        Twilio.Device.activeConnection().mute(muted);
+        this.setState({muted})
+        Twilio.Device.activeConnection().mute(muted)
     },
 
     // Make an outbound call with the current number,
@@ -195,12 +196,12 @@ var Dialer = React.createClass({
                 onPhone: true
             })
             // make outbound call with current number
-            var n = '+' + this.state.countryCode + this.state.currentNumber.replace(/\D/g, '');
-            Twilio.Device.connect({number: n});
-            this.setState({log: 'Calling ' + n})
+            const n = `+${  this.state.countryCode  }${this.state.currentNumber.replace(/\D/g, '')}`
+            Twilio.Device.connect({number: n})
+            this.setState({log: `Calling ${  n}`})
         } else {
             // hang up call in progress
-            Twilio.Device.disconnectAll();
+            Twilio.Device.disconnectAll()
         }
     },
 
@@ -212,12 +213,12 @@ var Dialer = React.createClass({
         })
     },
 
-    render: function () {
-        var self = this;
+    render () {
+        const self = this
 
         return (
             <div id="dialer">
-                <div className="div-close"><i className="fa fa-close" onClick={()=>PopoverActions.closePopover()}></i></div>
+                <div className="div-close"><i className="fa fa-close" onClick={() => PopoverActions.closePopover()}></i></div>
                 <div id="dial-form" className="input-group input-group-sm" style={{padding:'0 5px'}}>
 
                     <CountrySelectBox countries={this.state.countries} countryCode={this.state.countryCode}
@@ -235,8 +236,8 @@ var Dialer = React.createClass({
                 <LogBox text={this.state.log}/>
 
             </div>
-        );
+        )
     }
-});
+})
 
 module.exports = Dialer
