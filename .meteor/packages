@@ -57,7 +57,6 @@ gilbertwat:bootstrap3-daterangepicker
 meteorhacks:picker
 react-meteor-data
 froatsnook:request
-#npm-container
 mdg:validated-method
 reywood:publish-composite
 ultimatejs:tracker-react
@@ -69,6 +68,3 @@ random
 picker
 percolate:synced-cron
 templating
-
-
-npm-container
