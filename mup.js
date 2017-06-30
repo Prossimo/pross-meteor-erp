@@ -17,7 +17,8 @@ module.exports = {
 
         env: {
             ROOT_URL: 'http://138.197.5.55',
-            MONGO_URL: 'mongodb://localhost:27017/prossimo',
+            //MONGO_URL: 'mongodb://localhost:27017/prossimo',
+            MONGO_URL: 'mongodb://dbuser:prossimo%402017@159.203.107.170:27017/meteor',
         },
 
         buildOptions: {
@@ -43,11 +44,11 @@ module.exports = {
         enableUploadProgressBar: true
     },
 
-    mongo: {
+    /*mongo: {
         port: 27017,
         version: '3.4.1',
         servers: {
             one: {}
         }
-    }
-};
+    }*/
+}
