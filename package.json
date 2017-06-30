@@ -1,5 +1,5 @@
 {
-  "name": "prossimo-crm",
+  "name": "Prossimo CRM",
   "private": true,
   "scripts": {
     "start": "meteor run --settings settings.json",
