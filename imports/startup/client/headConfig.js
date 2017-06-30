@@ -1,5 +1,5 @@
 import { DocHead } from 'meteor/kadira:dochead'
-const defaultTitle = 'Meteor app'
+const defaultTitle = require('/package.json').name
 DocHead.setTitle(defaultTitle)
 
 const metaCharset = {charset: 'IE=edge'}
