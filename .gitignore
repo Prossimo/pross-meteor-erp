@@ -5,5 +5,4 @@ packages/*
 *.log
 settings.json
 packages.json
-mup.js
 .DS_Store
