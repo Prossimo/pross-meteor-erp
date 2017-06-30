@@ -156,23 +156,25 @@ Meteor.methods({
         if(!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
 
         account.categories.forEach((category, index) => {
-            setTimeout(() => {
-                NylasAPI.makeRequest({
-                    path: `/threads?in=${category.id}&unread=true&view=count`,
-                    method: 'GET',
-                    auth: {
-                        user: account.accessToken,
-                        pass: '',
-                        sendImmediately: true
-                    }
-                }).then((result) => {
-                    bound(() => {
-                        NylasAccounts.update({_id,'categories.id':category.id}, {$set:{'categories.$.unreads':result.count}})
+            if(category && category.id) {
+                setTimeout(() => {
+                    NylasAPI.makeRequest({
+                        path: `/threads?in=${category.id}&unread=true&view=count`,
+                        method: 'GET',
+                        auth: {
+                            user: account.accessToken,
+                            pass: '',
+                            sendImmediately: true
+                        }
+                    }).then((result) => {
+                        bound(() => {
+                            NylasAccounts.update({_id,'categories.id':category.id}, {$set:{'categories.$.unreads':result.count}})
+                        })
+                    }).catch((err) => {
+                        console.error(err)
                     })
-                }).catch((err) => {
-                    console.error(err)
-                })
-            }, 1000 * 10 * index)
+                }, 1000 * 10 * index)
+            }
         })
     }
 })
