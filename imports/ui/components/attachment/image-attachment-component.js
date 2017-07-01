@@ -71,6 +71,7 @@ class ImageAttachmentComponent extends AttachmentComponent {
                   <span className="progress-foreground" style={this._downloadProgressStyle()}></span>
                 </span>
                 {this._renderFileActionIcon()}
+                {this._renderSaveToGoogleDrive('image-control')}
                 <div className="file-preview" onDoubleClick={this._onClickView}>
                     <div className="file-name-container">
                         <div className="file-name">{displayName}</div>

@@ -153,7 +153,7 @@ class AttachmentComponent extends Component {
         )
     }
 
-    _renderSaveToGoogleDrive() {
+    _renderSaveToGoogleDrive(className) {
         if (this.props.removable) return null
         const renderIcon = () => {
           if (this.props.file.isBackedUp) return this._renderCheckIcon()
@@ -161,7 +161,7 @@ class AttachmentComponent extends Component {
           return this._renderGoogleDriveButton()
         }
         return (
-            <div className='file-action-icon' onClick={this._onClickSaveToDrive}>
+            <div className={`file-action-icon ${className}`} onClick={this._onClickSaveToDrive}>
               { renderIcon() }
             </div>
         )
@@ -190,7 +190,7 @@ class AttachmentComponent extends Component {
                             <span className="file-size">{NylasUtils.displayFileSize(file)}</span>
                         </div>
                         {this._renderFileActionIcon()}
-                        {this._renderSaveToGoogleDrive()}
+                        {this._renderSaveToGoogleDrive('')}
                     </div>
                 </div>
             </div>
