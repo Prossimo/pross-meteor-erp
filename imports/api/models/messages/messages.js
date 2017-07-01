@@ -127,6 +127,10 @@ Messages.schema = new SimpleSchema({
         type: Number,
         optional:true
     },
+    'files.$.isBackedUp': {
+        type: Boolean,
+        optional: true,
+    },
     events: {type: Array, optional: true},
     'events.$': {
         type: Object

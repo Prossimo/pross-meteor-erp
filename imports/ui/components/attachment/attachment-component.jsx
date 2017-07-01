@@ -19,7 +19,10 @@ class AttachmentComponent extends Component {
 
     constructor() {
         super()
-        this.state = {progressPercent: 0}
+        this.state = {
+          progressPercent: 0,
+          isSavingFileToDrive: false,
+        }
     }
 
     static containerRequired = false;
@@ -40,7 +43,7 @@ class AttachmentComponent extends Component {
 
     _downloadProgressStyle() {
         const {download} = this.props
-        const percent = download ? download.percent || 0 : 0;
+        const percent = download ? download.percent || 0 : 0
         return {
             width: `${percent}%`,
         }
@@ -53,8 +56,8 @@ class AttachmentComponent extends Component {
             // Note: From trial and error, it appears that the second param /MUST/ be the
             // same as the last component of the filePath URL, or the download fails.
             const DownloadURL = `${file.contentType}:${path.basename(filePath)}:file://${filePath}`
-            event.dataTransfer.setData("DownloadURL", DownloadURL)
-            event.dataTransfer.setData("text/nylas-file-url", DownloadURL)
+            event.dataTransfer.setData('DownloadURL', DownloadURL)
+            event.dataTransfer.setData('text/nylas-file-url', DownloadURL)
         } else {
             event.preventDefault()
         }
@@ -84,6 +87,15 @@ class AttachmentComponent extends Component {
         event.stopPropagation() // Prevent 'onClickView'
     };
 
+    _onClickSaveToDrive = (event) => {
+        if (this.state.isSavingFileToDrive || this.props.file.isBackedUp) return
+        this.setState({ isSavingFileToDrive: true })
+        Meteor.call('Nylas.saveFileToGoogle', { fileId: this.props.file.id }, () => {
+          this.setState({ isSavingFileToDrive: false })
+        })
+        event.stopPropagation()
+    }
+
     _renderRemoveIcon() {
         return (
             <img
@@ -97,6 +109,26 @@ class AttachmentComponent extends Component {
             <img
                 src="/icons/attachments/icon-attachment-download.png"
             />
+        )
+    }
+
+    _renderGoogleDriveButton() {
+        return (
+            <img
+                src='/icons/attachments/drive.png' width='50%'
+            />
+        )
+    }
+
+    _renderLoadingIcon() {
+        return (
+          <i className='fa fa-circle-o-notch fa-spin fa-fw'/>
+        )
+    }
+
+    _renderCheckIcon() {
+        return (
+          <i className='fa fa-check'/>
         )
     }
 
@@ -121,9 +153,23 @@ class AttachmentComponent extends Component {
         )
     }
 
+    _renderSaveToGoogleDrive() {
+        if (this.props.removable) return null
+        const renderIcon = () => {
+          if (this.props.file.isBackedUp) return this._renderCheckIcon()
+          if (this.state.isSavingFileToDrive) return this._renderLoadingIcon()
+          return this._renderGoogleDriveButton()
+        }
+        return (
+            <div className='file-action-icon' onClick={this._onClickSaveToDrive}>
+              { renderIcon() }
+            </div>
+        )
+    }
+
     render() {
-        const {file, download} = this.props;
-        const downloadState = download ? download.state || "" : "";
+        const {file, download} = this.props
+        const downloadState = download ? download.state || '' : ''
 
         return (
             <div className={this.props.className}>
@@ -144,6 +190,7 @@ class AttachmentComponent extends Component {
                             <span className="file-size">{NylasUtils.displayFileSize(file)}</span>
                         </div>
                         {this._renderFileActionIcon()}
+                        {this._renderSaveToGoogleDrive()}
                     </div>
                 </div>
             </div>

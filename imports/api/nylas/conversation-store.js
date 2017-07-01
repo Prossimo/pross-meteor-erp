@@ -90,6 +90,8 @@ export default class ConversationStore extends Reflux.Store {
             this._expandMessagesToDefault()
             this._fetchExpandedAttachments(this._messages)
             if(cb) cb()
+        } else {
+          this._messages = messages
         }
 
         return this._messages
