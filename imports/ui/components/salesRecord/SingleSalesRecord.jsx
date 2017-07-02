@@ -509,6 +509,14 @@ class SingleSalesRecord extends React.Component{
                       {
                         this.renderPeople({designation: d.name})
                       }
+                      <label>
+                        <input
+                            type="checkbox"
+                            value=""
+                            checked={ this.state.stakeholder.notify }
+                            onChange={(event) => this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
+                            &nbsp;Notify
+                      </label>
                     </div>
                   </div>
                 )

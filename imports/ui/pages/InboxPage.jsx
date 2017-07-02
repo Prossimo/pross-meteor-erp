@@ -377,7 +377,7 @@ class InboxPage extends TrackerReact(React.Component) {
     }
 
     renderMessages() {
-        return <MessageList />
+        return <MessageList toggleLoader={this.props.toggleLoader}/>
     }
 
     onCategorySelected(category) {
@@ -386,6 +386,7 @@ class InboxPage extends TrackerReact(React.Component) {
     }
 
     onThreadSelected(thread) {
+        this.props.toggleLoader(true)
         this.setState({currentThread: thread})
 
         ThreadStore.selectThread(thread)

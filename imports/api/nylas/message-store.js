@@ -49,6 +49,7 @@ class MessageStore extends Reflux.Store {
             return
         }
         const query = queryString.stringify({thread_id: thread.id})
+        console.log('query message', query);
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
             method: 'GET',
