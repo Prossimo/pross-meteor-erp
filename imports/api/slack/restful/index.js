@@ -44,12 +44,13 @@ const users = {
 }
 
 const channels = {
-    archive: ({channel}) => slackClient.makeRequest('channels.archive', {channel}),
-    create: ({name}) => slackClient.makeRequest('channels.create', {name}),
-    invite: ({channel, user}) => slackClient.makeRequest('channels.invite', {channel, user}),
-    inviteBot: ({channel}) => slackClient.makeRequest('channels.invite', {channel, user: SLACK_BOT_ID}),
-    list: () => slackClient.makeRequest('channels.list'),
-    rename: ({channel, name}) => slackClient.makeRequest('channels.rename', {channel, name}),
+  archive: ({ channel }) => slackClient.makeRequest('channels.archive', { channel }),
+  create: ({ name }) => slackClient.makeRequest('channels.create', { name }),
+  invite: ({ channel, user }) => slackClient.makeRequest('channels.invite', { channel, user }),
+  inviteBot: ({ channel }) => slackClient.makeRequest('channels.invite', { channel, user: SLACK_BOT_ID }),
+  list: () => slackClient.makeRequest('channels.list'),
+  rename: ({ channel, name }) => slackClient.makeRequest('channels.rename', { channel, name }),
+  setPurpose: ({ channel, purpose }) => slackClient.makeRequest('channels.setPurpose', { channel, purpose }),
 }
 
 const chat = {

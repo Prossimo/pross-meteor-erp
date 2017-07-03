@@ -146,6 +146,11 @@ Meteor.methods({
 
         const salesRecordId = SalesRecords.insert(data)
 
+        // set channel purpose
+        slackClient.channels.setPurpose({
+          channel: data.slackChanel,
+          purpose: Meteor.absoluteUrl(`salesrecord/${salesRecordId}`),
+        })
         // create folder in google drive
         Meteor.defer(() => {
             prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
