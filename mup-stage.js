@@ -9,9 +9,9 @@ module.exports = {
 
     proxy: {
         ssl: {
-            letsEncryptEmail: 'i.f.0109@hotmail.com'
+            letsEncryptEmail: 'quotes@prossimo.us'
         },
-        domains: 'crm.mavrik.build,crm-test.mavrik.build'
+        domains: 'crm-test.mavrik.build'
     },
 
     meteor: {
