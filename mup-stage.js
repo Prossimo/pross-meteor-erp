@@ -11,11 +11,11 @@ module.exports = {
         ssl: {
             letsEncryptEmail: 'i.f.0109@hotmail.com'
         },
-        domains: 'crm.mavrik.build,crm-test.mavrik.build'
+        domains: 'crm-test.mavrik.build,crm.mavrik.build'
     },
 
     meteor: {
-        name: 'prossimo-prod',
+        name: 'prossimo-stage',
         path: '.',
 
         servers: {
@@ -23,8 +23,8 @@ module.exports = {
         },
 
         env: {
-            ROOT_URL: 'https://crm.mavrik.build',
-            MONGO_URL: 'mongodb://localhost:27017/prossimo-prod'
+            ROOT_URL: 'https://crm-test.mavrik.build',
+            MONGO_URL: 'mongodb://localhost:27017/prossimo-stage'
         },
 
         buildOptions: {
