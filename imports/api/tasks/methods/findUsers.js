@@ -20,6 +20,12 @@ export default new ValidatedMethod({
         },
         {
           'emails.address': { $regex },
+        },
+        {
+          'profile.firstName': { $regex },
+        },
+        {
+          'profile.lastName': { $regex },
         }
       ],
     }, {
