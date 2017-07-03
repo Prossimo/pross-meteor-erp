@@ -46,8 +46,16 @@ return new ValidatedMethod({
       // INVITE SLACKBOT to CHANNEL
       slackClient.channels.inviteBot({ channel: slackChanel })
 
-      // CREATE DRIVE
-      prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+      // SET SLACK PURPOSE
+      slackClient.channels.setPurpose({
+        channel: slackChanel,
+        purpose: Meteor.absoluteUrl(`project/${projectId}`),
+      })
+
+      Meteor.defer(() => {
+        // CREATE DRIVE
+        prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+      })
     }
 
     return projectId
