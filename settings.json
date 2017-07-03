@@ -1,12 +1,5 @@
 {
   "public": {
-    "env": "development"
-  },
-  "private": {
-    "slack": {
-      "hookUrl": "https://hooks.slack.com/services/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",
-      "token": "xoxp-6955176705-141949387507-143421956709-75cc60768f8a8ac142c7ecbbc7448748",
-      "bot": "if-bot"
-    }
+
   }
 }
