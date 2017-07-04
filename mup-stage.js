@@ -1,17 +1,17 @@
 module.exports = {
     servers: {
         one: {
-            host: '138.197.5.55',
+            host: '159.203.107.170',
             username: 'root',
             pem: '~/.ssh/id_rsa'
         }
     },
 
-    proxy: {
-        ssl: {
-            letsEncryptEmail: 'quotes.stage@prossimo.us'
-        },
-        domains: 'crm-test.mavrik.build'
+    ssl: {
+        autogenerate: {
+            email: 'quotes@prossimo.us',
+            domains: 'crm-test.mavrik.build'
+        }
     },
 
     meteor: {
