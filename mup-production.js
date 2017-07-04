@@ -7,19 +7,19 @@ module.exports = {
         }
     },
 
-    proxy: {
-        ssl: {
-            letsEncryptEmail: 'quotes@prossimo.us'
-        },
-        domains: 'crm.mavrik.build'
-    },
-
     meteor: {
         name: 'prossimo-prod',
         path: '.',
 
         servers: {
             one: {},
+        },
+
+        ssl: {
+            autogenerate: {
+                email: 'quotes@prossimo.us',
+                domains: 'crm.mavrik.build'
+            }
         },
 
         env: {
