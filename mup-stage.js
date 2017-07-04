@@ -11,7 +11,7 @@ module.exports = {
         ssl: {
             letsEncryptEmail: 'quotes.stage@prossimo.us'
         },
-        domains: 'crm.mavrik.build, crm-test.mavrik.build'
+        domains: 'crm-test.mavrik.build'
     },
 
     meteor: {
@@ -34,11 +34,7 @@ module.exports = {
         },
 
         docker: {
-            image: 'abernix/meteord:base',
-            args: [
-                '-e "VIRTUAL_HOST=crm-test.mavrik.build"',
-                '-e "HTTPS_METHOD=nohttp"'
-            ]
+            image: 'abernix/meteord:base'
         },
 
         deployCheckWaitTime: 60,
