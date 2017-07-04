@@ -7,19 +7,19 @@ module.exports = {
         }
     },
 
-    ssl: {
-        autogenerate: {
-            email: 'quotes@prossimo.us',
-            domains: 'crm-test.mavrik.build'
-        }
-    },
-
     meteor: {
         name: 'prossimo-stage',
         path: '.',
 
         servers: {
             one: {},
+        },
+
+        ssl: {
+            autogenerate: {
+                email: 'quotes@prossimo.us',
+                domains: 'crm-test.mavrik.build'
+            }
         },
 
         env: {
