@@ -14,7 +14,7 @@ module.exports = {
   },
   google: {
     clientId: ENV=='production'||ENV=='stage' ? '327167868055-mc0hu6dcco9rnk9ng0fqk4q2hc38a1m8.apps.googleusercontent.com' : '949141736454-1ikg5jdl1iela2q1ck7lrhgghbpke43l.apps.googleusercontent.com',
-    clientSecret: ENV=='production'||ENV=='stage' ? 'Hl196jL1ZBnYlSoL2tapqr3A' : 'E_Iahm05NOj9RxgHhelxRo9S',
+    clientSecret: ENV=='production'||ENV=='stage' ? 'Edj77vQhGwtnR3FpVpPbYgTp' : 'E_Iahm05NOj9RxgHhelxRo9S',
     redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
     clientDriveId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',
     clientDriveSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
