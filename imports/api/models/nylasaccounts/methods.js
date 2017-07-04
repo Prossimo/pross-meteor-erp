@@ -121,7 +121,7 @@ Meteor.methods({
     removeNylasAccount(account)
     {
         check(account, Object)
-        if (!account.userId && !Roles.userIsInRole(Meteor.userId(), [...ADMIN_ROLE_LIST]))
+        if (!account.userId && !Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN))
             throw new Meteor.Error('You can not remove team account without admin role')
         if (account.userId && Meteor.userId() != account.userId)
             throw new Meteor.Error('You can not remove account of other')
