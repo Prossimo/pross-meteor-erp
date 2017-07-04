@@ -62,6 +62,29 @@ Meteor.methods({
         SalesRecords.update(salesRecordId, {$push: {stakeholders: stakeholder}})
     },
 
+    updateStakeHolderNotifyInSaleRecord(salesRecordId, stakeholder) {
+      console.log(salesRecordId);
+      console.log(stakeholder);
+      check(salesRecordId, String)
+      check(stakeholder, {
+          peopleId: String,
+          notify: Boolean,
+      })
+      if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
+      const currentStakeholder = SalesRecords.findOne(salesRecordId).stakeholders;
+      if (!_.isEmpty(currentStakeholder)) {
+        const updatedStakeholder = currentStakeholder.map((stake) => {
+            if (stake.peopleId === stakeholder.peopleId) {
+              stake.nofify = stakeholder.notify
+            }
+            return stake
+        })
+        console.log(updatedStakeholder);
+
+        SalesRecords.update(salesRecordId, {$set: { stakeholders: updatedStakeholder}})
+      }
+    },
+
     removeStakeholderFromSalesRecord(salesRecordId, peopleId) {
         check(salesRecordId, String)
         check(peopleId, String)

@@ -144,6 +144,7 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderPeople(user) {
+    console.log(user.designation);
     return (
 
           <ul className="project-members">
@@ -162,10 +163,21 @@ class SingleSalesRecord extends React.Component{
                       </a>
                     ) : ''
                   }
-                  <span className='memberName' onClick={() => this.showContactInfo(name, emailString)}>{nameString}</span>
+                  <span className='memberName' onClick={() => this.showContactInfo(name, emailString)}>
+                    {nameString}
+                  </span>
                   <div>
                   {
-                    <span className='member-cat' key={role}>{role}</span>
+                    (user.designation === 'Stakeholder') &&
+                    <span>
+                      <input type="checkbox" onClick={ (e) => {
+                        const value = e.target.checked
+                        Meteor.call('updateStakeHolderNotifyInSaleRecord', user.salesRecordId, { peopleId: _id, notify: value})
+                        }}/>&nbsp;<small>Notify</small>&nbsp;
+                    </span>
+                  }
+                  {
+                    role && <span className='member-cat' key={role}>{role}</span>
                   }
                   </div>
                 </li>
@@ -259,15 +271,6 @@ class SingleSalesRecord extends React.Component{
                       className={'members-select'}
                       clearable={false}
                     />
-                </div>
-                <div className="checkbox">
-                    <label><input
-                        type="checkbox"
-                        value=""
-                        checked={ notify }
-                        onChange={(event) => this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
-                        Notify
-                    </label>
                 </div>
                 <button onClick={this.addStakeholder} className="btnn primary-btn">Add People</button>
             </div>
@@ -507,16 +510,8 @@ class SingleSalesRecord extends React.Component{
                     <h4>{d.name}</h4>
                     <div className="sidebar-box">
                       {
-                        this.renderPeople({designation: d.name})
+                        this.renderPeople({designation: d.name, salesRecordId: salesRecord._id})
                       }
-                      <label>
-                        <input
-                            type="checkbox"
-                            value=""
-                            checked={ this.state.stakeholder.notify }
-                            onChange={(event) => this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
-                            &nbsp;Notify
-                      </label>
                     </div>
                   </div>
                 )
