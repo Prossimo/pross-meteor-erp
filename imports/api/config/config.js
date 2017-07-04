@@ -4,17 +4,17 @@ const twilioAppSid = {
   'https://crm.prossimo.us/': 'APcce106e0cf8236a9d9009b69f0cc5b00'
 }
 
+const ENV = Meteor.settings&&Meteor.settings.public ? Meteor.settings.public.env : null
+
 module.exports = {
   nylas: {
-    appId: 'ewcnqlxp6luvmw7p8g79xtvo7',
-    appSecret: '6oyqovz2z210yzw7ygodqn3ji',
-    //appId: '4xnb7gd7t7la2kxls35j3k7t3',
-    //appSecret: '9tbqdscu0b5q16r422t76onnx',
+    appId: '4xnb7gd7t7la2kxls35j3k7t3',
+    appSecret: '9tbqdscu0b5q16r422t76onnx',
     apiRoot: 'https://api.nylas.com',
   },
   google: {
-    clientId: '949141736454-1ikg5jdl1iela2q1ck7lrhgghbpke43l.apps.googleusercontent.com',
-    clientSecret: 'E_Iahm05NOj9RxgHhelxRo9S',
+    clientId: ENV=='production'||ENV=='stage' ? '327167868055-mc0hu6dcco9rnk9ng0fqk4q2hc38a1m8.apps.googleusercontent.com' : '949141736454-1ikg5jdl1iela2q1ck7lrhgghbpke43l.apps.googleusercontent.com',
+    clientSecret: ENV=='production'||ENV=='stage' ? 'Hl196jL1ZBnYlSoL2tapqr3A' : 'E_Iahm05NOj9RxgHhelxRo9S',
     redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
     clientDriveId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',
     clientDriveSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
