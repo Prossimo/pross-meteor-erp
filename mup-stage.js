@@ -11,7 +11,7 @@ module.exports = {
         ssl: {
             letsEncryptEmail: 'quotes@prossimo.us'
         },
-        domains: 'crm-test.mavrik.build'
+        domains: 'crm.mavrik.build,crm-test.mavrik.build'
     },
 
     meteor: {
