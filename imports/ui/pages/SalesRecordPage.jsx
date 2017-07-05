@@ -13,7 +13,7 @@ class ProjectsPage extends React.Component{
         this.getTabs = this.getTabs.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
     }
-    
+
     openAddModal() {
       this.setState({
         open: true
@@ -60,7 +60,7 @@ class ProjectsPage extends React.Component{
               		{this.getTabs()}
             		</div>
             		<div className="tab-content">
-              		<AllSalesRecords {...props} />
+              		<AllSalesRecords {...props} showAllDeals={ true } />
             		</div>
            	</div>
             <CreateSalesRecordModal
