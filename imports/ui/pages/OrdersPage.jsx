@@ -13,6 +13,7 @@ class OrdersPage extends React.Component{
         }
         this.getTabs = this.getTabs.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
+        this.onChangeSearch = this.onChangeSearch.bind(this)
     }
 
     openAddModal() {
@@ -22,7 +23,7 @@ class OrdersPage extends React.Component{
     }
 
     getTabs(){
-        let showsearchbar = false;
+        let showsearchbar = true;
         return <div>
             <div className="sale-title">
               All Orders

@@ -13,6 +13,7 @@ class TicketsPage extends React.Component{
         }
         this.getTabs = this.getTabs.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
+        this.onChangeSearch = this.onChangeSearch.bind(this);
     }
 
     onChangeSearch = (evt) => {
@@ -35,7 +36,7 @@ class TicketsPage extends React.Component{
     }
 
     getTabs(){
-        let showsearchbar = false;
+        let showsearchbar = true;
         return <div>
             <div className="sale-title">
               All Tickets

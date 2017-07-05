@@ -2,6 +2,7 @@ import React from 'react'
 import classNames from 'classnames'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
 import CreateSalesRecordModal from '/imports/ui/components/admin/CreateSalesRecordModal'
+import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
 
 class ProjectsPage extends React.Component{
     constructor(props){
@@ -12,6 +13,7 @@ class ProjectsPage extends React.Component{
         }
         this.getTabs = this.getTabs.bind(this);
         this.openAddModal = this.openAddModal.bind(this);
+        this.onChangeSearch = this.onChangeSearch.bind(this);
     }
 
     openAddModal() {
@@ -21,7 +23,7 @@ class ProjectsPage extends React.Component{
     }
 
     getTabs(){
-      let showsearchbar = false;
+      let showsearchbar = true;
       return <div>
           <div className="sale-title">
             All Deals
@@ -43,6 +45,19 @@ class ProjectsPage extends React.Component{
           </div>
           }
       </div>
+    }
+
+    onChangeSearch(evt) {
+      if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+
+      const keyword = evt.target.value
+      this.searchTimeout = setTimeout(() => {
+          if(keyword.length) {
+              this.setState({keyword: keyword.toLowerCase()});
+          } else {
+              this.setState({keyword: ''});
+          }
+      }, 500)
     }
 
     render() {

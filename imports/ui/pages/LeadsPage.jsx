@@ -11,8 +11,9 @@ class LeadsPage extends React.Component{
             keyword: '',
             open: false
         }
-        this.getTabs = this.getTabs.bind(this);
-        this.openAddModal = this.openAddModal.bind(this);
+        this.getTabs = this.getTabs.bind(this)
+        this.openAddModal = this.openAddModal.bind(this)
+        this.onChangeSearch = this.onChangeSearch.bind(this)
     }
 
     onChangeSearch = (evt) => {
@@ -33,7 +34,7 @@ class LeadsPage extends React.Component{
       })
     }
     getTabs(){
-        let showsearchbar = false;
+        let showsearchbar = true;
         return <div>
             <div className="sale-title">
               All Leads

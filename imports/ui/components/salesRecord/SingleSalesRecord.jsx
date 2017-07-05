@@ -144,9 +144,7 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderPeople(user) {
-    console.log(user.designation);
     return (
-
           <ul className="project-members">
           {
             this.props.stakeholders.map(people => {
