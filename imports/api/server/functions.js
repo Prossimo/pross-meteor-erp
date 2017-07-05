@@ -1,4 +1,4 @@
-import config from '../config/config';
+import config from '../config'
 
 /**
  * Get google auth token
@@ -7,7 +7,7 @@ import config from '../config/config';
  */
 export const googleServerApiAutToken = (scope, callback) => {
     const TokenCache = require('google-oauth-jwt').TokenCache,
-        tokens = new TokenCache();
+        tokens = new TokenCache()
     
     tokens.get({
         // use the email address of the service account, as seen in the API console
@@ -17,6 +17,6 @@ export const googleServerApiAutToken = (scope, callback) => {
         // specify the scopes you wish to access
         scopes: scope
     }, (err, token) => {
-        callback(null, token);
-    });
-};
+        callback(null, token)
+    })
+}

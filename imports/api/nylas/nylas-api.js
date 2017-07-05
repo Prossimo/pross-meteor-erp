@@ -1,7 +1,7 @@
 import '../models/users/users'
 import _ from 'underscore'
 import request from 'request'
-import config from '../config/config'
+import config from '../config'
 import { APIError, TimeoutError } from './errors'
 import {Threads, Messages} from '../models'
 import {updateThread} from '../models/threads/methods'

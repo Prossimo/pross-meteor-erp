@@ -1,5 +1,5 @@
 import { HTTP } from 'meteor/http'
-import config from '/imports/api/config/config'
+import config from '/imports/api/config'
 
 const {
   slack: {
@@ -7,6 +7,7 @@ const {
     apiKey: SLACK_API_TOKEN,
     botId: SLACK_BOT_ID,
     botToken: SLACK_BOT_TOKEN,
+    botName: SLACK_BOT_NAME
   }
 } = config
 
@@ -48,7 +49,7 @@ const channels = {
 
 const chat = {
   postMessage: ({ channel, text }) => slackClient.makeBotRequest('chat.postMessage', { channel, text }),
-  postAttachments: ({ channel, attachments }) => slackClient.makeBotRequest('chat.postMessage', { channel, username: 'prossimobot', as_user: false, attachments }),
+  postAttachments: ({ channel, attachments }) => slackClient.makeBotRequest('chat.postMessage', { channel, username: SLACK_BOT_NAME, as_user: false, attachments }),
   postRawMessage: ({ channel, text, attachments, icon_url, as_user, username }) => slackClient.makeBotRequest('chat.postMessage', { channel, as_user, username, attachments, icon_url, text }),
 }
 

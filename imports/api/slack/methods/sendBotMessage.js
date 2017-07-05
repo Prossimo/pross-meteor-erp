@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor'
 import slackClient from '../restful'
 import { SlackMails } from '/imports/api/models'
+import { slack } from '/imports/api/config'
 
 Meteor.methods({
-  sendBotMessage(channel, text, { username = 'prossimobot', icon_url, attachments, as_user = false }, thread_id) {
+  sendBotMessage(channel, text, { username = slack.botName, icon_url, attachments, as_user = false }, thread_id) {
     check(channel, String)
     check(text, String)
     check(username, String)

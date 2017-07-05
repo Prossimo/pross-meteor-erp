@@ -9,7 +9,7 @@ Picker.middleware(bodyParser.urlencoded({extended: false}))
 Picker.filter((req, res) => req.method == 'POST').route('/api/voice', (params, req, res, next) => {
 
     const twilio = require('twilio')
-    const config = require('../../api/config/config')
+    const config = require('../../api/config')
 
     const twiml = new twilio.TwimlResponse()
 
