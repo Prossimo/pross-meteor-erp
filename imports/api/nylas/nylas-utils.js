@@ -79,8 +79,8 @@ module.exports = NylasUtils = {
     },
 
     participantsForReply: (message) => {
-        to = []
-        cc = []
+        let to = []
+        const cc = []
         if (NylasUtils.isFromMe(message)) {
             to = message.to
         } else if (message.reply_to.length) {
@@ -95,11 +95,11 @@ module.exports = NylasUtils = {
     },
 
     participantsForReplyAll: (message) => {
-        excludedFroms = message.from.map((c) => c.email)
-        excludeMeAndFroms = (cc) => _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
+        const excludedFroms = message.from.map((c) => c.email)
+        const excludeMeAndFroms = (cc) => _.reject(cc, (p) => NylasUtils.isMe(p.email) || _.contains(excludedFroms, p.email))
 
-        to = null
-        cc = null
+        let to = null
+        let cc = null
 
         if (NylasUtils.isFromMe(message)) {
             to = message.to
@@ -121,7 +121,7 @@ module.exports = NylasUtils = {
     },
 
     generateTempId: () => {
-        s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
+        const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1)
 
         return `local-${  s4()  }${s4()  }-${  s4()}`
     },
@@ -130,14 +130,14 @@ module.exports = NylasUtils = {
 
 
     isForwardedMessage: ({body, subject} = {}) => {
-        bodyForwarded = false
-        bodyFwd = false
-        subjectFwd = false
+        let bodyForwarded = false
+        let bodyFwd = false
+        let subjectFwd = false
 
         if (body) {
-            indexForwarded = body.search(/forwarded/i)
+            const indexForwarded = body.search(/forwarded/i)
             bodyForwarded = indexForwarded >= 0 && indexForwarded < 250
-            indexFwd = body.search(/fwd/i)
+            const indexFwd = body.search(/fwd/i)
             bodyFwd = indexFwd >= 0 && indexFwd < 250
         }
         if (subject)

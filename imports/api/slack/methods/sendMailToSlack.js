@@ -22,7 +22,7 @@ Meteor.methods({
       if (channelsListRes.statusCode != 200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
 
       const channels = channelsListRes.data.channels
-      const inboxChannel = _.find(channels, {name: 'inbox'})
+      const inboxChannel = _.findWhere(channels, {name: 'inbox'})
       if (!inboxChannel) {
         const channelsCreateRes = slackClient.channels.create({ name: 'inbox', validate: true })
         if (channelsCreateRes.statusCode != 200 || !channelsCreateRes.data.ok) throw new Meteor.Error('Could not create inbox slack channel')
@@ -58,7 +58,7 @@ Meteor.methods({
       if (text.includes('wrote:')) break
       textMail += `${text} \n`
     }
-    console.log(textMail)
+
     const params = {
       username: 'prossimobot',
       attachments: [
