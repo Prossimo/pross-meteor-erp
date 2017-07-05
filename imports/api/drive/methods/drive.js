@@ -1,5 +1,5 @@
 import google from 'googleapis'
-import { prossDocDrive } from '../../config/config'
+import { prossDocDrive } from '../../config'
 
 const { clientId, clientSecret, redirectUri, refreshToken } = prossDocDrive
 const OAuth2Client = google.auth.OAuth2

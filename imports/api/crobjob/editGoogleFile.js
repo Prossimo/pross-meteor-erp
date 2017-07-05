@@ -4,18 +4,17 @@ import { WebApp } from 'meteor/webapp'
 import { Random } from 'meteor/random'
 import { SalesRecords, Projects } from '/imports/api/models'
 import bodyParser from 'body-parser'
-import { slack } from '/imports/api/config/config'
+import { slack } from '/imports/api/config'
 import { HTTP } from 'meteor/http'
 
-const { apiRoot } = slack
-const token = 'xoxb-143253157236-cBzs3iNbCDuxCOIHTPnI2LHG'
+const { apiRoot, botToken, botName } = slack
 
 // SEND SLACK MESSAGE
 const sendMessage = ({ channel, text, attachments }) => {
   const params = {
-    token,
+    botToken,
     channel,
-    username: 'prossimobot',
+    username: botName,
     as_user: false,
   }
   text && (params.text = text)

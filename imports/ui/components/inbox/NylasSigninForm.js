@@ -1,7 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
-import config from '../../../api/config/config'
+import config from '../../../api/config'
 import {warning} from '/imports/api/lib/alerts'
 import Actions from '../../../api/nylas/actions'
 

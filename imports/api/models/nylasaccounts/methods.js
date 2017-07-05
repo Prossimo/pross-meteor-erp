@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import NylasAPI from '../../nylas/nylas-api'
-import config from '../../config/config'
+import config from '../../config'
 import NylasAccounts from './nylas-accounts'
 import {ROLES} from '../users/users'
 

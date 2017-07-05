@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor'
 import { check } from 'meteor/check'
 import cheerio from 'cheerio'
 import slackClient from '../restful'
+import {slack} from '/imports/api/config'
 import { Threads, SalesRecords, SlackMails } from '/imports/api/models'
 
 Meteor.methods({
@@ -60,7 +61,7 @@ Meteor.methods({
     }
 
     const params = {
-      username: 'prossimobot',
+      username: slack.botName,
       attachments: [
         {
           'fallback': message.snippet,
