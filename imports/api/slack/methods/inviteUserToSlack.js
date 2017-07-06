@@ -4,6 +4,7 @@ import slackClient from '../restful'
 
 Meteor.methods({
   inviteUserToSlack(email) {
+    check(email, String)
     new SimpleSchema({
       email: {
         type: String,
@@ -11,6 +12,6 @@ Meteor.methods({
       }
     }).validate({ email })
 
-    return slackClient.admin.invite({ email })
+    return slackClient.users.admin.invite({ email })
   },
 })
