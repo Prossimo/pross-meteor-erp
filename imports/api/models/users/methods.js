@@ -46,10 +46,14 @@ Meteor.methods({
 
                 if (!data.ok) break
                 if (!data.members) break
-                if (_.findWhere(_.pluck(data.members, 'profile'), {email:user.email})) {
-                    bFound = true
-                    break
-                }
+
+                data.members.forEach((member) => {
+                    if(member.profile.email === user.email()) {
+                        bFound = true
+                        Meteor.users.update({_id}, {$set:{slack:member}})
+                    }
+                })
+                if(bFound) break
                 if (!data.cursor) break
 
                 cursor = data.cursor
