@@ -24,7 +24,7 @@ Meteor.methods({
 
                 if (!data.ok) break
                 if (!data.members) break
-                if (_.findWhere(_.pluck(data.members, 'profile', {email}))) break
+                if (_.findWhere(_.pluck(data.members, 'profile'), {email})) break
                 if (!data.cursor) break
 
                 cursor = data.cursor

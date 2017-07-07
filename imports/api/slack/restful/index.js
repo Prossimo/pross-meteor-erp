@@ -37,7 +37,7 @@ const slackClient = {
 }
 
 const users = {
-    list: (cursor) => slackClient.makeRequest('users.list', {cursor}),
+    list: (cursor) => slackClient.makeRequest('users.list',cursor?{cursor}:{}),
     admin: {
         invite: ({email}) => slackClient.makeRequest('users.admin.invite', {email, token:SLACK_INVITE_KEY})
     }
