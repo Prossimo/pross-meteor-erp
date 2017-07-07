@@ -130,7 +130,7 @@ class EditableUsersTable extends Component {
     }
 
     actionActiveUser = (cell, row) => {
-        if(cell === USER_STATUS.ACTIVE) return 'Activated'
+        if(row.status === USER_STATUS.ACTIVE && row.slack) return 'Activated'
 
         return (<Button onClick={() => this.activeUser(row._id)} disabled={!row.slackInvited && !row.slack}>Active</Button>)
     }
