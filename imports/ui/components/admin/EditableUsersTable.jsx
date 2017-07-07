@@ -132,11 +132,11 @@ class EditableUsersTable extends Component {
     actionActiveUser = (cell, row) => {
         if(cell === USER_STATUS.ACTIVE) return 'Activated'
 
-        return (<Button onClick={() => this.activeUser(row._id)} disabled={row.slack==null}>Active </Button>)
+        return (<Button onClick={() => this.activeUser(row._id)} disabled={!row.slackInvited && !row.slack}>Active</Button>)
     }
 
     activeUser = (userId) => {
-        Meteor.call('activeUser', userId, (err) => {
+        Meteor.call('activeUser', userId, (err,res) => {
             if (err) return warning(err.reason ? err.reason : err.error)
             info('Successful activated user!')
         })

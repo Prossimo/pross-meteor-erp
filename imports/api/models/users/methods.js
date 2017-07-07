@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { ROLES, STATUS } from './users'
@@ -34,11 +35,27 @@ Meteor.methods({
 
         const user = Meteor.users.findOne(_id)
 
-        if(!user) throw Meteor.Error(`Not found user with _id:${_id}`)
+        if(!user) throw new Meteor.Error(`Not found user with _id:${_id}`)
+
+        let bFound = true
         if(!user.slack) {
-            //Meteor.call('inviteUserToSlack', user.email())
-            throw Meteor.Error('Not found slack info')
+            bFound = false
+            let cursor
+            while (1) {
+                const data = Meteor.call('getSlackUsers', cursor)
+
+                if (!data.ok) break
+                if (!data.members) break
+                if (_.findWhere(_.pluck(data.members, 'profile'), {email:user.email})) {
+                    bFound = true
+                    break
+                }
+                if (!data.cursor) break
+
+                cursor = data.cursor
+            }
         }
+        if(!bFound) throw new Meteor.Error('Not found slack info')
 
         Meteor.users.update({_id}, {$set:{status:STATUS.ACTIVE}})
 
