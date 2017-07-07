@@ -1,6 +1,10 @@
 import {HTTP} from 'meteor/http'
 import config from '/imports/api/config'
 
+export const ERROR = {
+    AlreadyInTeam: 'already_in_team',
+    AlreadyInvited: 'already_invited'
+}
 const {
     slack: {
         apiRoot: SLACK_API_ROOT,
@@ -33,7 +37,7 @@ const slackClient = {
 }
 
 const users = {
-    list: () => slackClient.makeRequest('users.list'),
+    list: (cursor) => slackClient.makeRequest('users.list', {cursor}),
     admin: {
         invite: ({email}) => slackClient.makeRequest('users.admin.invite', {email, token:SLACK_INVITE_KEY})
     }
