@@ -14,6 +14,11 @@ export const ROLES = {
     ARCH: 'arch'
 }
 
+export const STATUS = {
+    PENDING: 'pending',
+    ACTIVE: 'active'
+}
+
 const Schema = {}
 
 Schema.User = new SimpleSchema({
@@ -69,6 +74,10 @@ Schema.User = new SimpleSchema({
       type: String,
       optional: true,
       allowedValues: ['active', 'pending', 'banned']
+    },
+    slackInvited: {
+        type: Boolean,
+        optional: true
     },
     slack: {
         type: Object,
