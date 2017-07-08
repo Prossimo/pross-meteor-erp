@@ -7,7 +7,7 @@ import SingleSalesRecord from '../../api/composer/componencts/project/SingleProj
 import SingleProjectPage from '/imports/ui/components/project/SingleProject'
 import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
 
-import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, LeadsPage, OrdersPage, TicketsPage, ContactsPage, CompaniesPage, FinancialPage, OpportunitiesPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage} from '/imports/ui/pages'
+import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage} from '/imports/ui/pages'
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go('Root')
@@ -112,7 +112,7 @@ FlowRouter.route('/leads', {
     action(){
         checkAuth()
         mount(App, {
-            content: <LeadsPage/>,
+            content: <SalesRecordPage stage="lead"/>,
         })
     }
 })
@@ -122,7 +122,7 @@ FlowRouter.route('/opportunities', {
     action() {
         checkAuth()
         mount(App, {
-            content: <OpportunitiesPage/>
+            content: <SalesRecordPage stage="opportunity"/>,
         })
     }
 })
@@ -132,7 +132,7 @@ FlowRouter.route('/orders', {
     action(){
         checkAuth()
         mount(App, {
-            content: <OrdersPage/>,
+            content: <SalesRecordPage stage="order"/>,
         })
     }
 })
@@ -142,7 +142,7 @@ FlowRouter.route('/tickets', {
     action(){
         checkAuth()
         mount(App, {
-            content: <TicketsPage/>,
+            content: <SalesRecordPage stage="ticket"/>,
         })
     }
 })

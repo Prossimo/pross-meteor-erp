@@ -1,35 +1,43 @@
 import React from 'react'
-import classNames from 'classnames'
+import {Modal} from 'react-bootstrap'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
-import CreateSalesRecordModal from '/imports/ui/components/admin/CreateSalesRecordModal'
+import CreateSalesRecord from '/imports/ui/components/salesRecord/CreateSalesRecord'
 
-class ProjectsPage extends React.Component{
+export default class SalesRecordPage extends React.Component{
     constructor(props){
         super(props)
         this.state = {
             keyword: '',
-            open: false
+            showModal: false
         }
-        this.getTabs = this.getTabs.bind(this);
-        this.openAddModal = this.openAddModal.bind(this);
-    }
-    
-    openAddModal() {
-      this.setState({
-        open: true
-      })
     }
 
-    getTabs(){
-      let showsearchbar = false;
+    getTitle = () => {
+        const {stage} = this.props
+
+        switch(stage) {
+            case 'lead':
+                return 'All Leads'
+            case 'opportunity':
+                return 'All Opportunity'
+            case 'order':
+                return 'All Orders'
+            case 'ticket':
+                return 'All Tickets'
+            default:
+                return 'All Deals'
+        }
+    }
+    getTabs = () => {
+      const showsearchbar = false
       return <div>
           <div className="sale-title">
-            All Deals
+              {this.getTitle()}
           </div>
           <div style={{float: 'left', width: 100, marginLeft: 50}}>
             <button
               className="btn btn-primary"
-              onClick={this.openAddModal}
+              onClick={() => this.setState({showModal:true})}
             >
               <span className="fa fa-plus"></span> Add Deal
             </button>
@@ -46,12 +54,12 @@ class ProjectsPage extends React.Component{
     }
 
     render() {
-      const props = _.clone(this.props);
-      props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper })=> {
-        const keyfilter = new RegExp(this.state.keyword,'i');
-        return (this.state.keyword == null || (name.search(keyfilter) > -1));
-      });
-      props.stage = 'lead';
+      const props = _.clone(this.props)
+      props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper }) => {
+        const keyfilter = new RegExp(this.state.keyword,'i')
+        return (props.stage ? stage === props.stage : 1) && (this.state.keyword == null || (name.search(keyfilter) > -1))
+      })
+      props.stage = props.stage || 'lead'
 
       return (
           <div className="projects-page">
@@ -63,12 +71,22 @@ class ProjectsPage extends React.Component{
               		<AllSalesRecords {...props} />
             		</div>
            	</div>
-            <CreateSalesRecordModal
-              open={this.state.open}
-              {...props}
-            />
+              {this.renderModal(props)}
           </div>
       )
     }
+
+    renderModal = (props) => {
+        const {showModal} = this.state
+        return (
+            <Modal show={showModal} onHide={() => {
+                this.setState({showModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>Create Deal</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <CreateSalesRecord {...props}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
 }
-export default ProjectsPage

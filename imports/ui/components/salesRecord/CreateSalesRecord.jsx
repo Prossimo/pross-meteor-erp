@@ -12,10 +12,10 @@ import {
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import NumericInput from 'react-numeric-input'
-import SelectMembers from './salesRecord/SelectMembers'
-import SelectPeople from './salesRecord/SelectPeople'
-import {ROLES, People} from '/imports/api/models'
-import SelectSubStage from './salesRecord/SelectSubStage'
+import SelectMembers from './components/SelectMembers'
+import SelectPeople from './components/SelectPeople'
+import {ROLES, People} from '/imports/api/models/index'
+import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 
 class CreateSalesRecord extends React.Component {
