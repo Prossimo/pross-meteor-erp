@@ -2,6 +2,7 @@ import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { ROLES, STATUS } from './users'
+import { Accounts } from 'meteor/accounts-base'
 
 export const createAdminUser = () => {
     if(Meteor.isServer) {
@@ -64,4 +65,15 @@ Meteor.methods({
         Meteor.users.update({_id}, {$set:{status:STATUS.ACTIVE}})
 
     },
+    changeUserPassword(user) {
+
+      check(user, Object)
+      check(user.userId, String)
+      check(user.password, String)
+      check(user.role, String)
+
+      if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+      if (Roles.userIsInRole(this.userId), user.role === ROLES.ADMIN) throw new Meteor.Error('Can not set current user as super admin')
+      Accounts.setPassword(user.userId, user.password)
+    }
 })

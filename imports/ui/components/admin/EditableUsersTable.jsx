@@ -6,6 +6,8 @@ import {info, warning} from '/imports/api/lib/alerts'
 import {isValidEmail} from '/imports/api/lib/validation'
 import {ROLES, USER_STATUS} from '/imports/api/models'
 import 'react-bootstrap-table/dist/react-bootstrap-table-all.min.css'
+import swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 class EditableUsersTable extends Component {
     constructor(props) {
@@ -13,7 +15,7 @@ class EditableUsersTable extends Component {
     }
 
     customConfirm = (next, userIds) => {
-        if (confirm(`(It's a custom confirm)Are you sure you want to delete ${userIds}?`)) {
+        if (confirm(`(It's a custom confirm) Are you sure you want to delete ${userIds}?`)) {
             // If the confirmation is true, call the function that
             // continues the deletion of the record.
             Meteor.call('adminRemoveUser', userIds, (error) => {
@@ -49,7 +51,21 @@ class EditableUsersTable extends Component {
         return false
     }
 
-    onAfterSaveCell = (row) => {
+    onAfterSaveCell = (row, cellName, cellValue) => {
+        if (cellName === 'password') {
+          if (confirm(`Are you sure you want to change user's password to '${cellValue}'?`)) {
+            Meteor.call('changeUserPassword', {
+              userId: row._id,
+              password: cellValue,
+              role: row.role
+            }, (err) => {
+              if (err) return warning(err.reason ? err.reason : err.error)
+              info('Password was successfully changed')
+              next()
+            })
+          }
+          return;
+        }
         const userData = {
             firstName: row.firstName,
             lastName: row.lastName,
@@ -79,6 +95,10 @@ class EditableUsersTable extends Component {
         }
 
         if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
+            validationStatus = false
+        }
+        if (cellName === 'password' && cellValue.trim().length < 6) {
+            warning('Password must have more than 6 characters')
             validationStatus = false
         }
         return validationStatus
@@ -176,7 +196,9 @@ class EditableUsersTable extends Component {
 
         const userRoles = Object.values(ROLES)
 
-        const createdUsers = this.props.createdUsers.map(({_id, username, profile: {firstName, lastName}, emails, roles = [], status, slackInvited, slack}) => ({
+        const createdUsers = this.props.createdUsers.map(({
+          _id, username, profile: {firstName, lastName}, emails, roles = [],
+          status, slackInvited, slack, password = '********'}) => ({
             _id,
             username,
             firstName,
@@ -186,7 +208,8 @@ class EditableUsersTable extends Component {
             isActive: emails[0].verified,
             status,
             slackInvited,
-            slack
+            slack,
+            password
         }))
         return (
             <BootstrapTable
@@ -252,6 +275,12 @@ class EditableUsersTable extends Component {
                 </TableHeaderColumn>
                 <TableHeaderColumn dataFormat={ this.actionSlackInvite } editable={false}>
                     Slack Invite
+                </TableHeaderColumn>
+                <TableHeaderColumn
+                    dataField='password'
+                    hiddenOnInsert
+                >
+                    Reset Password
                 </TableHeaderColumn>
             </BootstrapTable>
         )
