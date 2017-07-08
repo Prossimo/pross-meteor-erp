@@ -21,7 +21,7 @@ import {Modal} from 'react-bootstrap'
 import { createContainer } from 'meteor/react-meteor-data'
 import People from '/imports/api/models/people/people'
 import Designations from '/imports/api/models/people/designations'
-import SelectSubStage from '../admin/salesRecord/SelectSubStage'
+import SelectSubStage from './components/SelectSubStage'
 
 class SingleSalesRecord extends React.Component{
   constructor(props){
