@@ -47,7 +47,6 @@ class MessageList extends React.Component {
 
     render() {
         // if (this.state.loading)  this.props.toggleLoader(false)
-        console.log('loading', this.state.currentThread);
         // if (this.state.loading === false)  this.props.toggleLoader(false)
         if (!this.state.currentThread) return <span />
         return (

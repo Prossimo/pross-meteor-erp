@@ -386,7 +386,7 @@ class InboxPage extends TrackerReact(React.Component) {
     }
 
     onThreadSelected(thread) {
-        this.props.toggleLoader(true)
+        // this.props.toggleLoader(true)
         this.setState({currentThread: thread})
 
         ThreadStore.selectThread(thread)
