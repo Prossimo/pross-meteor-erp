@@ -149,9 +149,10 @@ class SingleSalesRecord extends React.Component{
           {
             this.props.stakeholders.map(people => {
               const { _id, emails, name, role, designation } = people
+              const isNotify = !_.isEmpty(this.props.salesRecord.stakeholders.filter(stake => (stake.peopleId === _id && stake.notify)))
               if (designation && designation.name !== user.designation) return ''
               const emailString = (emails || []).map(({ email }) => email).join('')
-              const nameString = emailString ? `${name}(${emailString})` : name
+              const nameString = emailString ? <span>{name} <small>({emailString})</small></span> : name
               return (
                 <li key={_id} className='member-list'>
                   {
@@ -171,7 +172,9 @@ class SingleSalesRecord extends React.Component{
                       <input type="checkbox" onClick={ (e) => {
                         const value = e.target.checked
                         Meteor.call('updateStakeHolderNotifyInSaleRecord', user.salesRecordId, { peopleId: _id, notify: value})
-                        }}/>&nbsp;<small>Notify</small>&nbsp;
+                        }}
+                        defaultChecked={isNotify}
+                        />&nbsp;<small>Notify</small>&nbsp;
                     </span>
                   }
                   {

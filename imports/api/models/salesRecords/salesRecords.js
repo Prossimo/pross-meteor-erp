@@ -8,7 +8,7 @@ import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import Contacts from '../contacts/contacts'
 import People from '../people/people'
-
+import Designations  from '../people/designations'
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
@@ -138,7 +138,15 @@ SalesRecords.helpers({
         return people.map(p => ({name:p.name, email:p.defaultEmail()}))
     },
     noticeableContactsForStakeholders() {
-        const peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
+        let peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
+        const stakeholders = People
+          .find({_id: { $in: peopleIds }})
+          .fetch()
+          .map(p => {p.designation = Designations.findOne(p.designation_id); return p})
+          .filter(p => {return (p.designation && p.designation.name === 'Stakeholder')})
+
+        peopleIds = _.pluck(stakeholders, '_id')
+
         const people = People.find({_id:{$in:peopleIds}}).fetch()
 
         return people.map(p => ({name:p.name, email:p.defaultEmail()}))

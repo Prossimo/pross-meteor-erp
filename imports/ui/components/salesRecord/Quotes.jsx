@@ -181,7 +181,7 @@ class Quotes extends React.Component {
 
   showAddQuoteForm() {
     const {salesRecord, usersArr, currentUser, quotes} = this.props
-
+    
     const to = salesRecord.noticeableContactsForStakeholders().map((c) => ({name: c.name, email: c.email}))
     if (to && to.length) {
       const salesRecordId = salesRecord._id

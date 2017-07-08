@@ -12,5 +12,3 @@ export default new ValidatedMethod({
         return Meteor.wrapAsync(drive.files.list)(params);
     }
 })
-
-
