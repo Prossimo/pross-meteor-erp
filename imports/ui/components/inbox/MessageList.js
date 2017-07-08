@@ -65,6 +65,7 @@ class MessageList extends React.Component {
         return (
             <div className="message-subject-wrap">
                 {/*<MailImportantIcon thread={this.state.currentThread}/>*/}
+                {this.state.loading && <i className="fa fa-spinner fa-spin fa-fw"></i> }
                 <div style={{flex: 1}}>
                     <span className="message-subject">{subject}</span>
                     {/*<MailLabelSet removable={true} thread={@state.currentThread} includeCurrentCategories={true} />*/}

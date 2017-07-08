@@ -57,8 +57,6 @@ class MessageStore extends Reflux.Store {
             if(result && result.length) {
                 if(thread.id === currentThread.id) {
 
-                    this._loading = false
-
                     if(currentThread.unread) {
                         const markAsReadId = currentThread.id
                         setTimeout(() => {
@@ -72,6 +70,8 @@ class MessageStore extends Reflux.Store {
             }
 
         }).finally(() => {
+
+            this._loading = false
             this.trigger()
         })
     }
