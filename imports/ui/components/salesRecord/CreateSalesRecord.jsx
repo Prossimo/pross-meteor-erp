@@ -14,7 +14,7 @@ import DatePicker from 'react-datepicker'
 import NumericInput from 'react-numeric-input'
 import SelectMembers from './components/SelectMembers'
 import SelectPeople from './components/SelectPeople'
-import {ROLES, People} from '/imports/api/models/index'
+import {ROLES, People, USER_STATUS} from '/imports/api/models/index'
 import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 
@@ -235,7 +235,7 @@ class CreateSalesRecord extends React.Component {
                     </div>
 
                     <SelectMembers
-                        members={this.props.users.filter(({_id}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]))}
+                        members={this.props.users.filter(({_id, status, slack}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]) && status === USER_STATUS.ACTIVE && slack)}
                         onSelectMembers={this.updateMembers}
                     />
                     <SelectPeople
