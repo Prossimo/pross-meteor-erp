@@ -76,7 +76,7 @@ Meteor.methods({
         check(salesRecordId, String)
 
         if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            return SalesRecords.update(salesRecordId, {$pull: {members: {userId}}})
+            return SalesRecords.update(salesRecordId, {$pull: {members: userId}})
         }
     },
     // NOTICE: it must be saleRecord
@@ -87,10 +87,7 @@ Meteor.methods({
         check(data, {
             name: String,
             shippingMode: String,
-            members: [{
-                userId: String,
-                category: [String]
-            }],
+            members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
                 notify: Boolean,
@@ -140,7 +137,7 @@ Meteor.methods({
 
         if (!responseInviteBot.data.ok) throw new Meteor.Error('Bot cannot add to channel')
 
-        Meteor.users.find({_id: {$in: data.members.map(item => item.userId)}, slack: {$exists: true}})
+        Meteor.users.find({_id: {$in: data.members}, slack: {$exists: true}})
             .forEach(user => slackClient.channels.invite({
               channel: responseCreateChannel.data.channel.id,
               user: user.slack.id,
@@ -231,10 +228,7 @@ Meteor.methods({
         check(data, {
             name: String,
             shippingMode: String,
-            members: [{
-                userId: String,
-                category: [String]
-            }],
+            members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
                 notify: Boolean,
@@ -316,7 +310,7 @@ Meteor.methods({
         // allow edit folder
         Meteor.defer(() => {
             _.each(members, (member) => {
-                const user = Meteor.users.findOne(member.userId)
+                const user = Meteor.users.findOne(member)
                 if (user && user.emails && user.emails.length > 0) {
                     const email = user.emails[0].address
                     if (email) {

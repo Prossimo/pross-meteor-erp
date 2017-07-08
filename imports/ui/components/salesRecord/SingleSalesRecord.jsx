@@ -186,33 +186,33 @@ class SingleSalesRecord extends React.Component{
   }
 
   //todo change style
-  renderProjectMembers(){
+  renderMembers(){
     const { salesRecord } = this.props
     if(!salesRecord )return null
     return (
       <ul className="project-members">
-        {_.isArray(salesRecord.members) && salesRecord.members.map(member => {
-          if(!member.user) return null
+        {_.isArray(salesRecord.members) && salesRecord.members.map(userId => {
+          const member = Meteor.users.findOne(userId)
           return(
-            <li key={member.user._id}
+            <li key={`li-member-${userId}`}
                 className="member-list">
                 {
                   Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
-                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeMember(salesRecord._id, member.userId, event)}>
+                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}} onClick={(event) => this.removeMember(salesRecord._id, userId, event)}>
                       <span className='fa fa-times pull-right'></span>
                     </a>
                   ) : ''
                 }
                 <span
-                  onClick={this.showUserInfo.bind(this, member.user)}
-                  className={classNames('memberName', {'main': member.isMainStakeholder}) }>
-                  {getUserName(member.user, true)}
+                  onClick={this.showUserInfo.bind(this, member)}
+                  className={classNames('memberName') }>
+                  {getUserName(member, true)}
                 </span>
                 <span className="email">
-                  {getUserEmail(member.user)}
+                  {getUserEmail(member)}
                 </span>
                 <div>
-                  {member.category.map(cat => <span className="member-cat" key={`${cat}${member.user._id}`}>{cat}</span>)}
+                  {member.roles.join(', ')}
                 </div>
             </li>
           )
@@ -288,10 +288,8 @@ class SingleSalesRecord extends React.Component{
 
   renderAddMemberForm(){
     const { salesRecord, users } = this.props
-    // const { member: { selectedUser, selectedCategory }} = this.state
-    // const categoryOptions = STAKEHOLDER_CATEGORY.map(item => ({label: item, value: item}))
-    const membersIds = salesRecord.members.map(i => i.userId)
-    const members = users
+
+      const members = users
       .filter(user => user.status !== 'pending'&& user.slack) // do not contain current user and not in pending status
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
       .map(user => ({
@@ -375,14 +373,8 @@ class SingleSalesRecord extends React.Component{
   addMember(){
     const { selectedMembers } = this.state
     const { salesRecord } = this.props
-    const members = selectedMembers.map((member) => {
-      const splitedMember = member.split('-')
-      return {
-        userId: splitedMember[0],
-        category: splitedMember[1],
-        isMainStakeholder: false
-      }
-    })
+    const members = selectedMembers
+
     this.props.toggleLoader(true)
     Meteor.call('addMembersToProject', salesRecord._id, members, err => {
       this.props.toggleLoader(false)
@@ -392,7 +384,7 @@ class SingleSalesRecord extends React.Component{
     })
     Meteor.defer(() => {
       _.each(members, (member) => {
-        Meteor.call('addUserToSlackChannel', member.userId, salesRecord.slackChanel, (err, res) => {
+        Meteor.call('addUserToSlackChannel', member, salesRecord.slackChanel, (err, res) => {
           if(err) return warning(err.error)
           info(`${res.userEmail} success add to slack channel!`)
         })
@@ -493,7 +485,7 @@ class SingleSalesRecord extends React.Component{
             </div>
             <h4>Team members</h4>
             <div className='sidebar-box'>
-              { this.renderProjectMembers() }
+              { this.renderMembers() }
             </div>
 
             {
