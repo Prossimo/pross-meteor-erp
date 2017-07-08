@@ -3,16 +3,21 @@ import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import Select from 'react-select'
 import {Modal} from 'react-bootstrap'
-import {warning} from "/imports/api/lib/alerts"
+import {warning} from '/imports/api/lib/alerts'
 import {Companies, CompanyTypes} from '/imports/api/models'
 import {insertCompany, updateCompany} from '/imports/api/models/companies/methods'
-import BlockUi from 'react-block-ui';
-import 'react-block-ui/style.css';
-import {Loader, Types} from 'react-loaders';
-import 'loaders.css/loaders.min.css';
+import BlockUi from 'react-block-ui'
+import 'react-block-ui/style.css'
+import {Loader, Types} from 'react-loaders'
+import 'loaders.css/loaders.min.css'
 import AddressInput from './AddressInput'
 import PhoneNumberInput from './PhoneNumberInput'
 import CompanyTypeForm from './CompanyTypeForm'
+
+
+const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
+const HTTP_PROTOCOL = 'http://'
+const HTTPS_PROTOCOL = 'https://'
 
 
 export default class CompanyForm extends React.Component {
@@ -49,7 +54,7 @@ export default class CompanyForm extends React.Component {
     }
     render() {
         const {name, website, typeOptions, type_ids, addresses, phone_numbers} = this.state
-        const types = type_ids && type_ids.length ? CompanyTypes.find({_id:{$in:type_ids}}).fetch().map(t=>({value:t._id,label:t.name})) : null
+        const types = type_ids && type_ids.length ? CompanyTypes.find({_id:{$in:type_ids}}).fetch().map(t => ({value:t._id,label:t.name})) : null
         return (
             <div>
                 <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
@@ -67,8 +72,8 @@ export default class CompanyForm extends React.Component {
                             Website
                         </Col>
                         <Col sm={9}>
-                            <FormControl type="url" placeholder="Website" value={website}
-                                         onChange={(evt) => this.setState({website: evt.target.value})}/>
+                            <FormControl type="text" placeholder="Website" value={website}
+                                         onChange={(evt) => this.setState({website: evt.target.value})} pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalType">
@@ -88,13 +93,13 @@ export default class CompanyForm extends React.Component {
                             <Button onClick={this.onClickAddCompanyType}><i className="fa fa-plus"/></Button>
                         </Col>
                     </FormGroup>
-                    <AddressInput addresses={addresses} onChange={(data)=>this.setState({addresses:data})}/>
-                    <PhoneNumberInput phoneNumbers={phone_numbers} onChange={(data)=>this.setState({phone_numbers:data})}/>
+                    <AddressInput addresses={addresses} onChange={(data) => this.setState({addresses:data})}/>
+                    <PhoneNumberInput phoneNumbers={phone_numbers} onChange={(data) => this.setState({phone_numbers:data})}/>
 
 
                     <FormGroup>
                         <Col sm={12} style={{textAlign: 'right'}}>
-                            <Button type="submit" bsStyle="primary">{this.props.company ? "Update" : "Create"}</Button>
+                            <Button type="submit" bsStyle="primary">{this.props.company ? 'Update' : 'Create'}</Button>
                         </Col>
                     </FormGroup>
                 </Form>
@@ -138,9 +143,12 @@ export default class CompanyForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        let data = {name, website, type_id, addresses, phone_numbers} = this.state
+        var {name, website, type_id, addresses, phone_numbers} = this.state
 
-        this.props.toggleLoader(true);
+        if(website && website.length>0 && website.indexOf(HTTP_PROTOCOL) == -1 && website.indexOf(HTTPS_PROTOCOL) == -1) website = `http://${website}`
+
+        const data= {name, website, type_id, addresses, phone_numbers}
+        this.props.toggleLoader(true)
         delete data.blocking
 
         try{
@@ -154,7 +162,7 @@ export default class CompanyForm extends React.Component {
                 console.log(companyId)
             }
 
-            this.props.toggleLoader(false);
+            this.props.toggleLoader(false)
             if (this.props.onSaved) this.props.onSaved(Companies.findOne({_id: companyId}), this.props.company != null)
         }catch(e){
             console.log(e)
