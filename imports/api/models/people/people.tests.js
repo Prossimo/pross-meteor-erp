@@ -7,7 +7,7 @@ import People from './people'
 import Designations from './designations'
 import Contacts from '../contacts/contacts'
 import { createAdminUser } from '/imports/api/models/users/methods'
-import { insertPerson, updatePerson, removePerson, insertPeople, insertDesignation, updateDesignation, removeDesignation } from './methods'
+import { insertPerson, updatePerson, removePerson, insertPeople, insertDesignation, updateDesignation, removeDesignation, removeRole } from './methods'
 
 if(Meteor.isServer) {
     describe('people.desinations', () => {
@@ -17,10 +17,10 @@ if(Meteor.isServer) {
             adminId = createAdminUser()
         })
 
-        let data = {
+        const data = {
             name: 'Team Member',
             role_addable: false,
-            roles: ['Admin', 'Manager', 'Sales', 'Takeoffs', 'Arch']
+            roles: [{name:'Admin'}, {name:'Manager'}, {name:'Sales'}, {name:'Takeoffs'}, {name:'Arch', is_custom:true}]
         }
 
         it('should insert designation correctly by factory and method', () => {
@@ -43,22 +43,22 @@ if(Meteor.isServer) {
         it('should update designation correctly by method', () => {
             const _id = insertDesignation._execute({userId:adminId}, data)
 
-            data = {
+            const data1 = {
                 _id,
                 name: 'Stakeholder',
                 role_addable: true,
-                roles: ['Developer', 'Architectect', 'GC', 'Contractor', 'Installer', 'Energy Consultant', 'Facade Consultant']
+                roles: [{name:'Developer'}, {name:'Architectect'}, {name:'GC'}, {name:'Contractor'}, {name:'Installer'}, {name:'Energy Consultant', is_custome:true}, {name:'Facade Consultant', is_custome:true}]
             }
-            const results = updateDesignation._execute({userId:adminId}, data)
+            const results = updateDesignation._execute({userId:adminId}, data1)
 
             assert.equal(results, 1)
 
             const designation = Designations.findOne(_id)
 
-            assert.equal(designation.name, data.name)
-            assert.equal(designation.role_addable, data.role_addable)
+            assert.equal(designation.name, data1.name)
+            assert.equal(designation.role_addable, data1.role_addable)
             assert.typeOf(designation.roles, 'array')
-            assert.equal(designation.roles.length, data.roles.length)
+            assert.equal(designation.roles.length, data1.roles.length)
         })
 
         it('should remove designation correctly by method', () => {
@@ -68,6 +68,24 @@ if(Meteor.isServer) {
 
             const designation = Designations.findOne({_id})
             assert.equal(designation, null)
+        })
+
+        it('should remove custom role correctly by method', () => {
+            const _id = insertDesignation._execute({userId:adminId}, data)
+
+            removeRole._execute({userId:adminId}, {_id, roleName:'Arch'})
+
+            const designation = Designations.findOne({_id})
+            assert.equal(designation.roles.length, data.roles.length-1)
+        })
+
+        it('should not remove non custom role', () => {
+            const _id = insertDesignation._execute({userId:adminId}, data)
+
+            assert.throws(() => {
+                removeRole._execute({userId:adminId}, {_id, roleName:'Admin'})
+            }, Meteor.Error())
+
         })
     })
 

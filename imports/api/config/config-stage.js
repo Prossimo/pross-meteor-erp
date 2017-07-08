@@ -28,7 +28,7 @@ module.exports = {
     },
     slack: {
         apiRoot: 'https://slack.com/api',
-        apiKey: 'xoxp-136423598965-161812623025-208199237427-122c8210835397e9ddb2b122eb1f8e92',
+        apiKey: 'xoxp-136423598965-136423599189-208253208400-8116cad548d6084a7f02841f53b06f05',
         inviteKey: 'xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666',
         botToken: 'xoxb-208218577667-PFnQBmx9AFaHsEpOElyZzbSC',
         botId: 'U646EGZKM',

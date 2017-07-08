@@ -1,4 +1,4 @@
-import {_} from 'meteor/underscore'
+import _ from 'underscore'
 import { Meteor } from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
@@ -158,6 +158,9 @@ export const insertDesignation = new ValidatedMethod({
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
         if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
+        const uniquedRoles = _.uniq(roles, true, ({name}) => name)
+        if(uniquedRoles.length !== roles.length) throw new Meteor.Error('Duplicated role name')
+
         const data = {
             name, role_addable, roles
         }
@@ -175,6 +178,9 @@ export const updateDesignation = new ValidatedMethod({
 
         const designation = Designations.findOne({_id})
         if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)
+
+        const uniquedRoles = _.uniq(roles, true, ({name}) => name)
+        if(uniquedRoles.length !== roles.length) throw new Meteor.Error('Duplicated role name')
 
 
         const data = {
@@ -203,14 +209,25 @@ export const removeDesignation = new ValidatedMethod({
 
 export const removeRole = new ValidatedMethod({
     name: 'people.designations.removeRole',
-    validate: new SimpleSchema({_id:Designations.schema.schema('_id'), role:{type:String}}).validator({clean:true}),
-    run({_id, role}) {
+    validate: new SimpleSchema({_id:Designations.schema.schema('_id'), roleName:{type:String}}).validator({clean:true}),
+    run({_id, roleName}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
         if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
         const designation = Designations.findOne({_id})
         if(!designation) throw new Meteor.Error(`Not found designation with _id ${_id}`)
 
-        Designations.update(_id, {$pull:{roles:role}})
+        const roles = designation.roles
+        if(roles && roles.length) {
+            const index = _.findIndex(roles, {name:roleName})
+            if(index > -1) {
+                const roleObj = roles[index]
+                if(!roleObj.is_custom) throw new Meteor.Error('Could not delete non custom role')
+                roles.splice(index, 1)
+                Designations.update(_id, {$set:{roles}})
+            }
+        }
+
+
     }
 })

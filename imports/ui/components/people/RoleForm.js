@@ -42,7 +42,7 @@ export default class RoleForm extends React.Component {
 
                     <FormGroup>
                         <Col sm={12} style={{textAlign: 'right'}}>
-                            <Button type="submit" bsStyle="primary">{this.props.type ? "Update" : "Create"}</Button>
+                            <Button type="submit" bsStyle="primary">{this.props.type ? 'Update' : 'Create'}</Button>
                         </Col>
                     </FormGroup>
                 </Form>
@@ -63,7 +63,7 @@ export default class RoleForm extends React.Component {
                 min: 1
               }
             }).validate({name})
-            this.props.designation.roles.push(name)
+            this.props.designation.roles.push({name, is_custom:true})
             updateDesignation.call(this.props.designation)
 
             if (this.props.onSaved) this.props.onSaved(PeopleDesignations.findOne({_id: this.props.designation._id}), this.props.designation != null)

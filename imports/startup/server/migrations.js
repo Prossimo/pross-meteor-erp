@@ -63,9 +63,39 @@ Migrations.add({
         PeopleDesignations.remove({})
     }
 })
+Migrations.add({
+    version: 4,
+    name: 'Change designation role schema',
+    up() {
+        console.log('=== migrate up to version 4')
+        const designations = [{
+            name: 'Stakeholder',
+            role_addable: true,
+            roles: [{name:'Developer'}, {name:'Architect'}, {name:'GC'}, {name:'Contractor'}, {name:'Installer'}, {name:'Energy Consultant'}, {name:'Facade Consultant'}]
+        },{
+            name: 'Vendor',
+            role_addable: true,
+            roles: [{name:'Window Producer'}, {name:'Screen Producer'}]
+        },{
+            name: 'Logistics',
+            role_addable: true,
+            roles: [{name:'Freight Forwarder'}, {name:'Container Line'}, {name:'Broker'}, {name:'Trucking'}]
+        },{
+            name: 'Consultant',
+            role_addable: true,
+            roles: []
+        }]
+
+        designations.forEach((d) => {
+            PeopleDesignations.update({name:d.name}, {$set:{roles:d.roles}})
+        })
+    },
+    down() {
+    }
+})
 
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(3)
+        Migrations.migrateTo(4)
     }
 })
