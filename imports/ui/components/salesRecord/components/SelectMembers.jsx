@@ -1,23 +1,18 @@
-import React, { Component, PropTypes } from 'react';
-import Select from 'react-select';
-import { getUserName } from '/imports/api/lib/filters';
-import {
-    STAKEHOLDER_CATEGORY
-} from '/imports/api/constants/project';
+import _ from 'underscore'
+import React, { Component, PropTypes } from 'react'
+import Select from 'react-select'
 
 class SelectMembers extends Component{
     constructor(props) {
-        super(props);
-        this.changeMembers = this.changeMembers.bind(this);
-        this.renderMembers = this.renderMembers.bind(this);
-        this.changeState = this.changeState.bind(this);
-        this.categoryOptions = STAKEHOLDER_CATEGORY.map((category)=> ({label: category, value: category}));
+        super(props)
+
 
         const selectedMembers = [
             {
-                label: getUserName(Meteor.user(), true),
+                label: Meteor.user().name(),
                 value: Meteor.userId(),
-                categories: [this.categoryOptions[0]],
+                username: Meteor.user().username,
+                roles: Meteor.user().roles.join(', ')
             }
         ]
         this.state = {
@@ -25,36 +20,13 @@ class SelectMembers extends Component{
         }
 
         if(this.props.onSelectMembers) {
-            this.props.onSelectMembers(selectedMembers.map(({ label, value, categories })=> ({
-                userId: value,
-                category: categories.map(({ label, value })=> value),
-            })));
+            this.props.onSelectMembers(_.pluck(selectedMembers, 'value'))
         }
     }
 
-    changeState(propName, item, propValue) {
-        item[propName] = propValue;
-        this.setState({
-            selectedMembers: this.state.selectedMembers,
-        });
-        this.props.onSelectMembers(this.state.selectedMembers.map(({ label, value, categories })=> ({
-            userId: value,
-            category: categories.map(({ label, value })=> value),
-        })));
-    }
-
-    changeMembers(selectedMembers) {
-        selectedMembers.forEach((member)=> {
-            const { categories, isMainStakeholder } = member;
-            if (_.isUndefined(categories) || _.isUndefined(isMainStakeholder)) {
-                member.categories = [this.categoryOptions[0]];
-            }
-        });
-        this.setState({ selectedMembers});
-        this.props.onSelectMembers(selectedMembers.map(({ label, value, categories })=> ({
-            userId: value,
-            category: categories.map(({ label, value })=> value),
-        })));
+    changeMembers = (selectedMembers) => {
+        this.setState({ selectedMembers})
+        this.props.onSelectMembers(_.pluck(selectedMembers, 'value'))
     }
 
     renderMembers() {
@@ -63,36 +35,30 @@ class SelectMembers extends Component{
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Category</th>
+                        <th>Username</th>
+                        <th>Role</th>
                     </tr>
                 </thead>
                 <tbody>
                     {
-                        this.state.selectedMembers.map((selectedMember)=> {
-                            const { label, value, categories } = selectedMember;
+                        this.state.selectedMembers.map((member) => {
+                            const { label, value, username, roles } = member
                             return (
                                 <tr key={value}>
                                     <td>{ label }</td>
-                                    <td>
-                                        <Select
-                                            multi
-                                            options={this.categoryOptions}
-                                            value={categories}
-                                            onChange={(selectedCatogories)=> { this.changeState('categories', selectedMember, selectedCatogories) }}
-                                            clearable={false}
-                                        />
-                                    </td>
+                                    <td>{ username }</td>
+                                    <td>{ roles }</td>
                                 </tr>
-                            );
+                            )
                         })
                     }
                 </tbody>
             </table>
-        );
+        )
     }
 
     render() {
-        const memberOptions = this.props.members.map(member => ({ label: getUserName(member, true), value: member._id }));
+        const memberOptions = this.props.members.map(member => ({ label: member.name(), value: member._id, username: member.username, roles:member.roles.join(',') }))
         return (
             <div className='panel panel-default'>
                 <div className='panel-heading'>
@@ -120,4 +86,4 @@ SelectMembers.propTypes = {
     members: PropTypes.array.isRequired,
     onSelectMembers: PropTypes.func.isRequired,
 }
-export default SelectMembers;
+export default SelectMembers

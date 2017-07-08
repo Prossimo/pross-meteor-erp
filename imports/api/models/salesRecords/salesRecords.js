@@ -39,11 +39,7 @@ SalesRecords.schema = new SimpleSchema({
 
     name: { type: String },
     members: { type: Array },
-    'members.$': { type: Object },
-    'members.$.userId': { type: String },
-    'members.$.destination': { type: String, optional: true },
-    'members.$.category': { type: Array, optional: true },
-    'members.$.category.$': { type: String, optional: true },
+    'members.$': { type: String },
 
     stakeholders: { type: Array },
     'stakeholders.$': { type: Object },

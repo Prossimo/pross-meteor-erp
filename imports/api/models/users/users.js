@@ -138,7 +138,13 @@ Meteor.users.helpers({
 
     isAdmin() {
         return Roles.userIsInRole(this._id, ROLES.ADMIN)
+    },
+
+    name() {
+        if(this.profile) return `${this.profile.firstName} ${this.profile.lastName}`
+        return null
     }
+
 })
 
 if(Meteor.isServer) {
