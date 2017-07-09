@@ -306,7 +306,16 @@ Meteor.methods({
 
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
 
-        SalesRecords.update(salesRecordId, {$push: {members: {$each: members}}})
+        const salesRecord = SalesRecords.findOne(salesRecordId)
+        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
+        const existingMembers = salesRecord.members
+        members.forEach((member) => {
+            if(existingMembers.indexOf(member) == -1) {
+                existingMembers.push(member)
+            }
+        })
+
+        SalesRecords.update(salesRecordId, {$set: {members: existingMembers}})
         // allow edit folder
         Meteor.defer(() => {
             _.each(members, (member) => {

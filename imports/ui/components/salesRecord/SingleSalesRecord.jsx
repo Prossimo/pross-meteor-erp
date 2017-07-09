@@ -193,6 +193,7 @@ class SingleSalesRecord extends React.Component{
       <ul className="project-members">
         {_.isArray(salesRecord.members) && salesRecord.members.map(userId => {
           const member = Meteor.users.findOne(userId)
+
           if(!member) return ''
           return(
             <li key={`li-member-${userId}`}
@@ -293,6 +294,7 @@ class SingleSalesRecord extends React.Component{
       const members = users
       .filter(user => user.status !== 'pending'&& user.slack) // do not contain current user and not in pending status
       .filter(user => Roles.userIsInRole(user._id, [ ROLES.ADMIN, ROLES.SALES ])) // must be admin or employee
+      .filter(user => salesRecord.members.indexOf(user._id)==-1)
       .map(user => ({
           name: getUserName(user, true),
           email: getUserEmail(user),
@@ -319,7 +321,7 @@ class SingleSalesRecord extends React.Component{
                         members.map((member) =>
                          (
                           <tr key={member.value}>
-                            <td><input type="checkbox" onClick={this.addMemberToState.bind('', `${member.value}-${member.roles}`)}/> &nbsp;</td>
+                            <td><input type="checkbox" onClick={this.addMemberToState.bind('', member.value)}/> &nbsp;</td>
                             <td>{member.name}</td>
                             <td>{member.email}</td>
                             <td>{member.roles}</td>
@@ -376,6 +378,7 @@ class SingleSalesRecord extends React.Component{
     const { salesRecord } = this.props
     const members = selectedMembers
 
+      console.log(members)
     this.props.toggleLoader(true)
     Meteor.call('addMembersToProject', salesRecord._id, members, err => {
       this.props.toggleLoader(false)
