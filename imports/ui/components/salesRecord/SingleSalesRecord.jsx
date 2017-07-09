@@ -193,6 +193,7 @@ class SingleSalesRecord extends React.Component{
       <ul className="project-members">
         {_.isArray(salesRecord.members) && salesRecord.members.map(userId => {
           const member = Meteor.users.findOne(userId)
+          if(!member) return ''
           return(
             <li key={`li-member-${userId}`}
                 className="member-list">
