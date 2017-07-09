@@ -96,7 +96,7 @@ class DraftStore extends Reflux.Store {
 
     createDraftForQuoteEmail = (data = {}) => new Promise((resolve, reject) => {
             DraftFactory.createDraft(data).then((draft) => {
-
+                draft.hideSignature = true
                 this._drafts.push(draft)
 
                 this._draftsViewState[draft.clientId] = {
