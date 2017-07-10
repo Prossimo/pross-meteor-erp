@@ -51,7 +51,7 @@ class Attachments extends Component {
 
   render() {
     return (
-      <div>
+      <div className='hide'>
         <p>
           <strong><i className='fa fa-paperclip'/>&nbsp;&nbsp;&nbsp;Attachments</strong>
         </p>

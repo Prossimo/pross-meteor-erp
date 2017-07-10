@@ -19,6 +19,7 @@ Tasks.schema = new SimpleSchema({
   },
   description: {
     type: String,
+    optional: true,
   },
   dueDate: {
     type: Date,

@@ -72,7 +72,7 @@ class TaskComment extends Component {
 
   render() {
     return (
-      <div>
+      <div className='hide'>
         <p>
           <strong><i className='fa fa-comment-o'/>&nbsp;&nbsp; Add Comment</strong>
         </p>
