@@ -8,5 +8,4 @@ oauth2Client.setCredentials({
   refresh_token: refreshToken,
 })
 const drive = google.drive({ version: 'v3', auth: oauth2Client })
-
 export { drive, oauth2Client }
