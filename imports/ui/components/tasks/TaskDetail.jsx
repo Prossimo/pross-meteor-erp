@@ -154,7 +154,7 @@ class TaskDetail extends Component {
                 {
                   (!this.props.isNew) ? (
                     <button
-                      className='btn btn-default full-width'
+                      className='btn btn-default full-width hide'
                       onClick={() => this.changeState(this.state, 'isAttach', !this.state.isAttach)}>
                       <i className='fa fa-paperclip'/>
                       <small> Attachment</small>
@@ -163,7 +163,7 @@ class TaskDetail extends Component {
                 }
                 {
                   (this.state.isAttach) ? (
-                    <UploadFrom taskFolderId={this.props.taskFolderId} taskId={this.props.task._id} close={() => this.changeState(this.state, 'isAttach', false)}/>
+                    <UploadFrom taskFolderId={this.props.taskFolderId} taskId={this.props.task._id} close={() => this.changeState(this.state, 'isAttach', false)} className='hide'/>
                   ) : ''
                 }
               </div>
@@ -177,7 +177,7 @@ class TaskDetail extends Component {
             <div className='col-md-12'>
               {
                 (!this.props.isNew) ? (
-                  <Attachments attachments={this.props.task.attachments || []} taskId={this.props.task._id}/>
+                  <Attachments attachments={this.props.task.attachments || []} taskId={this.props.task._id} />
                 ) : ''
               }
             </div>
