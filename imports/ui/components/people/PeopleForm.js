@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
@@ -71,8 +72,8 @@ export default class PeopleForm extends React.Component {
                                     designation = _.findWhere(designations, {_id: person.designation_id})
                                     if (designation) {
                                         designationValue = {value: designation._id, label: designation.name}
-                                        roleOptions = designation.roles.map(r => ({value: r, label: r}))
-                                        if(person.role) roleValue = designation.roles.indexOf(person.role) > -1 ? {value: person.role, label: person.role} : null
+                                        roleOptions = designation.roles.map(r => ({value: r.name, label: r.name}))
+                                        if(person.role) roleValue = _.findIndex(designation.roles, {name:person.role}) > -1 ? {value: person.role, label: person.role} : null
                                         roleAddable = designation.role_addable
                                     }
                                 }
