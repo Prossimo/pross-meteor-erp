@@ -19,6 +19,7 @@ export default new ValidatedMethod({
     },
     description: {
       type: String,
+      optional: true,
     },
     dueDate: {
       type: Date,
