@@ -2,7 +2,7 @@ import Actions from '/imports/api/nylas/actions'
 import '/imports/api/nylas/contact-store'
 import '/imports/api/nylas/thread-store'
 
-/*const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
+const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
     if (Meteor.userId()) {
         Actions.loadContacts()
 
@@ -18,7 +18,7 @@ const fetchThreads = () => {
 }
 setInterval(fetchThreads, 1 * 1000 * 6)
 
-const fetchUnreadsCount = () => {
+/*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {
         Meteor.user().nylasAccounts().forEach((account, index) => {
             setTimeout(() => {
