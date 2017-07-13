@@ -35,7 +35,7 @@ const reactiveMapper = (props, onData) => {
     const salesRecord = SalesRecords.findOne(projectId)
     if(salesRecord) {
       salesRecord.members = salesRecord.members.map(member => {
-        member.user = props.usersArr[member.userId]
+        member.user = props.usersArr[member]
         return member
       })
     }

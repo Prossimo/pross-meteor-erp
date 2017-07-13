@@ -157,7 +157,7 @@ Meteor.methods({
         // current user belongs to salesRecords
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if (!salesRecord) throw new Meteor.Error('Project does not exists')
-        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
@@ -318,7 +318,7 @@ Meteor.methods({
         // current user belongs to salesRecords
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if (!salesRecord) throw new Meteor.Error('Project does not exists')
-        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
@@ -343,7 +343,7 @@ Meteor.methods({
         // current user belongs to salesRecords
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if (!salesRecord) throw new Meteor.Error('Project does not exists')
-        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
@@ -372,7 +372,7 @@ Meteor.methods({
         // current user belongs to salesRecords
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if (!salesRecord) throw new Meteor.Error('Project does not exists')
-        const isMember = !!salesRecord.members.find(({userId}) => userId === this.userId)
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')

@@ -54,7 +54,7 @@ Meteor.startup(() => {
     Meteor.publishComposite(GET_PROJECTS, () => ({
         find() {
           if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find()
-          return SalesRecords.find({'members.userId': this.userId})
+          return SalesRecords.find({'members': this.userId})
         },
         children: [
           {
@@ -79,7 +79,7 @@ Meteor.startup(() => {
         Match.test(_id, String)
 
         if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find({_id})
-        return SalesRecords.find({_id, 'members.userId': this.userId})
+        return SalesRecords.find({_id, 'members': this.userId})
     })
 
     Meteor.publish(GET_ALL_USERS, function () {
