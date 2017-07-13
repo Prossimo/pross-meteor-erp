@@ -429,8 +429,8 @@ Meteor.methods({
         check(field, String)
         check(data, Match.OneOf(String, Number))
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
-            throw new Meteor.Error('Access denied')
+        if (!this.userId) {
+            throw new Meteor.Error('No authorized')
         }
         Meteor.users.update({_id: this.userId}, {
             $set: {
