@@ -35,7 +35,7 @@ Meteor.methods({
     changeStageOfSalesRecord(salesRecordId, stage) {
         check(salesRecordId, String)
         check(stage, String)
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId})
+        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
         if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
             const subStage = getSubStages(stage, {gettingFirstStage: true})
             SalesRecords.update(salesRecordId, {$set: {stage, subStage}})
@@ -45,7 +45,7 @@ Meteor.methods({
     changeSubStageOfSalesRecord(salesRecordId, subStage) {
         check(salesRecordId, String)
         check(subStage, String)
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members.userId': this.userId})
+        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
         if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
             SalesRecords.update(salesRecordId, {$set: {subStage}})
         }
