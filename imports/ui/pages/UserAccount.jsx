@@ -15,12 +15,10 @@ class UserAccount extends React.Component{
                 component: <ContactInfo editable={!!Meteor.userId()} user={props.currentUser} toggleLoader={props.toggleLoader}/>
             }
         ]
-        if(Roles.userIsInRole(props.currentUser._id, [ROLES.ADMIN, ROLES.SALES])){
-            this.tabs.push({
-                label: 'Add Signature',
-                content: <EmailSignature user={props.currentUser}/>
-            })
-        }
+        this.tabs.push({
+            label: 'Add Signature',
+            content: <EmailSignature/>
+        })
 
         this.state = {
             activeTab: this.tabs[0]

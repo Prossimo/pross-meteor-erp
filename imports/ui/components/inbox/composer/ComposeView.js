@@ -254,7 +254,7 @@ export default class ComposeView extends React.Component {
         const {hideSignature} = this.state.draft
         if (hideSignature) return (<div></div>)
 
-        const signature = AccountStore.signatureForAccountId(this.state.draft.account_id)
+        const signature = Meteor.user().profile.signature//AccountStore.signatureForAccountId(this.state.draft.account_id)
 
         if (!signature || signature.length == 0) return (<div></div>)
         return (

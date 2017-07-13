@@ -53,7 +53,7 @@ export default class SendDraftTask extends Task {
     sendMessage = () => {
         const draft = _.clone(this.draft)
         if(!draft.hideSignature){
-            const signature = AccountStore.signatureForAccountId(draft.account_id)
+            const signature = Meteor.user().profile.signature//AccountStore.signatureForAccountId(draft.account_id)
             if(signature) draft.body += `<br><br><div class="gmail_quote">${signature}</div>`
         }
 

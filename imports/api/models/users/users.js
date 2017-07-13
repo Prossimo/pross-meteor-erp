@@ -66,6 +66,10 @@ Schema.User = new SimpleSchema({
     'profile.lastName': {
         type: String
     },
+    'profile.signature': {
+        type: String,
+        optional: true
+    },
     'profile.conversationGroups': {
         type: Object,
         optional: true

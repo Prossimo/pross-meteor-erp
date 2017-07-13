@@ -1,7 +1,7 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
-import {warning} from "/imports/api/lib/alerts"
+import {warning} from '/imports/api/lib/alerts'
 
 export default class AccountSettingForm extends React.Component {
     static propTypes = {
@@ -25,7 +25,7 @@ export default class AccountSettingForm extends React.Component {
                         Full Name
                     </Col>
                     <Col sm={9}>
-                        <FormControl type="text" placeholder="Name" value={this.state.name} onChange={(evt)=>this.setState({name:evt.target.value})}/>
+                        <FormControl type="text" placeholder="Name" value={this.state.name} onChange={(evt) => this.setState({name:evt.target.value})}/>
                     </Col>
                 </FormGroup>
 
@@ -68,7 +68,7 @@ export default class AccountSettingForm extends React.Component {
                             theme="snow"
                             modules = {modules}
                             formats = {formats}
-                            onChange={(text)=>this.setState({signature:text})}>
+                            onChange={(text) => this.setState({signature:text})}>
                 </ReactQuill>
             </div>
         )
@@ -78,8 +78,8 @@ export default class AccountSettingForm extends React.Component {
         evt.preventDefault()
 
         const {name, signature} = this.state
-        Meteor.call('updateNylasAccount', this.props.account._id, {name, signature}, (err,res)=>{
-            if(err) warning(err.message);
+        Meteor.call('updateNylasAccount', this.props.account._id, {name, signature}, (err,res) => {
+            if(err) warning(err.message)
         })
     }
 }
