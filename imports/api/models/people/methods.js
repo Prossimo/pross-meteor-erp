@@ -33,7 +33,6 @@ export const insertPerson = new ValidatedMethod({
             name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position,
             user_id: this.userId
         }
-        console.log('PersonData', data)
 
         const person_id =  People.insert(data)
 
@@ -53,7 +52,7 @@ export const updatePerson = new ValidatedMethod({
         const person = People.findOne({_id})
         if(!person) throw new Meteor.Error(`Not found person with _id ${_id}`)
 
-        if(person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
+        //if(!Roles.userIsInRole(this.userId, ROLES.ADMIN)) throw new Meteor.Error('Permission denied')
 
         const uniquedEmails = _.uniq(emails, true, ({email}) => email)
         if(uniquedEmails.length !== emails.length) throw new Meteor.Error('Duplicated email')
@@ -98,7 +97,7 @@ export const removePerson = new ValidatedMethod({
         const person = People.findOne({_id})
         if(!person) throw new Meteor.Error(`Not found person with _id ${_id}`)
 
-        if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && person.user_id!==this.userId) throw new Meteor.Error('Permission denied')
+        //if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 
         People.remove(_id)
     }
