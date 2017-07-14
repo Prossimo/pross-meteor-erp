@@ -1,157 +1,147 @@
-import { SyncedCron } from 'meteor/percolate:synced-cron'
 import { drive } from '/imports/api/drive/methods/drive'
 import { WebApp } from 'meteor/webapp'
 import { Random } from 'meteor/random'
 import { SalesRecords, Projects } from '/imports/api/models'
+import { slackClient } from '/imports/api/slack'
 import bodyParser from 'body-parser'
-import { slack } from '/imports/api/config'
-import { HTTP } from 'meteor/http'
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
 
-const { apiRoot, botToken, botName } = slack
-
-// SEND SLACK MESSAGE
-const sendMessage = ({ channel, text, attachments }) => {
-  const params = {
-    botToken,
-    channel,
-    username: botName,
-    as_user: false,
-  }
-  text && (params.text = text)
-  attachments && (params.attachments = attachments)
-  HTTP.post(`${apiRoot}/chat.postMessage`, {
-    params,
+const { public: { env } } = Meteor.settings
+const ChangedFiles = new Mongo.Collection(null)
+const SlackFiles = new Mongo.Collection(null)
+ChangedFiles.attachSchema(
+  new SimpleSchema({
+    _id: String,
+    time: String,
+    removed: Boolean,
   })
-}
-
-// SEND SLACK ATTACHMENTS
-const sendAttachment = ({ pretext, title, text, color, title_link, channel }) => {
-  const attachment = {
-    pretext,
-    title,
-    text,
-    color,
-    title_link,
-  }
-  sendMessage({
-    channel,
-    attachments: JSON.stringify([attachment]),
+)
+SlackFiles.attachSchema(
+  new SimpleSchema({
+    _id: String,
+    channel: String,
+    file: {
+      type: Object,
+      blackbox: true,
+    },
+    nComments: Number,
   })
-}
+)
 
-let { startPageToken: pageToken } = Meteor.wrapAsync(drive.changes.getStartPageToken)()
-
-//drive.changes.watch({
-  //pageToken,
-  //resource: {
-    //id: Random.id(),
-    //address: 'https://d199e30f.ngrok.io/notifications',
-    //type: 'web_hook'
-  //}
-//}, (error, result) => {
-  //console.log(error)
-  //console.log(result)
-//})
-//drive.channels.stop({
-  //resource: {
-    //id: '9bqCnhrbBLw6o8rXc',
-    //resourceId: 'N-iyjwBVPquFNkG6Ydps_1ierjk'
-  //}
-//}, (error, result) => {
-  //console.log(error)
-  //console.log(result)
-//})
 const countComments = (fileId) => {
   const getCommentSync = Meteor.wrapAsync(drive.comments.list)
   let nComments = 0
-  let commentList = getCommentSync({ fileId, pageSize: 1, fields: '*' })
+  let commentList = getCommentSync({ fileId, pageSize: 100, fields: '*' })
   nComments += commentList.comments.length
   while (commentList.nextPageToken) {
-    commentList = getCommentSync({ fileId, pageSize: 1, fields: '*' })
+    commentList = getCommentSync({ fileId, pageSize: 100, fields: '*' })
     nComments += commentList.comments.length
   }
-  console.log(nComments)
-}
-countComments('1qvJAm4oewkTWvPOO_sIWV81ve-6aKcl3_YprRMIq79A')
-const getFileWithParent = (fileId) => {
-  const getFileSync = Meteor.wrapAsync(drive.files.get)
-  const {id, name, webViewLink, parents} = getFileSync({ fileId, fields: 'id,name,webViewLink,parents' })
-  if (parents && parents.length) {
-    return { id, name, webViewLink, parentId: _.first(parents) }
-  }
-  return null
+  return nComments
 }
 
-const getAncestors = (fileId) => {
-  const ancestors = []
-  // GET DIRECT PARENTS
-  let fileWithParent = getFileWithParent(fileId)
-  while(fileWithParent) {
-    ancestors.push(fileWithParent)
-    fileWithParent = getFileWithParent(fileWithParent.parentId)
-  }
-  return ancestors
-}
 
-const fileToChannel = {}
-let changedFiles = {}
-SyncedCron.add({
-  name: 'Notify slack about file changes',
-  schedule: (parser) => parser.text('every 1 minutes'),
-  job() {
-    Object.values(changedFiles).forEach(({ fileId }) => {
-      let slackChanel = null
-      let ancestors = null
-      if (fileToChannel[fileId]) {
-        slackChanel = fileToChannel[fileId]
-        ancestors = [getFileWithParent(fileId)]
-      } else {
-        // REQUEST TO SERVER AND SAVE TO CACHE
-        ancestors = getAncestors(fileId)
-        const ancestorIds = ancestors.map(({ parentId }) => parentId)
-        const salesRecord = SalesRecords.findOne({ folderId: { $in: ancestorIds } })
-        if (salesRecord) {
-          slackChanel = salesRecord.slackChanel
-        } else {
-          const project = Projects.findOne({ folderId: { $in: ancestorIds } })
-          project && (slackChanel = project.slackChanel)
-        }
-        slackChanel && (fileToChannel[fileId] = slackChanel)
-      }
-      if (slackChanel) {
-        console.log(`--> Send message to slack channel ${slackChanel}`)
-        sendAttachment({
-          pretext: 'file is editing',
-          title: _.first(ancestors).name,
-          title_link: _.first(ancestors).webViewLink,
-          channel: slackChanel,
-        })
-      }
-    })
-    changedFiles = {}
-  }
-})
 
-SyncedCron.start()
+let {
+  startPageToken: pageToken
+} = Meteor.wrapAsync(drive.changes.getStartPageToken)()
+
 
 WebApp.connectHandlers.use(bodyParser.json())
-WebApp.connectHandlers.use('/notifications', (req, res ) => {
-  drive.changes.list({
+WebApp.connectHandlers.use('/notifications',Meteor.bindEnvironment((req, res ) => {
+  const listChangeSync = Meteor.wrapAsync(drive.changes.list)
+  const result = listChangeSync({
     pageToken,
     pageSize: 100,
-  }, (error, result) => {
-    pageToken = result.newStartPageToken
-    result.changes.forEach(({ fileId, time, removed, file }) => {
-      if (fileId && file && file.mimeType != 'application/vnd.google-apps.folder') {
-        changedFiles[fileId] = {
-          fileId,
+  })
+  pageToken = result.newStartPageToken
+  result.changes.forEach(({ fileId, time, removed, file }) => {
+    if (fileId && file && file.mimeType != 'application/vnd.google-apps.folder') {
+      if (!ChangedFiles.findOne(fileId)) {
+        ChangedFiles.insert({
+          _id: fileId,
           time,
           removed,
-          file
-        }
+        })
       }
-    })
+    }
   })
   res.writeHead(200)
   res.end(`Hello world from: ${Meteor.release}`)
-})
+}))
+
+
+export const observeGoogleFile = function() {
+  // GET ANCESTORS
+  const getAncestors = (fileId) => {
+    const ancestors = []
+    const getFileWithParent = (fileId) => {
+      const getFileSync = Meteor.wrapAsync(drive.files.get)
+      const {id, name, webViewLink, parents} = getFileSync({ fileId, fields: 'id,name,webViewLink,parents' })
+      if (parents && parents.length) {
+        return { id, name, webViewLink, parentId: _.first(parents) }
+      }
+      return null
+    }
+    let fileWithParent = getFileWithParent(fileId)
+    while(fileWithParent) {
+      ancestors.push(fileWithParent)
+      fileWithParent = getFileWithParent(fileWithParent.parentId)
+    }
+    return ancestors
+  }
+  // DETECT SLACK CHANNEL AND SEND
+  ChangedFiles.find().fetch().forEach(({ _id }) => {
+    if (!SlackFiles.findOne(_id)) {
+      const ancestors = getAncestors(_id)
+      const folderIds = ancestors.map(({ parentId }) => parentId)
+      const project = SalesRecords.findOne({ folderId: { $in: folderIds } }) || Projects.findOne({ folderId: { $in: folderIds } })
+      if (project && project.slackChanel) {
+        SlackFiles.insert({
+          _id,
+          channel: project.slackChanel,
+          file: ancestors.find(({ id }) => id == _id),
+          nComments: countComments(_id),
+        })
+      }
+    }
+    const slackFile = SlackFiles.findOne(_id)
+    if (slackFile && slackFile.channel) {
+      let text = null
+      const nComments = countComments(slackFile._id)
+      console.log(nComments)
+      console.log(slackFile.nComments)
+      if (nComments > slackFile.nComments) {
+        text = `${nComments - slackFile.nComments} comments has been added to file <${slackFile.file.webViewLink}|${slackFile.file.name}>`
+        SlackFiles.update(_id, {
+          $set: {
+            nComments,
+          }
+        })
+      } else {
+        text = `file <${slackFile.file.webViewLink}|${slackFile.file.name}> has been edited`
+      }
+      slackClient.chat.postMessage({
+        channel: slackFile.channel,
+        text
+      })
+      console.log(`--> Send message to slack channel`)
+      console.log(slackFile)
+    }
+  })
+  ChangedFiles.remove({})
+}
+
+export const registerCallback = function() {
+  drive.changes.watch({
+    pageToken,
+    resource: {
+      id: Random.id(),
+      address: env === 'development' ? 'https://9e1347ca.ngrok.io/notifications' : Meteor.absoluteUrl('notifications'),
+      type: 'web_hook'
+    }
+  })
+}
+
+registerCallback()
