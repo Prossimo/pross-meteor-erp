@@ -1,11 +1,11 @@
-import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
-import {isValidEmail, isValidPassword} from "../../../api/lib/validation.js";
+import React from 'react'
+import {FlowRouter} from 'meteor/kadira:flow-router'
+import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import Actions from '/imports/api/nylas/actions'
 
 class SignIn extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
 
         this.state = {
             email: '',
@@ -19,17 +19,17 @@ class SignIn extends React.Component{
     }
 
     submit(e){
-        const { checkCreateAccount, isUserCreated } = this.state;
-        e.preventDefault();
+        const { checkCreateAccount, isUserCreated } = this.state
+        e.preventDefault()
         const email = this.state.email.trim(),
             password = this.state.password.trim(),
-            passwordRepeat = this.state.passwordRepeat.trim();
+            passwordRepeat = this.state.passwordRepeat.trim()
         if(!isValidEmail(email)) {
-            return this.setState({ authError: "Please enter valid e-mail address" });
+            return this.setState({ authError: 'Please enter valid e-mail address' })
         }
 
         if(!isValidPassword(password, 6)) {
-            return this.setState({ authError: "Please enter valid password" });
+            return this.setState({ authError: 'Please enter valid password' })
         }
 
         //if (isUserCreated && password === passwordRepeat) {
@@ -43,40 +43,40 @@ class SignIn extends React.Component{
         //}
         //else{
       Meteor.loginWithPassword({email}, password, (err) => {
-          console.log(err);
+          console.log(err)
           if (err) {
             switch (err.error) {
-              case '202': return this.setState({authError: "User is in pending status"})
-              default: return this.setState({authError: "Invalid username or password"})
+              case '202': return this.setState({authError: 'User is in pending status'})
+              default: return this.setState({authError: 'Invalid username or password'})
             }
           }
-          FlowRouter.reload();
+          FlowRouter.reload()
           Actions.resetContacts()
-      });
+      })
         //}
     }
 
     focusInput(event){
-        event.target.parentElement.classList.add('active');
-        this.setState({authError: false, validationPassword: false});
+        event.target.parentElement.classList.add('active')
+        this.setState({authError: false, validationPassword: false})
     }
 
     change(event){
         this.setState({
             [event.target.id]: event.target.value
-        });
+        })
         if(event.target.value !== ''){
-            event.target.parentElement.classList.add('active');
+            event.target.parentElement.classList.add('active')
         }
     }
 
-    toggle(){
+    toggle = (page) => {
         if (typeof this.props.toggle === 'function') {
-            this.props.toggle();
+            this.props.toggle(page)
         }
     }
     renderRepeatPass(){
-        const { isUserCreated } = this.state;
+        const { isUserCreated } = this.state
         if(isUserCreated){
             return <div className="flex-input">
                 <label htmlFor="passwordRepeat">Confirm Password</label>
@@ -91,7 +91,7 @@ class SignIn extends React.Component{
     }
 
     render() {
-        const { validationPassword, password, email } = this.state;
+        const { validationPassword, password, email } = this.state
         return (
             <div className="sign-in-wrap">
                 <header className="auth-header">
@@ -122,11 +122,12 @@ class SignIn extends React.Component{
                     {this.state.authError ? <span className="warn-msg">{this.state.authError}</span> : ''}
                 </form>
                 <footer className="auth-footer">
-                    <button onClick={this.toggle.bind(this)}
+                    <button onClick={() => this.toggle('ForgotPassword')}>Forgot password</button>&nbsp;&nbsp;&nbsp;
+                    <button onClick={() => this.toggle('SignUp')}
                             className="toggle-auth">Create new account</button>
                 </footer>
             </div>
         )
     }
 }
-export default SignIn;
+export default SignIn

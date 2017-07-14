@@ -9,14 +9,14 @@ const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
         clearInterval(fetchContactsInterval)
     }
 }
-const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 6)
+const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 120)    // every 2 minutes
 
 const fetchThreads = () => {
     if (Meteor.userId()) {
         Actions.loadThreads()
     }
 }
-setInterval(fetchThreads, 1 * 1000 * 6)
+setInterval(fetchThreads, 1 * 1000 * 120)   // every 2 minutes
 
 /*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {
