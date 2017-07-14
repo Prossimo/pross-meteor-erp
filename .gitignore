@@ -4,4 +4,5 @@ packages/*
 .idea/
 *.log
 packages.json
+package-lock.json
 .DS_Store
