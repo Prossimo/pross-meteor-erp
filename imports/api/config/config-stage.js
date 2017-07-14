@@ -35,9 +35,9 @@ module.exports = {
         botName: 'mavrikbot'
     },
     prossDocDrive: {
-        clientId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',
-        clientSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
+        clientId: '172791167032-f754bmde8rc7mk3hvcvmf7he5a4dm84o.apps.googleusercontent.com',
+        clientSecret: 'SsDxLArSch9CbKHI0A12nf8s',
         redirectUri: `${Meteor.absoluteUrl()}auth/google/callback`,
-        refreshToken: '1/WE2FqFkUAH4UX54YEXMXzlboX7dfcL_u6D0g187yKyc',
+        refreshToken: '1/zVrPpdJ3eY4X5vQbdPNNsSF23SQ_pMO8kLjVWGMDFsyiuXI1NUkwZSegrvAkGhhf',
     },
 }
