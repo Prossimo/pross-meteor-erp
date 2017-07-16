@@ -30,9 +30,10 @@ class DraftStore extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = ({salesRecordId, modal = true, show = true} = {}) => {
+    _onComposeNew = ({salesRecordId, conversationId, modal = true, show = true} = {}) => {
         DraftFactory.createDraft().then((draft) => {
             draft.salesRecordId = salesRecordId
+            draft.conversationId = conversationId
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {
@@ -45,7 +46,7 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onComposeReply = ({message, type, modal, salesRecordId}) => {
+    _onComposeReply = ({message, type, modal, salesRecordId, conversationId}) => {
         if (!message) return
 
 
@@ -65,6 +66,7 @@ class DraftStore extends Reflux.Store {
         } else {
             DraftFactory.createDraftForReply({message, type}).then((draft) => {
                 draft.salesRecordId = salesRecordId
+                draft.conversationId = conversationId
                 this._drafts.push(draft)
 
                 this._draftsViewState[draft.clientId] = {
@@ -79,9 +81,10 @@ class DraftStore extends Reflux.Store {
     }
 
 
-    _onComposeForward = ({message, modal, salesRecordId}) => {
+    _onComposeForward = ({message, modal, salesRecordId, conversationId}) => {
         DraftFactory.createDraftForForward({message}).then((draft) => {
             draft.salesRecordId = salesRecordId
+            draft.conversationId = conversationId
             this._drafts.push(draft)
 
             this._draftsViewState[draft.clientId] = {
@@ -129,10 +132,11 @@ class DraftStore extends Reflux.Store {
         const draft = this.draftForClientId(clientId)
         console.log('_onSendDraftSuccess', message, clientId, draft)
 
-        const salesRecordId = draft.salesRecordId
-        if (salesRecordId) {    // Update conversations for sales record
+        const {salesRecordId, conversationId} = draft
+
+        if (salesRecordId || conversationId) {    // Update conversations for sales record
             try {
-                insertMessageForSalesRecord.call({salesRecordId,message})
+                insertMessageForSalesRecord.call({salesRecordId, conversationId, message})
             } catch(err) {
                 console.error(err)
             }

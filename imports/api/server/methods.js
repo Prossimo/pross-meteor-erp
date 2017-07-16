@@ -24,6 +24,7 @@ import '../models/messages/methods'
 import '../models/threads/methods'
 import '../models/slackmails/methods'
 import '../models/people/methods'
+import '../models/conversations/methods'
 import {googleServerApiAutToken} from '../../api/server/functions'
 
 const driveScopes = [

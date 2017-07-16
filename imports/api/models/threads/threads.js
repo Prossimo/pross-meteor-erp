@@ -95,6 +95,7 @@ Threads.schema = new SimpleSchema({
     },
 
     salesRecordId: {type: String, optional: true},
+    conversationId: {type: String, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -118,6 +119,7 @@ Threads.publicFields = {
     labels: 1,
 
     salesRecordId: 1,
+    conversationId: 1,
 
     created_at: 1,
     modified_at: 1
@@ -129,7 +131,6 @@ Threads.helpers({
     },
     messages() {
         const messages =  Messages.find({thread_id: this.id}).fetch()
-        console.log(messages)
         return messages
     }
 })

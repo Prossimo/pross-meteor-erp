@@ -9,7 +9,8 @@ import Actions from '/imports/api/nylas/actions'
 class ConversationList extends TrackerReact(React.Component) {
 
     static propTypes = {
-        salesRecord: React.PropTypes.object
+        salesRecordId: React.PropTypes.string,
+        conversationId: React.PropTypes.string
     }
     constructor(props) {
         super(props)
@@ -18,7 +19,8 @@ class ConversationList extends TrackerReact(React.Component) {
 
         this.MINIFY_THRESHOLD = 3
 
-        this.store = new ConversationStore(props.salesRecord)
+        const {salesRecordId, conversationId} = this.props
+        this.store = new ConversationStore({salesRecordId, conversationId})
 
         this.state = this._getStateFromStore()
         this.state.minified = true
@@ -86,7 +88,8 @@ class ConversationList extends TrackerReact(React.Component) {
                                       isLastMsg={isLastMsg}
                                       isBeforeReplyArea={isBeforeReplyArea}
                                       scrollTo={this._scrollTo}
-                                      salesRecordId={this.props.salesRecord._id}
+                                      salesRecordId={this.props.salesRecordId}
+                                      conversationId={this.props.conversationId}
                 />
             )
         })
@@ -196,12 +199,14 @@ class ConversationList extends TrackerReact(React.Component) {
         return _.last(_.filter(messages, m => !m.draft))
     }
     _onClickReplyArea = () => {
+        const {salesRecordId, conversationId} = this.props
         Actions.composeReply({
             message: this._lastMessage(),
             type: this._replyType(),
             behavior: 'prefer-existing-if-pristine',
             modal: true,
-            salesRecordId: this.props.salesRecord._id
+            salesRecordId,
+            conversationId
         })
 
     }

@@ -2,9 +2,10 @@ import _ from 'underscore'
 import Reflux from 'reflux'
 import Actions from './actions'
 import NylasUtils from './nylas-utils'
+import {SalesRecords, Conversations} from '../models'
 
 export default class ConversationStore extends Reflux.Store {
-    constructor(salesRecord) {
+    constructor({salesRecordId, conversationId}) {
         super()
 
 
@@ -12,14 +13,23 @@ export default class ConversationStore extends Reflux.Store {
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
 
-
-        this.salesRecord = salesRecord
-        this._messages = salesRecord.messages()
+        this.salesRecordId = salesRecordId
+        this.conversationId = conversationId
+        this._messages = this.getMessages()
         this._messages.sort((m1, m2) => m1.date - m2.date)
         this._messagesExpanded = {}
 
         this._expandMessagesToDefault()
         this._fetchExpandedAttachments(this._messages)
+    }
+    getMessages() {
+        if(this.salesRecordId) {
+            return SalesRecords.findOne(this.salesRecordId).messages()
+        } else if(this.conversationId) {
+            return Conversations.findOne(this.conversationId).messages()
+        } else {
+            return []
+        }
     }
     _onToggleMessageExpanded(id) {
         const message = _.findWhere(this._messages, {id})
@@ -81,7 +91,7 @@ export default class ConversationStore extends Reflux.Store {
     }
 
     messages(cb) {
-        const messages = this.salesRecord.messages()
+        const messages = this.getMessages()
         if(messages.length != this._messages.length) {
             this._messages = messages
 

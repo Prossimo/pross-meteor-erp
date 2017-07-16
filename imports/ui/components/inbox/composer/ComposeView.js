@@ -10,7 +10,7 @@ import AccountStore from '../../../../api/nylas/account-store'
 import DraftStore from '../../../../api/nylas/draft-store'
 import FileUploadStore from '../../../../api/nylas/file-upload-store'
 import FileDownloadStore from '../../../../api/nylas/file-download-store'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import {SalesRecords, Conversations} from '/imports/api/models'
 import TemplateSelect from '../../mailtemplates/TemplateSelect'
 import EmailFrame from '../EmailFrame'
 import AttachmentComponent from '../../attachment/attachment-component'
@@ -89,7 +89,11 @@ export default class ComposeView extends React.Component {
 
         let contactOptions = [], onlyselect = false
         if (draft.salesRecordId) {
-            const salesRecord = SalesRecord.findOne({_id: draft.salesRecordId})
+            const salesRecord = SalesRecords.findOne({_id: draft.salesRecordId})
+            contactOptions = salesRecord.contactsForStakeholders()
+            onlyselect = true
+        } else if (draft.conversationId) {
+            const salesRecord = SalesRecords.findOne({_id: Conversations.findOne({_id: draft.conversationId}).salesRecordId})
             contactOptions = salesRecord.contactsForStakeholders()
             onlyselect = true
         }
