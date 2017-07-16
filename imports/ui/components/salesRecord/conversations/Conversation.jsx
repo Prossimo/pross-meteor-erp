@@ -7,9 +7,10 @@ import ComposeButton from '../../inbox/composer/ComposeButton'
 import ComposeModal from '../../inbox/composer/ComposeModal'
 import ConversationList from './ConversationList'
 
-export default class ConversationsView extends React.Component{
+export default class Conversation extends React.Component{
     static propTypes = {
-        salesRecord: React.PropTypes.object
+        salesRecordId: React.PropTypes.string,
+        conversationId: React.PropTypes.string
     }
     constructor(props){
         super(props)
@@ -38,11 +39,11 @@ export default class ConversationsView extends React.Component{
     render() {
         const { composeState } = this.state
 
-        const {salesRecord} = this.props
+        const {salesRecordId, conversationId} = this.props
         return (
             <div className="conversations-tab">
-                <ComposeButton salesRecordId={salesRecord._id}/>
-                <ConversationList salesRecord={salesRecord}/>
+                <ComposeButton salesRecordId={salesRecordId} conversationId={conversationId}/>
+                <ConversationList salesRecordId={salesRecordId} conversationId={conversationId}/>
                 <ComposeModal isOpen={composeState && composeState.show}
                               clientId={composeState && composeState.clientId}
                               onClose={this.onCloseComposeModal}/>
