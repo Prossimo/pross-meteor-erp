@@ -9,7 +9,7 @@ class DashboardPage extends React.Component{
                 <div className="tab-container">
                   <h3>Dashboard</h3>
                   <hr />
-                  <div className="col-md-8">
+                  <div>
                     <MyTasks />
                   </div>
                 </div>

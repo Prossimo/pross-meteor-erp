@@ -6,12 +6,28 @@ import Tasks from '/imports/api/models/tasks/tasks'
 import { getUserName } from '/imports/api/lib/filters'
 
 class MyTasks extends Component {
-  constructor() {
+  constructor(props) {
     super()
     this.renderTasks = this.renderTasks.bind(this)
+
+      this.state = {
+        tasks: props.tasks
+      }
+  }
+  componentWillReceiveProps(newProps) {console.log('componentWillReceiveProps')
+      const {hideCompletedTasks} = this.state
+      this.setState({tasks:hideCompletedTasks ? newProps.tasks.filter(t => t.status!=='Complete') : newProps.tasks})
+  }
+  toggleHideCompletedTasks = (e) => {
+      const checked = e.target.checked
+      this.setState({
+          hideCompletedTasks: checked,
+          tasks: checked ? this.props.tasks.filter(t => t.status!=='Complete') : this.props.tasks
+      })
   }
   renderTasks() {
-    const { tasks, users, userId } = this.props
+      const {tasks} = this.state
+    const { users, userId } = this.props
 
     return tasks.map((task, index) => {
       const assignee = users.filter(u => u._id === task.assignee)[0]
@@ -26,6 +42,7 @@ class MyTasks extends Component {
           <td>{index + 1}</td>
           <td>{task.name}</td>
           <td>{task.status}</td>
+          <td>{task.parentType}</td>
           <td colSpan={2}>{task.description}</td>
           <td>{assignee && assignee._id ===  userId ? 'You' : assigneeName }</td>
           <td>{approver && approver._id ===  userId ? 'You' : approverName }</td>
@@ -40,9 +57,19 @@ class MyTasks extends Component {
     })
   }
   render() {
+      const header = (
+          <div style={{display: 'flex'}}>
+              <div style={{flex: 1}}>
+                  My Tasks
+              </div>
+              <div>
+                  <input type="checkbox" value={this.state.hideCompletedTasks} onChange={this.toggleHideCompletedTasks}/>&nbsp;Hide Completed Tasks
+              </div>
+          </div>
+      )
     return (
       <div>
-        <Panel collapsible defaultExpanded header="My Tasks">
+        <Panel header={header}>
           All tasks assigned from/to you.
           <Table responsive>
              <thead>
@@ -50,6 +77,7 @@ class MyTasks extends Component {
                  <th>#</th>
                  <th>Name</th>
                  <th>Status</th>
+                 <th>Type</th>
                  <th colSpan={2}>Desciption</th>
                  <th>Assignee</th>
                  <th>Approver</th>
