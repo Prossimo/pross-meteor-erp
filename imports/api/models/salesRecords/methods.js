@@ -80,7 +80,7 @@ Meteor.methods({
         }
     },
     // NOTICE: it must be saleRecord
-    insertSalesRecord(data, thread){
+    insertSalesRecord({data, thread}){
         if (!this.userId) {
             throw new Meteor.Error('No authorized')
         }
@@ -225,7 +225,7 @@ Meteor.methods({
         return salesRecordId
     },
 
-    updateSalesRecord(_id, data, thread){
+    updateSalesRecord({_id, data, thread, conversationId}){
         if (!this.userId) {
             throw new Meteor.Error('No authorized')
         }
@@ -263,6 +263,7 @@ Meteor.methods({
             subStage: Match.Maybe(String),
         })
         check(thread, Match.Maybe(Object))
+        check(conversationId, Match.Maybe(String))
 
 
         const sr = SalesRecords.findOne(_id)
@@ -272,12 +273,16 @@ Meteor.methods({
 
         // Insert conversations attached
         if (thread) {
-            console.log('thread to be attached', thread)
+            //console.log('thread to be attached', thread, `conversationId=${conversationId}`)
+            if(conversationId && conversationId != -1) {
+                thread.conversationId = conversationId
+            } else {
+                thread.salesRecordId = _id
+            }
             const existingThreads = Threads.find({id: thread.id}).fetch()
             if (existingThreads && existingThreads.length) {
                 Threads.update({id: thread.id}, {$set: thread})
             } else {
-                thread.salesRecordId = _id
                 Threads.insert(thread)
             }
 

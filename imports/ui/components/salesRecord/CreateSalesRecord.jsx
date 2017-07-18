@@ -2,6 +2,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import {Roles} from 'meteor/alanning:roles'
 import _ from 'underscore'
 import React from 'react'
+import {FormGroup, Radio} from 'react-bootstrap'
 import Select from 'react-select'
 import Textarea from 'react-textarea-autosize'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -14,7 +15,7 @@ import DatePicker from 'react-datepicker'
 import NumericInput from 'react-numeric-input'
 import SelectMembers from './components/SelectMembers'
 import SelectPeople from './components/SelectPeople'
-import {ROLES, People, USER_STATUS} from '/imports/api/models/index'
+import {ROLES, People, USER_STATUS, Conversations} from '/imports/api/models'
 import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 
@@ -77,7 +78,7 @@ class CreateSalesRecord extends React.Component {
             }) : []
             const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
             threadPeople.forEach((p) => {
-                if(!_.find(people, {_id:p._id})) {
+                if (!_.find(people, {_id: p._id})) {
                     people.push(p)
                 }
             })
@@ -91,7 +92,8 @@ class CreateSalesRecord extends React.Component {
             projectName, shipper, supplier, stakeholders,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress, shippingContactEmail, shippingNotes,
-            billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage
+            billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage,
+            selectedConversation
         } = this.state
 
         const data = {
@@ -123,19 +125,20 @@ class CreateSalesRecord extends React.Component {
             actProductionTime
         }
 
+        const {thread, salesRecord} = this.props
         this.props.toggleLoader(true)
-        if (this.props.salesRecord) {
-            Meteor.call('updateSalesRecord', this.props.salesRecord._id, data, this.props.thread, (err, res) => {
+        if (salesRecord) {
+            Meteor.call('updateSalesRecord', {_id:salesRecord._id, data, thread, conversationId:selectedConversation}, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
                 info('Success update Deal')
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: this.props.salesRecord._id}))
+                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: salesRecord._id}))
                 }, 300)
             })
         } else {
-            Meteor.call('insertSalesRecord', data, this.props.thread, (err, res) => {
+            Meteor.call('insertSalesRecord', {data, thread}, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)
 
@@ -417,6 +420,9 @@ class CreateSalesRecord extends React.Component {
                             </div>
                         </div>
                     </div>
+                    {
+                        this.props.thread && this.props.salesRecord && this.renderConversationSelector()
+                    }
                     <div className='form-group text-center'>
                         <button className="btnn primary-btn">{ submitBtnName }</button>
                     </div>
@@ -425,7 +431,35 @@ class CreateSalesRecord extends React.Component {
         )
     }
 
+    renderConversationSelector() {
+        const conversations = Conversations.find({salesRecordId: this.props.salesRecord._id}).fetch()
 
+        if (!conversations || conversations.length == 0) return ''
+
+        const {selectedConversation} = this.state
+        return (
+            <div className='panel panel-default'>
+                <div className='panel-heading'>
+                    Select conversation
+                </div>
+                <div className='panel-body' style={{display:'flex'}}>
+                    <FormGroup>
+                    {
+                        [<Radio value={-1} checked={!selectedConversation||selectedConversation==-1} onChange={this.selectConversation} inline> Main</Radio>].concat(
+                            conversations.map(c => (
+                                <Radio key={`conversation-radio-${c._id}`} value={c._id} checked={selectedConversation == c._id} onChange={this.selectConversation} inline> {c.name}</Radio>
+                            ))
+                        )
+                    }
+                    </FormGroup>
+                </div>
+            </div>
+        )
+    }
+
+    selectConversation = (e) => {
+        this.setState({selectedConversation: e.target.value})
+    }
 }
 
 export default  CreateSalesRecord

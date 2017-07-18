@@ -1,7 +1,7 @@
 import {Meteor} from 'meteor/meteor'
 import Conversations from './conversations'
 
-Meteor.publish('conversations', function() {
+Meteor.publish('Conversations', function() {
     if(!this.userId) {
         this.ready()
         return
