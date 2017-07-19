@@ -5,6 +5,7 @@ import {_} from 'meteor/underscore'
 import faker from 'faker'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
+import SalesRecords from '../salesRecords/salesRecords'
 
 class ConversationsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -60,6 +61,11 @@ Conversations.helpers({
         const threads = this.threads()
 
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+    },
+    salesRecord() {
+        if(!this.salesRecordId) return null
+
+        return SalesRecords.findOne(this.salesRecordId)
     }
 })
 

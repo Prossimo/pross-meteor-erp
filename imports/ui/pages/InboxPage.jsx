@@ -173,8 +173,8 @@ class InboxPage extends TrackerReact(React.Component) {
         )
     }
 
-    onSelectMenuSalesRecord = (option, {salesRecord, salesRecordId}={}) => {
-        if(option === 'create' || option === 'bind') {
+    onSelectMenuSalesRecord = (option, {salesRecord, salesRecordId} = {}) => {
+        if (option === 'create' || option === 'bind') {
 
             this.setState({
                 bindingSalesRecord: option == 'bind',
@@ -182,8 +182,8 @@ class InboxPage extends TrackerReact(React.Component) {
             })
 
             const {participants} = this.state.currentThread
-            const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email':p.email}) == null)
-            if(noStoredParticipants && noStoredParticipants.length) {
+            const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email': p.email}) == null)
+            if (noStoredParticipants && noStoredParticipants.length) {
                 this.setState({
                     noStoredParticipants,
                     showPeopleModal: true
@@ -195,11 +195,11 @@ class InboxPage extends TrackerReact(React.Component) {
             this.setState({
                 showSalesRecordModal: true
             })
-        } else if(option === 'goto') {
+        } else if (option === 'goto') {
             FlowRouter.go('SalesRecord', {id: salesRecordId})
-        } else if(option === 'unbind') {
+        } else if (option === 'unbind') {
             try {
-                removeThread.call({id:this.state.currentThread.id})
+                removeThread.call({id: this.state.currentThread.id})
             } catch (err) {
                 console.error(err)
             }
@@ -231,13 +231,14 @@ class InboxPage extends TrackerReact(React.Component) {
     renderPeopleModal() {
         const {showPeopleModal, noStoredParticipants} = this.state
 
-        if(!noStoredParticipants || noStoredParticipants.length == 0) return ''
+        if (!noStoredParticipants || noStoredParticipants.length == 0) return ''
 
         return (
             <Modal bsSize="large" show={showPeopleModal} onHide={() => {
                 this.setState({showPeopleModal: false})
             }}>
-                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to people</Modal.Title></Modal.Header>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to
+                    people</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <PeopleForm
                         people={noStoredParticipants}
@@ -252,7 +253,7 @@ class InboxPage extends TrackerReact(React.Component) {
         this.setState({
             showPeopleModal: false
         }, () => {
-            this.setState({showSalesRecordModal:true})
+            this.setState({showSalesRecordModal: true})
         })
     }
     onCloseSalesRecordModal = () => {
@@ -272,14 +273,11 @@ class InboxPage extends TrackerReact(React.Component) {
                     AccountStore.accounts().map((account) => {
                         const categoriesForAccount = CategoryStore.getCategories(account.accountId)
 
-                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
-                            <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
+                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ? <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
                         return (
-                            <div key={account.accountId}>
+                            <div key={`account-${account.accountId}`}>
                                 <div className="account-wrapper">
-                    <span><img
-                        src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
-                        width="16px"/></span>&nbsp;
+                                    <span><img src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'} width="16px"/></span>&nbsp;
                                     <span>{account.emailAddress}</span>
                                     <span style={{flex: 1}}></span>
                                     <span className="action">{actionEl}</span>
@@ -288,7 +286,7 @@ class InboxPage extends TrackerReact(React.Component) {
                                     categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category) => {
                                         if (category) {
                                             return <ItemCategory
-                                                key={category.id}
+                                                key={`category-${category.id}`}
                                                 category={category}
                                                 onClick={(evt) => {
                                                     this.onCategorySelected(category)
@@ -365,7 +363,7 @@ class InboxPage extends TrackerReact(React.Component) {
         return (
             <div className="list-thread">
                 {
-                    threads.map((thread) => <ItemThread key={thread.id} thread={thread}
+                    threads.map((thread) => <ItemThread key={`thread-${thread.id}`} thread={thread}
                                                         onClick={(evt) => this.onThreadSelected(thread)}
                                                         selected={currentThread && thread.id == currentThread.id}/>)
 
