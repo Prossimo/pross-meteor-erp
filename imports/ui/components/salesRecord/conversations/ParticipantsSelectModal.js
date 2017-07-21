@@ -1,32 +1,34 @@
-import _ from 'underscore'
 import React, {PropTypes} from 'react'
 import {Modal, Form, FormGroup, Alert, Button, Col} from 'react-bootstrap'
 import ParticipantsSelector from './ParticipantsSelector'
-import {updateConversation} from '/imports/api/models/conversations/methods'
 
 export default class ParticipantsSelectModal extends React.Component {
     static propTypes = {
         show: PropTypes.bool,
         onHide: PropTypes.func,
-        conversation: PropTypes.object.isRequired
+        participants: PropTypes.array,
+        selections: PropTypes.array,
+        onUpdateParticipants: PropTypes.func
     }
 
     constructor(props) {
         super(props)
 
-        const conversation = props.conversation
         this.state = {
             show: props.show,
-            participants: conversation.salesRecord().people(),
-            selections: _.pluck(conversation.getParticipants(), '_id'),
+            participants: props.participants || [],
+            selections: props.selections || [],
             error: null
         }
     }
 
     componentWillReceiveProps(newProps) {
-        this.setState({
-            show: newProps.show
-        })
+        if(newProps !== this.props) {
+            this.setState({
+                show: newProps.show,
+                selections: newProps.selections,
+            })
+        }
     }
 
     onChangeParticipants = (participants) => {
@@ -36,16 +38,10 @@ export default class ParticipantsSelectModal extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        const {conversation} = this.props
         const {selections} = this.state
         if(!selections || selections.length == 0) {return this.setState({error:'Should select at least one participant'})}
-        try {
-            updateConversation.call(Object.assign({...conversation}, {participants:selections}))
-            this.props.onHide()
-        } catch(e) {
-            console.error(e)
-            this.setState({error: e.message || e.reason})
-        }
+
+        if(this.props.onUpdateParticipants) this.props.onUpdateParticipants(selections)
     }
 
     render() {

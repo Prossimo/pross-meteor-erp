@@ -1,17 +1,36 @@
 import React, {PropTypes} from 'react'
-import {Panel, Button} from 'react-bootstrap'
+import {Panel, Button, Radio} from 'react-bootstrap'
 
 export default class ParticipantList extends React.Component {
     static propTypes = {
         participants: PropTypes.array.isRequired,
-        onAddParticipant: PropTypes.func,
-        addableParticipant: PropTypes.bool
+        addableParticipant: PropTypes.bool,
+        onChangeParticipants: PropTypes.func
     }
 
     constructor(props) {
         super(props)
+
+        this.state = {
+            participants: props.participants || []
+        }
     }
 
+    componentWillReceiveProps(newProps) {
+        //if(this.props.participants !== newProps.participants) {
+            this.setState({participants:newProps.participants})
+        //}
+    }
+    setAsMain = (participant) => {
+        const {participants} = this.state
+        participants.forEach(p => {
+            if(p._id === participant._id) p.isMain = true
+            else p.isMain = false
+        })
+        this.setState({participants})
+
+        if(this.props.onChangeParticipants) this.props.onChangeParticipants(participants.map(p => ({peopleId:p._id, isMain:p.isMain})))
+    }
     render() {
         const style = this.props.style
         const header = (
@@ -20,10 +39,10 @@ export default class ParticipantList extends React.Component {
                     Participants
                 </div>
                 <div>
-                    {this.props.addableParticipant && <Button bsStyle="danger" bsSize="xsmall"
+                    <Button bsStyle="danger" bsSize="xsmall"
                             onClick={this.props.onAddParticipant}>
                         <i className="fa fa-plus"/>
-                    </Button>}
+                    </Button>
                 </div>
             </div>
         )
@@ -31,11 +50,16 @@ export default class ParticipantList extends React.Component {
             <div className="participant-list" style={style}>
                 <Panel header={header}>
                     {
-                        this.props.participants.map((p, i) => (
+                        this.state.participants.map((p, i) => (
                             <div key={i} className="participant-item">
-                                <div>{p.name}</div>
-                                <div>{p.defaultEmail()}</div>
-                                <div>{`${p.designation().name} / ${p.role}`}</div>
+                                <div style={{flex:1}}>
+                                    <div>{p.name}</div>
+                                    <div>{p.defaultEmail()}</div>
+                                    <div>{`${p.designation().name} / ${p.role}`}</div>
+                                </div>
+                                <div style={{paddingLeft:10, margin:'auto'}}>
+                                    <Radio checked={p.isMain} onChange={(e) => this.setAsMain(p)}/>
+                                </div>
                             </div>
                         ))
                     }

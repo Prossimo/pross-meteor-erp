@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import {HTTP} from 'meteor/http'
 import SimpleSchema from 'simpl-schema'
@@ -342,4 +343,16 @@ Meteor.methods({
             })
         })
     },
+
+    updateSalesRecordParticipants({_id, participants}) {
+        check(_id, String)
+        check(participants, Array)
+
+        const salesRecord = SalesRecords.findOne(_id)
+        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
+
+        if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
+
+        SalesRecords.update({_id}, {$set:{participants}})
+    }
 })

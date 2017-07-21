@@ -42,7 +42,9 @@ Conversations.schema = new SimpleSchema({
     name: {type: String},
     salesRecordId: {type: String, regEx: SimpleSchema.RegEx.Id},
     participants: {type: Array},
-    'participants.$': {type: String, regEx: SimpleSchema.RegEx.Id},
+    'participants.$': { type: Object },
+    'participants.$.peopleId': { type: String },
+    'participants.$.isMain': { type: Boolean, optional: true },
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -72,10 +74,15 @@ Conversations.helpers({
         return SalesRecords.findOne(this.salesRecordId)
     },
     getParticipants() {
-        return People.find({_id:{$in:this.participants}}).fetch()
+        const peopleIds = _.pluck(this.participants, 'peopleId')
+        return People.find({_id:{$in:peopleIds}}).map(p => {
+            p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
+            return p
+        })
     },
     contacts() {
-        return People.find({_id:{$in:this.participants}}).map(p => ({name:p.name, email:p.defaultEmail()}))
+        const peopleIds = _.pluck(this.participants, 'peopleId')
+        return People.find({_id:{$in:peopleIds}}).map(p => ({name:p.name, email:p.defaultEmail(), isMain:_.findWhere(this.participants, {peopleId:p._id}).isMain}))
     }
 })
 

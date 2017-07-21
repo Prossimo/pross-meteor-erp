@@ -13,6 +13,8 @@ export const insertConversation = new ValidatedMethod({
 
         if(Conversations.findOne({salesRecordId, name})) throw new Meteor.Error('Conversation with same name is exist')
 
+        if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
+
         const data = {
             name,
             salesRecordId,
@@ -36,6 +38,7 @@ export const updateConversation = new ValidatedMethod({
         const existingConversation = Conversations.findOne({salesRecordId, name})
         if(existingConversation && existingConversation._id!=_id) throw new Meteor.Error('Conversation with same name is exist')
 
+        if(!_.isUndefined(participants) && _.findIndex(participants, {isMain:true}) == -1)  participants[0].isMain = true
         const data = {
             name: _.isUndefined(name) ? null : name,
             salesRecordId: _.isUndefined(salesRecordId) ? null : salesRecordId,
@@ -46,6 +49,28 @@ export const updateConversation = new ValidatedMethod({
         return Conversations.update({_id}, {$set:data})
     }
 })
+
+export const setParticipantAsMain = new ValidatedMethod({
+    name: 'conversation.setParticipantAsMain',
+    validate: Conversations.schema.pick('_id').extend({peopleId:{type: String, regEx: SimpleSchema.RegEx.Id}}).validator({clean:true}),
+    run({_id, peopleId}) {
+        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const conversation = Conversations.findOne({_id})
+        if(!conversation) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
+
+        const {participants} = conversation
+        if(_.findIndex(participants, {peopleId}) == -1) throw new Meteor.Error(`Not found participant with id: ${peopleId}`)
+
+        participants.forEach(p => {
+            if(p.peopleId == peopleId) p.isMain = true
+            else p.isMain = false
+        })
+
+        return Conversations.update({_id}, {$set:{participants}})
+    }
+})
+
 
 export const removeConversation = new ValidatedMethod({
     name: 'conversation.remove',

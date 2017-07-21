@@ -47,6 +47,11 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$.isMainStakeholder': { type: Boolean },
     'stakeholders.$.notify': { type: Boolean },
 
+    participants: {type: Array},    // participants for main conversation
+    'participants.$': { type: Object },
+    'participants.$.peopleId': { type: String },
+    'participants.$.isMain': { type: Boolean, optional: true },
+
     actualDeliveryDate: { type: Date },
     productionStartDate: { type: Date },
     estDeliveryRange: { type: Array },
@@ -143,6 +148,15 @@ SalesRecords.helpers({
     people() {
         const peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
         return People.find({_id:{$in:peopleIds}}).fetch()
+    },
+    getParticipants() {
+        if(!this.participants) return []
+
+        const peopleIds = _.pluck(this.participants, 'peopleId')
+        return People.find({_id:{$in:peopleIds}}).map(p => {
+            p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
+            return p
+        })
     }
 })
 
