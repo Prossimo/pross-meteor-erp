@@ -53,7 +53,7 @@ export default class ParticipantsSelector extends React.Component {
                             <td><Checkbox onChange={(e) => {this.selectParticipant(p, e.target.checked)}} checked={_.findIndex(selections,{peopleId:p._id}) > -1}/></td>
                             <td>{p.name}</td>
                             <td>{p.defaultEmail()}</td>
-                            <td>{`${p.designation().name}/${p.role}`}</td>
+                            <td>{`${p.designation() && p.designation().name}/${p.role}`}</td>
                         </tr>
                     ))
                 }

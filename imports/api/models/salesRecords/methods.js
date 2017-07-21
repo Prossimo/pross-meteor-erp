@@ -52,15 +52,21 @@ Meteor.methods({
         }
     },
 
-    addStakeholderToSalesRecord(salesRecordId, stakeholder) {
-        check(salesRecordId, String)
-        check(stakeholder, {
-            peopleId: String,
-            notify: Boolean,
-        })
+    addStakeholderToSalesRecord({_id, peopleId, addToMain}) {
+        check(_id, String)
+        check(peopleId, String)
+        check(addToMain, Boolean)
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
-        stakeholder.isMainStakeholder = false
-        SalesRecords.update(salesRecordId, {$push: {stakeholders: stakeholder}})
+
+        const stakeholder = {
+            peopleId,
+            isMainStakeholder: false,
+            notify: true
+        }
+        SalesRecords.update(_id, {$push: {stakeholders: stakeholder}})
+        if(addToMain) {
+            SalesRecords.update(_id, {$push: {participants: {peopleId}}})
+        }
     },
 
     removeStakeholderFromSalesRecord(salesRecordId, peopleId) {

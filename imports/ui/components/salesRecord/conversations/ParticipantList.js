@@ -55,7 +55,7 @@ export default class ParticipantList extends React.Component {
                                 <div style={{flex:1}}>
                                     <div>{p.name}</div>
                                     <div>{p.defaultEmail()}</div>
-                                    <div>{`${p.designation().name} / ${p.role}`}</div>
+                                    <div>{`${p.designation() && p.designation().name} / ${p.role}`}</div>
                                 </div>
                                 <div style={{paddingLeft:10, margin:'auto'}}>
                                     <Radio checked={p.isMain} onChange={(e) => this.setAsMain(p)}/>
