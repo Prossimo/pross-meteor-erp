@@ -46,7 +46,7 @@ export default class Conversations extends TrackerReact(React.Component) {
         return (
             <Modal show={showModal} onHide={() => {
                 this.setState({showModal: false})
-            }}>
+            }} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>Add conversation</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <ConversationForm salesRecordId={this.props.salesRecord._id} onSaved={()=>this.setState({showModal:false})}/>

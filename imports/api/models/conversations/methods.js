@@ -7,8 +7,8 @@ import Conversations from './conversations'
 
 export const insertConversation = new ValidatedMethod({
     name: 'conversation.insert',
-    validate: Conversations.schema.pick('name','salesRecordId').validator({clean:true}),
-    run({name, salesRecordId}) {
+    validate: Conversations.schema.pick('name','salesRecordId', 'participants').validator({clean:true}),
+    run({name, salesRecordId, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         if(Conversations.findOne({salesRecordId, name})) throw new Meteor.Error('Conversation with same name is exist')
@@ -16,6 +16,7 @@ export const insertConversation = new ValidatedMethod({
         const data = {
             name,
             salesRecordId,
+            participants,
             user_id: this.userId
         }
 
@@ -25,8 +26,8 @@ export const insertConversation = new ValidatedMethod({
 
 export const updateConversation = new ValidatedMethod({
     name: 'conversation.update',
-    validate: Conversations.schema.pick('_id','name','salesRecordId').validator({clean:true}),
-    run({_id, name, salesRecordId}) {
+    validate: Conversations.schema.pick('_id','name','salesRecordId','participants').validator({clean:true}),
+    run({_id, name, salesRecordId, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const conversation = Conversations.findOne({_id})
@@ -38,6 +39,7 @@ export const updateConversation = new ValidatedMethod({
         const data = {
             name: _.isUndefined(name) ? null : name,
             salesRecordId: _.isUndefined(salesRecordId) ? null : salesRecordId,
+            participants: _.isUndefined(participants) ? null : participants,
             user_id: this.userId
         }
 

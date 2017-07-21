@@ -6,6 +6,7 @@ import faker from 'faker'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import SalesRecords from '../salesRecords/salesRecords'
+import People from '../people/people'
 
 class ConversationsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -40,6 +41,8 @@ Conversations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
     salesRecordId: {type: String, regEx: SimpleSchema.RegEx.Id},
+    participants: {type: Array},
+    'participants.$': {type: String, regEx: SimpleSchema.RegEx.Id},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -49,6 +52,7 @@ Conversations.attachSchema(Conversations.schema)
 Conversations.publicFields = {
     name: 1,
     salesRecordId: 1,
+    participants: 1,
     created_at: 1,
     modified_at: 1
 }
@@ -66,6 +70,12 @@ Conversations.helpers({
         if(!this.salesRecordId) return null
 
         return SalesRecords.findOne(this.salesRecordId)
+    },
+    getParticipants() {
+        return People.find({_id:{$in:this.participants}}).fetch()
+    },
+    contacts() {
+        return People.find({_id:{$in:this.participants}}).map(p => ({name:p.name, email:p.defaultEmail()}))
     }
 })
 
