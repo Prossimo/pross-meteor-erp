@@ -1,6 +1,6 @@
 import React from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
-import {Modal} from 'react-bootstrap'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import DraftStore from '/imports/api/nylas/draft-store'
@@ -9,9 +9,11 @@ import ComposeModal from '../../inbox/composer/ComposeModal'
 import ConversationList from './ConversationList'
 import ParticipantList from './ParticipantList'
 import {SalesRecords, Conversations} from '/imports/api/models'
+import {updateConversation} from '/imports/api/models/conversations/methods'
+
 import ParticipantsSelectModal from './ParticipantsSelectModal'
 
-export default class Conversation extends React.Component {
+export default class Conversation extends TrackerReact(React.Component) {
     static propTypes = {
         salesRecordId: React.PropTypes.string,
         conversationId: React.PropTypes.string
@@ -35,6 +37,17 @@ export default class Conversation extends React.Component {
         })
     }
 
+    salesRecord = () => {
+        const {salesRecordId} = this.props
+        if(!salesRecordId) return null
+        return SalesRecords.findOne(salesRecordId)
+    }
+    conversation = () => {
+        const {conversationId} = this.props
+        if(!conversationId) return null
+
+        return Conversations.findOne(conversationId)
+    }
     onDraftStoreChanged = () => {
         this.setState({
             composeState: DraftStore.draftViewStateForModal()
@@ -53,17 +66,29 @@ export default class Conversation extends React.Component {
                       onClose={this.onCloseComposeModal}/>
     }
     renderParticipantsSelectModal() {
-        const {conversationId} = this.props
-        if (!conversationId) return ''
+        const {salesRecordId, conversationId} = this.props
 
-        const conversation = Conversations.findOne(conversationId)
+        let participants, selections
+        if(salesRecordId) {
+            const salesRecord = this.salesRecord()
+            participants = salesRecord.people()
+            selections = salesRecord.participants
+        } else if(conversationId) {
+            const conversation = this.conversation()
+            participants = conversation.salesRecord().people()
+            selections = conversation.participants.filter(p => typeof p === 'object')
+        }
+
 
         const {showParticipantsSelectModal} = this.state
 
         return (
             <ParticipantsSelectModal show={showParticipantsSelectModal}
                                      onHide={() => this.setState({showParticipantsSelectModal: false})}
-                                     conversation={conversation}/>
+                                     participants={participants}
+                                     selections={selections}
+                                     onUpdateParticipants={this.updateParticipants}
+            />
         )
     }
 
@@ -74,7 +99,7 @@ export default class Conversation extends React.Component {
 
         let participants = []
         if (salesRecordId) {
-            participants = SalesRecords.findOne(salesRecordId).people()
+            participants = SalesRecords.findOne(salesRecordId).getParticipants()
         } else if (conversationId) {
             participants = Conversations.findOne(conversationId).getParticipants()
         }
@@ -84,13 +109,35 @@ export default class Conversation extends React.Component {
                 <div style={{display: 'flex'}}>
                     <ConversationList style={{flex: 4}} salesRecordId={salesRecordId} conversationId={conversationId}/>
                     <ParticipantList style={{flex: 1}} participants={participants}
-                                     addableParticipant={conversationId != null}
-                                     onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}/>
+                                     onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
+                                     onChangeParticipants={this.updateParticipants}
+                    />
                 </div>
                 {this.renderComposeModal()}
                 {this.renderParticipantsSelectModal()}
             </div>
         )
+    }
+
+    updateParticipants = (participants) => {
+        const {conversationId, salesRecordId} = this.props
+        if(conversationId) {
+            try {
+                const conversation = this.conversation()
+                conversation.participants = participants
+
+                updateConversation.call({...conversation})
+
+                this.setState({showParticipantsSelectModal:false})
+            } catch(e) {
+                console.error(e)
+            }
+        } else if(salesRecordId) {
+            Meteor.call('updateSalesRecordParticipants', {_id:salesRecordId, participants}, (err,res) => {
+                if(err) return console.error(err.message || err.reason)
+                this.setState({showParticipantsSelectModal:false})
+            })
+        }
     }
 
     onCloseComposeModal = () => {

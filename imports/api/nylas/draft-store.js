@@ -7,6 +7,7 @@ import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
 import {insertMessageForSalesRecord} from '/imports/api/models/messages/methods'
+import { SalesRecords, Conversations } from '/imports/api/models'
 
 const ComposeType = {
     Creating: 'creating',
@@ -31,9 +32,19 @@ class DraftStore extends Reflux.Store {
     }
 
     _onComposeNew = ({salesRecordId, conversationId, modal = true, show = true} = {}) => {
-        DraftFactory.createDraft().then((draft) => {
-            draft.salesRecordId = salesRecordId
-            draft.conversationId = conversationId
+        DraftFactory.createDraft().then((draft) => {console.log(salesRecordId, conversationId)
+            if(salesRecordId) {
+                draft.salesRecordId = salesRecordId
+                const participants = SalesRecords.findOne(salesRecordId).getParticipants()
+                draft.to = participants.filter(p => p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
+                draft.cc = participants.filter(p => !p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
+            } else if(conversationId) {
+                draft.conversationId = conversationId
+                const participants = Conversations.findOne(conversationId).getParticipants()
+                draft.to = participants.filter(p => p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
+                draft.cc = participants.filter(p => !p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
+                console.log(draft)
+            }
             this._drafts.push(draft)
 
             if(modal) this.hideModals()

@@ -1,10 +1,11 @@
+import _ from 'underscore'
 import React, {PropTypes} from 'react'
 import {Table, Checkbox} from 'react-bootstrap'
 
 export default class ParticipantsSelector extends React.Component {
     static propTypes = {
         participants: PropTypes.array,  // people document array
-        selections: PropTypes.array,    // people document._id array
+        selections: PropTypes.array,    // people document array
         onChange: PropTypes.func
     }
     constructor(props) {
@@ -19,9 +20,9 @@ export default class ParticipantsSelector extends React.Component {
     selectParticipant = (p, selected) => {
         const { selections } = this.state
 
-        const index = selections.indexOf(p._id)
+        const index = _.findIndex(selections, {peopleId:p._id})
         if(selected && index == -1) {
-            selections.push(p._id)
+            selections.push({peopleId:p._id})
         } else if(!selected && index > -1) {
             selections.splice(index, 1)
         }
@@ -49,7 +50,7 @@ export default class ParticipantsSelector extends React.Component {
                 {
                     participants.map(p => (
                         <tr key={p._id}>
-                            <td><Checkbox onChange={(e) => {this.selectParticipant(p, e.target.checked)}} checked={selections.indexOf(p._id) > -1}/></td>
+                            <td><Checkbox onChange={(e) => {this.selectParticipant(p, e.target.checked)}} checked={_.findIndex(selections,{peopleId:p._id}) > -1}/></td>
                             <td>{p.name}</td>
                             <td>{p.defaultEmail()}</td>
                             <td>{`${p.designation().name}/${p.role}`}</td>
