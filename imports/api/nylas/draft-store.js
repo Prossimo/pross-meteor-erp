@@ -36,6 +36,7 @@ class DraftStore extends Reflux.Store {
             draft.conversationId = conversationId
             this._drafts.push(draft)
 
+            if(modal) this.hideModals()
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
                 modal,
@@ -57,6 +58,8 @@ class DraftStore extends Reflux.Store {
             existingDraft.to = to
             existingDraft.cc = cc
 
+            if(modal) this.hideModals()
+
             this._draftsViewState[existingDraft.clientId] = {
                 clientId: existingDraft.clientId,
                 modal,
@@ -69,6 +72,7 @@ class DraftStore extends Reflux.Store {
                 draft.conversationId = conversationId
                 this._drafts.push(draft)
 
+                if(modal) this.hideModals()
                 this._draftsViewState[draft.clientId] = {
                     clientId: draft.clientId,
                     modal,
@@ -87,6 +91,7 @@ class DraftStore extends Reflux.Store {
             draft.conversationId = conversationId
             this._drafts.push(draft)
 
+            if(modal) this.hideModals()
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
                 modal,
@@ -97,6 +102,11 @@ class DraftStore extends Reflux.Store {
         })
     }
 
+    hideModals = () => {
+        Object.keys(this._draftsViewState).forEach(key => {
+            this._draftsViewState[key]['modal'] = false
+        })
+    }
     createDraftForQuoteEmail = (data = {}) => new Promise((resolve, reject) => {
             DraftFactory.createDraft(data).then((draft) => {
                 draft.hideSignature = true

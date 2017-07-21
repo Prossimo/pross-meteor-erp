@@ -25,32 +25,36 @@ export default class ParticipantsInputField extends React.Component {
     render() {
         const {label, values, options} = this.state
 
-        const creatableSelect = (<Creatable
-            className="select-wrap"
-            multi
-            options={options}
-            value={values}
-            valueRenderer={(item) => item.value}
-            onChange={this._onChange}
-            onInputChange={this._onInputChange}
-            clearable={true}
-            placeholder="Input email address here..."
-        />)
-        const select = (<Select
-            className="select-wrap"
-            multi
-            options={options}
-            value={values}
-            valueRenderer={(item) => item.value}
-            onChange={this._onChange}
-            clearable={true}
-            placeholder="Select email address in the list..."
-        />)
+        let select
+        if(this.props.onlyselect) {
+            select = <Select
+                className="select-wrap"
+                multi
+                options={options}
+                value={values}
+                valueRenderer={(item) => item.value}
+                onChange={this._onChange}
+                clearable={true}
+                placeholder="Select email address in the list..."
+            />
+        } else {
+            select = <Creatable
+                className="select-wrap"
+                multi
+                options={options}
+                value={values}
+                valueRenderer={(item) => item.value}
+                onChange={this._onChange}
+                onInputChange={this._onInputChange}
+                clearable={true}
+                placeholder="Input email address here..."
+            />
+        }
 
         return (
             <div className="input-wrap">
                 <label className="participant-label">{this.props.label?`${this.props.label}:`:''}</label>
-                { this.props.onlyselect ? select : creatableSelect}
+                { select }
             </div>
         )
     }

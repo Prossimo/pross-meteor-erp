@@ -5,7 +5,9 @@ import NylasUtils from '/imports/api/nylas/nylas-utils'
 import MessageItemContainer from '../../inbox/MessageItemContainer'
 import ConversationStore from '/imports/api/nylas/conversation-store'
 import Actions from '/imports/api/nylas/actions'
+import Radium from 'radium'
 
+@Radium
 class ConversationList extends TrackerReact(React.Component) {
 
     static propTypes = {
@@ -49,9 +51,9 @@ class ConversationList extends TrackerReact(React.Component) {
     }
 
     render() {
-
+        const style = Object.assign({marginTop:10}, this.props.style)
         return (
-            <div className="list-message" style={{marginTop:10}}>
+            <div className="list-message" style={style}>
                 {this.renderMessages()}
             </div>
         )

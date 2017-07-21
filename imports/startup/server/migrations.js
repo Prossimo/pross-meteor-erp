@@ -1,6 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations} from '/imports/api/models'
 
 Migrations.add({
     version: 1,
@@ -93,9 +93,23 @@ Migrations.add({
     down() {
     }
 })
+Migrations.add({
+    version: 5,
+    name: 'Add empty array to participants field for conversation collection',
+    up() {
+        console.log('=== migrate up to version 5 ===')
+        const conversations = Conversations.find().fetch()
+        conversations.forEach(c => {
+            if(!c.participants) {
+                Conversations.update({_id:c._id}, {$set:{participants:[]}})
+            }
+        })
+    },
+    down() {}
 
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(4)
+        Migrations.migrateTo(5)
     }
 })

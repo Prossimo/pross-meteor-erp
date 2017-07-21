@@ -1,7 +1,8 @@
 import React from 'react'
-import {Button, Form, FormGroup, FormControl, Col, Alert} from 'react-bootstrap'
-import {warning} from '/imports/api/lib/alerts'
+import {Button, Form, FormGroup, FormControl, Col, Alert, Table, Checkbox} from 'react-bootstrap'
 import {insertConversation, updateConversation} from '/imports/api/models/conversations/methods'
+import {SalesRecords} from '/imports/api/models'
+import ParticipantsSelector from './ParticipantsSelector'
 
 export default class ConversationForm extends React.Component {
     static propTypes = {
@@ -17,9 +18,20 @@ export default class ConversationForm extends React.Component {
         this.state = {
             name: props.name ? props.name : '',
             error: null,
+            selectedPeople: []
         }
     }
 
+    onChangeParticipants = (participants) => {
+        this.setState({ selectedPeople: participants })
+    }
+    renderPeople() {
+        const {salesRecordId} = this.props
+        const salesRecord = SalesRecords.findOne(salesRecordId)
+
+        const {selectedPeople} = this.state
+        return <ParticipantsSelector participants={salesRecord.people()} selections={selectedPeople} onChange={this.onChangeParticipants}/>
+    }
     render() {
         const {name} = this.state
         return (
@@ -34,8 +46,7 @@ export default class ConversationForm extends React.Component {
                                          onChange={(evt) => this.setState({name: evt.target.value})}/>
                         </Col>
                     </FormGroup>
-
-
+                    {this.renderPeople()}
                     <FormGroup>
                         <Col sm={12} style={{textAlign: 'right'}}>
                             <Button type="submit" bsStyle="primary">{this.props._id ? 'Update' : 'Create'}</Button>
@@ -49,14 +60,18 @@ export default class ConversationForm extends React.Component {
 
     onSubmit = (evt) => {
         evt.preventDefault()
-        const {name} = this.state
+        const {name, selectedPeople} = this.state
+
+        if(!name || name.length == 0) return this.setState({error:'Name required'})
+        if(!selectedPeople || selectedPeople.length == 0) return this.setState({error:'Should select people'})
+
         const {_id, salesRecordId} = this.props
 
         try{
             if(_id) {
-                updateConversation.call({_id, salesRecordId, name})
+                updateConversation.call({_id, salesRecordId, name, participants: selectedPeople})
             } else {
-                insertConversation.call({salesRecordId, name})
+                insertConversation.call({salesRecordId, name, participants: selectedPeople})
             }
             if(this.props.onSaved) this.props.onSaved()
         } catch(e) {
