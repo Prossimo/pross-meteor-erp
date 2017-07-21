@@ -32,7 +32,7 @@ class DraftStore extends Reflux.Store {
     }
 
     _onComposeNew = ({salesRecordId, conversationId, modal = true, show = true} = {}) => {
-        DraftFactory.createDraft().then((draft) => {console.log(salesRecordId, conversationId)
+        DraftFactory.createDraft().then((draft) => {
             if(salesRecordId) {
                 draft.salesRecordId = salesRecordId
                 const participants = SalesRecords.findOne(salesRecordId).getParticipants()
@@ -43,7 +43,6 @@ class DraftStore extends Reflux.Store {
                 const participants = Conversations.findOne(conversationId).getParticipants()
                 draft.to = participants.filter(p => p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
                 draft.cc = participants.filter(p => !p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
-                console.log(draft)
             }
             this._drafts.push(draft)
 

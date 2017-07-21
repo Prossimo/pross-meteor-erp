@@ -80,7 +80,7 @@ class SingleSalesRecord extends React.Component{
       },
       stakeholder: {
         selectedPeople: null,
-        notify: true,
+        addToMain: true,
       },
       memberType: this.memberTypeOptions[0],
       selectedMembers: []
@@ -247,7 +247,7 @@ class SingleSalesRecord extends React.Component{
   }
 
   renderAddStakeholderForm() {
-    const { stakeholder: { selectedPeople, notify}} = this.state
+    const { stakeholder: { selectedPeople, addToMain}} = this.state
     const peopleOptions = this.props.candidateStakeholders.map(({ name, _id }) => ({ value: _id, label: name }))
     if(Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
         return (
@@ -266,9 +266,9 @@ class SingleSalesRecord extends React.Component{
                     <label><input
                         type="checkbox"
                         value=""
-                        checked={ notify }
-                        onChange={(event) => this.changeState(this.state.stakeholder, 'notify', event.target.checked)}/>
-                        Notify
+                        checked={ addToMain }
+                        onChange={(event) => this.changeState(this.state.stakeholder, 'addToMain', event.target.checked)}/>
+                        Add To Main
                     </label>
                 </div>
                 <button onClick={this.addStakeholder} className="btnn primary-btn">Add People</button>
@@ -354,18 +354,15 @@ class SingleSalesRecord extends React.Component{
   }
 
   addStakeholder() {
-    const { stakeholder: { selectedPeople, notify } } = this.state
+    const { stakeholder: { selectedPeople, addToMain } } = this.state
     const { salesRecord } = this.props
     if(!selectedPeople) return warning('Choose stakeholder')
-    const stakeholder = {
-      peopleId: selectedPeople.value,
-      notify,
-    }
-    Meteor.call('addStakeholderToSalesRecord', salesRecord._id, stakeholder, (error, result) => {
+
+    Meteor.call('addStakeholderToSalesRecord', {_id:salesRecord._id, peopleId:selectedPeople.value, addToMain}, (error, result) => {
       if(error) return warning(error.reason? error.reason : 'Add stakeholder failed!')
       this.setState({
         stakeholder: {
-          notify: true,
+          addToMain: true,
           selectedPeople: null,
         }
       })
