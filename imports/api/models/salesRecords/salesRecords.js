@@ -47,7 +47,7 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$.isMainStakeholder': { type: Boolean },
     'stakeholders.$.notify': { type: Boolean },
 
-    participants: {type: Array},    // participants for main conversation
+    participants: {type: Array, optional:true},    // participants for main conversation
     'participants.$': { type: Object },
     'participants.$.peopleId': { type: String },
     'participants.$.isMain': { type: Boolean, optional: true },
