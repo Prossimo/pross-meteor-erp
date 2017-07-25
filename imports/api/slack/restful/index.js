@@ -48,6 +48,7 @@ const channels = {
   create: ({ name }) => slackClient.makeRequest('channels.create', { name }),
   invite: ({ channel, user }) => slackClient.makeRequest('channels.invite', { channel, user }),
   inviteBot: ({ channel }) => slackClient.makeRequest('channels.invite', { channel, user: SLACK_BOT_ID }),
+  info: ({ channel }) => slackClient.makeRequest('channels.info'),
   list: () => slackClient.makeRequest('channels.list'),
   rename: ({ channel, name }) => slackClient.makeRequest('channels.rename', { channel, name }),
   setPurpose: ({ channel, purpose }) => slackClient.makeRequest('channels.setPurpose', { channel, purpose }),

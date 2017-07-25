@@ -361,5 +361,18 @@ Meteor.methods({
         if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
 
         SalesRecords.update({_id}, {$set:{participants}})
+    },
+
+    updateSalesRecordSlackChannel({_id, slackChanel, slackChannelName}) {
+        check(_id, String)
+        check(slackChanel, String)
+        check(slackChannelName, String)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+
+        const salesRecord = SalesRecords.findOne(_id)
+        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
+
+        SalesRecords.update(_id, {$set:{slackChanel, slackChannelName}})
     }
 })
