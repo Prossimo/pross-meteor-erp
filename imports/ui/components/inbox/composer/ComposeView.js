@@ -18,6 +18,7 @@ import ImageAttachmentComponent from '../../attachment/image-attachment-componen
 import FileUpload from './FileUpload'
 import ImageFileUpload from './ImageFileUpload'
 import ParticipantsInputField from './ParticipantsInputField'
+import {Parser as HtmlToReactParser} from 'html-to-react'
 
 
 export default class ComposeView extends React.Component {
@@ -261,12 +262,16 @@ export default class ComposeView extends React.Component {
         const signature = Meteor.user().profile.signature//AccountStore.signatureForAccountId(this.state.draft.account_id)
 
         if (!signature || signature.length == 0) return (<div></div>)
+
+        var htmlToReactParser = new HtmlToReactParser();
+        var reactElement = htmlToReactParser.parse(signature);
+
         return (
             <div style={{position: 'relative'}}>
                 <i className="fa fa-close"
                    style={{position: 'absolute', top: 0, left: 0, fontSize: 10, color: 'lightgray'}}
                    onClick={this._onClickHideSignature}></i>
-                <div style={{paddingLeft: 5}}><EmailFrame content={signature}/></div>
+                <div className="signature">{reactElement}</div>
             </div>
         )
     }
