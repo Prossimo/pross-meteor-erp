@@ -368,7 +368,7 @@ Meteor.methods({
         check(slackChanel, String)
         check(slackChannelName, String)
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+        //if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
 
         const salesRecord = SalesRecords.findOne(_id)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
