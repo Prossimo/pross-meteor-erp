@@ -6,7 +6,6 @@ import faker from 'faker'
 import { STAGES, SUB_STAGES } from '../../constants/project'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
-import Contacts from '../contacts/contacts'
 import People from '../people/people'
 
 class SalesRecordsCollection extends Mongo.Collection {
@@ -36,6 +35,7 @@ SalesRecords.schema = new SimpleSchema({
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true },
     slackChanel: { type: String, optional: true },
+    slackChannelName: { type: String, optional: true },
 
     name: { type: String },
     members: { type: Array },
