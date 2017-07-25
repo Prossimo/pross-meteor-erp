@@ -24,10 +24,10 @@ return new ValidatedMethod({
     const projectId = Projects.insert(project)
 
     // CREATE NEW CHANNEL
-    let { data } = slackClient.channels.create({ name: project.name })
+    let { data } = slackClient.channels.create({ name: `p-${project.name}` })
     // RETRY WITH UNIQUE NAME
     if (!data.ok) {
-      data = slackClient.channels.create({ name: `${project.name}-${Random.id()}` })
+      data = slackClient.channels.create({ name: `p-${project.name}-${Random.id()}` })
     }
     if (data.ok) {
       const slackChanel = data.channel.id

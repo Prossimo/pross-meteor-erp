@@ -126,13 +126,14 @@ Meteor.methods({
 
         check(thread, Match.Maybe(Object))
 
-        const responseCreateChannel = slackClient.channels.create({ name: data.name })
+        let responseCreateChannel = slackClient.channels.create({ name: `d-${data.name}` })
         //console.log("Create slack channel response", responseCreateChannel)
         if (!responseCreateChannel.data.ok) {
-            if (responseCreateChannel.data.error = 'name_taken') {
-                throw new Meteor.Error(`Cannot create slack channel with name ${data.name}`)
+            // RETRY WITH UNIQUE NAME
+            responseCreateChannel = slackClient.channels.create({ name: `d-${data.name}-${Random.id()}` })
+            if (!responseCreateChannel.data.ok) {
+                throw new Meteor.Error('Some problems with created slack channel! Sorry try later')
             }
-            throw new Meteor.Error('Some problems with created slack channel! Sorry try later')
         }
 
 

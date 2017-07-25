@@ -81,7 +81,7 @@ export default class SalesRecordPage extends React.Component{
         return (
             <Modal show={showModal} onHide={() => {
                 this.setState({showModal: false})
-            }}>
+            }} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>Create Deal</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <CreateSalesRecord {...props}/>
