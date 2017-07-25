@@ -6,7 +6,7 @@ import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
 import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
-import {SalesRecords, Threads} from '/imports/api/models'
+import {SalesRecords, Threads, Conversations} from '/imports/api/models'
 
 
 export default class Toolbar extends React.Component {
@@ -48,12 +48,21 @@ export default class Toolbar extends React.Component {
         if(!thread) return ''
 
         const existingThread = Threads.findOne({id: thread.id})
-        const salesRecord = existingThread ? SalesRecords.findOne(existingThread.salesRecordId) : null
+        let salesRecord
+        if(existingThread) {
+            if(existingThread.salesRecordId) {
+                salesRecord = SalesRecords.findOne(existingThread.salesRecordId)
+            } else if(existingThread.conversationId) {
+                const conversation = Conversations.findOne(existingThread.conversationId)
+                if(conversation) salesRecord = conversation.salesRecord()
+            }
+        }
+
         if(salesRecord) {
             return (
                 <div style={{marginTop:12, float:'right'}}>
                     <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-sales-record" disabled={!thread}>
-                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:existingThread.salesRecordId})}>Go to this deal</MenuItem>
+                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:salesRecord._id})}>Go to this deal</MenuItem>
                         <MenuItem divider/>
                         <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('unbind')}>Unbind from this deal</MenuItem>
                     </DropdownButton>
