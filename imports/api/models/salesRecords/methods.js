@@ -9,6 +9,8 @@ import {SalesRecords, Threads, Messages, ROLES} from '../index'
 import {prossDocDrive} from '../../drive'
 import {getSubStages} from '../../lib/filters.js'
 
+import config from '../../config'
+
 const bound = Meteor.bindEnvironment((callback) => callback())
 Meteor.methods({
     removeSalesRecord({_id, isRemoveSlack, isRemoveFolders}) {
@@ -364,16 +366,29 @@ Meteor.methods({
         SalesRecords.update({_id}, {$set:{participants}})
     },
 
-    updateSalesRecordSlackChannel({_id, slackChanel, slackChannelName}) {
+    updateSalesRecordSlackChannel({_id, channel}) {
         check(_id, String)
-        check(slackChanel, String)
-        check(slackChannelName, String)
+        check(channel, Object) // slack channel object
+
+        const slackChanel = channel.id
+        const slackChannelName = channel.name
+        const slackMembers = channel.members
 
         //if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
 
         const salesRecord = SalesRecords.findOne(_id)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
 
+        if(slackMembers.indexOf(config.slack.botId) == -1) {
+            const responseInviteBot = slackClient.channels.inviteBot({
+                channel: slackChanel,
+            })
+
+            if (!responseInviteBot.data.ok) {
+                console.error(slackChanel, responseInviteBot.data)
+                throw new Meteor.Error('Bot cannot add to channel')
+            }
+        }
         SalesRecords.update(_id, {$set:{slackChanel, slackChannelName}})
     }
 })
