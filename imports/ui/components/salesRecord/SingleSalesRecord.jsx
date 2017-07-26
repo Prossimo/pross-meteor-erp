@@ -1,7 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import classNames from 'classnames'
-import {DESIGNATION_LIST, STAKEHOLDER_CATEGORY} from '/imports/api/constants/project'
 import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
@@ -70,6 +69,7 @@ class SingleSalesRecord extends React.Component {
             {label: 'Ticket', value: 'ticket'},
         ]
 
+        const salesRecordId = FlowRouter.getParam('id')
         this.state = {
             activeTab: this.tabs.find(tab => tab.label === 'Activity'),
             showPopup: false,
@@ -84,7 +84,16 @@ class SingleSalesRecord extends React.Component {
                 addToMain: true,
             },
             memberType: this.memberTypeOptions[0],
-            selectedMembers: []
+            selectedMembers: [],
+
+            subscribes: {
+                events: Meteor.subscribe('getProjectEvents', salesRecordId),
+                project: Meteor.subscribe('getProject', salesRecordId),
+                quotes: Meteor.subscribe('getQuotes', salesRecordId),
+                files: Meteor.subscribe('getProjectFiles', salesRecordId),
+                slackMessages: Meteor.subscribe('getSlackMsg', salesRecordId),
+                messages: Meteor.subscribe('getMessages', salesRecordId)
+            }
         }
 
         this.renderPeople = this.renderPeople.bind(this)
@@ -441,8 +450,7 @@ class SingleSalesRecord extends React.Component {
     updateSlackChannel = (channel) => {
         Meteor.call('updateSalesRecordSlackChannel', {
             _id: this.props.salesRecord._id,
-            slackChanel: channel.id,
-            slackChannelName: channel.name
+            channel
         }, (err,res) => {
             if(err) {
                 console.warn(err)

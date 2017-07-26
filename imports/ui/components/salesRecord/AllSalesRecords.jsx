@@ -177,6 +177,12 @@ class AllSalesRecords extends React.Component{
             ],
             showKanbanView: false
         }
+
+        this.state.sort = {
+            by: 'productionStartDate',
+            asc: false
+        }
+
         this.renderRows = this.renderRows.bind(this)
         this.allowEdit = this.allowEdit.bind(this)
         this.handleChange = this.handleChange.bind(this)
@@ -317,9 +323,27 @@ class AllSalesRecords extends React.Component{
        default: return []
      }
     }
+
+    getSortedData() {
+        const {salesRecords} = this.props
+        const {by, asc} = this.state.sort
+
+        if(asc) {
+            return _.sortBy(salesRecords, by)
+        } else {
+            return _.sortBy(salesRecords, by).reverse()
+        }
+    }
+
+    sortBy = (key) => {
+        const {by, asc} = this.state.sort
+
+        if(by == key) this.setState({sort:{by, asc:!asc}})
+        else this.setState({sort:{by:key, asc:true}})
+    }
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
-        const salesRecords =_.sortBy( this.props.salesRecords, ({ productionStartDate }) => -productionStartDate.getTime())
+        const salesRecords = this.getSortedData()
         return salesRecords.map((project, index) => (
                 <tr key={project._id}>
                 {
@@ -417,13 +441,18 @@ class AllSalesRecords extends React.Component{
 
     renderProjectList(){
         const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
+        const {by, asc} = this.state.sort
         return (
             <Table condensed hover>
                 <thead>
                   <tr>
                     {
                       selectedColumns.map(({ label, key }) => (
-                              <th key={key}>{label}</th>
+                              <th style={{cursor:'pointer'}} key={key} onClick={() => this.sortBy(key)}>
+                                  {label}
+                                  {by==key && asc && <i style={{marginLeft:5}} className="fa fa-caret-up"/> }
+                                  {by==key && !asc && <i style={{marginLeft:5}} className="fa fa-caret-down"/> }
+                              </th>
                           ))
                     }
                     <th></th>
