@@ -122,6 +122,7 @@ class QuoteItem extends React.Component {
                   locale: 'en-US',
                   decimalDigits: 0
               })}</p>
+                {latest.note && <p className="quote-info">Note: {latest.note}</p>}
             </div>
             <div className="control-part">
               <button onClick={this.addRevision.bind(this, quote)}

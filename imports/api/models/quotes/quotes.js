@@ -17,6 +17,7 @@ Quotes.attachSchema(
     'revisions.$.totalPrice': Number,
     'revisions.$.fileName': String,
     'revisions.$.fileId': String,
+    'revisions.$.note': {type:String, optional:true},
     'revisions.$.createBy': String,
     'revisions.$.createAt': Date,
   })

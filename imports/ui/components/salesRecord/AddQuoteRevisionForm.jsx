@@ -29,6 +29,7 @@ class AddQuoteForm extends React.Component{
         this.state = {
             currentFile: null,
             totalCost: '',
+            note: '',
             revisionNumber: defaultRevisionNumber,
             alertsActive: true,
             isUploading: false,
@@ -82,7 +83,7 @@ class AddQuoteForm extends React.Component{
 
     formSubmit(event){
         event.preventDefault()
-        const { currentFile, totalCost, alertsActive, revisionNumber } = this.state
+        const { currentFile, totalCost, alertsActive, revisionNumber, note } = this.state
         const { salesRecord, usersArr, quote } = this.props
         if(!currentFile)return warning('You must add PDF file')
         if(totalCost === '')return warning('Empty total cost field')
@@ -96,7 +97,8 @@ class AddQuoteForm extends React.Component{
             [needUpdate?'updateBy':'createBy']: Meteor.userId(),
             [needUpdate?'updateAt':'createAt']: moment().toDate(),
             fileName: currentFile.name,
-            fileId: null
+            fileId: null,
+            note
         }
 
         const slackMsgParans = {
@@ -181,13 +183,17 @@ class AddQuoteForm extends React.Component{
         this.setState({totalCost: event.target.value})
     }
 
+    noteChange = (evt) => {
+        this.setState({note: evt.target.value})
+    }
     toggleCheck(){
         const { alertsActive } = this.state
         this.setState({alertsActive: !alertsActive})
     }
 
+
     render() {
-        const { totalCost, alertsActive, revisionNumber, showComposeModal, selectedMailTemplate, shouldCompileMailTemplate } = this.state
+        const { totalCost, alertsActive, revisionNumber, showComposeModal, selectedMailTemplate, shouldCompileMailTemplate, note } = this.state
         const {draftClientId} = this.props
         let templateData
 
@@ -235,6 +241,15 @@ class AddQuoteForm extends React.Component{
                           onChange={this.changeFileInput}/>
                         {this.renderAttachedFile()}
                     </div>
+
+                    <div className="field-wrap">
+                        <span className="label">Note</span>
+                        <textarea
+                               onChange={this.noteChange}
+                               value={note}
+                               rows={4}/>
+                    </div>
+
                     {
                         draftClientId && (
                             <div>
