@@ -138,6 +138,7 @@ Meteor.methods({
 
 
         data.slackChanel = responseCreateChannel.data.channel.id
+        data.slackChannelName = responseCreateChannel.data.channel.name
 
         const responseInviteBot = slackClient.channels.inviteBot({
           channel: responseCreateChannel.data.channel.id,
