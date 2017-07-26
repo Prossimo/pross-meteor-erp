@@ -1,9 +1,11 @@
 /* global moment */
+import {Roles} from 'meteor/alanning:roles'
 import React, {Component, PropTypes} from 'react'
 import {Panel, Table} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
 import Tasks from '/imports/api/models/tasks/tasks'
 import {getUserName} from '/imports/api/lib/filters'
+import {ROLES} from '/imports/api/models'
 
 class MyTasks extends Component {
     constructor(props) {
@@ -11,7 +13,8 @@ class MyTasks extends Component {
         this.renderTasks = this.renderTasks.bind(this)
 
         this.state = {
-            tasks: props.tasks
+            showAllTasks: false,
+            hideCompletedTasks: false
         }
     }
 
@@ -21,16 +24,30 @@ class MyTasks extends Component {
         this.setState({tasks: hideCompletedTasks ? newProps.tasks.filter(t => t.status !== 'Complete') : newProps.tasks})
     }
 
+    getTasks() {
+        const {hideCompletedTasks, showAllTasks} = this.state
+
+        const tasks = showAllTasks ? Tasks.find().fetch() : this.props.tasks
+
+        return hideCompletedTasks ? tasks.filter(t => t.status !== 'Complete') : tasks
+    }
+
     toggleHideCompletedTasks = (e) => {
         const checked = e.target.checked
         this.setState({
-            hideCompletedTasks: checked,
-            tasks: checked ? this.props.tasks.filter(t => t.status !== 'Complete') : this.props.tasks
+            hideCompletedTasks: checked
+        })
+    }
+
+    toggleShowAllTasks = (e) => {
+        const checked = e.target.checked
+        this.setState({
+            showAllTasks: checked
         })
     }
 
     renderTasks() {
-        const {tasks} = this.state
+        const tasks = this.getTasks()
         const {users, userId} = this.props
 
         return tasks.map((task, index) => {
@@ -68,8 +85,10 @@ class MyTasks extends Component {
                     My Tasks
                 </div>
                 <div>
+                    {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks}
+                                                                                  onChange={this.toggleShowAllTasks}/>&nbsp;Show all tasks&nbsp;&nbsp;</span>}
                     <input type="checkbox" value={this.state.hideCompletedTasks}
-                           onChange={this.toggleHideCompletedTasks}/>&nbsp;Hide Completed Tasks
+                           onChange={this.toggleHideCompletedTasks}/>&nbsp;Hide completed tasks
                 </div>
             </div>
         )
@@ -106,7 +125,11 @@ export default createContainer(() => {
     const subscribers = []
     let loading = true
     let tasks = []
-    subscribers.push(Meteor.subscribe('task.byUserId'))
+    if(Roles.userIsInRole(userId, ROLES.ADMIN)) {
+        subscribers.push(Meteor.subscribe('task.all', {parentId:null, filter:null}))
+    } else {
+        subscribers.push(Meteor.subscribe('task.byUserId'))
+    }
     loading = subscribers.reduce((result, subscriber) => result && subscriber.ready(), true)
     tasks = Tasks.find({$or: [{assignee: userId}, {approver: userId}]}).fetch()
     return {
