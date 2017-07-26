@@ -57,7 +57,6 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
     const query = params.query
 
-    console.log('===> Nylas WebHook request body', query, JSON.stringify(req.body))
     const deltas = req.body.deltas
     if(deltas && deltas.length) {
         const data = deltas[0]

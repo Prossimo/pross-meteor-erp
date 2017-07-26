@@ -458,7 +458,8 @@ Meteor.methods({
             createBy: String,
             createAt: Date,
             fileName: String,
-            fileId: String
+            fileId: String,
+            note: String
         })
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
             throw new Meteor.Error('Access denied')
@@ -482,7 +483,8 @@ Meteor.methods({
             updateBy: String,
             updateAt: Date,
             fileName: String,
-            fileId: String
+            fileId: String,
+            note: String
         })
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
             throw new Meteor.Error('Access denied')
@@ -500,6 +502,7 @@ Meteor.methods({
                 revision.updateAt = data.updateAt
                 revision.fileName = data.fileName
                 revision.fileId = data.fileId
+                revision.note = data.note
             }
             return revision
         })
