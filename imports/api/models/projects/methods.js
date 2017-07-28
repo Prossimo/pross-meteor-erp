@@ -55,7 +55,6 @@ export const createProject = new ValidatedMethod({
 
             Meteor.defer(() => {
                 // CREATE DRIVE
-                const prossDocDrive = require('/imports/api/drive')
                 prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
             })
         }
@@ -78,6 +77,17 @@ export const updateProject = new ValidatedMethod({
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
+        if(members && members.length) {console.log(_.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1))
+            Meteor.users.find({
+                _id: { $in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1) },
+                slack: { $exists: true },
+            }).forEach(
+                ({ slack: { id } }) => {
+                    const {data} = slackClient.channels.invite({ channel:project.slackChanel, user:id })
+                    console.log(data)
+                }
+            )
+        }
         const data = {
             name: _.isUndefined(name) ? null : name,
             members: _.isUndefined(members) ? null : members
