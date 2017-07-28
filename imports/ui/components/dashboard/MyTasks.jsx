@@ -14,7 +14,11 @@ class MyTasks extends Component {
 
         this.state = {
             showAllTasks: false,
-            hideCompletedTasks: false
+            hideCompletedTasks: false,
+            sort: {
+                by: 'dueDate',
+                asc: false
+            }
         }
     }
 
@@ -46,8 +50,42 @@ class MyTasks extends Component {
         })
     }
 
-    renderTasks() {
+    getSortedData() {
         const tasks = this.getTasks()
+        const {by, asc} = this.state.sort
+
+        const sort = () => _.sortBy(tasks, t => {
+            if(by === 'parentId') {
+                return t.parent() ? t.parent().name : ''
+            } else if(by === 'assignee') {
+                const assignee = _.findWhere(this.props.users, {_id:t.assignee})
+                const assigneeName = assignee ? getUserName(assignee) : ''
+                return assigneeName
+            } else if(by === 'approver') {
+                const approver = _.findWhere(this.props.users, {_id:t.approver})
+                const approverName = approver ? getUserName(approver) : ''
+                return approverName
+            } else {
+                return t[by]
+            }
+        })
+
+        if(asc) {
+            return sort()
+        } else {
+            return sort().reverse()
+        }
+    }
+
+    sortBy = (field) => {
+        const {by, asc} = this.state.sort
+
+        if(by == field) this.setState({sort:{by, asc:!asc}})
+        else this.setState({sort:{by:field, asc:true}})
+    }
+
+    renderTasks() {
+        const tasks = this.getSortedData()
         const {users, userId} = this.props
 
         return tasks.map((task, index) => {
@@ -79,6 +117,7 @@ class MyTasks extends Component {
     }
 
     render() {
+        const {by, asc} = this.state.sort
         const header = (
             <div style={{display: 'flex'}}>
                 <div style={{flex: 1}}>
@@ -92,21 +131,27 @@ class MyTasks extends Component {
                 </div>
             </div>
         )
+        const sortIcon = (field) => {
+            if(by === field && asc) return <i style={{marginLeft:5}} className="fa fa-caret-up"/>
+            else if(by === field && !asc) return <i style={{marginLeft:5}} className="fa fa-caret-down"/>
+            else return ''
+        }
+
         return (
-            <div>
+            <div className="my-tasks">
                 <Panel header={header}>
                     All tasks assigned from/to you.
                     <Table responsive>
                         <thead>
                         <tr>
                             <th>#</th>
-                            <th>Name</th>
-                            <th>Status</th>
-                            <th>Deal/Project</th>
+                            <th onClick={() => this.sortBy('name')}>Name{sortIcon('name')}</th>
+                            <th onClick={() => this.sortBy('status')}>Status{sortIcon('status')}</th>
+                            <th onClick={() => this.sortBy('parentId')}>Deal/Project{sortIcon('parentId')}</th>
                             <th colSpan={2}>Desciption</th>
-                            <th>Assignee</th>
-                            <th>Approver</th>
-                            <th>DueDate</th>
+                            <th onClick={() => this.sortBy('assignee')}>Assignee{sortIcon('assignee')}</th>
+                            <th onClick={() => this.sortBy('approver')}>Approver{sortIcon('approver')}</th>
+                            <th onClick={() => this.sortBy('dueDate')}>DueDate{sortIcon('dueDate')}</th>
                             <th></th>
                         </tr>
                         </thead>
