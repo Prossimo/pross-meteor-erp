@@ -25,8 +25,6 @@ import {
     GET_QUOTES,
     GET_PROJECT_FILES,
     GET_NYLAS_ACCOUNTS,
-    GET_NEW_PROJECTS,
-    GET_NEW_PROJECT,
     GET_CONTACTS,
     GET_MY_CONTACTS,
     GET_MESSAGES,
@@ -42,6 +40,7 @@ import '/imports/api/models/threads/publications'
 import '/imports/api/models/messages/publications'
 import '/imports/api/models/mailtemplates/publications'
 import '/imports/api/models/conversations/publications'
+import '/imports/api/models/projects/publications'
 
 Meteor.startup(() => {
     //
@@ -138,17 +137,6 @@ Meteor.startup(() => {
                 userId: this.userId
             }]
         })
-    })
-
-    Meteor.publish(GET_NEW_PROJECTS, function () {
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
-        return Projects.find({'members.userId': this.userId})
-    })
-
-    Meteor.publish(GET_NEW_PROJECT, function (_id) {
-        if (!Match.test(_id, String)) return this.ready()
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find({_id})
-        return Projects.find({_id, 'members.userId': this.userId})
     })
 
     Meteor.publish(GET_MESSAGES, function (salesRecordId) {
