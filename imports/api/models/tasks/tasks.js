@@ -5,6 +5,15 @@ import Projects from '../projects/projects'
 
 const Tasks = new Mongo.Collection('Tasks')
 
+export const TaskStatus = [
+    'Idea',
+    'To-Do',
+    'In Progress',
+    'Reviewing',
+    'Complete',
+    'Blocked',
+]
+
 Tasks.schema = new SimpleSchema({
     _id: {
         type: String,
@@ -28,14 +37,7 @@ Tasks.schema = new SimpleSchema({
     },
     status: {
         type: String,
-        allowedValues: [
-            'Idea',
-            'To-Do',
-            'In Progress',
-            'Reviewing',
-            'Complete',
-            'Blocked',
-        ],
+        allowedValues: TaskStatus,
     },
     parentId: {
         type: String,
@@ -50,6 +52,7 @@ Tasks.schema = new SimpleSchema({
     },
     isRemoved: {
         type: Boolean,
+        optional: true,
         defaultValue: false,
     },
     comments: {

@@ -1,11 +1,12 @@
 /* global moment */
 import {Roles} from 'meteor/alanning:roles'
 import React, {Component, PropTypes} from 'react'
-import {Panel, Table} from 'react-bootstrap'
+import {Panel, Table, Dropdown, MenuItem} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
-import Tasks from '/imports/api/models/tasks/tasks'
+import Tasks, {TaskStatus} from '/imports/api/models/tasks/tasks'
 import {getUserName} from '/imports/api/lib/filters'
 import {ROLES} from '/imports/api/models'
+import {CustomToggle} from '../common'
 
 class MyTasks extends Component {
     constructor(props) {
@@ -84,9 +85,47 @@ class MyTasks extends Component {
         else this.setState({sort:{by:field, asc:true}})
     }
 
+    onMouseEnterStatus = (task) => {
+        if(this.state.hoverStatusTask && this.state.hoverStatusTask._id === task._id) return
+
+        this.setState({
+            hoverStatusTask: task
+        })
+    }
+
+    onMouseLeaveStatus = (task) => {
+        this.setState({hoverStatusTask:null})
+    }
+
+    selectStatusForTask = (task, status) => {
+        if(task.status === status) return
+        task.status = status
+
+        Meteor.call('task.update', {...task}, (err, res) => {
+            if (err) {
+                return console.error(err)
+            }
+        })
+    }
+
+    renderStatusSelector(task) {
+        return (
+            <Dropdown id="task-status-selector" style={{float:'right'}} pullRight>
+                <CustomToggle bsRole="toggle">
+                    <i className="fa fa-cog"/>
+                </CustomToggle>
+                <Dropdown.Menu>
+                {
+                    TaskStatus.map((s,i) => (<MenuItem key={`status-${i}`} eventKey={i} onSelect={() => this.selectStatusForTask(task, s)}>{s}</MenuItem>))
+                }
+                </Dropdown.Menu>
+            </Dropdown>
+        )
+    }
     renderTasks() {
         const tasks = this.getSortedData()
         const {users, userId} = this.props
+        const {hoverStatusTask} = this.state
 
         return tasks.map((task, index) => {
             const assignee = users.filter(u => u._id === task.assignee)[0]
@@ -100,7 +139,7 @@ class MyTasks extends Component {
                 <tr key={task._id}>
                     <td>{index + 1}</td>
                     <td>{task.name}</td>
-                    <td>{task.status}</td>
+                    <td style={{width:150}} onMouseEnter={() => {this.onMouseEnterStatus(task)}} onMouseLeave={() => {this.onMouseLeaveStatus(task)}}>{task.status}{hoverStatusTask&&hoverStatusTask._id===task._id&&this.renderStatusSelector(task) }</td>
                     <td>{task.parent() && task.parent().name}</td>
                     <td colSpan={2}>{task.description}</td>
                     <td>{assignee && assignee._id === userId ? 'You' : assigneeName}</td>
