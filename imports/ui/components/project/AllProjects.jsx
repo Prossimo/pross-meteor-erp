@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { createContainer  } from 'meteor/react-meteor-data';
-import { GET_NEW_PROJECTS } from '/imports/api/constants/collections';
-import Projects from '/imports/api/models/projects/projects';
-import Sheets from '/imports/ui/components/libs/Sheets';
-import swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
+/* global FlowRouter */
+import React, { Component } from 'react'
+import { createContainer  } from 'meteor/react-meteor-data'
+import Projects from '/imports/api/models/projects/projects'
+import Sheets from '/imports/ui/components/libs/Sheets'
+import swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 class AllProjects extends Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.possibleColumns = [
             {
                 key: '_id',
@@ -23,24 +23,26 @@ class AllProjects extends Component {
                 selected: false,
                 editable: true,
             },
-        ];
-        this.saveProjectProperty = this.saveProjectProperty.bind(this);
-        this.removeProject = this.removeProject.bind(this);
+        ]
+        this.saveProjectProperty = this.saveProjectProperty.bind(this)
+        this.removeProject = this.removeProject.bind(this)
     }
 
     componentWillUnmount() {
-        this.props.subscribers.forEach((subscriber)=> subscriber.stop());
+        this.props.subscribers.forEach((subscriber) => subscriber.stop())
     }
 
     saveProjectProperty(projectId, { key, value }, callback) {
-        Meteor.call('updateNewProjectProperty', projectId, { key, value }, (error)=> {
-            if (error) {
-                error.reason = `Problems with updating project. ${error.error}`
-                callback && callback(error);
-            } else {
-                callback && callback(null, 'Success update project attributes')
+        const project = Projects.findOne(projectId)
+        project[key] = value
+        Meteor.call('project.update', project, (err, res) => {
+            if(err) {
+                err.reason = `Problems with updating project. ${err.error}`
+                callback && callback(err)
+                return
             }
-        });
+            callback && callback(null, 'Success update project attributes')
+        })
     }
 
     removeProject({ _id }) {
@@ -65,26 +67,24 @@ class AllProjects extends Component {
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Yes, remove it!',
-        preConfirm: ()=> {
-          return new Promise((resolve)=> {
+        preConfirm: () => new Promise((resolve) => {
             resolve({
               isRemoveFolders: $('#confirm-remove-folders').is(':checked'),
               isRemoveSlack: $('#confirm-remove-slack').is(':checked'),
-            });
-          });
-        },
-      }).then(({ isRemoveFolders, isRemoveSlack })=> {
-        Meteor.call('removeProject', { _id, isRemoveFolders, isRemoveSlack }, (error, result)=> {
-          if (error) {
-            const msg = error.reason ? error.reason : error.message;
-            return swal('remove project failed',  msg, 'warning');
-          }
-          swal(
-            'Removed!',
-            'Project has been removed.',
-            'success'
-          );
-        });
+            })
+          }),
+      }).then(({ isRemoveFolders, isRemoveSlack }) => {
+          Meteor.call('project.remove',{ _id, isRemoveFolders, isRemoveSlack }, (err,res)=>{
+              if(err) {
+                  const msg = e.reason ? e.reason : e.message
+                  return swal('remove project failed',  msg, 'warning')
+              }
+              swal(
+                  'Removed!',
+                  'Project has been removed.',
+                  'success'
+              )
+          })
       })
     }
 
@@ -114,12 +114,12 @@ class AllProjects extends Component {
     }
 }
 
-export default createContainer(function() {
-    const subscribers = [];
-    subscribers.push(Meteor.subscribe(GET_NEW_PROJECTS));
+export default createContainer(() => {
+    const subscribers = []
+    subscribers.push(Meteor.subscribe('getNewProjects'))
     return {
         subscribers,
-        loading: !subscribers.reduce((prev, subscriber)=> prev && subscriber.ready(), true),
+        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         projects: Projects.find().fetch(),
-    };
-}, AllProjects);
+    }
+}, AllProjects)

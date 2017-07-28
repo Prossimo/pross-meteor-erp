@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import { createContainer } from 'meteor/react-meteor-data'
-import { GET_NEW_PROJECT } from '/imports/api/constants/collections'
 import SlackMessages from '/imports/api/models/slackMessages/slackMessages'
 import Projects from '/imports/api/models/projects/projects'
 import Message from '../salesRecord/Massage.jsx'
@@ -68,7 +67,7 @@ class Activities extends Component {
 export default createContainer(props => {
   const { projectId } = props
   const subscribers = []
-  subscribers.push(Meteor.subscribe(GET_NEW_PROJECT, projectId))
+  subscribers.push(Meteor.subscribe('getNewProject', projectId))
   subscribers.push(Meteor.subscribe('project.slackMessages', projectId))
   const { slackChanel } = Projects.findOne(projectId)
   return {
