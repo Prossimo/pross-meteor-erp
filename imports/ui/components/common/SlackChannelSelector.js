@@ -45,28 +45,43 @@ export default class SlackChannelSelector extends React.Component {
     onSelectMenu = (c) => {
         if(this.props.onSelectChannel) this.props.onSelectChannel(c)
     }
-
-    renderMenu() {
-        const {channels, loading} = this.state
+    renderItems() {
+        const {channels} = this.state
         const {channel} = this.props
+
+        return (
+            <table>
+                <tbody>
+                {
+                    channels.map((c, i) => (
+                        <tr key={i} onClick={() => this.onSelectMenu(c)}>
+                            <td>{channel==c.id ? <i className="fa fa-check"/> : <span style={{width:12,height:12}}>&nbsp;</span> }</td>
+                            <td>{c.name}</td>
+                        </tr>
+                    ))
+                }
+                </tbody>
+            </table>
+        )
+    }
+    renderMenu() {
+        const {loading} = this.state
 
         if(loading) {
             return (
-                <Dropdown.Menu className="dropdown-menu" style={{width:250}}>
+                <Dropdown.Menu>
                     <i className="fa fa-spinner fa-spin fa-fw"/>
                 </Dropdown.Menu>
             )
         } else {
             return (
-                <Dropdown.Menu className="dropdown-menu" style={{width:250}}>
-                    <MenuItem header style={{padding: 5}}>
+                <Dropdown.Menu className="selector-menu">
+                    <MenuItem header className="item">
                         <FormControl type="text" placeholder="Type to filter..." onChange={this.onChangeSearch}/>
                     </MenuItem>
-                    {
-                        channels.map((c, i) => (
-                            <MenuItem key={`channel-${c.id}`} eventKey={i} active={c.id == channel} onSelect={() => this.onSelectMenu(c)}>{c.name}</MenuItem>
-                        ))
-                    }
+                    <MenuItem header className="item body">
+                        {this.renderItems()}
+                    </MenuItem>
                 </Dropdown.Menu>
             )
         }
