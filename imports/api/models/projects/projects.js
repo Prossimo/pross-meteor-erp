@@ -27,6 +27,10 @@ Projects.schema = new SimpleSchema({
         type: String,
         optional: true,
     },
+    slackChannelName: {
+        type: String,
+        optional: true,
+    },
     folderId: {
         type: String,
         optional: true,

@@ -5,6 +5,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import { Projects, ROLES } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
 import { slackClient } from '/imports/api/slack'
+import config from '../../config'
 
 export const createProject = new ValidatedMethod({
     name: 'project.create',
@@ -119,5 +120,33 @@ export const removeProject = new ValidatedMethod({
                 })
             }
         }
+    }
+})
+
+Meteor.methods({
+    updateProjectSlackChannel({_id, channel}) {
+        check(_id, String)
+        check(channel, Object) // slack channel object
+
+        const slackChanel = channel.id
+        const slackChannelName = channel.name
+        const slackMembers = channel.members
+
+        //if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+
+        const project = Projects.findOne(_id)
+        if(!project) throw new Meteor.Error(`Not found project with _id: ${_id}`)
+
+        if(slackMembers.indexOf(config.slack.botId) == -1) {
+            const responseInviteBot = slackClient.channels.inviteBot({
+                channel: slackChanel,
+            })
+
+            if (!responseInviteBot.data.ok) {
+                console.error(slackChanel, responseInviteBot.data)
+                throw new Meteor.Error('Bot cannot add to channel')
+            }
+        }
+        Projects.update(_id, {$set:{slackChanel, slackChannelName}})
     }
 })
