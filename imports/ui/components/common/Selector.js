@@ -77,8 +77,6 @@ export default class MemberSelector extends React.Component {
         )
     }
     renderMenu() {
-        const {options, value} = this.state
-
         return (
             <Dropdown.Menu className="selector-menu">
                 <MenuItem header className="item">

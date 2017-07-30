@@ -6,7 +6,7 @@ import {Users,Projects} from '/imports/api/models'
 import Activities from './Activities'
 import Tasks from '../tasks/TaskBoard.jsx'
 import Files from '../files/Files.jsx'
-import {Panel, MemberSelector} from '../common'
+import {Panel, Selector} from '../common'
 
 class SingleProject extends Component {
     constructor(props) {
@@ -103,7 +103,7 @@ class SingleProject extends Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Members" actions={<MemberSelector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
+                        <Panel title="Members" actions={<Selector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
                             {members&&members.length ? this.renderMembers(members) : <div>There are no members assigned to this project</div>}
                         </Panel>
                     </div>
