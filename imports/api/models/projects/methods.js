@@ -78,7 +78,7 @@ export const updateProject = new ValidatedMethod({
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
-        if(members && members.length) {console.log(_.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1))
+        if(members && members.length) {
             Meteor.users.find({
                 _id: { $in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1) },
                 slack: { $exists: true },

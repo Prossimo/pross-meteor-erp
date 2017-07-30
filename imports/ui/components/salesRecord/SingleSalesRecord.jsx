@@ -1,3 +1,4 @@
+/* global FlowRouter */
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import classNames from 'classnames'
@@ -5,7 +6,7 @@ import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select'
-import {ROLES} from '/imports/api/models'
+import {ROLES, Users, PeopleDesignations, People} from '/imports/api/models'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
 import Quotes from './Quotes'
@@ -18,10 +19,8 @@ import Documents from './Documents'
 import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
-import People from '/imports/api/models/people/people'
-import Designations from '/imports/api/models/people/designations'
 import SelectSubStage from './components/SelectSubStage'
-import {Panel, SlackChannelSelector} from '../common'
+import {Panel, SlackChannelSelector, Selector} from '../common'
 
 class SingleSalesRecord extends React.Component {
     constructor(props) {
@@ -97,9 +96,7 @@ class SingleSalesRecord extends React.Component {
         }
 
         this.renderPeople = this.renderPeople.bind(this)
-        this.renderAddMemberForm = this.renderAddMemberForm.bind(this)
         this.changeState = this.changeState.bind(this)
-        this.addMember = this.addMember.bind(this)
         this.addStakeholder = this.addStakeholder.bind(this)
         this.showContactInfo = this.showContactInfo.bind(this)
         this.removeMember = this.removeMember.bind(this)
@@ -198,42 +195,18 @@ class SingleSalesRecord extends React.Component {
         })
     }
 
-    //todo change style
-    renderMembers() {
-        const {salesRecord} = this.props
-        if (!salesRecord) return null
+    renderMembers(members) {
         return (
-            <ul className="project-members">
-                {_.isArray(salesRecord.members) && salesRecord.members.map(userId => {
-                    const member = Meteor.users.findOne(userId)
-
-                    if (!member) return ''
-                    return (
-                        <li key={`li-member-${userId}`}
-                            className="member-list">
-                            {
-                                Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) ? (
-                                    <a href='#' style={{top: '10px', right: '10px', position: 'relative'}}
-                                       onClick={(event) => this.removeMember(salesRecord._id, userId, event)}>
-                                        <span className='fa fa-times pull-right'></span>
-                                    </a>
-                                ) : ''
-                            }
-                            <span
-                                onClick={this.showUserInfo.bind(this, member)}
-                                className={classNames('memberName')}>
-                  {getUserName(member, true)}
-                </span>
-                            <span className="email">
-                  {getUserEmail(member)}
-                </span>
-                            <div>
-                                {member.roles.join(', ')}
-                            </div>
-                        </li>
-                    )
-                })}
-            </ul>
+            <div className="list">
+                {
+                    members.map(m => (
+                        <div key={m._id} className="item">
+                            <div className="primary-text">{m.name()}</div>
+                            <div className="secondary-text">{m.email()}</div>
+                        </div>
+                    ))
+                }
+            </div>
         )
     }
 
@@ -302,73 +275,6 @@ class SingleSalesRecord extends React.Component {
         this.setState({selectedMembers})
     }
 
-    renderAddMemberForm() {
-        const {salesRecord, users} = this.props
-
-        const members = users
-            .filter(user => user.status !== 'pending' && user.slack) // do not contain current user and not in pending status
-            .filter(user => Roles.userIsInRole(user._id, [ROLES.ADMIN, ROLES.SALES])) // must be admin or employee
-            .filter(user => salesRecord.members.indexOf(user._id) == -1)
-            .map(user => ({
-                name: getUserName(user, true),
-                email: getUserEmail(user),
-                value: user._id,
-                roles: user.roles.toString()
-            }))
-
-        if (_.isEmpty(members)) return (<div>There is no member available now</div>)
-
-        if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN))
-            return (
-                <div>
-                    <div className="form">
-                        <div className="form-group">
-                            <table className="table">
-                                <tr>
-                                    <th></th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Roles</th>
-                                </tr>
-                                <tbody>
-                                {
-                                    members.map((member) =>
-                                        (
-                                            <tr key={member.value}>
-                                                <td><input type="checkbox"
-                                                           onClick={this.addMemberToState.bind('', member.value)}/> &nbsp;
-                                                </td>
-                                                <td>{member.name}</td>
-                                                <td>{member.email}</td>
-                                                <td>{member.roles}</td>
-                                            </tr>
-                                        )
-                                    )
-                                }
-                                </tbody>
-                            </table>
-                        </div>
-                        <button onClick={this.addMember} className="btnn primary-btn">Add</button>
-                    </div>
-                </div>
-            )
-    }
-
-    renderAddMemeberModal() {
-        const {showAddMemeberModal} = this.state
-
-        return (
-            <Modal show={showAddMemeberModal} bsSize="large" onHide={() => {
-                this.setState({showAddMemeberModal: false})
-            }}>
-                <Modal.Header closeButton><Modal.Title>Add Team Member</Modal.Title></Modal.Header>
-                <Modal.Body>
-                    {this.renderAddMemberForm()}
-                </Modal.Body>
-            </Modal>
-        )
-    }
-
     addStakeholder() {
         const {stakeholder: {selectedPeople, addToMain}} = this.state
         const {salesRecord} = this.props
@@ -390,26 +296,12 @@ class SingleSalesRecord extends React.Component {
         })
     }
 
-    addMember() {
-        const {selectedMembers} = this.state
+    onSelectMembers = (members) => {
         const {salesRecord} = this.props
-        const members = selectedMembers
+        if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m)>-1)) return
 
-        console.log(members)
-        this.props.toggleLoader(true)
-        Meteor.call('addMembersToProject', salesRecord._id, members, err => {
-            this.props.toggleLoader(false)
-            if (err) return warning(err.reason ? err.reason : 'Add team member failed!')
-            this.setState({showAddMemeberModal: false})
-            info('Add team members to saleRecord success!')
-        })
-        Meteor.defer(() => {
-            _.each(members, (member) => {
-                Meteor.call('addUserToSlackChannel', member, salesRecord.slackChanel, (err, res) => {
-                    if (err) return warning(err.error)
-                    info(`${res.userEmail} success add to slack channel!`)
-                })
-            })
+        Meteor.call('updateSalesRecordMembers', salesRecord._id, members.map(m => m.value), err => {
+            if (err) return console.error(err)
         })
     }
 
@@ -474,6 +366,7 @@ class SingleSalesRecord extends React.Component {
         const defaultStage = this.stageOptions.find(({value}) => value === salesRecord.stage)
         const slackChannelInfo = null//salesRecord.slackChannelInfo()
 
+        const members = salesRecord.getMembers()
         return (
             <div className="page-container single-project">
                 {this.renderPopup()}
@@ -517,24 +410,15 @@ class SingleSalesRecord extends React.Component {
                         </Panel>
                     </div>
                     <div className="sidebar-box">
-                        <button
-                            className="btnn primary-btn"
-                            onClick={() => {
-                                this.setState({showAddMemeberModal: true})
-                            }}
-                        >Add Team Member
-                        </button>
+                        <Panel title="Members" actions={<Selector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
+                            {members&&members.length ? this.renderMembers(members) : <div>There are no members assigned to this project</div>}
+                        </Panel>
                     </div>
                     <div className='sidebar-box'>
                         <div>
                             {this.renderAddStakeholderForm()}
                         </div>
                     </div>
-                    <h4>Team members</h4>
-                    <div className='sidebar-box'>
-                        {this.renderMembers()}
-                    </div>
-
                     {
                         this.props.designations.map((d) => {
                             const existPeople = this.props.stakeholders.filter(stake =>
@@ -554,8 +438,6 @@ class SingleSalesRecord extends React.Component {
                         })
                     }
                 </aside>
-
-                {this.renderAddMemeberModal()}
             </div>
         )
     }
@@ -567,11 +449,11 @@ export default createContainer(props => {
         .find({_id: {$in: peopleIds}})
         .fetch()
         .map(p => {
-            p.designation = Designations.findOne(p.designation_id)
+            p.designation = PeopleDesignations.findOne(p.designation_id)
             return p
         })
     const candidateStakeholders = People.find({_id: {$nin: peopleIds}}).fetch()
-    const designations = Designations.find().fetch()
+    const designations = PeopleDesignations.find().fetch()
     return {
         designations,
         stakeholders,
