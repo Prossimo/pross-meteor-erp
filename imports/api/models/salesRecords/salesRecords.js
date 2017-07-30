@@ -7,6 +7,7 @@ import { STAGES, SUB_STAGES } from '../../constants/project'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import People from '../people/people'
+import Users from '../users/users'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -157,6 +158,10 @@ SalesRecords.helpers({
             p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
             return p
         })
+    },
+    getMembers() {
+        if (!this.members || this.members.length == 0) return []
+        return Users.find({_id:{$in:this.members}}).fetch()
     }
 })
 

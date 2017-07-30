@@ -321,7 +321,7 @@ Meteor.methods({
 
     },
 
-    addMembersToProject(salesRecordId, members){
+    updateSalesRecordMembers(salesRecordId, members){
         check(salesRecordId, String)
         check(members, Array)
 
@@ -329,14 +329,23 @@ Meteor.methods({
 
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
-        const existingMembers = salesRecord.members
-        members.forEach((member) => {
-            if(existingMembers.indexOf(member) == -1) {
-                existingMembers.push(member)
-            }
-        })
 
-        SalesRecords.update(salesRecordId, {$set: {members: existingMembers}})
+        if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m)>-1)) return
+
+        if(members && members.length) {
+            Meteor.users.find({
+                _id: { $in: members.filter(mid => salesRecord.members.indexOf(mid)==-1) },
+                slack: { $exists: true },
+            }).forEach(
+                ({ slack: { id } }) => {
+                    const {data} = slackClient.channels.invite({ channel:salesRecord.slackChanel, user:id })
+                    console.log(data)
+                }
+            )
+        }
+
+        SalesRecords.update(salesRecordId, {$set: {members}})
+
         // allow edit folder
         Meteor.defer(() => {
             _.each(members, (member) => {
