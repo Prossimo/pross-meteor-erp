@@ -133,8 +133,10 @@ SalesRecords.helpers({
 
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
-    contactsForStakeholders() {
-        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+    contactsForMainParticipants() {
+        if(!this.participants || this.participants.length==0) return []
+
+        const peopleIds = _.pluck(this.participants, 'peopleId')
         const people = People.find({_id:{$in:peopleIds}}).fetch()
 
         return people.map(p => ({name:p.name, email:p.defaultEmail()}))
