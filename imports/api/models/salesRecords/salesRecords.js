@@ -31,6 +31,18 @@ const SalesRecords = new SalesRecordsCollection('SalesRecords')
     remove() { return true }
 })*/
 
+export const DEAL_PRIORITY = {
+    Low: 'Low',
+    High: 'High',
+    Medium: 'Medium',
+    Urgent: 'Urgent'
+}
+export const DEAL_PROBABILITY = {
+    Low: 'Low',
+    High: 'High',
+    Medium: 'Medium'
+}
+
 SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
@@ -40,7 +52,8 @@ SalesRecords.schema = new SimpleSchema({
 
     name: { type: String },
     members: { type: Array },
-    'members.$': { type: String },
+    'members.$': { type: String, regEx: SimpleSchema.RegEx.Id },
+    teamLead: {type: String, regEx: SimpleSchema.RegEx.Id, optional:true},
 
     stakeholders: { type: Array },
     'stakeholders.$': { type: Object },
@@ -57,6 +70,14 @@ SalesRecords.schema = new SimpleSchema({
     productionStartDate: { type: Date },
     estDeliveryRange: { type: Array },
     'estDeliveryRange.$': { type: Date },
+
+    bidDuDate: { type: Date, optional:true },
+    priority: {type: String, allowedValues: Object.values(DEAL_PRIORITY), defaultValue: DEAL_PRIORITY.Low},
+    expectedRevenue: {type: Number, optional:true},
+    totalSquareFootage: {type: Number, optional:true},
+    probability: {type: String, allowedValues: Object.values(DEAL_PROBABILITY), defaultValue: DEAL_PROBABILITY.Low},
+    clientStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    supplierStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
 
     shippingMode: { type: String, optional: true },
     shippingContactPhone: { type: String, optional: true },
