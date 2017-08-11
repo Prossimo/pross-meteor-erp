@@ -236,7 +236,7 @@ class Details extends React.Component{
                 } else if(field === 'teamLead') {
                     const members = this.props.salesRecord.getMembers()
                     selectOptions = members.map(m => ({label: m.name(), value:m._id}))
-                    displayValue = _.findWhere(members, {_id:value}).name()
+                    displayValue = value && _.findWhere(members, {_id:value}).name()
                 } else if(field === 'priority') {
                     selectOptions = Object.values(DEAL_PRIORITY).map(value => ({label: value, value}))
                 } else if(field === 'probability') {
@@ -244,11 +244,11 @@ class Details extends React.Component{
                 } else if(field === 'clientStatus') {
                     const statuses = ClientStatus.find().fetch()
                     selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
-                    displayValue = _.findWhere(statuses, {_id:value}).name
+                    displayValue = value && _.findWhere(statuses, {_id:value}).name
                 } else if(field === 'supplierStatus') {
                     const statuses = SupplierStatus.find().fetch()
                     selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
-                    displayValue = _.findWhere(statuses, {_id:value}).name
+                    displayValue = value && _.findWhere(statuses, {_id:value}).name
                 }
             }
 
