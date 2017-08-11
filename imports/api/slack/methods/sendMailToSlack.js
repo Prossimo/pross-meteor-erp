@@ -4,7 +4,6 @@ import cheerio from 'cheerio'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
 import {Threads, SalesRecords, SlackMails, Conversations} from '/imports/api/models'
-import toMarkdown from 'to-markdown'
 
 Meteor.methods({
     sendMailToSlack(message) {
@@ -57,15 +56,14 @@ Meteor.methods({
             to.push(c.email)
         })
         const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
-        /*const $ = cheerio.load(message.body)
+        const $ = cheerio.load(message.body)
         const children = $('body').children()
         let textMail = ''
         for (let i = 0; i < children.length; i++) {
             const text = children.eq(i).text()
             if (text.includes('wrote:')) break
             textMail += `${text} \n`
-        }*/
-        let textMail = toMarkdown(message.body)
+        }
 
         let footer
         if (conversation) {
