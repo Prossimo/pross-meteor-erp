@@ -3,11 +3,14 @@ import { info, warning  } from '/imports/api/lib/alerts'
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
+import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
+import {ClientStatus, SupplierStatus} from '/imports/api/models'
 
 class Details extends React.Component{
     constructor(props) {
         super(props)
         this.state = {
+            isEditingStatus: false,
             isEditingAttributes: false,
             isEditingShipping: false,
             isEditingBilling: false,
@@ -71,6 +74,26 @@ class Details extends React.Component{
         })
     }
 
+    saveStatus = () => {
+        const salesRecordId = this.state.salesRecord._id
+        const status = _.pick(
+            this.state.salesRecord,
+            'teamLead',
+            'bidDueDate',
+            'priority',
+            'expectedRevenue',
+            'totalSquareFootage',
+            'probability',
+            'clientStatus',
+            'supplierStatus',
+        )
+        Meteor.call('updateSalesRecordStatus', salesRecordId, status, (error, result) => {
+            if(error) return warning(`Problems with updating project. ${error.error}`)
+            this.toggleEditStatus()
+            return info('Success update project')
+        })
+    }
+
     saveAttributes() {
         const salesRecordId = this.state.salesRecord._id
         const attributes = _.pick(
@@ -89,6 +112,12 @@ class Details extends React.Component{
             this.toggleEditAttributes()
             return info('Success update project')
         })
+    }
+
+    toggleEditStatus = () => {
+        this.setState(({ isEditingStatus }) => ({
+            isEditingStatus: !isEditingStatus
+        }))
     }
 
     toggleEditAttributes() {
@@ -153,6 +182,7 @@ class Details extends React.Component{
                     />
                 )
             case 'number':
+            case 'currency':
                 return (
                     <input
                         type={'number'}
@@ -198,8 +228,32 @@ class Details extends React.Component{
     renderTableRows(rows, data, name){
          return _.map(rows, ({ type, field, label }) => {
             let value = data[field]
-            const shippingModes = SHIPPING_MODE_LIST.map((value) => ({label: value, value}))
-            if ((this.state.isEditingAttributes && name == 'attributes')
+            let displayValue = value
+            let selectOptions
+            if(type === 'select') {
+                if(field === 'shippingMode') {
+                    selectOptions = SHIPPING_MODE_LIST.map((value) => ({label: value, value}))
+                } else if(field === 'teamLead') {
+                    const members = this.props.salesRecord.getMembers()
+                    selectOptions = members.map(m => ({label: m.name(), value:m._id}))
+                    displayValue = _.findWhere(members, {_id:value}).name()
+                } else if(field === 'priority') {
+                    selectOptions = Object.values(DEAL_PRIORITY).map(value => ({label: value, value}))
+                } else if(field === 'probability') {
+                    selectOptions = Object.values(DEAL_PROBABILITY).map(value => ({label: value, value}))
+                } else if(field === 'clientStatus') {
+                    const statuses = ClientStatus.find().fetch()
+                    selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
+                    displayValue = _.findWhere(statuses, {_id:value}).name
+                } else if(field === 'supplierStatus') {
+                    const statuses = SupplierStatus.find().fetch()
+                    selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
+                    displayValue = _.findWhere(statuses, {_id:value}).name
+                }
+            }
+
+            if ((this.state.isEditingStatus && name == 'status')
+                || (this.state.isEditingAttributes && name == 'attributes')
                 || (this.state.isEditingShipping && name == 'shipping')
                 || (this.state.isEditingBilling && name == 'billing')
             ) {
@@ -208,19 +262,20 @@ class Details extends React.Component{
                         <td>{label}</td>
                         <td>
                             {
-                                this.renderRowType(field, type, value, shippingModes)
+                                this.renderRowType(field, type, value, type==='select'&&selectOptions)
                             }
                         </td>
                     </tr>
                 )
             }
             if (_.isNull(value) || _.isUndefined(value)) return null
-            if (type === 'date') value = moment(value).format('MM/DD/YYYY')
-            if (type === 'daterange') value = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`
+            if (type === 'date') displayValue = moment(value).format('MM/DD/YYYY')
+            if (type === 'daterange') displayValue = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`
+            if (type === 'currency') displayValue = `$ ${parseFloat(value).toLocaleString('en-US', {minimunFractionDigits:2, maximumFractionDigits:2})}`
             return (
                 <tr key={field}>
                     <td>{label}</td>
-                    <td>{value}</td>
+                    <td>{displayValue}</td>
                 </tr>
             )
              return null
@@ -229,6 +284,16 @@ class Details extends React.Component{
 
     render() {
         const { salesRecord } = this.state
+        const statusRows = [
+            {label: 'Team Lead', field: 'teamLead', type: 'select'},
+            {label: 'Bid Due Date', field: 'bidDueDate', type: 'date'},
+            {label: 'Priority', field: 'priority', type: 'select'},
+            {label: 'Expected Revenue', field: 'expectedRevenue', type: 'currency'},
+            {label: 'Total Square Footage', field: 'totalSquareFootage', type: 'currency'},
+            {label: 'Probability', field: 'probability', type: 'select'},
+            {label: 'Client Status', field: 'clientStatus', type: 'select'},
+            {label: 'Supplier Status', field: 'supplierStatus', type: 'select'},
+        ]
         const attrRows = [
             {label: 'Shipping mode', field: 'shippingMode', type: 'select'},
             {label: 'Actual delivery date', field: 'actualDeliveryDate', type: 'date'},
@@ -263,6 +328,20 @@ class Details extends React.Component{
 
         return (
             <div className="details-inbox-tab">
+                <div className='panel panel-default'>
+                    <div className='panel-heading'>
+                        Deal Status
+                        { this.renderEditAttributesButton(this.state.isEditingStatus, this.toggleEditStatus, this.saveStatus) }
+                    </div>
+                    <div className='panel-body'>
+                        <table className="table table-condensed">
+                            <tbody>
+                            {this.renderTableRows(statusRows, salesRecord, 'status')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div className='panel panel-default'>
                     <div className='panel-heading'>
                         Project Attributes

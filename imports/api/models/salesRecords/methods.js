@@ -399,5 +399,36 @@ Meteor.methods({
             }
         }
         SalesRecords.update(_id, {$set:{slackChanel, slackChannelName}})
-    }
+    },
+
+    updateSalesRecordStatus(salesRecordId, status) {
+        check(salesRecordId, String)
+        check(status, {
+            teamLead: Match.Maybe(String),
+            bidDueDate: Match.Maybe(Date),
+            priority: Match.Maybe(String),
+            expectedRevenue: Match.Maybe(Number),
+            totalSquareFootage: Match.Maybe(Number),
+            probability: Match.Maybe(String),
+            clientStatus: Match.Maybe(String),
+            supplierStatus: Match.Maybe(String),
+        })
+
+        // current user belongs to ADMIN LIST
+        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
+
+        // current user belongs to salesRecords
+        const salesRecord = SalesRecords.findOne(salesRecordId)
+        if (!salesRecord) throw new Meteor.Error('Project does not exists')
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+
+        status.modifiedAt = new Date()
+        return SalesRecords.update(salesRecordId, {
+            $set: status,
+        })
+    },
+
 })

@@ -41,6 +41,7 @@ import '/imports/api/models/messages/publications'
 import '/imports/api/models/mailtemplates/publications'
 import '/imports/api/models/conversations/publications'
 import '/imports/api/models/projects/publications'
+import '/imports/api/models/salesRecords/publications'
 
 Meteor.startup(() => {
     //
