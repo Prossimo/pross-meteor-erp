@@ -76,8 +76,8 @@ SalesRecords.schema = new SimpleSchema({
     expectedRevenue: {type: Number, optional:true},
     totalSquareFootage: {type: Number, optional:true},
     probability: {type: String, allowedValues: Object.values(DEAL_PROBABILITY), defaultValue: DEAL_PROBABILITY.Low},
-    clientStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
-    supplierStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    clientStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}, // client status id
+    supplierStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},   // supplier status id
 
     shippingMode: { type: String, optional: true },
     shippingContactPhone: { type: String, optional: true },

@@ -1,6 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations, Conversations} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus} from '/imports/api/models'
 
 Migrations.add({
     version: 1,
@@ -108,8 +108,23 @@ Migrations.add({
     down() {}
 
 })
+Migrations.add({
+    version: 6,
+    name: 'Add ClientStatus and SupplierStatus',
+    up() {
+        console.log('==== migrate up to version 6 ====')
+
+        const clientStatuses = ['Waiting on Client', 'Quote Sent', 'Change Requested', 'Intent To Buy', 'Client Accept', 'Submittal Sent', 'RFC', 'Stuck!']
+        clientStatuses.forEach((status) => ClientStatus.insert({name:status,editable:false}))
+
+        const supplierStatuses = ['Sent to Supplier', 'Pricing Received', 'RFC', 'Questions Asked', 'Info Received', 'Submittal Sent']
+        supplierStatuses.forEach((status) => SupplierStatus.insert({name:status,editable:false}))
+    },
+    down() {}
+
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(5)
+        Migrations.migrateTo(6)
     }
 })
