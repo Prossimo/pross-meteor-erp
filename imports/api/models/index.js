@@ -19,6 +19,8 @@ import SlackUsers from './slackUsers/slackUsers'
 import People from './people/people'
 import PeopleDesignations from './people/designations'
 import Conversations from './conversations/conversations'
+import SupplierStatus from './salesRecords/supplierstatus'
+import ClientStatus from './salesRecords/clientstatus'
 
 export {
     NylasAccounts,
@@ -43,5 +45,7 @@ export {
     PeopleDesignations,
     ROLES,
     STATUS as USER_STATUS,
-    Conversations
+    Conversations,
+    SupplierStatus,
+    ClientStatus
 }
