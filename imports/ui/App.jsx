@@ -86,6 +86,8 @@ export default createContainer(() => {
     subscribers.push(Meteor.subscribe('MyThreads'))
     subscribers.push(Meteor.subscribe('MyMessages'))
     subscribers.push(Meteor.subscribe('Conversations'))
+    subscribers.push(Meteor.subscribe('ClientStatus'))
+    subscribers.push(Meteor.subscribe('SupplierStatus'))
 
     const currentUser = Meteor.users.findOne(Meteor.userId())
     const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch()
