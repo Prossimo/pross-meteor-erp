@@ -4,7 +4,7 @@ import React from 'react'
 import { Table, Glyphicon, Button } from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'
-import {ROLES} from '/imports/api/models'
+import {ROLES, Users, ClientStatus, SupplierStatus} from '/imports/api/models'
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
 import { info, warning  } from '/imports/api/lib/alerts'
 import Select from 'react-select'
@@ -14,6 +14,7 @@ import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
 
+import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
 
 import {
   SUB_STAGES_LEAD,
@@ -26,6 +27,10 @@ import {
 class AllSalesRecords extends React.Component{
     constructor(props){
         super(props)
+
+        const clientStatuses = ClientStatus.find().fetch()
+        const supplierStatuses = SupplierStatus.find().fetch()
+
         this.state = {
             hoverCell: {
                 key: null,
@@ -173,6 +178,89 @@ class AllSalesRecords extends React.Component{
                   options: [],
                   type: 'select',
                   editable: true
+                },
+                {
+                  key: 'teamLead',
+                  label: 'Team Lead',
+                  selected: false,
+                  options: record => record.getMembers().map(m => ({value:m._id,label:m.name()})),
+                  type: 'select',
+                  editable: true,
+                    renderer: record => {
+                      const user = Users.findOne(record.teamLead)
+                      return user ? user.name() : null
+                    }
+                },
+                {
+                  key: 'bidDueDate',
+                  label: 'Bid Due Date',
+                  selected: false,
+                  type: 'date',
+                  editable: true
+                },
+                {
+                  key: 'priority',
+                  label: 'Priority',
+                  selected: false,
+                  options: Object.values(DEAL_PRIORITY).map(v => ({value:v, label:v})),
+                  type: 'select',
+                  editable: true
+                },
+                {
+                  key: 'expectedRevenue',
+                  label: 'Expected Revenue',
+                  selected: false,
+                  options: [],
+                  type: 'currency',
+                  editable: true,
+                  renderer: record => {
+                    if(!record.expectedRevenue) return ''
+                    return `$ ${parseFloat(record.expectedRevenue).toLocaleString('en-US', {minimunFractionDigits:2, maximumFractionDigits:2})}`
+                  }
+                },
+                {
+                  key: 'totalSquareFootage',
+                  label: 'Total Square Footage',
+                  selected: false,
+                  options: [],
+                  type: 'currency',
+                  editable: true,
+                  renderer: record => {
+                      if(!record.totalSquareFootage) return ''
+                      return `$ ${parseFloat(record.totalSquareFootage).toLocaleString('en-US', {minimunFractionDigits:2, maximumFractionDigits:2})}`
+                  }
+                },
+                {
+                  key: 'probability',
+                  label: 'Probability',
+                  selected: false,
+                  options: Object.values(DEAL_PROBABILITY).map(v => ({value:v, label:v})),
+                  type: 'select',
+                  editable: true
+                },
+                {
+                  key: 'clientStatus',
+                  label: 'Client Status',
+                  selected: false,
+                  options: clientStatuses.map(v => ({value:v._id, label:v.name})),
+                  type: 'select',
+                  editable: true,
+                  renderer: record => {
+                      const status = _.findWhere(clientStatuses, {_id:record.clientStatus})
+                      return status ? status.name : null
+                  }
+                },
+                {
+                  key: 'supplierStatus',
+                  label: 'Supplier Status',
+                  selected: false,
+                  options: supplierStatuses.map(v => ({value:v._id, label:v.name})),
+                  type: 'select',
+                  editable: true,
+                    renderer: record => {
+                        const status = _.findWhere(supplierStatuses, {_id:record.supplierStatus})
+                        return status ? status.name : null
+                    }
                 }
             ],
             showKanbanView: false
@@ -347,7 +435,7 @@ class AllSalesRecords extends React.Component{
         return salesRecords.map((project, index) => (
                 <tr key={project._id}>
                 {
-                    selectedColumns.map(({ key, type, options }) => {
+                    selectedColumns.map(({ key, type, options, renderer }) => {
                         if (key === this.state.edittingCell.key && index === this.state.edittingCell.rowIndex) {
                             switch(type) {
                                 case 'date':
@@ -371,7 +459,7 @@ class AllSalesRecords extends React.Component{
                                                 <Select
                                                     style={{width: '60%'}}
                                                     value={this.state.edittingCell.value}
-                                                    options={options}
+                                                    options={options&&typeof options === 'function' ? options(project) : options}
                                                     onChange={this.handleChange}
                                                 />
                                               { this.renderSaveButton(key) }
@@ -396,7 +484,7 @@ class AllSalesRecords extends React.Component{
                         } else {
                             switch(type) {
                                 case 'date':
-                                    const date = moment(project[key]).format('MM/DD/YYYY')
+                                    const date = project[key] ? moment(project[key]).format('MM/DD/YYYY') : ''
                                     return (
                                         <td
                                             key={key}
@@ -417,7 +505,7 @@ class AllSalesRecords extends React.Component{
                                             onMouseEnter={() => this.handleMouseEnter(key, index, project[key])}
                                         >
                                             <div>
-                                                { project[key] }
+                                                { renderer&&(typeof renderer ==='function') ? renderer(project) : project[key] }
                                                 { this.renderEditButton(key, index, project[key], project._id) }
                                             </div>
                                         </td>)
@@ -569,11 +657,11 @@ class AllSalesRecords extends React.Component{
         })
     }
     renderKanbanView() {
-      const { stage , salesRecords} = this.props;
+      const { stage , salesRecords} = this.props
       const isSubStage = !this.props.showAllDeals
       const columns = isSubStage ?
-          this.getSubStages(stage).map((sub) => {return {id: sub.value, title: sub.label}}) :
-          STAGES_MAP.map((stage) => {return {id: stage.value, title: stage.label}})
+          this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) :
+          STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
       return (
         <KanbanView
           columns={columns}
