@@ -71,7 +71,7 @@ SalesRecords.schema = new SimpleSchema({
     estDeliveryRange: { type: Array },
     'estDeliveryRange.$': { type: Date },
 
-    bidDuDate: { type: Date, optional:true },
+    bidDueDate: { type: Date, optional:true },
     priority: {type: String, allowedValues: Object.values(DEAL_PRIORITY), defaultValue: DEAL_PRIORITY.Low},
     expectedRevenue: {type: Number, optional:true},
     totalSquareFootage: {type: Number, optional:true},
@@ -128,7 +128,16 @@ SalesRecords.publicFields = {
     shipper: 1,
     estProductionTime: 1,
     actProductionTime: 1,
-    stage: 1
+    stage: 1,
+
+    teamLead: 1,
+    bidDueDate: 1,
+    expectedRevenue: 1,
+    totalSquareFootage: 1,
+    priority: 1,
+    probability: 1,
+    clientStatus: 1,
+    supplierStatus: 1
 }
 
 Factory.define('salesRecord', SalesRecords, {

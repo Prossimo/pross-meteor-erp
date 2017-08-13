@@ -1,6 +1,6 @@
 import { SyncedCron } from 'meteor/percolate:synced-cron'
-import backupEmailAttachments from './backupEmailAttachments'
-import { observeGoogleFile, registerCallback } from './editGoogleFile'
+// import backupEmailAttachments from './backupEmailAttachments'
+// import { observeGoogleFile, registerCallback } from './editGoogleFile'
 
 //SyncedCron.add({
   //name: 'observe google file',
