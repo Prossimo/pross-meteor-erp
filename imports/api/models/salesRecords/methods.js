@@ -2,6 +2,7 @@ import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import {HTTP} from 'meteor/http'
 import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import queryString from 'query-string'
 import { slackClient } from '/imports/api/slack'
 import NylasAPI from '../../nylas/nylas-api'
@@ -432,3 +433,5 @@ Meteor.methods({
     },
 
 })
+
+

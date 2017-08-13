@@ -1,12 +1,19 @@
+/* global moment*/
+import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
+import {Modal} from 'react-bootstrap'
 import { info, warning  } from '/imports/api/lib/alerts'
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
-import {ClientStatus, SupplierStatus} from '/imports/api/models'
+import {ClientStatus, SupplierStatus, ROLES} from '/imports/api/models'
+import ClientStatusForm from './components/ClientStatusForm'
+import SupplierStatusForm from './components/SupplierStatusForm'
+import {removeClientStatus, removeSupplierStatus} from '/imports/api/models/salesRecords/verified-methods'
 
-class Details extends React.Component{
+class Details extends TrackerReact(React.Component) {
     constructor(props) {
         super(props)
         this.state = {
@@ -138,6 +145,35 @@ class Details extends React.Component{
         }))
     }
 
+    handleAddClientStatus = () => {
+        this.setState({showClientStatusModal:true})
+    }
+
+    handleAddSupplierStatus = () => {
+        this.setState({showSupplierStatusModal:true})
+
+    }
+
+    onSavedClientStatus = () => {
+        this.setState({showClientStatusModal: false})
+    }
+
+    onSavedSupplierStatus = () => {
+        this.setState({showSupplierStatusModal: false})
+    }
+
+    onRemoveOption = (field, _id) => {
+        try {
+            if(field === 'clientStatus') {
+                removeClientStatus.call({_id})
+            } else if(field === 'supplierStatus') {
+                removeSupplierStatus.call({_id})
+            }
+        } catch(e) {
+            console.error(e)
+        }
+    }
+
     renderEditAttributesButton(edittingStatus, toggle, saveCallback) {
         if (edittingStatus) return (
             <button
@@ -153,7 +189,7 @@ class Details extends React.Component{
         )
     }
 
-    renderRowType(field, type, value, shippingModes) {
+    renderRowType(field, type, value, selectOptions) {
         switch(type) {
             case 'date':
                 return (
@@ -167,7 +203,8 @@ class Details extends React.Component{
                     <Select
                        value={value}
                        onChange={({ value }) => this.changeState(field, value)}
-                       options={shippingModes}
+                       options={selectOptions}
+                       optionRenderer={Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) ? (option) => <div style={{display:'flex'}}><span style={{flex:1}}>{option.label}</span>{option.editable&&<span onMouseDown={(evt) => {evt.stopPropagation(); evt.preventDefault(); this.onRemoveOption(field, option.value)}}>×</span>}</div> : null}
                        className={'select-role'}
                        clearable={false}
                     />
@@ -243,12 +280,14 @@ class Details extends React.Component{
                     selectOptions = Object.values(DEAL_PROBABILITY).map(value => ({label: value, value}))
                 } else if(field === 'clientStatus') {
                     const statuses = ClientStatus.find().fetch()
-                    selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
-                    displayValue = value && _.findWhere(statuses, {_id:value}).name
+                    selectOptions = statuses.map(s => ({label:s.name, value:s._id, editable:s.editable}))
+                    const status = _.findWhere(statuses, {_id:value})
+                    displayValue = status && status.name
                 } else if(field === 'supplierStatus') {
                     const statuses = SupplierStatus.find().fetch()
-                    selectOptions = statuses.map(s => ({label:s.name, value:s._id}))
-                    displayValue = value && _.findWhere(statuses, {_id:value}).name
+                    selectOptions = statuses.map(s => ({label:s.name, value:s._id, editable:s.editable}))
+                    const status = _.findWhere(statuses, {_id:value})
+                    displayValue = status && status.name
                 }
             }
 
@@ -260,10 +299,12 @@ class Details extends React.Component{
                 return (
                     <tr key={field}>
                         <td>{label}</td>
-                        <td>
-                            {
-                                this.renderRowType(field, type, value, type==='select'&&selectOptions)
-                            }
+                        <td style={{display:'flex'}}>
+                            <div style={{flex:1}}>{this.renderRowType(field, type, value, type==='select'&&selectOptions)}</div>
+                            <div>
+                            {field==='clientStatus'&&Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])&&<button className="btn btn-default" onClick={this.handleAddClientStatus}>+</button>}
+                            {field==='supplierStatus'&&Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])&&<button className="btn btn-default" onClick={this.handleAddSupplierStatus}>+</button>}
+                            </div>
                         </td>
                     </tr>
                 )
@@ -282,6 +323,35 @@ class Details extends React.Component{
         })
     }
 
+    renderClientStatusModal() {
+        const {showClientStatusModal} = this.state
+
+        return (
+            <Modal show={showClientStatusModal} bsSize="small" onHide={() => {
+                this.setState({showClientStatusModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>Add new client status</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <ClientStatusForm onSaved={this.onSavedClientStatus}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    renderSupplierStatusModal() {
+        const {showSupplierStatusModal} = this.state
+
+        return (
+            <Modal show={showSupplierStatusModal} bsSize="small" onHide={() => {
+                this.setState({showClientStatusModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>Add new supplier status</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <SupplierStatusForm onSaved={this.onSavedSupplierStatus}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
     render() {
         const { salesRecord } = this.state
         const statusRows = [
@@ -328,6 +398,8 @@ class Details extends React.Component{
 
         return (
             <div className="details-inbox-tab">
+                {this.renderClientStatusModal()}
+                {this.renderSupplierStatusModal()}
                 <div className='panel panel-default'>
                     <div className='panel-heading'>
                         Deal Status
