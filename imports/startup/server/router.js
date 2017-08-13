@@ -68,7 +68,6 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                 const thread_id = attributes.thread_id
 
                 if(account_id && thread_id && message_id) {
-                    console.log('Started fetch threads', account_id, thread_id, message_id)
                     const nylasAccount = NylasAccounts.findOne({accountId:account_id})
                     if(nylasAccount) {
                         const {accessToken} = nylasAccount
