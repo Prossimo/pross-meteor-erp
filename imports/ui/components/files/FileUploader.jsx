@@ -25,35 +25,50 @@ class FileUploader extends Component {
   }
 
   uploadFile(event) {
-    const file = event.target.files[0]
-    if (!file) return
-    new MediaUploader({
-      file,
-      token: this.token,
-      metadata: {
-        parents: [this.props.folderId],
-      },
-      params: {
-        fields: '*'
-      },
-      onProgress: ({ loaded, total }) => this.setState({ percentage: Math.round(loaded/total*100) }),
-      onComplete: (remoteFile) => {
-        remoteFile = JSON.parse(remoteFile)
-        this.props.addFileToView(remoteFile) || this.setState({ percentage: 0 })
-        const params = {
-          ...this.props.slack,
-          attachments: [
-            {
-              color: '#36a64f',
-              text: `<${remoteFile.webViewLink}|Go to file ${remoteFile.name}>`
-            }
-          ]
+    const percentages = []
+    const updatePercentage = () => {
+      const sum = percentages.reduce((result, next) => result + next, 0)
+      const percentage = Math.round(sum / percentages.length)
+      this.setState({ percentage })
+    }
+    const hideProgessBar = () => {
+      const sum = percentages.reduce((result, next) => result + next, 0)
+      const percentage = Math.round(sum / percentages.length)
+      if (percentage === 100) this.setState({ percentage: 0 })
+    }
+    _.toArray(event.target.files).forEach((file, index) => {
+      percentages[index] = 0
+      new MediaUploader({
+        file,
+        token: this.token,
+        metadata: {
+          parents: [this.props.folderId],
+        },
+        params: {
+          fields: '*'
+        },
+        onProgress: ({ loaded, total }) => {
+          percentages[index] = Math.round(total/loaded * 100)
+          updatePercentage()
+        },
+        onComplete: (remoteFile) => {
+          remoteFile = JSON.parse(remoteFile)
+          this.props.addFileToView(remoteFile)
+          hideProgessBar()
+          const params = {
+            ...this.props.slack,
+            attachments: [
+              {
+                color: '#36a64f',
+                text: `<${remoteFile.webViewLink}|Go to file ${remoteFile.name}>`
+              }
+            ]
+          }
+          const slackText = 'I just uploaded new file'
+          Meteor.call('sendBotMessage', this.props.slack.chanel, slackText, params)
         }
-        const slackText = 'I just uploaded new file'
-        Meteor.call('sendBotMessage', this.props.slack.chanel, slackText, params)
-        this.refs.file.value = ''
-      }
-    }).upload()
+      }).upload()
+    })
     this.refs.file.value = ''
   }
 
@@ -78,7 +93,7 @@ class FileUploader extends Component {
             </div>
           ) : ''
         }
-        <input type='file' ref='file' className='hide' onChange={this.uploadFile}/>
+        <input type='file' ref='file' className='hide' onChange={this.uploadFile} multiple/>
       </div>
     )
   }
