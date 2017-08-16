@@ -29,7 +29,14 @@ class DraftFactory {
 
         const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
 
-        const body = ''
+        const quotedBody = `<br><br><div class="gmail_quote">
+            ${DOMUtils.escapeHTMLCharacters(NylasUtils.replyAttributionLine(message))}
+            <br>
+            <blockquote class="gmail_quote"
+              style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
+              ${message.body}
+            </blockquote>
+          </div>`
 
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Re:'),
@@ -38,14 +45,8 @@ class DraftFactory {
             thread_id: message.thread_id,
             reply_to_message_id: message.id,
             account_id: message.account_id,
-            body: `${body}<br><br><div class="gmail_quote">
-            ${DOMUtils.escapeHTMLCharacters(NylasUtils.replyAttributionLine(message))}
-            <br>
-            <blockquote class="gmail_quote"
-              style="margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex;">
-              ${message.body}
-            </blockquote>
-          </div>`
+            body: '',
+            quotedBody
         })
     }
 
@@ -53,7 +54,13 @@ class DraftFactory {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
-        const body = ''
+        const quotedBody = `<br><br><div class="gmail_quote">
+            ---------- Forwarded message ---------
+            <br><br>
+            ${fields.join('<br>')}
+            <br><br>
+            ${message.body}
+          </div>`
 
         const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c) => NylasUtils.contactDisplayFullname(c)).join(', '))
         const fields = []
@@ -68,22 +75,17 @@ class DraftFactory {
             files: [].concat(message.files),
             thread_id: message.thread_id,
             account_id: message.account_id,
-            body: `${body}<br><br><div class="gmail_quote">
-            ---------- Forwarded message ---------
-            <br><br>
-            ${fields.join('<br>')}
-            <br><br>
-            ${message.body}
-          </div>`
+            body: '',
+            quotedBody
         })
     }
 
     getBodyWithSignature = (body, accountId) => {
-        if(!accountId) return body
+        if (!accountId) return body
         const account = AccountStore.accountForAccountId(accountId)
         if (!account) return body
 
-        if(account.signature && account.signature.length) {
+        if (account.signature && account.signature.length) {
             body += `<br><br><div class="gmail_quote">${account.signature}</div>`
         }
 

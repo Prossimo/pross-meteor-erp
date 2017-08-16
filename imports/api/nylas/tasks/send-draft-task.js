@@ -56,6 +56,9 @@ export default class SendDraftTask extends Task {
             const signature = Meteor.user().profile.signature//AccountStore.signatureForAccountId(draft.account_id)
             if(signature) draft.body += `<br><br><div class="gmail_quote">${signature}</div>`
         }
+        if(draft.quotedBody) {
+            draft.body += draft.quotedBody
+        }
 
         if(draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
 
