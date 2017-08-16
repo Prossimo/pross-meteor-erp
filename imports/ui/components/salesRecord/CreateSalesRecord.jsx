@@ -72,7 +72,7 @@ class CreateSalesRecord extends React.Component {
             const people = salesRecord ? People.find({_id: {$in: _.pluck(salesRecord.stakeholders, 'peopleId')}}).fetch().map((p) => {
                 const stakeholder = salesRecord.stakeholders.find((s) => s.peopleId === p._id)
                 return _.extend(p, {
-                    notify: stakeholder.notify,
+                    addToMain: stakeholder.addToMain,
                     isMain: stakeholder.isMainStakeholder
                 })
             }) : []

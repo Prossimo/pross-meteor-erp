@@ -59,7 +59,6 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$': { type: Object },
     'stakeholders.$.peopleId': { type: String },
     'stakeholders.$.isMainStakeholder': { type: Boolean },
-    'stakeholders.$.notify': { type: Boolean },
 
     participants: {type: Array, optional:true},    // participants for main conversation
     'participants.$': { type: Object },
@@ -171,15 +170,8 @@ SalesRecords.helpers({
 
         return people.map(p => ({name:p.name, email:p.defaultEmail()}))
     },
-    noticeableContactsForStakeholders() {
-        const peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
-        const people = People.find({_id:{$in:peopleIds}}).fetch()
-
-        return people.map(p => ({name:p.name, email:p.defaultEmail()}))
-
-    },
     people() {
-        const peopleIds = _.pluck(this.stakeholders.filter(st => st.notify), 'peopleId')
+        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
         return People.find({_id:{$in:peopleIds}}).fetch()
     },
     getParticipants() {

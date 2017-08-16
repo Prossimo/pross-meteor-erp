@@ -17,7 +17,7 @@ export default class SelectPeople extends Component {
             people = People.find().fetch()
         }
         this.peopleOptions = people.map((person) => ({
-            notify: person.notify!=null ? person.notify : true,
+            addToMain: person.addToMain!=null ? person.addToMain : true,
             isMain: person.isMain!=null ? person.isMain : false,
             name: person.name,
             email: person.defaultEmail(),
@@ -29,10 +29,10 @@ export default class SelectPeople extends Component {
         }
         if(this.state.selectedPeople.length && this.props.onSelectPeople) {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, notify}) => ({
+                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
                     peopleId: _id,
                     isMainStakeholder: isMain,
-                    notify,
+                    addToMain,
                 }))
             )
         }
@@ -42,23 +42,23 @@ export default class SelectPeople extends Component {
         this.state.selectedPeople.forEach(p => p.isMain = p._id === mainId)
         this.setState(prevState => prevState, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, notify}) => ({
+                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
                     peopleId: _id,
                     isMainStakeholder: isMain,
-                    notify,
+                    addToMain,
                 }))
             )
         })
     }
 
     enableNotify = (_id, checked) => {
-        this.state.selectedPeople.forEach(p => p._id === _id && (p.notify = checked))
+        this.state.selectedPeople.forEach(p => p._id === _id && (p.addToMain = checked))
         this.setState(prevState => prevState, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, notify}) => ({
+                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
                     peopleId: _id,
                     isMainStakeholder: isMain,
-                    notify,
+                    addToMain,
                 }))
             )
         })
@@ -70,10 +70,10 @@ export default class SelectPeople extends Component {
         && (people[0].isMain = true)
         this.setState({selectedPeople:people}, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, notify}) => ({
+                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
                     peopleId: _id,
                     isMainStakeholder: isMain,
-                    notify,
+                    addToMain,
                 }))
             )
         })
@@ -87,13 +87,13 @@ export default class SelectPeople extends Component {
                 <tr>
                     <th>Name</th>
                     <th>Main Stakeholder</th>
-                    <th>Notify</th>
+                    <th>Add To Main</th>
                 </tr>
                 </thead>
                 <tbody>
                 {
                     this.state.selectedPeople.map(person => {
-                        const {_id, name, email, isMain, notify} = person
+                        const {_id, name, email, isMain, addToMain} = person
                         return (
                             <tr key={_id}>
                                 <td><div>{ name }</div><div>{email}</div></td>
@@ -113,7 +113,7 @@ export default class SelectPeople extends Component {
                                         <label>
                                             <input
                                                 type='checkbox'
-                                                checked={notify}
+                                                checked={addToMain}
                                                 onChange={(event) => this.enableNotify(_id, event.target.checked)}
                                             />
                                         </label>

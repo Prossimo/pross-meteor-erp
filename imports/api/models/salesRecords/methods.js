@@ -63,8 +63,7 @@ Meteor.methods({
 
         const stakeholder = {
             peopleId,
-            isMainStakeholder: false,
-            notify: true
+            isMainStakeholder: false
         }
         SalesRecords.update(_id, {$push: {stakeholders: stakeholder}})
         if(addToMain) {
@@ -100,7 +99,7 @@ Meteor.methods({
             members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
-                notify: Boolean,
+                addToMain: Boolean,
                 peopleId: String,
             }],
             actualDeliveryDate: Date,
@@ -156,6 +155,8 @@ Meteor.methods({
             }))
 
 
+        const participants = data.stakeholders.filter(({addToMain}) => addToMain).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))
+        data.participants = participants
         const salesRecordId = SalesRecords.insert(data)
 
         // set channel purpose
@@ -248,7 +249,7 @@ Meteor.methods({
             members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
-                notify: Boolean,
+                addToMain: Boolean,
                 peopleId: String,
             }],
             actualDeliveryDate: Date,
@@ -277,6 +278,8 @@ Meteor.methods({
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
 
+        const participants = data.stakeholders.filter(({addToMain}) => addToMain).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))
+        data.participants = participants
 
         const sr = SalesRecords.findOne(_id)
         if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
