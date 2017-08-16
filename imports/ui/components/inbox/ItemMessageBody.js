@@ -1,5 +1,4 @@
 import React from 'react'
-import NylasUtils from '../../../api/nylas/nylas-utils'
 import EmailFrame from './EmailFrame'
 import CanvasUtils from '../../utils/canvas-utils'
 

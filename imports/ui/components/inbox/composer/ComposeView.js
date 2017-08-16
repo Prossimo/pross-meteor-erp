@@ -149,6 +149,7 @@ export default class ComposeView extends React.Component {
                 {this._renderEditor()}
                 {this._renderAttachments()}
                 {this._renderSignature()}
+                {this._renderQuotedBody()}
             </div>
         )
     }
@@ -263,8 +264,8 @@ export default class ComposeView extends React.Component {
 
         if (!signature || signature.length == 0) return (<div></div>)
 
-        var htmlToReactParser = new HtmlToReactParser();
-        var reactElement = htmlToReactParser.parse(signature);
+        const htmlToReactParser = new HtmlToReactParser()
+        const reactElement = htmlToReactParser.parse(signature)
 
         return (
             <div style={{position: 'relative'}}>
@@ -272,6 +273,20 @@ export default class ComposeView extends React.Component {
                    style={{position: 'absolute', top: 0, left: 0, fontSize: 10, color: 'lightgray'}}
                    onClick={this._onClickHideSignature}></i>
                 <div className="signature">{reactElement}</div>
+            </div>
+        )
+    }
+
+    _renderQuotedBody() {
+        const {quotedBody} = this.state.draft
+        if (!quotedBody) return (<div></div>)
+
+        const {hideQuotedBody} = this.state
+
+        return (
+            <div>
+                <Button bsSize="xsmall" onClick={this._toggleQuotedBody}><i className="fa fa-ellipsis-h"/></Button>
+                {!hideQuotedBody && <div className="signature"><EmailFrame showQuotedText={true} content={quotedBody}/></div>}
             </div>
         )
     }
@@ -360,6 +375,12 @@ export default class ComposeView extends React.Component {
         this._changeDraftStore({hideSignature: true})
         this.setState({draft: this._getDraftFromStore()})
     }
+
+    _toggleQuotedBody = () => {
+        const hideQuotedBody = !this.state.hideQuotedBody
+        this.setState({hideQuotedBody})
+    }
+
     _isUnableToSend = () => !this.state.draft || !this.state.draft.to || this.state.draft.to.length == 0 || DraftStore.isUploadingDraftFiles(this.props.clientId)
 
 
