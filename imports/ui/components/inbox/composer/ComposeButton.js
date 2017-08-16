@@ -1,5 +1,6 @@
-import React from 'react';
-import Actions from '../../../../api/nylas/actions';
+import React from 'react'
+import {Button} from 'react-bootstrap'
+import Actions from '../../../../api/nylas/actions'
 
 export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
@@ -20,14 +21,11 @@ export default class ComposeButton extends React.Component {
 
     render() {
         return (
-            <button
-                className="btn1 btn-toolbar item-compose"
-                title="Compose new message"
-                onClick={this._onNewCompose}>
+            <Button onClick={this._onNewCompose}>
                 <img src="/icons/inbox/toolbar-compose.png" width="50%"/>
-            </button>
+            </Button>
 
 
-        );
+        )
     }
 }

@@ -1,6 +1,7 @@
-import React from 'react';
-import Actions from '../../../api/nylas/actions';
-import NylasUtils from '../../../api/nylas/nylas-utils';
+import React from 'react'
+import {Button} from 'react-bootstrap'
+import Actions from '../../../api/nylas/actions'
+import NylasUtils from '../../../api/nylas/nylas-utils'
 import ChangeUnreadTask from '../../../api/nylas/tasks/change-unread-task'
 
 export default class ThreadToggleUnreadButton extends React.Component {
@@ -17,20 +18,16 @@ export default class ThreadToggleUnreadButton extends React.Component {
     }
 
     render() {
-        fragment = this.props.thread && this.props.thread.unread ? 'read' : 'unread'
+        const fragment = this.props.thread && this.props.thread.unread ? 'read' : 'unread'
         return (
-            <button className="btn1 btn-toolbar"
-                    style={{order: -105}}
-                    title={`Mark as ${fragment}`}
-                    onClick={this._onClick}
-                    disabled={!this.props.thread}>
+            <Button onClick={this._onClick} disabled={!this.props.thread}>
                 <img src={`/icons/inbox/toolbar-markas${fragment}.png`} width="50%"/>
-            </button>
+            </Button>
         )
     }
 
     _onClick = (e) => {
-         task = new ChangeUnreadTask({
+         const task = new ChangeUnreadTask({
              thread: this.props.thread,
              unread: !this.props.thread.unread
          })

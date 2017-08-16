@@ -1,11 +1,12 @@
 /* global FlowRouter */
 import React from 'react'
+import {DropdownButton, MenuItem, FormGroup, FormControl, InputGroup, Button} from 'react-bootstrap'
 import ComposeButton from './composer/ComposeButton'
 import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
-import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
+import MailSearchBox from './MailSearchBox'
 import {SalesRecords, Threads, Conversations} from '/imports/api/models'
 
 
@@ -28,10 +29,12 @@ export default class Toolbar extends React.Component {
         const thread = this.props.thread
         return (
             <div className="toolbar-panel">
-                <div style={{order: 0, minWidth: 150, maxWidth: 200, flex: 1}}>
+                <div style={{order: 0, minWidth: 250, maxWidth: 250, flex: 1}}>
                     <ComposeButton/>
                 </div>
-                <div style={{order: 1, minWidth: 250, maxWidth: 450, flex: 1}}></div>
+                <div style={{order: 1, minWidth: 250, maxWidth: 450, flex: 1, paddingRight:20}}>
+                    <MailSearchBox />
+                </div>
                 <div style={{order: 2, flex: 1}}>
                     <ThreadArchiveButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
