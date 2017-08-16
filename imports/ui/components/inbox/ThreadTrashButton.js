@@ -1,6 +1,8 @@
-import React from 'react';
-import Actions from '../../../api/nylas/actions';
-import NylasUtils from '../../../api/nylas/nylas-utils';
+import React from 'react'
+import {Button} from 'react-bootstrap'
+import Actions from '../../../api/nylas/actions'
+import NylasUtils from '../../../api/nylas/nylas-utils'
+import TaskFactory from '../../../api/nylas/tasks/task-factory'
 
 export default class ThreadTrashButton extends React.Component {
     static displayName = 'ThreadTrashButton';
@@ -15,28 +17,23 @@ export default class ThreadTrashButton extends React.Component {
         this._onRemove = this._onRemove.bind(this)
     }
     render() {
-        canTrashThreads = NylasUtils.canTrashThreads()
-        if (!canArchiveThreads) return <span />
+        if (!NylasUtils.canTrashThreads()) return <span />
 
         return (
-            <button className="btn1 btn-toolbar"
-                    style={{order: -106}}
-                    title="Move to Trash"
-                    onClick={this._onRemove}
-                    disabled={!this.props.thread}
-            >
+            <Button onClick={this._onRemove} disabled={!this.props.thread}>
                 <img src="/icons/inbox/toolbar-trash.png" width="50%"/>
-            </button>
+            </Button>
         )
     }
 
     _onRemove = (e) => {
-        /*return unless DOMUtils.nodeIsVisible(e.currentTarget)
-         tasks = TaskFactory.tasksForMovingToTrash
-         threads: [@props.thread]
-         Actions.queueTasks(tasks)
-         Actions.popSheet()
-         e.stopPropagation()*/
+        if(!this.props.thread) return
+
+        const tasks = TaskFactory.tasksForMovingToTrash({threads: [this.props.thread]})
+
+        Actions.queueTasks(tasks)
+        //Actions.popSheet()
+        e.stopPropagation()
     }
 
 }

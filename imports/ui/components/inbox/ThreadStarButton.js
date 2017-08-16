@@ -1,6 +1,7 @@
-import React from 'react';
-import Actions from '../../../api/nylas/actions';
-import NylasUtils from '../../../api/nylas/nylas-utils';
+import React from 'react'
+import {Button} from 'react-bootstrap'
+import Actions from '../../../api/nylas/actions'
+import NylasUtils from '../../../api/nylas/nylas-utils'
 
 export default class ThreadStarButton extends React.Component {
     static displayName = 'ThreadStarButton';
@@ -15,16 +16,12 @@ export default class ThreadStarButton extends React.Component {
         this._onStarToggle = this._onStarToggle.bind(this)
     }
     render() {
-        selected = this.props.thread && this.props.thread.selected
+        const selected = this.props.thread && this.props.thread.selected
 
         return (
-            <button className="btn1 btn-toolbar"
-                    style={{order: -104}}
-                    title={selected?'Remove star':'Add star'}
-                    onClick={this._onStarToggle}
-                    disabled={!this.props.thread}>
+            <Button onClick={this._onStarToggle} disabled={!this.props.thread}>
                 <img src={`/icons/inbox/toolbar-star${selected?'-selected':''}.png`} width="50%"/>
-            </button>
+            </Button>
         )
     }
 

@@ -15,6 +15,7 @@ class ThreadStore extends Reflux.Store {
         this.listenTo(Actions.changedThreads, this.trigger)
         this.listenTo(DatabaseStore, this.onDatabaseStoreChanged)
         this.listenTo(CategoryStore, this.onCategoryStoreChanged)
+        this.listenTo(Actions.searchThreads, this.onSearchThreads)
 
         this.threads = []
         this._currentThread = {}
@@ -24,17 +25,30 @@ class ThreadStore extends Reflux.Store {
         this.currentPage = 1
     }
 
+    onSearchThreads = (keyword) => {
+        this.keyword = keyword&&keyword.length ? keyword : null
+        this.loadThreadsFromDatabase()
+        this.onLoadThreads()
+    }
     onLoadThreads = (category, {page = 1, search}={}) => {
         category = category ? category : CategoryStore.currentCategory
         if(!category) return
 
         this.loading = true
         Actions.loadMessages(this._currentThread[category.id])
+
         this.trigger()
 
-        const query = QueryString.stringify({in: category.id, offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE})
+        const query = {offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE}
+        let path
+        if(this.keyword) {
+            path = `/threads/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
+        } else {
+            path = `/threads?${QueryString.stringify(Object.assign(query, {in:category.id}))}`
+        }
+
         NylasAPI.makeRequest({
-            path: `/threads?${query}`,
+            path,
             method: 'GET',
             accountId: category.account_id
         }).then((threads) => {
@@ -54,19 +68,23 @@ class ThreadStore extends Reflux.Store {
 
     onDatabaseStoreChanged = (objName) => {
         if(objName === 'thread') {
-            this.refreshThreads()
+            this.loadThreadsFromDatabase()
         }
     }
 
     onCategoryStoreChanged = () => {
-        this.refreshThreads()
+        this.loadThreadsFromDatabase()
     }
 
-    refreshThreads() {
+    loadThreadsFromDatabase() {
         const category = CategoryStore.currentCategory
         if(!category) return
 
-        DatabaseStore.findObjects('thread', {account_id:category.account_id}).then((threads) => {
+        let where = {account_id:category.account_id}
+        if(this.keyword) {
+            where = Object.assign(where, {subject:{like:this.keyword}, snippet:{like:this.keyword}})
+        }
+        DatabaseStore.findObjects('thread', where).then((threads) => {
             this.threads = threads.filter((thread) => {
                 if (category.object === 'folder') {
                     return _.findWhere(thread.folders, {id: category.id}) !== undefined
@@ -78,6 +96,7 @@ class ThreadStore extends Reflux.Store {
             this.trigger()
         })
     }
+
     getThreads() {
         return this.threads
     }
