@@ -5,6 +5,8 @@ import _ from 'underscore'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import FileUploader from './FileUploader.jsx'
+import DropOverlay from './DropOverlay.jsx'
+import { warning } from '/imports/api/lib/alerts'
 import {
   getSlackUsername,
   getAvatarUrl
@@ -28,6 +30,7 @@ class Files extends Component {
       selectedFile: {},
       viewPath: [{ folderId, name }],
       loading: false,
+      token: null,
     }
     this.slack = {
       username: getSlackUsername(props.usersArr[Meteor.userId()]),
@@ -95,6 +98,12 @@ class Files extends Component {
 
   componentDidMount() {
     this.listFiles()
+    Meteor.call('drive.getAccessToken', {}, (error, token) => {
+      if (error) return warning('could not connect to google drive')
+      this.setState({
+        token,
+      })
+    })
   }
 
   selectFile(id, name, mimeType, webContentLink, webViewLink) {
@@ -326,6 +335,7 @@ class Files extends Component {
           folderId={_.last(this.state.viewPath).folderId}
           addFileToView={this.addFileToView}
           slack={this.slack}
+          token={this.state.token}
         />
         <div className='text-center'>
           <div className='btn-group'>
@@ -355,17 +365,19 @@ class Files extends Component {
           {
             this.renderViewPath()
           }
-          <table className='table table-condensed table-hover'>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Last modified</th>
-              </tr>
-            </thead>
-            <tbody>
-            { this.renderFiles() }
-            </tbody>
-          </table>
+          <DropOverlay uploader={this.refs.uploader}>
+            <table className='table table-condensed table-hover'>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Last modified</th>
+                </tr>
+              </thead>
+              <tbody>
+              { this.renderFiles() }
+              </tbody>
+            </table>
+          </DropOverlay>
         </div>
       </FileManager>
     )
