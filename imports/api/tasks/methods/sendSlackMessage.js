@@ -13,8 +13,12 @@ export default new ValidatedMethod({
     parentId: String,
     taskId: String,
     type: String,
+    actorId: {
+      type: String,
+      optional: true,
+    },
   }).validator(),
-  run({ parentId, type, taskId }) {
+  run({ parentId, type, taskId, actorId }) {
     let parent = null
     let parentType = null
 
@@ -74,8 +78,10 @@ export default new ValidatedMethod({
           }
 
           case 'UPDATE_TASK': {
+            const actor = Meteor.users.findOne(actorId)
+            const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
             const attachments = slackClient.attachments.create({
-              pretext: `A task have been updated at ${status} board`,
+              pretext: `A task have been updated by [${actorRefer}] at ${status} board`,
               title,
               text,
               color: ORANGE,
@@ -99,9 +105,10 @@ export default new ValidatedMethod({
 
           case 'NEW_TASK': {
             const user = Meteor.users.findOne(assignee)
-            let pretext = `New task has assigned to @${user.username} in ${status} board`
-            if (user.slack && user.slack.id)
-              pretext = `New task has assigned to <@${user.slack.id}> in ${status} board`
+            const actor = Meteor.users.findOne(actorId)
+            const userRefer = (user.slack && user.slack.id) ? `<@${user.slack.id}>` : user.username
+            const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
+            const pretext = `New task has been assigned to ${userRefer} by [${actorRefer}] in ${status} board`
             const attachments = slackClient.attachments.create({
               pretext,
               title,

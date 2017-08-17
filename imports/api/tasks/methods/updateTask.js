@@ -17,11 +17,13 @@ export default new ValidatedMethod({
     Tasks.update(task._id, {
       $set: task,
     })
+    const actorId = this.userId
     Meteor.defer(() => {
       sendSlackMessage.call({
         taskId: task._id,
         parentId,
         type: 'UPDATE_TASK',
+        actorId,
       })
     })
   },

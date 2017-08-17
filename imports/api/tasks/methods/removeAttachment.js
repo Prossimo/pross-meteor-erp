@@ -18,6 +18,7 @@ export default new ValidatedMethod({
         },
       },
     })
+    const actorId = this.userId
     Meteor.defer(() => {
       prossDocDrive.removeFiles.call({ fileId })
       const task = Tasks.findOne(_id)
@@ -26,6 +27,7 @@ export default new ValidatedMethod({
           taskId: _id,
           parentId: task.parentId,
           type: 'REMOVE_FILE',
+          actorId,
         })
       }
     })

@@ -50,11 +50,13 @@ export default new ValidatedMethod({
       taskOperators: [assignee, approver],
     })
     const _id = Tasks.insert(task)
+    const actorId = this.userId
     Meteor.defer(() => {
       sendSlackMessage.call({
         taskId: _id,
         parentId,
         type: 'NEW_TASK',
+        actorId
       })
     })
     return _id
