@@ -32,12 +32,14 @@ export default new ValidatedMethod({
       },
     })
     const task = Tasks.findOne(_id)
+    const actorId = this.userId
     if (task) {
       Meteor.defer(() => {
         sendSlackMessage.call({
           taskId: _id,
           parentId: task.parentId,
           type: 'ADD_COMMENT',
+          actorId,
         })
       })
     }
