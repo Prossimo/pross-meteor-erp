@@ -1,13 +1,25 @@
 import _ from 'underscore'
+import {Roles} from 'meteor/alanning:roles'
 import React, { Component, PropTypes } from 'react'
 import Select from 'react-select'
+import {Users, ROLES, USER_STATUS} from '/imports/api/models'
 
-class SelectMembers extends Component{
+export default class SelectMembers extends Component{
+    static propTypes = {
+        members: PropTypes.array,
+        onSelectMembers: PropTypes.func.isRequired
+    }
+
     constructor(props) {
         super(props)
 
 
-        const selectedMembers = [
+        const selectedMembers = props.members ? Users.find({_id:{$in:props.members}}).map(u => ({
+            label: u.name(),
+            value: u._id,
+            username: u.username,
+            roles: u.roles.join(', ')
+        })) : [
             {
                 label: Meteor.user().name(),
                 value: Meteor.userId(),
@@ -58,7 +70,8 @@ class SelectMembers extends Component{
     }
 
     render() {
-        const memberOptions = this.props.members.map(member => ({ label: member.name(), value: member._id, username: member.username, roles:member.roles.join(',') }))
+        const members = Users.find().fetch().filter(({_id, status, slack}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]) && status === USER_STATUS.ACTIVE && slack)
+        const memberOptions = members.map(member => ({ label: member.name(), value: member._id, username: member.username, roles:member.roles.join(',') }))
         return (
             <div className='panel panel-default'>
                 <div className='panel-heading'>
@@ -82,8 +95,4 @@ class SelectMembers extends Component{
     }
 }
 
-SelectMembers.propTypes = {
-    members: PropTypes.array.isRequired,
-    onSelectMembers: PropTypes.func.isRequired,
-}
-export default SelectMembers
+

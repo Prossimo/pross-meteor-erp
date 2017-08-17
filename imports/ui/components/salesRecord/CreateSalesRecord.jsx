@@ -30,7 +30,6 @@ class CreateSalesRecord extends React.Component {
         super(props)
         this.shippingMode = SHIPPING_MODE_LIST.map(item => ({label: item, value: item}))
         this.stages = STAGES.map(item => ({label: item.charAt(0).toUpperCase() + item.slice(1), value: item}))
-        this.members = []
 
         const {salesRecord} = props
         this.state = {
@@ -59,6 +58,7 @@ class CreateSalesRecord extends React.Component {
             estProductionTime: salesRecord ? salesRecord.estProductionTime : 0,
             actProductionTime: salesRecord ? salesRecord.actProductionTime : 0,
 
+            members: salesRecord ? salesRecord.members : null,
             stakeholders: salesRecord ? salesRecord.stakeholders : [],
             blocking: false
         }
@@ -89,7 +89,7 @@ class CreateSalesRecord extends React.Component {
     submitForm(event) {
         event.preventDefault()
         const {
-            projectName, shipper, supplier, stakeholders,
+            projectName, shipper, supplier, stakeholders, members,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress, shippingContactEmail, shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage,
@@ -98,7 +98,7 @@ class CreateSalesRecord extends React.Component {
 
         const data = {
             name: projectName,
-            members: this.members,
+            members: members,
             stakeholders,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
@@ -159,7 +159,7 @@ class CreateSalesRecord extends React.Component {
     }
 
     updateMembers(members) {
-        this.members = members
+        this.state.members = members
     }
 
     updateStakeholders(stakeholders) {
@@ -172,7 +172,7 @@ class CreateSalesRecord extends React.Component {
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
-            contacts, stakeholders
+            contacts, stakeholders, members
         } = this.state
         const {shippingMode, stages} = this
         let submitBtnName = this.props.salesRecord ? 'Save Deal' : 'Add Deal'
@@ -238,7 +238,7 @@ class CreateSalesRecord extends React.Component {
                     </div>
 
                     <SelectMembers
-                        members={this.props.users.filter(({_id, status, slack}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]) && status === USER_STATUS.ACTIVE && slack)}
+                        members={members}
                         onSelectMembers={this.updateMembers}
                     />
                     <SelectPeople
