@@ -33,11 +33,21 @@ export default class MailSearchBox extends React.Component {
         })
     }
 
+    onKeyPress = (evt) => {
+        if(evt.key === 'Enter') {
+            const {keyword} = this.state
+            if(keyword && keyword.length) {
+                this.setState({searched: true}, () => {
+                    Actions.searchThreads(keyword)
+                })
+            }
+        }
+    }
     render() {
         const {searched} = this.state
         return (
             <InputGroup>
-                <FormControl type="text" value={this.state.keyword} placeholder="Input search keyword..." onChange={this.onChangeKeyword} />
+                <FormControl type="text" value={this.state.keyword} placeholder="Input search keyword..." onChange={this.onChangeKeyword} onKeyPress={this.onKeyPress} />
                 <InputGroup.Button>
                     {!searched && <Button onClick={this.onClickSearch}><i className="fa fa-search"/></Button>}
                     {searched && <Button onClick={this.onClickClear}>×</Button>}

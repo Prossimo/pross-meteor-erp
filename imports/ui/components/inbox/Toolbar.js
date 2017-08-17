@@ -63,7 +63,7 @@ export default class Toolbar extends React.Component {
 
         if(salesRecord) {
             return (
-                <div style={{marginTop:12, float:'right'}}>
+                <div style={{float:'right'}}>
                     <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-sales-record" disabled={!thread}>
                         <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:salesRecord._id})}>Go to this deal</MenuItem>
                         <MenuItem divider/>
@@ -75,7 +75,7 @@ export default class Toolbar extends React.Component {
 
         const {salesRecords} = this.state
         return (
-            <div style={{marginTop:12, float:'right'}}>
+            <div style={{float:'right'}}>
                 <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
                     <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new Deal from this thread</MenuItem>
                     <MenuItem divider/>
