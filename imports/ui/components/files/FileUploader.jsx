@@ -2,10 +2,6 @@ import React, { Component } from 'react'
 import MediaUploader from '../libs/MediaUploader'
 import PropTypes from 'prop-types'
 import { warning } from '/imports/api/lib/alerts'
-import {
-  getSlackUsername,
-  getAvatarUrl
-} from '../../../api/lib/filters'
 
 class FileUploader extends Component {
   constructor() {
@@ -15,13 +11,6 @@ class FileUploader extends Component {
     }
     this.pickFile = this.pickFile.bind(this)
     this.uploadFile = this.uploadFile.bind(this)
-  }
-
-  componentDidMount() {
-    Meteor.call('drive.getAccessToken', {}, (error, token) => {
-      if (error) return warning('could not connect to google drive')
-      this.token = token
-    })
   }
 
   uploadFile(event) {
@@ -40,7 +29,7 @@ class FileUploader extends Component {
       percentages[index] = 0
       new MediaUploader({
         file,
-        token: this.token,
+        token: this.props.token,
         metadata: {
           parents: [this.props.folderId],
         },
@@ -103,6 +92,7 @@ FileUploader.propTypes = {
   folderId: PropTypes.string.isRequired,
   addFileToView: PropTypes.func.isRequired,
   slack: PropTypes.object.isRequired,
+  token: PropTypes.string,
 }
 
 export default FileUploader
