@@ -277,26 +277,25 @@ class InboxPage extends TrackerReact(React.Component) {
                         return (
                             <div key={`account-${account.accountId}`}>
                                 <div className="account-wrapper">
-                                    <span><img src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'} width="16px"/></span>&nbsp;
+                                    <span><img
+                                        src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
+                                        width="16px"/></span>&nbsp;
                                     <span>{account.emailAddress}</span>
                                     <span style={{flex: 1}}></span>
                                     <span className="action">{actionEl}</span>
                                 </div>
                                 {
-                                    categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category) => {
-                                        if (category) {
-                                            return <ItemCategory
-                                                key={`category-${category.id}`}
+                                    categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category, index) =>
+                                        <div key={`category-${index}`}>
+                                            {category&&<ItemCategory
                                                 category={category}
                                                 onClick={(evt) => {
                                                     this.onCategorySelected(category)
                                                 }}
-                                                selected={currentCategory && category.id == currentCategory.id}
-                                            />
-                                        } else {
-                                            return <div></div>
-                                        }
-                                    })
+                                                selected={currentCategory && category.id == currentCategory.id}/>}
+                                            {!category&&''}
+                                        </div>
+                                    )
                                 }
                             </div>
                         )
@@ -375,7 +374,7 @@ class InboxPage extends TrackerReact(React.Component) {
     }
 
     renderMessages() {
-        return <MessageList />
+        return <MessageList/>
     }
 
     onCategorySelected(category) {
