@@ -7,6 +7,7 @@ import ChangeUnreadTask from './tasks/change-unread-task'
 import NylasUtils from './nylas-utils'
 import DatabaseStore from './database-store'
 import ThreadStore from './thread-store'
+import {Messages} from '/imports/api/models'
 
 class MessageStore extends Reflux.Store {
     constructor() {
@@ -48,12 +49,15 @@ class MessageStore extends Reflux.Store {
             this._loading = false
             return
         }
+        //console.log(`===> Started load message for thread: ${thread.id} at ${new Date().getTime()}`)
         const query = queryString.stringify({thread_id: thread.id})
         NylasAPI.makeRequest({
             path: `/messages?${query}`,
             method: 'GET',
             accountId: thread.account_id
         }).then((result) => {//console.log('onLoadMessages result', result)
+            //console.log(`===> Finished load message for thread: ${thread.id} at ${new Date().getTime()}`)
+
             if(result && result.length) {
                 if(thread.id === currentThread.id) {
 
@@ -77,19 +81,25 @@ class MessageStore extends Reflux.Store {
     }
 
     _onThreadStoreChanged = () => {
-        this.refreshMessages()
+        this.loadMessagesFromDB()
     }
     _onDatabaseStoreChanged = (objName) => {
         if(objName === 'message') {
-            this.refreshMessages()
+            this.loadMessagesFromDB()
         }
     }
 
-    refreshMessages() {
+    loadMessagesFromDB() {
         const thread = ThreadStore.currentThread()
         if(!thread) return
 
-        DatabaseStore.findObjects('message', {thread_id:thread.id}).then((messages) => {
+        const serverMessages = Messages.find({thread_id:thread.id}).fetch()
+        //console.log('Server messages', serverMessages)
+        DatabaseStore.findObjects('message', {thread_id:thread.id}).then((messages) => {//console.log('Client messages', messages)
+            const messageIds = _.pluck(messages, 'id')
+            serverMessages.forEach(sm => {
+                if(messageIds.indexOf(sm.id) == -1) messages.push(sm)
+            })
             this._messages = messages
             this._messages.sort((m1, m2) => m1.date-m2.date)
             this._expandMessagesToDefault()

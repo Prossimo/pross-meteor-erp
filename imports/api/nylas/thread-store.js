@@ -27,7 +27,7 @@ class ThreadStore extends Reflux.Store {
 
     onSearchThreads = (keyword) => {
         this.keyword = keyword&&keyword.length ? keyword : null
-        this.loadThreadsFromDatabase()
+        this.loadThreadsFromBrowserDB()
         this.onLoadThreads()
     }
     onLoadThreads = (category, {page = 1, search}={}) => {
@@ -68,15 +68,15 @@ class ThreadStore extends Reflux.Store {
 
     onDatabaseStoreChanged = (objName) => {
         if(objName === 'thread') {
-            this.loadThreadsFromDatabase()
+            this.loadThreadsFromBrowserDB()
         }
     }
 
     onCategoryStoreChanged = () => {
-        this.loadThreadsFromDatabase()
+        this.loadThreadsFromBrowserDB()
     }
 
-    loadThreadsFromDatabase() {
+    loadThreadsFromBrowserDB() {
         const category = CategoryStore.currentCategory
         if(!category) return
 
