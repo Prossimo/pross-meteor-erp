@@ -91,11 +91,13 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                     const existingThreads = Threads.find({id:thread_id}).fetch()
                                     if(existingThreads && existingThreads.length) {
                                         Threads.update({id:thread_id}, {$set:thread})
+                                    } else {
+                                        Threads.insert(thread)
+                                    }
 
-                                        const existingMessage = Messages.findOne({id:message.id})
-                                        if(!existingMessage) {
-                                            Messages.insert(message)
-                                        }
+                                    const existingMessage = Messages.findOne({id:message.id})
+                                    if(!existingMessage) {
+                                        Messages.insert(message)
                                     }
 
                                     Meteor.call('sendMailToSlack', message)
