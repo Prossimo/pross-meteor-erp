@@ -60,11 +60,6 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$.peopleId': { type: String },
     'stakeholders.$.isMainStakeholder': { type: Boolean },
 
-    participants: {type: Array, optional:true},    // participants for main conversation
-    'participants.$': { type: Object },
-    'participants.$.peopleId': { type: String },
-    'participants.$.isMain': { type: Boolean, optional: true },
-
     actualDeliveryDate: { type: Date },
     productionStartDate: { type: Date },
     estDeliveryRange: { type: Array },
@@ -99,6 +94,14 @@ SalesRecords.schema = new SimpleSchema({
     subStage: {type: String, allowedValues: SUB_STAGES},
     folderId: { type: String, optional: true },
     taskFolderId: { type: String, optional: true },
+
+    participants: {type: Array, optional:true},    // participants for main conversation
+    'participants.$': { type: Object },
+    'participants.$.peopleId': { type: String },
+    'participants.$.isMain': { type: Boolean, optional: true },
+
+    conversationIds: {type: Array, optional:true},
+    'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 })
 
 SalesRecords.attachSchema(SalesRecords.schema)

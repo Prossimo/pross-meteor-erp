@@ -11,7 +11,6 @@ import Radium from 'radium'
 class ConversationList extends TrackerReact(React.Component) {
 
     static propTypes = {
-        salesRecordId: React.PropTypes.string,
         conversationId: React.PropTypes.string
     }
     constructor(props) {
@@ -21,8 +20,8 @@ class ConversationList extends TrackerReact(React.Component) {
 
         this.MINIFY_THRESHOLD = 3
 
-        const {salesRecordId, conversationId} = this.props
-        this.store = new ConversationStore({salesRecordId, conversationId})
+        const {conversationId} = this.props
+        this.store = new ConversationStore({conversationId})
 
         this.state = this._getStateFromStore()
         this.state.minified = true
@@ -90,7 +89,6 @@ class ConversationList extends TrackerReact(React.Component) {
                                       isLastMsg={isLastMsg}
                                       isBeforeReplyArea={isBeforeReplyArea}
                                       scrollTo={this._scrollTo}
-                                      salesRecordId={this.props.salesRecordId}
                                       conversationId={this.props.conversationId}
                 />
             )
@@ -201,13 +199,12 @@ class ConversationList extends TrackerReact(React.Component) {
         return _.last(_.filter(messages, m => !m.draft))
     }
     _onClickReplyArea = () => {
-        const {salesRecordId, conversationId} = this.props
+        const {conversationId} = this.props
         Actions.composeReply({
             message: this._lastMessage(),
             type: this._replyType(),
             behavior: 'prefer-existing-if-pristine',
             modal: true,
-            salesRecordId,
             conversationId
         })
 

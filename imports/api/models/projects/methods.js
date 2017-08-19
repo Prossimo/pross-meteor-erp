@@ -2,7 +2,7 @@ import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import SimpleSchema from 'simpl-schema'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
-import { Projects, ROLES } from '/imports/api/models'
+import { Projects, ROLES, Conversations } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
 import { slackClient } from '/imports/api/slack'
 import config from '../../config'
@@ -118,6 +118,18 @@ export const removeProject = new ValidatedMethod({
     }
 })
 
+export const pushConversationToProject = new ValidatedMethod({
+    name: 'project.pushConversation',
+    validate: new SimpleSchema({_id:Projects.schema.schema('_id'), conversationId:Conversations.schema.schema('_id')}).validator({clean:true}),
+    run({_id, conversationId}) {
+        if(Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            const project = Projects.findOne(_id)
+            if(!project) throw new Meteor.Error(`Could not found project with _id:${_id}`)
+
+            Projects.update(_id, {$push:{conversationIds:conversationId}})
+        }
+    }
+})
 Meteor.methods({
     updateProjectSlackChannel({_id, channel}) {
         check(_id, String)

@@ -6,7 +6,7 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import queryString from 'query-string'
 import { slackClient } from '/imports/api/slack'
 import NylasAPI from '../../nylas/nylas-api'
-import {SalesRecords, Threads, Messages, ROLES} from '../index'
+import {SalesRecords, Threads, Messages, ROLES, Conversations} from '../index'
 import {prossDocDrive} from '../../drive'
 import {getSubStages} from '../../lib/filters.js'
 
@@ -438,3 +438,17 @@ Meteor.methods({
 })
 
 
+
+
+export const pushConversationToSalesRecord = new ValidatedMethod({
+    name: 'salesRecord.pushConversation',
+    validate: new SimpleSchema({_id:SalesRecords.schema.schema('_id'), conversationId:Conversations.schema.schema('_id')}).validator({clean:true}),
+    run({_id, conversationId}) {
+        if(Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            const sr = SalesRecords.findOne(_id)
+            if(!sr) throw new Meteor.Error(`Could not found project with _id:${_id}`)
+
+            SalesRecords.update(_id, {$push:{conversationIds:conversationId}})
+        }
+    }
+})

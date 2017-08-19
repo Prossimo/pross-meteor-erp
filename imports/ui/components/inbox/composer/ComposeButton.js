@@ -6,7 +6,6 @@ export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
 
     static propTypes = {
-        salesRecordId: React.PropTypes.string,
         conversationId: React.PropTypes.string
     }
 
@@ -15,8 +14,8 @@ export default class ComposeButton extends React.Component {
     }
 
     _onNewCompose = () => {
-        const {salesRecordId, conversationId} = this.props
-        Actions.composeNew({salesRecordId, conversationId})
+        const {conversationId} = this.props
+        Actions.composeNew({conversationId})
     }
 
     render() {

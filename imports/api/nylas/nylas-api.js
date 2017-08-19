@@ -182,7 +182,7 @@ class NylasAPI {
                 const thread = _.findWhere(unlockedJSONs, {id:t.id})
                 if(t.version != thread.version) {
                     try {
-                        updateThread.call({_id:t._id, ..._.extend(thread, {salesRecordId:t.salesRecordId})})
+                        updateThread.call({_id:t._id, ..._.extend(thread, {conversationId:t.conversationId})})
                         //console.log('updated thread on the server database')
                     } catch (err) {
                         console.error(err)

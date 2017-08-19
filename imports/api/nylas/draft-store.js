@@ -6,7 +6,7 @@ import SendDraftTask from './tasks/send-draft-task'
 import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
-import {insertMessageForSalesRecord} from '/imports/api/models/messages/methods'
+import {insertMessageOnConversation} from '/imports/api/models/messages/methods'
 import { SalesRecords, Conversations } from '/imports/api/models'
 
 const ComposeType = {
@@ -31,14 +31,9 @@ class DraftStore extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = ({salesRecordId, conversationId, modal = true, show = true} = {}) => {
+    _onComposeNew = ({conversationId, modal = true, show = true} = {}) => {
         DraftFactory.createDraft().then((draft) => {
-            if(salesRecordId) {
-                draft.salesRecordId = salesRecordId
-                const participants = SalesRecords.findOne(salesRecordId).getParticipants()
-                draft.to = participants.filter(p => p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
-                draft.cc = participants.filter(p => !p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
-            } else if(conversationId) {
+            if(conversationId) {
                 draft.conversationId = conversationId
                 const participants = Conversations.findOne(conversationId).getParticipants()
                 draft.to = participants.filter(p => p.isMain).map(p => ({name:p.name, email:p.defaultEmail()}))
@@ -57,7 +52,7 @@ class DraftStore extends Reflux.Store {
         })
     }
 
-    _onComposeReply = ({message, type, modal, salesRecordId, conversationId}) => {
+    _onComposeReply = ({message, type, modal, conversationId}) => {
         if (!message) return
 
 
@@ -78,7 +73,6 @@ class DraftStore extends Reflux.Store {
             this.trigger()
         } else {
             DraftFactory.createDraftForReply({message, type}).then((draft) => {
-                draft.salesRecordId = salesRecordId
                 draft.conversationId = conversationId
                 this._drafts.push(draft)
 
@@ -95,9 +89,8 @@ class DraftStore extends Reflux.Store {
     }
 
 
-    _onComposeForward = ({message, modal, salesRecordId, conversationId}) => {
+    _onComposeForward = ({message, modal, conversationId}) => {
         DraftFactory.createDraftForForward({message}).then((draft) => {
-            draft.salesRecordId = salesRecordId
             draft.conversationId = conversationId
             this._drafts.push(draft)
 
@@ -152,11 +145,11 @@ class DraftStore extends Reflux.Store {
         const draft = this.draftForClientId(clientId)
         console.log('_onSendDraftSuccess', message, clientId, draft)
 
-        const {salesRecordId, conversationId} = draft
+        const {conversationId} = draft
 
-        if (salesRecordId || conversationId) {    // Update conversations for sales record
+        if (conversationId) {    // Update conversations for sales record
             try {
-                insertMessageForSalesRecord.call({salesRecordId, conversationId, message})
+                insertMessageOnConversation.call({conversationId, message})
             } catch(err) {
                 console.error(err)
             }

@@ -7,17 +7,16 @@ import Conversations from './conversations'
 
 export const insertConversation = new ValidatedMethod({
     name: 'conversation.insert',
-    validate: Conversations.schema.pick('name','salesRecordId', 'participants').validator({clean:true}),
-    run({name, salesRecordId, participants}) {
+    validate: Conversations.schema.pick('name', 'participants').validator({clean:true}),
+    run({name, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(Conversations.findOne({salesRecordId, name})) throw new Meteor.Error('Conversation with same name is exist')
+        if(Conversations.findOne({name})) throw new Meteor.Error('Conversation with same name is exist')
 
         if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
 
         const data = {
             name,
-            salesRecordId,
             participants,
             user_id: this.userId
         }
@@ -28,20 +27,19 @@ export const insertConversation = new ValidatedMethod({
 
 export const updateConversation = new ValidatedMethod({
     name: 'conversation.update',
-    validate: Conversations.schema.pick('_id','name','salesRecordId','participants').validator({clean:true}),
-    run({_id, name, salesRecordId, participants}) {
+    validate: Conversations.schema.pick('_id', 'name', 'participants').validator({clean:true}),
+    run({_id, name, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         const conversation = Conversations.findOne({_id})
         if(!conversation) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
 
-        const existingConversation = Conversations.findOne({salesRecordId, name})
+        const existingConversation = Conversations.findOne({name})
         if(existingConversation && existingConversation._id!=_id) throw new Meteor.Error('Conversation with same name is exist')
 
         if(!_.isUndefined(participants) && _.findIndex(participants, {isMain:true}) == -1)  participants[0].isMain = true
         const data = {
             name: _.isUndefined(name) ? null : name,
-            salesRecordId: _.isUndefined(salesRecordId) ? null : salesRecordId,
             participants: _.isUndefined(participants) ? null : participants,
             user_id: this.userId
         }
