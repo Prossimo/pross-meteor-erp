@@ -93,7 +93,7 @@ class ItemMessage extends React.Component {
                                       isDetailed={this.state.detailedHeaders}
                                       date={this.props.message.date}/>
 
-                    <MessageControls message={this.props.message} salesRecordId={this.props.salesRecordId} conversationId={this.props.conversationId}/>
+                    <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>
                 </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}

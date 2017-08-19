@@ -5,7 +5,7 @@ import NylasUtils from './nylas-utils'
 import {SalesRecords, Conversations} from '../models'
 
 export default class ConversationStore extends Reflux.Store {
-    constructor({salesRecordId, conversationId}) {
+    constructor({conversationId}) {
         super()
 
 
@@ -13,7 +13,6 @@ export default class ConversationStore extends Reflux.Store {
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
 
-        this.salesRecordId = salesRecordId
         this.conversationId = conversationId
         this._messages = this.getMessages()
         this._messages.sort((m1, m2) => m1.date - m2.date)
@@ -23,9 +22,7 @@ export default class ConversationStore extends Reflux.Store {
         this._fetchExpandedAttachments(this._messages)
     }
     getMessages() {
-        if(this.salesRecordId) {
-            return SalesRecords.findOne(this.salesRecordId).messages()
-        } else if(this.conversationId) {
+        if(this.conversationId) {
             return Conversations.findOne(this.conversationId).messages()
         } else {
             return []

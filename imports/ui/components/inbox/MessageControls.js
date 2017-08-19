@@ -86,18 +86,18 @@ class MessageControls extends React.Component {
 
 
     _onReply = () => {
-        const {message, salesRecordId, conversationId} = this.props
-        Actions.composeReply({message, type: 'reply', modal: true, salesRecordId, conversationId})
+        const {message, conversationId} = this.props
+        Actions.composeReply({message, type: 'reply', modal: true, conversationId})
     }
 
     _onReplyAll = () => {
-        const {message, salesRecordId, conversationId} = this.props
-        Actions.composeReply({message, type: 'reply-all', modal: true, salesRecordId, conversationId})
+        const {message, conversationId} = this.props
+        Actions.composeReply({message, type: 'reply-all', modal: true, conversationId})
     }
 
     _onForward = () => {
-        const {message, salesRecordId, conversationId} = this.props
-        Actions.composeForward({message, modal: true, salesRecordId, conversationId})
+        const {message, conversationId} = this.props
+        Actions.composeForward({message, modal: true, conversationId})
     }
 
 

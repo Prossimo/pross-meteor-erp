@@ -94,8 +94,8 @@ Threads.schema = new SimpleSchema({
         optional:true
     },
 
-    salesRecordId: {type: String, optional: true},
     conversationId: {type: String, optional: true},
+
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -118,7 +118,6 @@ Threads.publicFields = {
     folders: 1,
     labels: 1,
 
-    salesRecordId: 1,
     conversationId: 1,
 
     created_at: 1,

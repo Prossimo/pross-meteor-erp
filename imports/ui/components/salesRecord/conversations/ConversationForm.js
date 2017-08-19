@@ -1,13 +1,14 @@
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Alert, Table, Checkbox} from 'react-bootstrap'
 import {insertConversation, updateConversation} from '/imports/api/models/conversations/methods'
-import {SalesRecords} from '/imports/api/models'
+import {SalesRecords, Projects} from '/imports/api/models'
 import ParticipantsSelector from './ParticipantsSelector'
 
 export default class ConversationForm extends React.Component {
     static propTypes = {
         name: React.PropTypes.string,
-        salesRecordId: React.PropTypes.string.isRequired,
+        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]).isRequired,
+        targetId: React.PropTypes.string.isRequired,    // salesRecordId or projectId
         _id: React.PropTypes.string,
         onSaved: React.PropTypes.func
     }
@@ -25,12 +26,14 @@ export default class ConversationForm extends React.Component {
     onChangeParticipants = (participants) => {
         this.setState({ selectedPeople: participants })
     }
+
     renderPeople() {
-        const {salesRecordId} = this.props
-        const salesRecord = SalesRecords.findOne(salesRecordId)
+        const {targetCollection, targetId} = this.props
+
+        const target = targetCollection.findOne(targetId)
 
         const {selectedPeople} = this.state
-        return <ParticipantsSelector participants={salesRecord.people()} selections={selectedPeople} onChange={this.onChangeParticipants}/>
+        return <ParticipantsSelector participants={target.people()} selections={selectedPeople} onChange={this.onChangeParticipants}/>
     }
     render() {
         const {name} = this.state
@@ -65,13 +68,25 @@ export default class ConversationForm extends React.Component {
         if(!name || name.length == 0) return this.setState({error:'Name required'})
         if(!selectedPeople || selectedPeople.length == 0) return this.setState({error:'Should select people'})
 
-        const {_id, salesRecordId} = this.props
+        const {_id} = this.props
 
         try{
             if(_id) {
-                updateConversation.call({_id, salesRecordId, name, participants: selectedPeople})
+                updateConversation.call({_id, name, participants: selectedPeople})
             } else {
-                insertConversation.call({salesRecordId, name, participants: selectedPeople})
+                const conversationId = insertConversation.call({name, participants: selectedPeople})
+
+                const {targetId, targetCollection} = this.props
+
+                let methodName
+                if(targetCollection == SalesRecords) {
+                    methodName = 'salesRecord.pushConversation'
+                } else {
+                    methodName = 'project.pushConversation'
+                }
+                Meteor.call(methodName, {_id:targetId, conversationId}, (err) => {
+                    if(err) console.error(err)
+                })
             }
             if(this.props.onSaved) this.props.onSaved()
         } catch(e) {

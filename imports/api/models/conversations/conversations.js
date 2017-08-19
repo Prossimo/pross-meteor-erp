@@ -40,7 +40,6 @@ Conversations.deny({
 Conversations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
-    salesRecordId: {type: String, regEx: SimpleSchema.RegEx.Id},
     participants: {type: Array},
     'participants.$': { type: Object },
     'participants.$.peopleId': { type: String },

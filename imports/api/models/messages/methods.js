@@ -35,17 +35,16 @@ export const updateMessage = new ValidatedMethod({
     }
 })
 
-export const insertMessageForSalesRecord = new ValidatedMethod({
+export const insertMessageOnConversation = new ValidatedMethod({
     name: 'message.insertForSalesRecord',
     validate: new SimpleSchema({
-        salesRecordId:{type:String, optional:true},
         conversationId:{type:String, optional:true},
         message: Messages.schema.omit('_id','created_at','modified_at')
     }).validator({clean:true}),
-    run({salesRecordId, conversationId, message}) {
+    run({conversationId, message}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(!salesRecordId && !conversationId) throw new Meteor.Error('SalesRecordId or conversationId should be provided')
+        if(!conversationId) throw new Meteor.Error('SalesRecordId or conversationId should be provided')
         NylasAPI.makeRequest({
             path: `/threads/${message.thread_id}`,
             method: 'GET',
@@ -58,7 +57,7 @@ export const insertMessageForSalesRecord = new ValidatedMethod({
                         if(existingThread) {
                             Threads.update({id:thread.id}, {$set:thread})
                         } else {
-                            Threads.insert(_.extend(thread, {salesRecordId, conversationId}))
+                            Threads.insert(_.extend(thread, {conversationId}))
                         }
 
                         Messages.insert(message)

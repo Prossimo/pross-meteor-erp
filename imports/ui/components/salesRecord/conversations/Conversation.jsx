@@ -8,14 +8,15 @@ import ComposeButton from '../../inbox/composer/ComposeButton'
 import ComposeModal from '../../inbox/composer/ComposeModal'
 import ConversationList from './ConversationList'
 import ParticipantList from './ParticipantList'
-import {SalesRecords, Conversations} from '/imports/api/models'
+import {SalesRecords, Conversations, Projects} from '/imports/api/models'
 import {updateConversation} from '/imports/api/models/conversations/methods'
 
 import ParticipantsSelectModal from './ParticipantsSelectModal'
 
 export default class Conversation extends TrackerReact(React.Component) {
     static propTypes = {
-        salesRecordId: React.PropTypes.string,
+        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]),
+        targetId: React.PropTypes.string,   // SalesRecordId or ProjectId
         conversationId: React.PropTypes.string
     }
 
@@ -37,10 +38,11 @@ export default class Conversation extends TrackerReact(React.Component) {
         })
     }
 
-    salesRecord = () => {
-        const {salesRecordId} = this.props
-        if(!salesRecordId) return null
-        return SalesRecords.findOne(salesRecordId)
+    target = () => {
+        const {targetCollection, targetId} = this.props
+        if(!targetId) return null
+
+        return targetCollection.findOne(targetId)
     }
     conversation = () => {
         const {conversationId} = this.props
@@ -59,25 +61,16 @@ export default class Conversation extends TrackerReact(React.Component) {
         if(!composeState) return ''
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
-        if(this.props.salesRecordId && draft.salesRecordId != this.props.salesRecordId || this.props.conversationId && draft.conversationId != this.props.conversationId) return ''
+        if(this.props.conversationId && draft.conversationId != this.props.conversationId) return ''
 
         return <ComposeModal isOpen={composeState.show}
                       clientId={composeState.clientId}
                       onClose={this.onCloseComposeModal}/>
     }
-    renderParticipantsSelectModal() {
-        const {salesRecordId, conversationId} = this.props
 
-        let participants, selections
-        if(salesRecordId) {
-            const salesRecord = this.salesRecord()
-            participants = salesRecord.people()
-            selections = salesRecord.participants
-        } else if(conversationId) {
-            const conversation = this.conversation()
-            participants = conversation.salesRecord().people()
-            selections = conversation.participants.filter(p => typeof p === 'object')
-        }
+    renderParticipantsSelectModal() {
+        const participants = this.target().people()
+        const selections = this.conversation().participants.filter(p => typeof p === 'object')
 
 
         const {showParticipantsSelectModal} = this.state
@@ -95,19 +88,15 @@ export default class Conversation extends TrackerReact(React.Component) {
     render() {
         const {composeState} = this.state
 
-        const {salesRecordId, conversationId} = this.props
+        const {conversationId} = this.props
 
-        let participants = []
-        if (salesRecordId) {
-            participants = SalesRecords.findOne(salesRecordId).getParticipants()
-        } else if (conversationId) {
-            participants = Conversations.findOne(conversationId).getParticipants()
-        }
+        const participants = Conversations.findOne(conversationId).getParticipants()
+
         return (
             <div className="conversations-tab">
-                <ComposeButton salesRecordId={salesRecordId} conversationId={conversationId}/>
+                <ComposeButton conversationId={conversationId}/>
                 <div style={{display: 'flex'}}>
-                    <ConversationList style={{flex: 4}} salesRecordId={salesRecordId} conversationId={conversationId}/>
+                    <ConversationList style={{flex: 4}} conversationId={conversationId}/>
                     <ParticipantList style={{flex: 1}} participants={participants}
                                      onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
                                      onChangeParticipants={this.updateParticipants}
@@ -120,7 +109,7 @@ export default class Conversation extends TrackerReact(React.Component) {
     }
 
     updateParticipants = (participants) => {
-        const {conversationId, salesRecordId} = this.props
+        const {conversationId} = this.props
         if(conversationId) {
             try {
                 const conversation = this.conversation()
@@ -132,11 +121,6 @@ export default class Conversation extends TrackerReact(React.Component) {
             } catch(e) {
                 console.error(e)
             }
-        } else if(salesRecordId) {
-            Meteor.call('updateSalesRecordParticipants', {_id:salesRecordId, participants}, (err,res) => {
-                if(err) return console.error(err.message || err.reason)
-                this.setState({showParticipantsSelectModal:false})
-            })
         }
     }
 

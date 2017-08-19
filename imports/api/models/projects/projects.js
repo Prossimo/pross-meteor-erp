@@ -37,6 +37,9 @@ Projects.schema = new SimpleSchema({
     slackChannelName: {type: String, optional: true},
     folderId: {type: String, optional: true},
     taskFolderId: {type: String, optional: true},
+
+    conversationIds: {type: Array, optional:true},
+    'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 })
 
 Projects.attachSchema(Projects.schema)
@@ -58,6 +61,10 @@ Projects.helpers({
             const stakeholder = _.findWhere(this.stakeholders, {peopleId:p._id})
             return {...p, email:p.defaultEmail(), designation:p.designation()?p.designation().name:null, isMainStakeholder:stakeholder.isMainStakeholder, addToMain:stakeholder.addToMain}
         })
+    },
+    people() {
+        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        return People.find({_id:{$in:peopleIds}}).fetch()
     }
 })
 export default Projects
