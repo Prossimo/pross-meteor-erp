@@ -6,7 +6,7 @@ import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select'
-import {ROLES, Users, PeopleDesignations, People} from '/imports/api/models'
+import {ROLES, Users, PeopleDesignations, People, SalesRecords} from '/imports/api/models'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
 import Quotes from './Quotes'
@@ -36,7 +36,7 @@ class SingleSalesRecord extends React.Component {
             },
             {
                 label: 'Conversations',
-                component: <Conversations/>
+                component: <Conversations targetCollection={SalesRecords} targetId={props.salesRecord._id}/>
             },
             {
                 label: 'Details',
