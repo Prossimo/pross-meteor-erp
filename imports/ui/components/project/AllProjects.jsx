@@ -120,6 +120,6 @@ export default createContainer(() => {
     return {
         subscribers,
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
-        projects: Projects.find().fetch(),
+        projects: Projects.find({},{sort:{createdAt:-1}}).fetch(),
     }
 }, AllProjects)

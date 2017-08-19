@@ -2,6 +2,7 @@ import _ from 'underscore'
 import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import Users from '../users/users'
+import People from '../people/people'
 
 class ProjectsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -46,6 +47,17 @@ Projects.helpers({
 
         const memberIds = _.pluck(this.members, 'userId')
         return Users.find({_id:{$in:memberIds}}).fetch()
+    },
+
+    getStakeholders() {
+        if(!this.stakeholders || this.stakeholders.length == 0) return []
+
+        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        //console.log(JSON.stringify({_id: {$in:peopleIds}}))
+        return People.find({_id: {$in:peopleIds}}).map(p => {
+            const stakeholder = _.findWhere(this.stakeholders, {peopleId:p._id})
+            return {...p, email:p.defaultEmail(), designation:p.designation()?p.designation().name:null, isMainStakeholder:stakeholder.isMainStakeholder, addToMain:stakeholder.addToMain}
+        })
     }
 })
 export default Projects
