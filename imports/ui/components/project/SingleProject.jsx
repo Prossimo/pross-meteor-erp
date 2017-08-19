@@ -1,9 +1,10 @@
 /* global FlowRouter */
+import _ from 'underscore'
 import React, {Component} from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import classNames from 'classnames'
 import {info, warning} from '/imports/api/lib/alerts'
-import {Users,Projects} from '/imports/api/models'
+import {Users, Projects, People} from '/imports/api/models'
 import Activities from './Activities'
 import Tasks from '../tasks/TaskBoard.jsx'
 import Files from '../files/Files.jsx'
@@ -50,6 +51,65 @@ class SingleProject extends Component {
 
         project.members = members.map(m => ({userId:m.value, isAdmin:false}))
         Meteor.call('project.update', {...this.props.project}, (err,res) => {
+            if(err) {
+                console.warn(err)
+                warning(err.message || err.reason)
+            }
+        })
+    }
+
+    onSelectStakeholders = (stakeholders) => {
+        const {project} = this.props
+        const peopleIds = _.pluck(project.stakeholders, 'peopleId')
+        if(stakeholders && project.stakeholders && stakeholders.length == project.stakeholders.length && stakeholders.every(m => peopleIds.indexOf(m.value)>-1)) return
+
+        project.stakeholders = stakeholders.map(p => {
+            const stakeholder = _.findWhere(project.stakeholders, {peopleId:p.value})
+            if(stakeholder) return stakeholder
+
+            return {peopleId:p.value, isMainStakeholder:false, addToMain:true}
+        })
+        Meteor.call('project.update', {...this.props.project}, (err,res) => {
+            if(err) {
+                console.warn(err)
+                warning(err.message || err.reason)
+            }
+        })
+    }
+
+    setAsMainStakeholder = (stakeholder) => {
+        const {project} = this.props
+        const {stakeholders} = project
+        stakeholders.forEach((s) => {
+            if(s.peopleId === stakeholder._id) {
+                s.isMainStakeholder = true
+            } else {
+                s.isMainStakeholder = false
+            }
+        })
+
+        project.stakeholders = stakeholders
+
+        Meteor.call('project.update', {...project}, (err,res) => {
+            if(err) {
+                console.warn(err)
+                warning(err.message || err.reason)
+            }
+        })
+    }
+
+    addToMain = (stakeholder, checked) => {
+        const {project} = this.props
+        const {stakeholders} = project
+        stakeholders.forEach((s) => {
+            if(s.peopleId === stakeholder._id) {
+                s.addToMain = checked
+            }
+        })
+
+        project.stakeholders = stakeholders
+
+        Meteor.call('project.update', {...project}, (err,res) => {
             if(err) {
                 console.warn(err)
                 warning(err.message || err.reason)
@@ -105,11 +165,32 @@ class SingleProject extends Component {
             </div>
         )
     }
+
+    renderStakeholders(stakeholders) {
+        return (
+            <div className="list">
+                {
+                    stakeholders.map(s => (
+                        <div key={s._id} className="item">
+                            <div className="primary-text">{s.name}</div>
+                            <div className="secondary-text">{s.email}</div>
+                            <div className="secondary-text">{`${s.designation}/${s.role}`}</div>
+                            <div className="secondary-text">
+                                <input type="radio" checked={s.isMainStakeholder} onChange={() => {this.setAsMainStakeholder(s)}}/> main stakeholder&nbsp;&nbsp;
+                                <input type="checkbox" checked={s.addToMain} onChange={(e) => {this.addToMain(s, e.target.checked)}}/> add to main
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
+        )
+    }
     render() {
         if(this.props.loading) return(<div>Loading ...</div>)
 
         const {project} = this.props
         const members = project.getMembers()
+        const stakeholders = project.getStakeholders()
         return (
             <div className='page-container single-project'>
                 <div className="main-content">
@@ -133,6 +214,11 @@ class SingleProject extends Component {
                     <div className="sidebar-box">
                         <Panel title="Members" actions={<Selector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
                             {members&&members.length ? this.renderMembers(members) : <div>There are no members assigned to this project</div>}
+                        </Panel>
+                    </div>
+                    <div className="sidebar-box">
+                        <Panel title="Stakeholders" actions={<Selector multiple value={stakeholders.map(p => ({value:p._id, label:p.name}))} options={People.find().map(p => ({value:p._id, label:p.name}))} onSelect={this.onSelectStakeholders}/>}>
+                            {stakeholders&&stakeholders.length ? this.renderStakeholders(stakeholders) : <div>There are no members assigned to this project</div>}
                         </Panel>
                     </div>
                 </aside>
