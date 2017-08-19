@@ -5,6 +5,7 @@ import { info, warning } from '/imports/api/lib/alerts'
 import 'react-block-ui/style.css'
 import { Loader, Types } from 'react-loaders'
 import 'loaders.css/loaders.min.css'
+import SelectStakeholders from '../salesRecord/components/SelectStakeholders'
 
 export default class CreateProject extends Component {
     constructor(props) {
@@ -18,21 +19,19 @@ export default class CreateProject extends Component {
                     value: props.currentUser._id
                 }
             ],
-            blocking: false
+            blocking: false,
+            people: null
         }
-        this.changeMembers = this.changeMembers.bind(this)
-        this.changeState = this.changeState.bind(this)
-        this.changeName = this.changeName.bind(this)
-        this.addProject = this.addProject.bind(this)
     }
 
-    addProject() {
+    addProject = () => {
         const project = {
             name: this.state.projectName,
             members: this.state.selectedMembers.map(({ label, value, checked }) => ({
                 userId: value,
                 isAdmin: !!checked,
             })),
+            stakeholders: this.state.stakeholders
         }
         this.props.toggleLoader(true)
 
@@ -48,13 +47,13 @@ export default class CreateProject extends Component {
         })
     }
 
-    changeName(event) {
+    changeName = (event) => {
         this.setState({
             projectName: event.target.value,
         })
     }
 
-    changeState(type, checked, member) {
+    changeState = (type, checked, member) => {
         switch(type) {
             case 'isAdmin':
                 if (!checked) return
@@ -68,7 +67,7 @@ export default class CreateProject extends Component {
 
     }
 
-    changeMembers(members) {
+    changeMembers = (members) => {
         const hasChecked = members.reduce((result, { label, value, checked }) => result || checked !== undefined, false)
         if (!hasChecked && members.length > 0) members[0].checked = true
         this.setState({
@@ -76,6 +75,9 @@ export default class CreateProject extends Component {
         })
     }
 
+    updateStakeholders = (stakeholders) => {
+        this.state.stakeholders = stakeholders
+    }
     render() {
         const memberOptions = this.props.users.map(({ profile: { firstName, lastName }, _id }) => {
             const name = `${firstName} ${lastName}`
@@ -134,6 +136,11 @@ export default class CreateProject extends Component {
                             }
                         </tbody>
                     </table>
+
+                    <SelectStakeholders
+                        people={this.state.people}
+                        onSelectPeople={this.updateStakeholders}
+                    />
                     <div className='form-group text-center'>
                         <button className='btn btn-primary' onClick={this.addProject}>Add Project</button>
                     </div>

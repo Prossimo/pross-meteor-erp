@@ -3,7 +3,7 @@ import Select from 'react-select'
 import People from '/imports/api/models/people/people'
 import {createContainer} from 'meteor/react-meteor-data'
 
-export default class SelectPeople extends Component {
+export default class SelectStakeholders extends Component {
     static propTypes = {
         people: PropTypes.array,
         onSelectPeople: PropTypes.func.isRequired,
@@ -18,7 +18,7 @@ export default class SelectPeople extends Component {
         }
         this.peopleOptions = people.map((person) => ({
             addToMain: person.addToMain!=null ? person.addToMain : true,
-            isMain: person.isMain!=null ? person.isMain : false,
+            isMainStakeholder: person.isMainStakeholder!=null ? person.isMainStakeholder : false,
             name: person.name,
             email: person.defaultEmail(),
             _id: person._id,
@@ -29,9 +29,9 @@ export default class SelectPeople extends Component {
         }
         if(this.state.selectedPeople.length && this.props.onSelectPeople) {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
+                this.state.selectedPeople.map(({_id, isMainStakeholder, addToMain}) => ({
                     peopleId: _id,
-                    isMainStakeholder: isMain,
+                    isMainStakeholder,
                     addToMain,
                 }))
             )
@@ -39,12 +39,12 @@ export default class SelectPeople extends Component {
     }
 
     selectMain = (mainId) => {
-        this.state.selectedPeople.forEach(p => p.isMain = p._id === mainId)
+        this.state.selectedPeople.forEach(p => p.isMainStakeholder = p._id === mainId)
         this.setState(prevState => prevState, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
+                this.state.selectedPeople.map(({_id, isMainStakeholder, addToMain}) => ({
                     peopleId: _id,
-                    isMainStakeholder: isMain,
+                    isMainStakeholder,
                     addToMain,
                 }))
             )
@@ -55,9 +55,9 @@ export default class SelectPeople extends Component {
         this.state.selectedPeople.forEach(p => p._id === _id && (p.addToMain = checked))
         this.setState(prevState => prevState, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
+                this.state.selectedPeople.map(({_id, isMainStakeholder, addToMain}) => ({
                     peopleId: _id,
-                    isMainStakeholder: isMain,
+                    isMainStakeholder,
                     addToMain,
                 }))
             )
@@ -65,14 +65,14 @@ export default class SelectPeople extends Component {
     }
 
     selectPeople = (people) => {
-        !people.find(({isMain}) => isMain)
+        !people.find(({isMainStakeholder}) => isMainStakeholder)
         && people.length
-        && (people[0].isMain = true)
+        && (people[0].isMainStakeholder = true)
         this.setState({selectedPeople:people}, () => {
             this.props.onSelectPeople(
-                this.state.selectedPeople.map(({_id, isMain, addToMain}) => ({
+                this.state.selectedPeople.map(({_id, isMainStakeholder, addToMain}) => ({
                     peopleId: _id,
-                    isMainStakeholder: isMain,
+                    isMainStakeholder,
                     addToMain,
                 }))
             )
@@ -93,7 +93,7 @@ export default class SelectPeople extends Component {
                 <tbody>
                 {
                     this.state.selectedPeople.map(person => {
-                        const {_id, name, email, isMain, addToMain} = person
+                        const {_id, name, email, isMainStakeholder, addToMain} = person
                         return (
                             <tr key={_id}>
                                 <td><div>{ name }</div><div>{email}</div></td>
@@ -102,7 +102,7 @@ export default class SelectPeople extends Component {
                                         <label>
                                             <input
                                                 type='checkbox'
-                                                checked={isMain}
+                                                checked={isMainStakeholder}
                                                 onChange={() => this.selectMain(_id)}
                                             />
                                         </label>

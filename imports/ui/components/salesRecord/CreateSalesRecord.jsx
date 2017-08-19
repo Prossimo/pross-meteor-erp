@@ -14,7 +14,7 @@ import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import NumericInput from 'react-numeric-input'
 import SelectMembers from './components/SelectMembers'
-import SelectPeople from './components/SelectPeople'
+import SelectStakeholders from './components/SelectStakeholders'
 import {ROLES, People, USER_STATUS, Conversations} from '/imports/api/models'
 import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
@@ -73,7 +73,7 @@ class CreateSalesRecord extends React.Component {
                 const stakeholder = salesRecord.stakeholders.find((s) => s.peopleId === p._id)
                 return _.extend(p, {
                     addToMain: stakeholder.addToMain,
-                    isMain: stakeholder.isMainStakeholder
+                    isMainStakeholder: stakeholder.isMainStakeholder
                 })
             }) : []
             const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
@@ -98,7 +98,7 @@ class CreateSalesRecord extends React.Component {
 
         const data = {
             name: projectName,
-            members: members,
+            members,
             stakeholders,
             actualDeliveryDate: actualDeliveryDate.toDate(),
             productionStartDate: productionStartDate.toDate(),
@@ -241,7 +241,7 @@ class CreateSalesRecord extends React.Component {
                         members={members}
                         onSelectMembers={this.updateMembers}
                     />
-                    <SelectPeople
+                    <SelectStakeholders
                         people={this.state.people}
                         onSelectPeople={this.updateStakeholders}
                     />

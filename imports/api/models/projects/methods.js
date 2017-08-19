@@ -9,15 +9,9 @@ import config from '../../config'
 
 export const createProject = new ValidatedMethod({
     name: 'project.create',
-    validate: new SimpleSchema({
-        name: String,
-        members: Array,
-        'members.$': Object,
-        'members.$.userId': String,
-        'members.$.isAdmin': Boolean,
-    }).validator(),
-    run({ name, members }) {
-        const project = { name, members }
+    validate: Projects.schema.pick('name', 'members', 'stakeholders').validator(),
+    run({ name, members, stakeholders }) {
+        const project = { name, members, stakeholders }
         // CHECK ROLE
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
             throw new Meteor.Error('Access denied')
@@ -66,7 +60,7 @@ export const createProject = new ValidatedMethod({
 export const updateProject = new ValidatedMethod({
     name: 'project.update',
     validate: Projects.schema.validator(),
-    run({ _id, name, members }) {
+    run({ _id, name, members, stakeholders }) {
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ROLES.ADMIN)
 
@@ -91,7 +85,8 @@ export const updateProject = new ValidatedMethod({
         }
         const data = {
             name: _.isUndefined(name) ? null : name,
-            members: _.isUndefined(members) ? null : members
+            members: _.isUndefined(members) ? null : members,
+            stakeholders: _.isUndefined(stakeholders) ? null : stakeholders
         }
         return Projects.update(_id, {
             $set: data
