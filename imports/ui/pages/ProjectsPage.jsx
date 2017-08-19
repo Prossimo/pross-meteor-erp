@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import AllProjects from '../components/project/AllProjects';
-import CreateProject from '/imports/ui/components/admin/CreateProject';
+import CreateProject from '/imports/ui/components/project/CreateProject';
 
 export default class ProjectsPage extends Component {
     constructor(props){
