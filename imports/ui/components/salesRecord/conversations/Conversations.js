@@ -29,9 +29,10 @@ export default class Conversations extends TrackerReact(React.Component) {
     }
     render() {
         const {targetCollection, targetId} = this.props
-        const target = targetCollection.find({_id:targetId})
+        const target = targetCollection.findOne({_id:targetId})
 
-        const conversations = ConversationsModel.find({_id: {$in:target.conversationIds&&[]}}).fetch()
+        console.log(target, JSON.stringify({_id: {$in:target.conversationIds||[]}}))
+        const conversations = ConversationsModel.find({_id: {$in:target.conversationIds||[]}}).fetch()
         return (
             <Tabs id="conversation-tab-container" activeKey={this.state.key} onSelect={this.handleSelect} style={{height:'100%'}} >
                 {

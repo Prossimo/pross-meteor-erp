@@ -9,6 +9,7 @@ import Activities from './Activities'
 import Tasks from '../tasks/TaskBoard.jsx'
 import Files from '../files/Files.jsx'
 import {Panel, Selector, SlackChannelSelector} from '../common'
+import Conversations from '../salesRecord/conversations/Conversations'
 
 class SingleProject extends Component {
     constructor(props) {
@@ -18,6 +19,10 @@ class SingleProject extends Component {
             {
                 label: 'Activity',
                 component: <Activities projectId={projectId}/>
+            },
+            {
+                label: 'Conversations',
+                component: <Conversations targetCollection={Projects} targetId={projectId}/>
             },
             {
                 label: 'Tasks',
