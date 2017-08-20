@@ -27,6 +27,7 @@ export const createProject = new ValidatedMethod({
         }
         if (data.ok) {
             const slackChanel = data.channel.id
+            const slackChannelName = data.channel.name
             // INVITE MEMBERS to CHANNEL
             Meteor.users.find({
                 _id: { $in: project.members.map(({ userId }) => userId) },
@@ -36,7 +37,7 @@ export const createProject = new ValidatedMethod({
             )
             // UPDATE slackChanel
             Projects.update(projectId, {
-                $set: { slackChanel },
+                $set: { slackChanel, slackChannelName },
             })
 
             // INVITE SLACKBOT to CHANNEL
