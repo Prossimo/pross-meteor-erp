@@ -102,7 +102,7 @@ class Task extends Component {
           <i className='fa fa-times'/>
         </CloseButton>
         <AssigneeIcon>
-          { this.shortenName(this.props.assignee) }
+          { this.props.assignee ? this.shortenName(this.props.assignee) : '?' }
         </AssigneeIcon>
         <ApproverIcon>
           { this.props.approver ? this.shortenName(this.props.approver) : '?' }
@@ -126,7 +126,7 @@ class Task extends Component {
 Task.propTypes = {
   task: PropTypes.object.isRequired,
   approver: PropTypes.object,
-  assignee: PropTypes.object.isRequired,
+  assignee: PropTypes.object,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
 }

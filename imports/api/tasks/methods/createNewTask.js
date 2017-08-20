@@ -12,6 +12,7 @@ export default new ValidatedMethod({
     },
     assignee: {
       type: String,
+      optional: true,
     },
     approver: {
       type: String,
