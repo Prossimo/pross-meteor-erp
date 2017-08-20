@@ -1,6 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects} from '/imports/api/models'
 
 Migrations.add({
     version: 1,
@@ -123,8 +123,36 @@ Migrations.add({
     down() {}
 
 })
+Migrations.add({
+    version: 7,
+    name: 'Add conversationIds data to SalesRecord and Project',
+    up() {
+        console.log('===== migrate up to version 7 =====')
+
+        // For SalesRecord
+        const salesRecords = SalesRecords.find().fetch()
+        salesRecords.forEach(s => {
+            const conversations = Conversations.find({salesRecordId:s._id}).fetch()
+            const mainConversationId = Conversations.insert({name:'Main', participants:(s.stakeholders||[]).filter(({peopleId}) => peopleId!=null).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
+            SalesRecords.update(s._id, {$set:{conversationIds:[mainConversationId].concat(conversations.map(({_id}) => _id))}})
+        })
+        // For Project
+        const projects = Projects.find().fetch()
+        projects.forEach(p => {
+            const mainConversationId = Conversations.insert({name:'Main', participants:(p.stakeholders||[]).filter(({peopleId}) => peopleId!=null).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
+            Projects.update(p._id, {$set:{conversationIds:[mainConversationId]}})
+        })
+    },
+    down() {
+        console.log('==== migrate down to version 7 ====')
+        Conversations.remove()
+        SalesRecords.update({}, {$set:{conversationIds:null}})
+        Projects.update({}, {$set:{conversationIds:null}})
+    }
+
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(6)
+        Migrations.migrateTo(7)
     }
 })
