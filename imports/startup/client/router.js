@@ -7,7 +7,7 @@ import SingleSalesRecord from '../../api/composer/componencts/project/SingleProj
 import SingleProjectPage from '/imports/ui/components/project/SingleProject'
 import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
 
-import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage} from '/imports/ui/pages'
+import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage, SlackSettingsPage} from '/imports/ui/pages'
 
 function checkAuth() {
     if(!Meteor.userId()) FlowRouter.go('Root')
@@ -205,6 +205,16 @@ FlowRouter.route('/drive_settings', {
             content: <DriveSettingsPage/>
         })
     }
+})
+
+FlowRouter.route('/slack', {
+  name: 'SlackChannelSettings',
+  action() {
+    checkAuth()
+    mount(App, {
+      content: <SlackSettingsPage/>
+    })
+  }
 })
 
 FlowRouter.notFound = {
