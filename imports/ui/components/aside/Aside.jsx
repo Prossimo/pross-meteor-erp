@@ -170,6 +170,10 @@ class Aside extends React.Component{
               label: 'Google Drive',
               route: 'GoogleDriveSettings'
             })
+            item.subItems.push({
+              label: 'Slack Channel',
+              route: 'SlackChannelSettings'
+            })
           }
           return item
         })

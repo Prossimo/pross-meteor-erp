@@ -17,5 +17,5 @@ export {
   inviteUserToSlack,
   sendBotMessage,
   parseSlackMessage,
-    getSlackChannels,
+  getSlackChannels,
 }

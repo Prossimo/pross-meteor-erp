@@ -1,6 +1,7 @@
 import {Roles} from 'meteor/alanning:roles'
 import SimpleSchema from 'simpl-schema'
 import { ROLES, Settings } from '../../models/'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
   name: 'settings.update',
