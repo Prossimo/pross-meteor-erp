@@ -1,6 +1,6 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
-import { SalesRecords, Projects, Tasks } from '/imports/api/models'
+import { SalesRecords, Projects, Tasks, Settings } from '/imports/api/models'
 import { slackClient } from '/imports/api/slack'
 
 const RED = '#FF4C4C'
@@ -34,6 +34,7 @@ export default new ValidatedMethod({
       const { slackChanel: channel } = parent
       const { name, description: text, status, comments, assignee } = Tasks.findOne(taskId)
       const title_link = Meteor.absoluteUrl(`${parentType}/${parentId}`)
+      const adminChanel = Settings.findOne({key: 'SLACK_NOTIFICATION_CHANNEL'})
       const title = `Task: ${name}`
       if (channel) {
         switch (type) {
@@ -50,6 +51,9 @@ export default new ValidatedMethod({
               color: BLUE,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
 
@@ -62,6 +66,9 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
 
@@ -74,6 +81,9 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
 
@@ -88,6 +98,9 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
 
@@ -100,15 +113,23 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
 
           case 'NEW_TASK': {
+            let pretext = null
             const user = Meteor.users.findOne(assignee)
             const actor = Meteor.users.findOne(actorId)
-            const userRefer = (user.slack && user.slack.id) ? `<@${user.slack.id}>` : user.username
-            const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
-            const pretext = `New task has been assigned to ${userRefer} by [${actorRefer}] in ${status} board`
+            if (user) {
+              const userRefer = (user.slack && user.slack.id) ? `<@${user.slack.id}>` : user.username
+              const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
+              pretext = `New task has been assigned to ${userRefer} by [${actorRefer}] in ${status} board`
+            } else {
+              pretext = 'New unassigned task has been created'
+            }
             const attachments = slackClient.attachments.create({
               pretext,
               title,
@@ -117,6 +138,9 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
             break
           }
         }
