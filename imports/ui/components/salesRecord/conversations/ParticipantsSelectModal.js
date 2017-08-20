@@ -15,8 +15,6 @@ export default class ParticipantsSelectModal extends React.Component {
         super(props)
 
         this.state = {
-            show: props.show,
-            participants: props.participants || [],
             selections: props.selections || [],
             error: null
         }
@@ -25,7 +23,6 @@ export default class ParticipantsSelectModal extends React.Component {
     componentWillReceiveProps(newProps) {
         if(newProps !== this.props) {
             this.setState({
-                show: newProps.show,
                 selections: newProps.selections,
             })
         }
@@ -45,8 +42,8 @@ export default class ParticipantsSelectModal extends React.Component {
     }
 
     render() {
-
-        const {show, participants, selections, error} = this.state
+        const {show, participants} = this.props
+        const {selections, error} = this.state
 
         return (
             <Modal show={show} onHide={() => this.props.onHide()} bsSize="large">

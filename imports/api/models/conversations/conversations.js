@@ -81,7 +81,7 @@ Conversations.helpers({
     },
     contacts() {
         const peopleIds = _.pluck(this.participants, 'peopleId')
-        return People.find({_id:{$in:peopleIds}}).map(p => ({name:p.name, email:p.defaultEmail(), isMain:_.findWhere(this.participants, {peopleId:p._id}).isMain}))
+        return People.find({_id:{$in:peopleIds}}).map(p => ({name:p.name, email:p.defaultEmail(), isMain:_.findWhere(this.participants, {peopleId:p._id}).isMain})).filter(({email}) => (email && email.length))
     }
 })
 
