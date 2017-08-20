@@ -3,11 +3,13 @@ import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import Users from '../users/users'
 import People from '../people/people'
+import Conversations from '../conversations/conversations'
 
 class ProjectsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
         ourDoc.createdAt = ourDoc.createdAt || new Date()
+        ourDoc.conversationIds = [Conversations.insert({name:'Main', participants:ourDoc.stakeholders.map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
         const result = super.insert(ourDoc, callback)
         return result
     }

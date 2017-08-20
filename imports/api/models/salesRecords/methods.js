@@ -61,13 +61,17 @@ Meteor.methods({
         check(addToMain, Boolean)
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
 
+        const salesRecord = SalesRecords.findOne(_id)
+        if(!salesRecord) throw new Meteor.Error(`Could not found SalesRecord with _id:${_id}`)
+
         const stakeholder = {
             peopleId,
             isMainStakeholder: false
         }
         SalesRecords.update(_id, {$push: {stakeholders: stakeholder}})
         if(addToMain) {
-            SalesRecords.update(_id, {$push: {participants: {peopleId}}})
+            const mainConversationId = salesRecord.conversationIds[0]
+            Conversations.update(mainConversationId, {$push:{participants:{peopleId}}})
         }
     },
 
@@ -155,8 +159,6 @@ Meteor.methods({
             }))
 
 
-        const participants = data.stakeholders.filter(({addToMain}) => addToMain).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))
-        data.participants = participants
         const salesRecordId = SalesRecords.insert(data)
 
         // set channel purpose
@@ -278,9 +280,6 @@ Meteor.methods({
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
 
-        const participants = data.stakeholders.filter(({addToMain}) => addToMain).map(({peopleId, isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))
-        data.participants = participants
-
         const sr = SalesRecords.findOne(_id)
         if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
         SalesRecords.update({_id}, {$set: data})
@@ -365,18 +364,6 @@ Meteor.methods({
                 }
             })
         })
-    },
-
-    updateSalesRecordParticipants({_id, participants}) {
-        check(_id, String)
-        check(participants, Array)
-
-        const salesRecord = SalesRecords.findOne(_id)
-        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
-
-        if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
-
-        SalesRecords.update({_id}, {$set:{participants}})
     },
 
     updateSalesRecordSlackChannel({_id, channel}) {

@@ -8,11 +8,14 @@ import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import People from '../people/people'
 import Users from '../users/users'
+import Conversations from '../conversations/conversations'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
         ourDoc.createdAt = ourDoc.createdAt || new Date()
+        ourDoc.conversationIds = [Conversations.insert({name:'Main', participants:ourDoc.stakeholders.map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
+
         const result = super.insert(ourDoc, callback)
         return result
     }
@@ -95,11 +98,6 @@ SalesRecords.schema = new SimpleSchema({
     folderId: { type: String, optional: true },
     taskFolderId: { type: String, optional: true },
 
-    participants: {type: Array, optional:true},    // participants for main conversation
-    'participants.$': { type: Object },
-    'participants.$.peopleId': { type: String },
-    'participants.$.isMain': { type: Boolean, optional: true },
-
     conversationIds: {type: Array, optional:true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 })
@@ -166,25 +164,16 @@ SalesRecords.helpers({
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
     contactsForMainParticipants() {
-        if(!this.participants || this.participants.length==0) return []
+        if(!this.conversationIds || this.conversationIds.length==0) return []
 
-        const peopleIds = _.pluck(this.participants, 'peopleId')
-        const people = People.find({_id:{$in:peopleIds}}).fetch()
+        const conversation = Conversations.findOne(this.conversationIds[0])
+        if(!conversation) return []
 
-        return people.map(p => ({name:p.name, email:p.defaultEmail()}))
+        return conversation.contacts()
     },
     people() {
         const peopleIds = _.pluck(this.stakeholders, 'peopleId')
         return People.find({_id:{$in:peopleIds}}).fetch()
-    },
-    getParticipants() {
-        if(!this.participants) return []
-
-        const peopleIds = _.pluck(this.participants, 'peopleId')
-        return People.find({_id:{$in:peopleIds}}).map(p => {
-            p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
-            return p
-        })
     },
     getMembers() {
         if (!this.members || this.members.length == 0) return []

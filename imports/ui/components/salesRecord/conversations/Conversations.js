@@ -14,7 +14,7 @@ export default class Conversations extends TrackerReact(React.Component) {
         super(props)
 
         this.state = {
-            key: 1,
+            key: 0,
             subscriptions: {
                 //conversations: Meteor.subscribe('conversations')
             }
@@ -31,12 +31,11 @@ export default class Conversations extends TrackerReact(React.Component) {
         const {targetCollection, targetId} = this.props
         const target = targetCollection.findOne({_id:targetId})
 
-        console.log(target, JSON.stringify({_id: {$in:target.conversationIds||[]}}))
         const conversations = ConversationsModel.find({_id: {$in:target.conversationIds||[]}}).fetch()
         return (
             <Tabs id="conversation-tab-container" activeKey={this.state.key} onSelect={this.handleSelect} style={{height:'100%'}} >
                 {
-                    conversations.map((c, i) => <Tab key={`tab-${c._id}`} eventKey={c._id} title={c.name} style={{height:'100%'}}><Conversation targetCollection={targetCollection} targetId={targetId} conversationId={c._id}/></Tab>)
+                    conversations.map((c, i) => <Tab key={`tab-${c._id}`} eventKey={i} title={c.name} style={{height:'100%'}}><Conversation targetCollection={targetCollection} targetId={targetId} conversationId={c._id}/></Tab>)
                 }
                 <Tab eventKey={-1} title="+" style={{height:'100%'}}/>
                 {this.renderModal()}

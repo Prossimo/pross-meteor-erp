@@ -70,6 +70,7 @@ export default class Conversation extends TrackerReact(React.Component) {
 
     renderParticipantsSelectModal() {
         const participants = this.target().people()
+
         const selections = this.conversation().participants.filter(p => typeof p === 'object')
 
 
@@ -86,8 +87,6 @@ export default class Conversation extends TrackerReact(React.Component) {
     }
 
     render() {
-        const {composeState} = this.state
-
         const {conversationId} = this.props
 
         const participants = Conversations.findOne(conversationId).getParticipants()

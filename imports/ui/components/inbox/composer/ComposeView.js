@@ -89,11 +89,7 @@ export default class ComposeView extends React.Component {
         const {from, to, cc, bcc, subject} = draft
 
         let contactOptions = [], onlyselect = false
-        if (draft.salesRecordId) {
-            const salesRecord = SalesRecords.findOne({_id: draft.salesRecordId})
-            contactOptions = salesRecord.contactsForMainParticipants()
-            onlyselect = true
-        } else if (draft.conversationId) {
+        if (draft.conversationId) {
             const conversation = Conversations.findOne({_id: draft.conversationId})
             contactOptions = conversation.contacts()
             onlyselect = true

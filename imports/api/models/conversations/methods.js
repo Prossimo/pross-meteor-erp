@@ -11,8 +11,6 @@ export const insertConversation = new ValidatedMethod({
     run({name, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(Conversations.findOne({name})) throw new Meteor.Error('Conversation with same name is exist')
-
         if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
 
         const data = {
@@ -34,8 +32,6 @@ export const updateConversation = new ValidatedMethod({
         const conversation = Conversations.findOne({_id})
         if(!conversation) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
 
-        const existingConversation = Conversations.findOne({name})
-        if(existingConversation && existingConversation._id!=_id) throw new Meteor.Error('Conversation with same name is exist')
 
         if(!_.isUndefined(participants) && _.findIndex(participants, {isMain:true}) == -1)  participants[0].isMain = true
         const data = {
