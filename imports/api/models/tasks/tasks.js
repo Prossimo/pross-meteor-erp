@@ -23,6 +23,7 @@ Tasks.schema = new SimpleSchema({
     },
     assignee: {
         type: String,
+        optional: true,
     },
     approver: {
         type: String,

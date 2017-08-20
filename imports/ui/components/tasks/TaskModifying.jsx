@@ -52,7 +52,7 @@ class TaskModifying extends Component {
 
 TaskModifying.propTypes = {
   task: PropTypes.object.isRequired,
-  assignee: PropTypes.object.isRequired,
+  assignee: PropTypes.object,
   approver: PropTypes.object,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired,
