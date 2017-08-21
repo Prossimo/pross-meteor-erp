@@ -159,6 +159,8 @@ Meteor.methods({
             }))
 
 
+
+        data.conversationIds = [Conversations.insert({name:'Main', participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
         const salesRecordId = SalesRecords.insert(data)
 
         // set channel purpose

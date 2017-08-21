@@ -52,11 +52,11 @@ class SingleProject extends Component {
     onSelectMembers = (members) => {
         const {project} = this.props
         const userIds = _.pluck(project.members, 'userId')
-        if(members && project.members && members.length == project.members.length && members.every(m => userIds.indexOf(m.value)>-1)) return
+        if (members && project.members && members.length == project.members.length && members.every(m => userIds.indexOf(m.value) > -1)) return
 
-        project.members = members.map(m => ({userId:m.value, isAdmin:false}))
-        Meteor.call('project.update', {...this.props.project}, (err,res) => {
-            if(err) {
+        project.members = members.map(m => ({userId: m.value, isAdmin: false}))
+        Meteor.call('project.update', {...this.props.project}, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
             }
@@ -66,16 +66,16 @@ class SingleProject extends Component {
     onSelectStakeholders = (stakeholders) => {
         const {project} = this.props
         const peopleIds = _.pluck(project.stakeholders, 'peopleId')
-        if(stakeholders && project.stakeholders && stakeholders.length == project.stakeholders.length && stakeholders.every(m => peopleIds.indexOf(m.value)>-1)) return
+        if (stakeholders && project.stakeholders && stakeholders.length == project.stakeholders.length && stakeholders.every(m => peopleIds.indexOf(m.value) > -1)) return
 
         project.stakeholders = stakeholders.map(p => {
-            const stakeholder = _.findWhere(project.stakeholders, {peopleId:p.value})
-            if(stakeholder) return stakeholder
+            const stakeholder = _.findWhere(project.stakeholders, {peopleId: p.value})
+            if (stakeholder) return stakeholder
 
-            return {peopleId:p.value, isMainStakeholder:false, addToMain:true}
+            return {peopleId: p.value, isMainStakeholder: false, addToMain: true}
         })
-        Meteor.call('project.update', {...this.props.project}, (err,res) => {
-            if(err) {
+        Meteor.call('project.update', {...this.props.project}, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
             }
@@ -86,7 +86,7 @@ class SingleProject extends Component {
         const {project} = this.props
         const {stakeholders} = project
         stakeholders.forEach((s) => {
-            if(s.peopleId === stakeholder._id) {
+            if (s.peopleId === stakeholder._id) {
                 s.isMainStakeholder = true
             } else {
                 s.isMainStakeholder = false
@@ -95,8 +95,8 @@ class SingleProject extends Component {
 
         project.stakeholders = stakeholders
 
-        Meteor.call('project.update', {...project}, (err,res) => {
-            if(err) {
+        Meteor.call('project.update', {...project}, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
             }
@@ -107,15 +107,15 @@ class SingleProject extends Component {
         const {project} = this.props
         const {stakeholders} = project
         stakeholders.forEach((s) => {
-            if(s.peopleId === stakeholder._id) {
+            if (s.peopleId === stakeholder._id) {
                 s.addToMain = checked
             }
         })
 
         project.stakeholders = stakeholders
 
-        Meteor.call('project.update', {...project}, (err,res) => {
-            if(err) {
+        Meteor.call('project.update', {...project}, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
             }
@@ -126,8 +126,8 @@ class SingleProject extends Component {
         Meteor.call('updateProjectSlackChannel', {
             _id: this.props.project._id,
             channel
-        }, (err,res) => {
-            if(err) {
+        }, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
             }
@@ -139,11 +139,11 @@ class SingleProject extends Component {
 
         return <ul>
             {this.tabs.map(item => (
-                    <li key={item.label}
-                        onClick={this.toggleTab.bind(this, item)}
-                        className={classNames({'active': item === activeTab})}
-                    >{item.label}</li>
-                ))}
+                <li key={item.label}
+                    onClick={this.toggleTab.bind(this, item)}
+                    className={classNames({'active': item === activeTab})}
+                >{item.label}</li>
+            ))}
         </ul>
     }
 
@@ -176,13 +176,16 @@ class SingleProject extends Component {
             <div className="list">
                 {
                     stakeholders.map(s => (
-                        <div key={s._id} className="item">
-                            <div className="primary-text">{s.name}</div>
-                            <div className="secondary-text">{s.email}</div>
-                            <div className="secondary-text">{`${s.designation}/${s.role}`}</div>
-                            <div className="secondary-text">
-                                <input type="radio" checked={s.isMainStakeholder} onChange={() => {this.setAsMainStakeholder(s)}}/> main stakeholder&nbsp;&nbsp;
-                                <input type="checkbox" checked={s.addToMain} onChange={(e) => {this.addToMain(s, e.target.checked)}}/> add to main
+                        <div key={s._id} className="item" style={{display:'flex'}}>
+                            <div style={{flex:1}}>
+                                <div className="primary-text">{s.name}</div>
+                                <div className="secondary-text">{s.email}</div>
+                                <div className="secondary-text">{`${s.designation}/${s.role}`}</div>
+                            </div>
+                            <div style={{margin:'auto'}}>
+                                <input type="radio" checked={s.isMainStakeholder} onChange={() => {
+                                    this.setAsMainStakeholder(s)
+                                }}/>
                             </div>
                         </div>
                     ))
@@ -190,8 +193,9 @@ class SingleProject extends Component {
             </div>
         )
     }
+
     render() {
-        if(this.props.loading) return(<div>Loading ...</div>)
+        if (this.props.loading) return (<div>Loading ...</div>)
 
         const {project} = this.props
         const members = project.getMembers()
@@ -217,13 +221,22 @@ class SingleProject extends Component {
                         </Panel>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Members" actions={<Selector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
-                            {members&&members.length ? this.renderMembers(members) : <div>There are no members assigned to this project</div>}
+                        <Panel title="Members"
+                               actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
+                                                  options={Users.find().map(u => ({value: u._id, label: u.name()}))}
+                                                  onSelect={this.onSelectMembers}/>}>
+                            {members && members.length ? this.renderMembers(members) :
+                                <div>There are no members assigned to this project</div>}
                         </Panel>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Stakeholders" actions={<Selector multiple value={stakeholders.map(p => ({value:p._id, label:p.name}))} options={People.find().map(p => ({value:p._id, label:p.name}))} onSelect={this.onSelectStakeholders}/>}>
-                            {stakeholders&&stakeholders.length ? this.renderStakeholders(stakeholders) : <div>There are no members assigned to this project</div>}
+                        <Panel title="Stakeholders" actions={<Selector multiple value={stakeholders.map(p => ({
+                            value: p._id,
+                            label: p.name
+                        }))} options={People.find().map(p => ({value: p._id, label: p.name}))}
+                                                                       onSelect={this.onSelectStakeholders}/>}>
+                            {stakeholders && stakeholders.length ? this.renderStakeholders(stakeholders) :
+                                <div>There are no members assigned to this project</div>}
                         </Panel>
                     </div>
                 </aside>
