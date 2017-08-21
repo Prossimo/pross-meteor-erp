@@ -37,6 +37,12 @@ class TaskDetail extends Component {
 
     this.changeState = this.changeState.bind(this)
     this.saveTask = this.saveTask.bind(this)
+    this.assignToMe = this.assignToMe.bind(this)
+  }
+
+  assignToMe() {
+    const _id = this.props.task._id
+    Meteor.call('task.assignToMe', { _id })
   }
 
   saveTask() {
@@ -99,7 +105,10 @@ class TaskDetail extends Component {
         label: 'Approver',
       },
     ]
-
+    let hasAssignToMe = false
+    if (this.props.task && !this.props.isNew) {
+      hasAssignToMe = !this.props.task.assignee || (this.props.task.assignee && this.props.task.assignee._id && this.props.task.assignee._id !== Meteor.userId())
+    }
     return (
       <Modal
         dialogClassName='task-details'
@@ -167,6 +176,13 @@ class TaskDetail extends Component {
                   ) : ''
                 }
               </div>
+              {
+                (hasAssignToMe) ? (
+                  <div className='form-group'>
+                    <button className='btn btn-warning full-width' onClick={ this.assignToMe }>Assign to me</button>
+                  </div>
+                ) : ''
+              }
               <div className='form-group'>
                 <button className='btn btn-primary full-width' onClick={ this.saveTask }>Save</button>
               </div>
