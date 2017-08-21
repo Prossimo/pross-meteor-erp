@@ -1,28 +1,29 @@
 // NOTICE: should move to configuration file
-const DEVELOPER_KEY = 'AIzaSyD0kbuJZacDjQS5_KQQaXU3O2ER9P8aKUQ';
+const DEVELOPER_KEY = 'AIzaSyD0kbuJZacDjQS5_KQQaXU3O2ER9P8aKUQ'
 
 const getAccessToken = ()=> {
   return new Promise((resolve, reject)=> {
     Meteor.call('drive.getAccessToken', {}, (error, token)=> {
-      if (error) return reject(error);
-      return resolve(token);
-    });
-  });
-};
+      if (error) return reject(error)
+      return resolve(token)
+    })
+  })
+}
 
-const buildPicker = (token)=> {
+const buildPicker = (token, options) => {
   return new Promise((resolve, reject)=> {
-    const script = document.createElement('script');
-    script.src = 'https://apis.google.com/js/api.js';
-    script.type = 'text/javascript';
+    const script = document.createElement('script')
+    script.src = 'https://apis.google.com/js/api.js'
+    script.type = 'text/javascript'
     script.onload = ()=> {
       gapi.load('picker', {
         callback() {
-          let pickCallback = ()=> {};
+          let pickCallback = ()=> {}
           const folderView = new google
             .picker
             .DocsView(google.picker.ViewId.FOLDERS)
-            .setSelectFolderEnabled(true);
+            .setSelectFolderEnabled(true)
+          options.parentId && folderView.setParent(options.parentId)
           const picker = new google
             .picker
             .PickerBuilder()
@@ -30,21 +31,23 @@ const buildPicker = (token)=> {
             .setOAuthToken(token)
             .setDeveloperKey(DEVELOPER_KEY)
             .setCallback(result => result.action === 'picked' && pickCallback(result))
-            .build();
+            .build()
           resolve({
             pick: (cb)=> {
-              picker.setVisible(true);
-              cb && (pickCallback = cb);
+              picker.setVisible(true)
+              cb && (pickCallback = cb)
             },
-          });
+          })
         },
-      });
-    };
+      })
+    }
 
     document.getElementsByTagName('head')[0].appendChild(script);
-  });
-};
+  })
+}
 
-export default getAccessToken().then(token => {
-  return buildPicker(token);
-});
+export default function(options = {}) {
+  return getAccessToken().then(token => {
+    return buildPicker(token, options)
+  })
+}
