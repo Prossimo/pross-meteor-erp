@@ -4,7 +4,9 @@ import React, {Component, PropTypes} from 'react'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import Actions from '../../../api/nylas/actions'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
-
+import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import picker from 'meteor/picker'
 
 class AttachmentComponent extends Component {
     static displayName = 'AttachmentComponent';
@@ -23,6 +25,11 @@ class AttachmentComponent extends Component {
           progressPercent: 0,
           isSavingFileToDrive: false,
         }
+        const { id } = FlowRouter.current().params
+        const { folderId } = SalesRecords.findOne(id)
+        picker({ parentId: folderId }).then(p => {
+          this.picker = p
+        })
     }
 
     static containerRequired = false;
@@ -89,9 +96,12 @@ class AttachmentComponent extends Component {
 
     _onClickSaveToDrive = (event) => {
         if (this.state.isSavingFileToDrive || this.props.file.isBackedUp) return
-        this.setState({ isSavingFileToDrive: true })
-        Meteor.call('Nylas.saveFileToGoogle', { fileId: this.props.file.id }, () => {
-          this.setState({ isSavingFileToDrive: false })
+        this.picker.pick(({ docs }) => {
+          const folderId = docs[0].id
+          this.setState({ isSavingFileToDrive: true })
+          Meteor.call('Nylas.saveFileToGoogle', { fileId: this.props.file.id, folderId }, () => {
+            this.setState({ isSavingFileToDrive: false })
+          })
         })
         event.stopPropagation()
     }

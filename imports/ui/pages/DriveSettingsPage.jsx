@@ -17,7 +17,9 @@ const ContentWrapper = styled.div `
 class DriveSettingsPage extends Component {
   constructor() {
     super()
-    picker.then(p => this.picker = p)
+    picker().then(p => {
+      this.picker = p
+    })
     this.updateFolder = this.updateFolder.bind(this)
     this.openFolder = this.openFolder.bind(this)
   }
