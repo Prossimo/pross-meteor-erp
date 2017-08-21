@@ -16,6 +16,8 @@ export const createProject = new ValidatedMethod({
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
             throw new Meteor.Error('Access denied')
 
+        project.conversationIds = [Conversations.insert({name:'Main', participants:stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
+
         // INSERT
         const projectId = Projects.insert(project)
 

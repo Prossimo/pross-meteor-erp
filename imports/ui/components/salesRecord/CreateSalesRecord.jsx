@@ -162,7 +162,7 @@ class CreateSalesRecord extends React.Component {
         this.state.members = members
     }
 
-    updateStakeholders(stakeholders) {
+    updateStakeholders(stakeholders) {console.log(stakeholders)
         this.state.stakeholders = stakeholders
     }
 

@@ -14,7 +14,6 @@ class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
         ourDoc.createdAt = ourDoc.createdAt || new Date()
-        ourDoc.conversationIds = [Conversations.insert({name:'Main', participants:ourDoc.stakeholders.map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
 
         const result = super.insert(ourDoc, callback)
         return result
