@@ -9,6 +9,7 @@ import removeComment from './methods/removeComment'
 import attachFiles from './methods/attachFiles'
 import removeAttachment from './methods/removeAttachment'
 import sendSlackMessage from './methods/sendSlackMessage'
+import assignToMe from './methods/assignToMe'
 import './publications'
 
 export {
@@ -23,6 +24,7 @@ export {
   removeAttachment,
   sendSlackMessage,
   addComment,
+  assignToMe,
 }
 
 
