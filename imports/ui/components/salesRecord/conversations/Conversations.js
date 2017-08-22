@@ -35,7 +35,7 @@ export default class Conversations extends TrackerReact(React.Component) {
         return (
             <Tabs id="conversation-tab-container" activeKey={this.state.key} onSelect={this.handleSelect} style={{height:'100%'}} >
                 {
-                    conversations.map((c, i) => <Tab key={`tab-${c._id}`} eventKey={i} title={c.name} style={{height:'100%'}}><Conversation targetCollection={targetCollection} targetId={targetId} conversationId={c._id} onlyStakeholders={i==0}/></Tab>)
+                    conversations.map((c, i) => <Tab key={`tab-${c._id}`} eventKey={i} title={c.name} style={{height:'100%'}}><Conversation targetCollection={targetCollection} targetId={targetId} conversationId={c._id} onlyStakeholders={targetCollection==SalesRecords && i==0}/></Tab>)
                 }
                 <Tab eventKey={-1} title="+" style={{height:'100%'}}/>
                 {this.renderModal()}

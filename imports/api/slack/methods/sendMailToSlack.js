@@ -10,14 +10,14 @@ Meteor.methods({
         check(message, Object)
 
         const thread = Threads.findOne({id: message.thread_id})
-        let salesRecord, conversation
+        let target, conversation
         if (thread && thread.conversationId) {
             conversation = Conversations.findOne({_id: thread.conversationId})
-            salesRecord = conversation.salesRecord()
+            target = conversation.parent()
         }
 
         let threadable = false
-        let slackChannelId = salesRecord ? salesRecord.slackChanel : null
+        let slackChannelId = target ? target.slackChanel : null
 
         if (!slackChannelId) {
             const channelsListRes = slackClient.channels.list()
@@ -62,8 +62,8 @@ Meteor.methods({
         }
 
         let footer
-        if (salesRecord && conversation) {
-            textMail += `\n\n<${Meteor.absoluteUrl(`salesrecord/${salesRecord._id}`)}|Go to SalesRecord ${salesRecord.name}/${conversation.name}>`
+        if (target && conversation) {
+            textMail += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }
 
         const params = {
