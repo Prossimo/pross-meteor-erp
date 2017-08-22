@@ -55,7 +55,10 @@ export default class Toolbar extends TrackerReact(React.Component) {
         let salesRecord
         if(existingThread && existingThread.conversationId) {
             const conversation = Conversations.findOne(existingThread.conversationId)
-            if(conversation) salesRecord = conversation.salesRecord()
+            if(conversation) {
+                const parent = conversation.parent()
+                if(parent && parent.type === 'salesrecord') salesRecord = parent
+            }
         }
 
         if(salesRecord) {

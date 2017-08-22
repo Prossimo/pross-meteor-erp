@@ -6,6 +6,7 @@ import faker from 'faker'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
 import SalesRecords from '../salesRecords/salesRecords'
+import Projects from '../projects/projects'
 import People from '../people/people'
 
 class ConversationsCollection extends Mongo.Collection {
@@ -67,8 +68,14 @@ Conversations.helpers({
 
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
-    salesRecord() {
-        return SalesRecords.findOne({conversationIds:this._id})
+    parent() {
+        const sr = SalesRecords.findOne({conversationIds:this._id})
+        if(sr) return _.extend(sr, {type:'salesrecord'})
+
+        const pr = Projects.findOne({conversationIds:this._id})
+        if(pr) return _.extend(pr, {type:'project'})
+
+        return null
     },
     getParticipants() {
         const peopleIds = _.pluck(this.participants, 'peopleId')
