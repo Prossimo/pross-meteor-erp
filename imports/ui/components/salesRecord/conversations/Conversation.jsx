@@ -17,7 +17,8 @@ export default class Conversation extends TrackerReact(React.Component) {
     static propTypes = {
         targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]),
         targetId: React.PropTypes.string,   // SalesRecordId or ProjectId
-        conversationId: React.PropTypes.string
+        conversationId: React.PropTypes.string,
+        onlyStakeholders: React.PropTypes.boolean
     }
 
     constructor(props) {
@@ -69,7 +70,7 @@ export default class Conversation extends TrackerReact(React.Component) {
     }
 
     renderParticipantsSelectModal() {
-        const participants = this.target().people()
+        const participants = this.props.onlyStakeholders ? this.target().people().filter(p => p.designation()&&p.designation().name==='Stakeholder') : this.target().people()
 
         const selections = this.conversation().participants.filter(p => typeof p === 'object')
 

@@ -159,8 +159,8 @@ Meteor.methods({
             }))
 
 
-
-        data.conversationIds = [Conversations.insert({name:'Main', participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
+        const mainConversationId = Conversations.insert({name:'Main', participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
+        data.conversationIds = [mainConversationId]
         const salesRecordId = SalesRecords.insert(data)
 
         // set channel purpose
@@ -176,7 +176,7 @@ Meteor.methods({
         // Insert conversations attached
         if (thread) {
             console.log('thread to be attached', thread)
-            thread.salesRecordId = salesRecordId
+            thread.conversationId = mainConversationId
             Threads.insert(thread)
 
             const query = queryString.stringify({thread_id: thread.id})
@@ -284,16 +284,20 @@ Meteor.methods({
 
         const sr = SalesRecords.findOne(_id)
         if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
-        SalesRecords.update({_id}, {$set: data})
 
+        // Update main conversation participants
+        if(sr.conversationIds && sr.conversationIds.length>0) {
+            Conversations.update({_id:sr.conversationIds[0]}, {$set:{participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))}})
+        }
+
+        // Update SalesRecord
+        SalesRecords.update({_id}, {$set: data})
 
         // Insert conversations attached
         if (thread) {
             //console.log('thread to be attached', thread, `conversationId=${conversationId}`)
-            if(conversationId && conversationId != -1) {
+            if(conversationId) {
                 thread.conversationId = conversationId
-            } else {
-                thread.salesRecordId = _id
             }
             const existingThreads = Threads.find({id: thread.id}).fetch()
             if (existingThreads && existingThreads.length) {

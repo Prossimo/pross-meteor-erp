@@ -16,13 +16,18 @@ export default class SelectStakeholders extends Component {
         if (!people) {
             people = People.find().fetch()
         }
-        this.peopleOptions = people.map((person) => ({
-            addToMain: person.addToMain!=null ? person.addToMain : true,
-            isMainStakeholder: person.isMainStakeholder!=null ? person.isMainStakeholder : false,
-            name: person.name,
-            email: person.defaultEmail(),
-            _id: person._id,
-        })).map(person => ({label: person.name, value: person._id, ...person}))
+        this.peopleOptions = people.map((person) => {
+            const designation = person.designation()
+
+            return {
+                addToMain: designation&&designation.name === 'Stakeholder',
+                addableToMain: designation&&designation.name === 'Stakeholder',
+                isMainStakeholder: person.isMainStakeholder!=null ? person.isMainStakeholder : false,
+                name: person.name,
+                email: person.defaultEmail(),
+                _id: person._id,
+            }
+        }).map(person => ({label: person.name, value: person._id, ...person}))
 
         this.state = {
             selectedPeople: props.people ? this.peopleOptions : [],
@@ -93,7 +98,7 @@ export default class SelectStakeholders extends Component {
                 <tbody>
                 {
                     this.state.selectedPeople.map(person => {
-                        const {_id, name, email, isMainStakeholder, addToMain} = person
+                        const {_id, name, email, isMainStakeholder, addToMain, addableToMain} = person
                         return (
                             <tr key={_id}>
                                 <td><div>{ name }</div><div>{email}</div></td>
@@ -115,6 +120,7 @@ export default class SelectStakeholders extends Component {
                                                 type='checkbox'
                                                 checked={addToMain}
                                                 onChange={(event) => this.enableNotify(_id, event.target.checked)}
+                                                disabled={!addableToMain}
                                             />
                                         </label>
                                     </div>

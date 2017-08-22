@@ -68,9 +68,7 @@ Conversations.helpers({
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
     },
     salesRecord() {
-        if(!this.salesRecordId) return null
-
-        return SalesRecords.findOne(this.salesRecordId)
+        return SalesRecords.findOne({conversationIds:this._id})
     },
     getParticipants() {
         const peopleIds = _.pluck(this.participants, 'peopleId')
