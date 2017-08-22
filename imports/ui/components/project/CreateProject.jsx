@@ -35,7 +35,6 @@ export default class CreateProject extends Component {
         }
         this.props.toggleLoader(true)
 
-        console.log(project)
         Meteor.call('project.create', project, (err,projectId) => {
             this.props.toggleLoader(false)
             if(err) {
