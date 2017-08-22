@@ -26,10 +26,15 @@ class AttachmentComponent extends Component {
           isSavingFileToDrive: false,
         }
         const { id } = FlowRouter.current().params
-        const { folderId } = SalesRecords.findOne(id)
-        picker({ parentId: folderId }).then(p => {
-          this.picker = p
-        })
+        if(id) {
+            const salesRecord = SalesRecords.findOne(id)
+            if(salesRecord) {
+                const { folderId } = salesRecord
+                    picker({ parentId: folderId }).then(p => {
+                        this.picker = p
+                    })
+            }
+        }
     }
 
     static containerRequired = false;
@@ -95,7 +100,7 @@ class AttachmentComponent extends Component {
     };
 
     _onClickSaveToDrive = (event) => {
-        if (this.state.isSavingFileToDrive || this.props.file.isBackedUp) return
+        if (!this.picker || this.state.isSavingFileToDrive || this.props.file.isBackedUp) return
         this.picker.pick(({ docs }) => {
           const folderId = docs[0].id
           this.setState({ isSavingFileToDrive: true })
