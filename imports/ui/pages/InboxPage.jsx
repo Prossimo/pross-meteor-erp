@@ -20,7 +20,7 @@ import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
 import PeopleForm from '../components/people/PeopleForm'
 import {People} from '/imports/api/models'
-import {removeThread} from '/imports/api/models/threads/methods'
+import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
 
 
 class InboxPage extends TrackerReact(React.Component) {
@@ -177,7 +177,7 @@ class InboxPage extends TrackerReact(React.Component) {
         if (option === 'create' || option === 'bind') {
 
             this.setState({
-                bindingSalesRecord: option == 'bind',
+                bindingSalesRecord: option === 'bind',
                 selectedSalesRecord: salesRecord
             })
 
@@ -199,7 +199,7 @@ class InboxPage extends TrackerReact(React.Component) {
             FlowRouter.go('SalesRecord', {id: salesRecordId})
         } else if (option === 'unbind') {
             try {
-                removeThread.call({id: this.state.currentThread.id})
+                unbindThreadFromConversation.call({id: this.state.currentThread.id})
             } catch (err) {
                 console.error(err)
             }

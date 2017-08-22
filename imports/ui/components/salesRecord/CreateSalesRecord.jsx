@@ -60,19 +60,19 @@ class CreateSalesRecord extends React.Component {
 
             members: salesRecord ? salesRecord.members : null,
             stakeholders: salesRecord ? salesRecord.stakeholders : [],
-            blocking: false
+            blocking: false,
+
+            selectedConversation: salesRecord && salesRecord.conversationIds && salesRecord.conversationIds.length>0 ? salesRecord.conversationIds[0] : null
         }
 
         this.changeState = this.changeState.bind(this)
         this.updateMembers = this.updateMembers.bind(this)
-        this.updateStakeholders = this.updateStakeholders.bind(this)
 
         if (props.thread) {
             const {participants, account_id} = props.thread
             const people = salesRecord ? People.find({_id: {$in: _.pluck(salesRecord.stakeholders, 'peopleId')}}).fetch().map((p) => {
                 const stakeholder = salesRecord.stakeholders.find((s) => s.peopleId === p._id)
                 return _.extend(p, {
-                    addToMain: stakeholder.addToMain,
                     isMainStakeholder: stakeholder.isMainStakeholder
                 })
             }) : []
@@ -162,7 +162,7 @@ class CreateSalesRecord extends React.Component {
         this.state.members = members
     }
 
-    updateStakeholders(stakeholders) {console.log(stakeholders)
+    updateStakeholders = (stakeholders) => {console.log(stakeholders)
         this.state.stakeholders = stakeholders
     }
 
@@ -432,7 +432,10 @@ class CreateSalesRecord extends React.Component {
     }
 
     renderConversationSelector() {
-        const conversations = Conversations.find({salesRecordId: this.props.salesRecord._id}).fetch()
+        const {salesRecord} = this.props
+        if(!salesRecord || !salesRecord.conversationIds) return ''
+        const conversations = Conversations.find({_id: {$in:salesRecord.conversationIds}}).fetch()
+
 
         if (!conversations || conversations.length == 0) return ''
 
@@ -445,11 +448,9 @@ class CreateSalesRecord extends React.Component {
                 <div className='panel-body' style={{display:'flex'}}>
                     <FormGroup>
                     {
-                        [<Radio value={-1} checked={!selectedConversation||selectedConversation==-1} onChange={this.selectConversation} inline> Main</Radio>].concat(
-                            conversations.map(c => (
-                                <Radio key={`conversation-radio-${c._id}`} value={c._id} checked={selectedConversation == c._id} onChange={this.selectConversation} inline> {c.name}</Radio>
-                            ))
-                        )
+                        conversations.map(c => (
+                            <Radio key={`conversation-radio-${c._id}`} value={c._id} checked={selectedConversation == c._id} onChange={this.selectConversation} inline> {c.name}</Radio>
+                        ))
                     }
                     </FormGroup>
                 </div>

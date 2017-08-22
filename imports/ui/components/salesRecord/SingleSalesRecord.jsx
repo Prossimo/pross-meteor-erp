@@ -78,9 +78,9 @@ class SingleSalesRecord extends React.Component {
                 selectedUser: null,
                 selectedCategory: [],
             },
-            stakeholder: {
-                selectedPeople: null,
-                addToMain: true,
+            newStakeholder: {
+                selectedPerson: null,
+                addToMain: false,
             },
             memberType: this.memberTypeOptions[0],
             selectedMembers: [],
@@ -96,7 +96,6 @@ class SingleSalesRecord extends React.Component {
         }
 
         this.renderPeople = this.renderPeople.bind(this)
-        this.changeState = this.changeState.bind(this)
         this.addStakeholder = this.addStakeholder.bind(this)
         this.showContactInfo = this.showContactInfo.bind(this)
         this.removeMember = this.removeMember.bind(this)
@@ -228,22 +227,32 @@ class SingleSalesRecord extends React.Component {
         }
     }
 
-    changeState(subState, propName, propValue) {
-        subState[propName] = propValue
-        this.setState((prevState) => prevState)
+    changeNewStakeholder = (item) => {
+        this.setState({
+            newStakeholder: {
+                selectedPerson: item,
+                addToMain: item.designation&&item.designation.name==='Stakeholder'
+            }
+        })
     }
-
+    changeNewStakeholderAddToMain = (checked) => {
+        const {newStakeholder: {selectedPerson}} = this.state
+        this.setState({newStakeholder:{selectedPerson, addToMain:checked}})
+    }
     renderAddStakeholderForm() {
-        const {stakeholder: {selectedPeople, addToMain}} = this.state
-        const peopleOptions = this.props.candidateStakeholders.map(({name, _id}) => ({value: _id, label: name}))
+        const {newStakeholder: {selectedPerson, addToMain}} = this.state
+        const peopleOptions = this.props.candidateStakeholders.map(p => {
+            const designation = p.designation()
+            return {value: p._id, label: p.name, designation}
+        })
         if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
             return (
                 <div className='form'>
                     <div className='form-group'>
                         <Select
-                            value={selectedPeople}
-                            placeholder="Choose People"
-                            onChange={(item) => this.changeState(this.state.stakeholder, 'selectedPeople', item)}
+                            value={selectedPerson}
+                            placeholder="Choose a person..."
+                            onChange={(item) => this.changeNewStakeholder(item)}
                             options={peopleOptions}
                             className={'members-select'}
                             clearable={false}
@@ -254,7 +263,8 @@ class SingleSalesRecord extends React.Component {
                             type="checkbox"
                             value=""
                             checked={addToMain}
-                            onChange={(event) => this.changeState(this.state.stakeholder, 'addToMain', event.target.checked)}/>
+                            onChange={(event) => this.changeNewStakeholderAddToMain(event.target.checked)}
+                            disabled={!(selectedPerson && selectedPerson.designation && selectedPerson.designation.name==='Stakeholder')}/>
                             Add To Main
                         </label>
                     </div>
@@ -276,20 +286,20 @@ class SingleSalesRecord extends React.Component {
     }
 
     addStakeholder() {
-        const {stakeholder: {selectedPeople, addToMain}} = this.state
+        const {newStakeholder: {selectedPerson, addToMain}} = this.state
         const {salesRecord} = this.props
-        if (!selectedPeople) return warning('Choose stakeholder')
+        if (!selectedPerson) return warning('Choose stakeholder')
 
         Meteor.call('addStakeholderToSalesRecord', {
             _id: salesRecord._id,
-            peopleId: selectedPeople.value,
+            peopleId: selectedPerson.value,
             addToMain
         }, (error, result) => {
             if (error) return warning(error.reason ? error.reason : 'Add stakeholder failed!')
             this.setState({
-                stakeholder: {
-                    addToMain: true,
-                    selectedPeople: null,
+                newStakeholder: {
+                    addToMain: false,
+                    selectedPerson: null,
                 }
             })
             info('Add stakeholder to salesRecord success!')

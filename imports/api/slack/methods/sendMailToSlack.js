@@ -11,13 +11,9 @@ Meteor.methods({
 
         const thread = Threads.findOne({id: message.thread_id})
         let salesRecord, conversation
-        if (thread) {
-            if (thread.salesRecordId) {
-                salesRecord = SalesRecords.findOne({_id: thread.salesRecordId})
-            } else if (thread.conversationId) {
-                conversation = Conversations.findOne({_id: thread.conversationId})
-                salesRecord = conversation.salesRecord()
-            }
+        if (thread && thread.conversationId) {
+            conversation = Conversations.findOne({_id: thread.conversationId})
+            salesRecord = conversation.salesRecord()
         }
 
         let threadable = false
@@ -66,11 +62,10 @@ Meteor.methods({
         }
 
         let footer
-        if (conversation) {
-            textMail += `\n\n<${Meteor.absoluteUrl(`salesrecord/${conversation.salesRecordId}`)}|Conversation: ${conversation.name}>`
-        } else if (salesRecord) {
-            textMail += `\n\n<${Meteor.absoluteUrl(`salesrecord/${salesRecord._id}`)}|Go to SalesRecord ${salesRecord.name}>`
+        if (salesRecord && conversation) {
+            textMail += `\n\n<${Meteor.absoluteUrl(`salesrecord/${salesRecord._id}`)}|Go to SalesRecord ${salesRecord.name}/${conversation.name}>`
         }
+
         const params = {
             username: slack.botName,
             attachments: [

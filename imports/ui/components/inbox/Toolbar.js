@@ -1,5 +1,6 @@
 /* global FlowRouter */
 import React from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {DropdownButton, MenuItem, FormGroup, FormControl, InputGroup, Button} from 'react-bootstrap'
 import ComposeButton from './composer/ComposeButton'
 import ThreadArchiveButton from './ThreadArchiveButton'
@@ -10,7 +11,7 @@ import MailSearchBox from './MailSearchBox'
 import {SalesRecords, Threads, Conversations} from '/imports/api/models'
 
 
-export default class Toolbar extends React.Component {
+export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
         thread: React.PropTypes.object,
         onSelectMenuSalesRecord: React.PropTypes.func
@@ -52,13 +53,9 @@ export default class Toolbar extends React.Component {
 
         const existingThread = Threads.findOne({id: thread.id})
         let salesRecord
-        if(existingThread) {
-            if(existingThread.salesRecordId) {
-                salesRecord = SalesRecords.findOne(existingThread.salesRecordId)
-            } else if(existingThread.conversationId) {
-                const conversation = Conversations.findOne(existingThread.conversationId)
-                if(conversation) salesRecord = conversation.salesRecord()
-            }
+        if(existingThread && existingThread.conversationId) {
+            const conversation = Conversations.findOne(existingThread.conversationId)
+            if(conversation) salesRecord = conversation.salesRecord()
         }
 
         if(salesRecord) {

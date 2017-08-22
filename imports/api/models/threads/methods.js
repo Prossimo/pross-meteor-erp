@@ -65,3 +65,18 @@ export const removeThread = new ValidatedMethod({
         }
     }
 })
+
+export const unbindThreadFromConversation = new ValidatedMethod({
+    name: 'thread.unbindFromConversation',
+    validate: new SimpleSchema({
+        id: {type: String, optional: true}
+    }).validator({clean: true}),
+    run({id}) {
+        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const thread = Threads.findOne({id})
+        if(!thread) throw new Meteor.Error(`Could not found thread with id:${id}`)
+
+        Threads.update({id}, {$set:{conversationId:null}})
+    }
+})
