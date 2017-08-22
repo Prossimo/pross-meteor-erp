@@ -18,7 +18,7 @@ export default class Conversation extends TrackerReact(React.Component) {
         targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]),
         targetId: React.PropTypes.string,   // SalesRecordId or ProjectId
         conversationId: React.PropTypes.string,
-        onlyStakeholders: React.PropTypes.boolean
+        onlyStakeholders: React.PropTypes.bool
     }
 
     constructor(props) {
