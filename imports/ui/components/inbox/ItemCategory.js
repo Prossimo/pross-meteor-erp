@@ -1,6 +1,6 @@
 import React from 'react'
 import {Badge} from 'react-bootstrap'
-import Utils from '../../utils/Utils'
+import Utils from '../../../utils/Utils'
 
 class ItemCategory extends React.Component {
     /*static propTypes = {

@@ -1,6 +1,6 @@
 import AccountStore from './account-store'
 import NylasUtils from './nylas-utils'
-import DOMUtils from '/imports/ui/utils/dom-utils'
+import DOMUtils from '/imports/utils/dom-utils'
 
 
 class DraftFactory {

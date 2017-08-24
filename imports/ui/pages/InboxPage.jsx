@@ -23,7 +23,7 @@ import {People} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
 
 
-class InboxPage extends TrackerReact(React.Component) {
+class InboxPage extends (React.Component) {
     constructor(props) {
         super(props)
 
