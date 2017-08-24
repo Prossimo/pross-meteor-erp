@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import _ from 'underscore'
 //import {autolink} from './autolinker';
 //import {autoscaleImages} from './autoscale-images';
-import QuotedHTMLTransformer from '../../utils/quoted-html-transformer'
+import QuotedHTMLTransformer from '../../../utils/quoted-html-transformer'
 import EventedIFrame from './EventedIFrame'
 export default class EmailFrame extends React.Component {
 
@@ -40,6 +40,7 @@ export default class EmailFrame extends React.Component {
         }
         return QuotedHTMLTransformer.removeQuotedHTML(this.props.content, {
             keepIfWholeBodyIsQuote: true,
+            includeInline: true
         })
     }
 

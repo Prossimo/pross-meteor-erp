@@ -2,13 +2,18 @@ import _ from 'underscore'
 import DOMUtils from './dom-utils'
 import quoteStringDetector from './quote-string-detector'
 
+const SIGNATURE_CLASSES = ['.nylas-signature', '.moz-signature', '.front-signature']
 class QuotedHTMLTransformer {
-    annotationClass = "nylas-quoted-text-segment"
+    annotationClass = 'nylas-quoted-text-segment'
+
+    constructor({isServerSide=false}={}) {
+        this.isServerSide = isServerSide
+    }
 
     // Given an html string, it will add the `annotationClass` to the DOM element
     hideQuotedHTML = (html, {keepIfWholeBodyIsQuote} = {}) => {
-        let doc = this._parseHTML(html)
-        let quoteElements = this._findQuoteLikeElements(doc)
+        const doc = this._parseHTML(html)
+        const quoteElements = this._findQuoteLikeElements(doc)
         if (keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
             return doc.children[0].innerHTML
         } else {
@@ -18,8 +23,8 @@ class QuotedHTMLTransformer {
     }
 
     hasQuotedHTML = (html) => {
-        let doc = this._parseHTML(html)
-        let quoteElements = this._findQuoteLikeElements(doc)
+        const doc = this._parseHTML(html)
+        const quoteElements = this._findQuoteLikeElements(doc)
         return quoteElements.length > 0
     }
 
@@ -40,15 +45,15 @@ class QuotedHTMLTransformer {
     //
     // Returns HTML without quoted text
     removeQuotedHTML = (html, options = {}) => {
-        let doc = this._parseHTML(html)
-        let quoteElements = this._findQuoteLikeElements(doc, options)
+        const doc = this._parseHTML(html)
+        const quoteElements = this._findQuoteLikeElements(doc, options)
         if (options.keepIfWholeBodyIsQuote && this._wholeBodyIsQuote(doc, quoteElements)) {
             return doc.children[0].innerHTML
         } else {
             DOMUtils.Mutating.removeElements(quoteElements, options)
 
             // It's possible that the entire body was quoted text and we've removedeverything.
-            if (!doc.body) return "<head></head><body></body>"
+            if (!doc.body) return '<head></head><body></body>'
 
             this.removeTrailingBr(doc)
             DOMUtils.Mutating.removeElements(quoteStringDetector(doc))
@@ -58,8 +63,8 @@ class QuotedHTMLTransformer {
 
     // Finds any trailing BR tags and removes them in place
     removeTrailingBr = (doc) => {
-        let childNodes = doc.body.childNodes
-        let extraTailBrTags = []
+        const childNodes = doc.body.childNodes
+        const extraTailBrTags = []
         for (let i = childNodes.length - 1; i >= 0; i--) {
             const curr = childNodes[i]
             const next = childNodes[i - 1]
@@ -73,7 +78,7 @@ class QuotedHTMLTransformer {
 
     appendQuotedHTML = (htmlWithoutQuotes, originalHTML) => {
         let doc = this._parseHTML(originalHTML)
-        let quoteElements = this._findQuoteLikeElements(doc)
+        const quoteElements = this._findQuoteLikeElements(doc)
         doc = this._parseHTML(htmlWithoutQuotes)
         for (const node of quoteElements)
             doc.body.appendChild(node)
@@ -81,28 +86,33 @@ class QuotedHTMLTransformer {
     }
 
     restoreAnnotatedHTML = (html) => {
-        let doc = this._parseHTML(html)
-        let quoteElements = this._findAnnotatedElements(doc)
+        const doc = this._parseHTML(html)
+        const quoteElements = this._findAnnotatedElements(doc)
         this._removeAnnotation(quoteElements)
         return doc.children[0].innerHTML
     }
 
     _parseHTML = (text) => {
-        let domParser = new DOMParser()
-        let doc
-        try {
-            doc = domParser.parseFromString(text, "text/html")
-        } catch (error) {
-            let text = "HTML Parser Error: #{error.toString()}"
-            doc = domParser.parseFromString(text, "text/html")
+        if(this.isServerSide) {
+            const jsdom = require('jsdom')
+            return jsdom.jsdom(text)
+        } else {
+            const domParser = new DOMParser()
+            let doc
+            try {
+                doc = domParser.parseFromString(text, 'text/html')
+            } catch (error) {
+                const text = 'HTML Parser Error: #{error.toString()}'
+                doc = domParser.parseFromString(text, 'text/html')
+            }
+            return doc
         }
-        return doc
     }
 
     _wholeBodyIsQuote = (doc, quoteElements) => {
-        let nonBlankChildElements = []
+        const nonBlankChildElements = []
         for (const child of doc.body.childNodes) {
-            if (child.textContent.trim() == "")
+            if (child.textContent.trim() == '')
                 continue
             else nonBlankChildElements.push(child)
         }
@@ -116,16 +126,18 @@ class QuotedHTMLTransformer {
     // `doc` is mutated in place. Returning clones of the DOM is just as
     // bad as re-parsing from string, which is very fast anyway.
 
-    _findQuoteLikeElements = (doc, {includeInline} = {}) => {
-        let parsers = [
+    _findQuoteLikeElements = (doc, {includeInline, includeSignature} = {}) => {
+        const parsers = [
             this._findGmailQuotes,
+            this._findGmailExtra,
             this._findOffice365Quotes,
             this._findBlockquoteQuotes
         ]
+        if(includeSignature) parsers.push(this._findSignature)
 
         let quoteElements = []
-        for (let parser of parsers) {
-            let els = parser(doc)
+        for (const parser of parsers) {
+            const els = parser(doc)
             quoteElements = quoteElements.concat(els || [])
         }
 
@@ -134,7 +146,7 @@ class QuotedHTMLTransformer {
             // end of a message. If there were non quoted content after, it'd be
             // inline.
 
-            let trailingQuotes = this._findTrailingQuotes(doc, quoteElements)
+            const trailingQuotes = this._findTrailingQuotes(doc, quoteElements)
             // Only keep the trailing quotes so we can delete them.
             quoteElements = _.intersection(quoteElements, trailingQuotes)
         }
@@ -151,7 +163,7 @@ class QuotedHTMLTransformer {
         // We need to find only the child nodes that have content in them. We
         // determine if it's an inline quote based on if there's VISIBLE
         // content after a piece of quoted text
-        let nodesWithContent = DOMUtils.nodesWithContent(scopeElement)
+        const nodesWithContent = DOMUtils.nodesWithContent(scopeElement)
 
         // There may be multiple quote blocks that are sibilings of each
         // other at the end of the message. We want to include all of these
@@ -168,7 +180,7 @@ class QuotedHTMLTransformer {
                 trailingQuotes.push(nodeWithContent)
                 continue
             } else {
-                let moreTrailing = this._findTrailingQuotes(nodeWithContent, quoteElements)
+                const moreTrailing = this._findTrailingQuotes(nodeWithContent, quoteElements)
                 trailingQuotes = trailingQuotes.concat(moreTrailing)
                 break
             }
@@ -179,59 +191,63 @@ class QuotedHTMLTransformer {
     }
 
 
-    _contains = (node, quoteElement) => {
-        return (node == quoteElement || node.contains(quoteElement))
-    }
+    _contains = (node, quoteElement) => (node == quoteElement || node.contains(quoteElement))
 
-    _findAnnotatedElements = (doc) => {
-        return Array.from(doc.getElementsByClassName(this.annotationClass))
-    }
+    _findAnnotatedElements = (doc) => Array.prototype.slice.call(doc.getElementsByClassName(this.annotationClass))
 
     _annotateElements = (elements=[]) => {
-        for (let el of elements) {
+        for (const el of elements) {
             el.classList.add(this.annotationClass)
-            originalDisplay = el.style.display
-            el.style.display = "none"
-            el.setAttribute("data-nylas-quoted-text-original-display", originalDisplay)
+            const originalDisplay = el.style.display
+            el.style.display = 'none'
+            el.setAttribute('data-nylas-quoted-text-original-display', originalDisplay)
         }
     }
 
     _removeAnnotation = (elements=[]) => {
-        for (let el of elements) {
+        for (const el of elements) {
             el.classList.remove(this.annotationClass)
-            let originalDisplay = el.getAttribute("data-nylas-quoted-text-original-display")
+            const originalDisplay = el.getAttribute('data-nylas-quoted-text-original-display')
             el.style.display = originalDisplay
-            el.removeAttribute("data-nylas-quoted-text-original-display")
+            el.removeAttribute('data-nylas-quoted-text-original-display')
         }
     }
 
-    _findGmailQuotes = (doc) => {
+    _findGmailExtra = (doc) => Array.prototype.slice.call(doc.querySelectorAll('.gmail_extra'))
+    _findGmailQuotes = (doc) =>
         // Gmail creates both div.gmail_quote and blockquote.gmail_quote. The div
         // version marks text but does not cause indentation, but both should be
         // considered quoted text.
 
-        return [...doc.querySelectorAll('.gmail_quote')]
-    }
+        Array.prototype.slice.call(doc.querySelectorAll('.gmail_quote'))
 
     _findOffice365Quotes = (doc) => {
         let elements = doc.querySelectorAll('#divRplyFwdMsg, #OLK_SRC_BODY_SECTION')
-        elements = [...elements]
+        elements = Array.prototype.slice.call(elements)
 
-        let weirdEl = doc.getElementById('3D"divRplyFwdMsg"')
+        const weirdEl = doc.getElementById('3D"divRplyFwdMsg"')
         if (weirdEl) elements.push(weirdEl)
 
         elements = _.map(elements, (el) => {
-            if (el.previousElementSibling && el.previousElementSibling.nodeName == "HR")
+            if (el.previousElementSibling && el.previousElementSibling.nodeName == 'HR')
                 return el.parentElement
             else return el
         })
         return elements
     }
 
-    _findBlockquoteQuotes = (doc) => {
-        return [...doc.querySelectorAll('blockquote')]
+    _findBlockquoteQuotes = (doc) => Array.prototype.slice.call(doc.querySelectorAll('blockquote'))
+
+    _findSignature = (doc) => {
+        let signatures = []
+        SIGNATURE_CLASSES.forEach(cls => {
+            signatures = signatures.concat(Array.prototype.slice.call(doc.querySelectorAll(cls)))
+        })
+        return signatures
     }
 
 }
+
+export const ServerSideQuotedHTMLTransformer = new QuotedHTMLTransformer({isServerSide:true})
 
 module.exports = new QuotedHTMLTransformer

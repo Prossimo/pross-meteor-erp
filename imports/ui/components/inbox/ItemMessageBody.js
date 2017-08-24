@@ -1,6 +1,6 @@
 import React from 'react'
 import EmailFrame from './EmailFrame'
-import CanvasUtils from '../../utils/canvas-utils'
+import CanvasUtils from '../../../utils/canvas-utils'
 
 const TransparentPixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNikAQAACIAHF/uBd8AAAAASUVORK5CYII='
 class ItemMessageBody extends React.Component{

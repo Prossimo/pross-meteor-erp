@@ -1,9 +1,10 @@
+import slackify from 'slackify-html'
 import {Meteor} from 'meteor/meteor'
 import {check} from 'meteor/check'
-import cheerio from 'cheerio'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
 import {Threads, SalesRecords, SlackMails, Conversations} from '/imports/api/models'
+import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports/utils/quoted-html-transformer'
 
 Meteor.methods({
     sendMailToSlack(message) {
@@ -52,16 +53,13 @@ Meteor.methods({
             to.push(c.email)
         })
         const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
-        const $ = cheerio.load(message.body)
-        const children = $('body').children()
-        let textMail = ''
-        for (let i = 0; i < children.length; i++) {
-            const text = children.eq(i).text()
-            if (text.includes('wrote:')) break
-            textMail += `${text} \n`
-        }
 
-        let footer
+        let textMail = slackify(QuotedHTMLTransformer.removeQuotedHTML(message.body, {
+            keepIfWholeBodyIsQuote: true,
+            includeInline: true,
+            includeSignature: true,
+        }))
+
         if (target && conversation) {
             textMail += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }

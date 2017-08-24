@@ -1,5 +1,5 @@
 import RegExpUtils from '../../../api/nylas/RegExpUtils';
-import DOMUtils from '../../utils/dom-utils';
+import DOMUtils from '../../../utils/dom-utils';
 
 
 
