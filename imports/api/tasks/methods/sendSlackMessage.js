@@ -102,7 +102,7 @@ export default new ValidatedMethod({
               title_link,
             })
             slackClient.chat.postAttachments({ channel, attachments })
-            if (adminChanel && adminChanel.value && !assignee) {
+            if (adminChanel && adminChanel.value) {
               slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
             }
             break
