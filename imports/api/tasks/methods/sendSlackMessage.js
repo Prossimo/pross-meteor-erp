@@ -87,11 +87,32 @@ export default new ValidatedMethod({
             break
           }
 
+          case 'ASSIGN_TASK': {
+            const user = Meteor.users.findOne(assignee)
+            const actor = Meteor.users.findOne(actorId)
+            const userRefer = (user.slack && user.slack.id) ? `<@${user.slack.id}>` : user.username
+            const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
+            const pretext = `New task has been assigned to ${userRefer} by ${actorRefer} in ${status} board`
+
+            const attachments = slackClient.attachments.create({
+              pretext,
+              title,
+              text,
+              color: BLUE,
+              title_link,
+            })
+            slackClient.chat.postAttachments({ channel, attachments })
+            if (adminChanel && adminChanel.value && !assignee) {
+              slackClient.chat.postAttachments({ channel: adminChanel.value, attachments })
+            }
+            break
+          }
+
           case 'UPDATE_TASK': {
             const actor = Meteor.users.findOne(actorId)
             const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
             const attachments = slackClient.attachments.create({
-              pretext: `A task have been updated by [${actorRefer}] at ${status} board`,
+              pretext: `A task have been updated by ${actorRefer} in ${status} board`,
               title,
               text,
               color: ORANGE,
@@ -126,7 +147,7 @@ export default new ValidatedMethod({
             if (user) {
               const userRefer = (user.slack && user.slack.id) ? `<@${user.slack.id}>` : user.username
               const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
-              pretext = `New task has been assigned to ${userRefer} by [${actorRefer}] in ${status} board`
+              pretext = `New task has been assigned to ${userRefer} by ${actorRefer} in ${status} board`
             } else {
               pretext = 'New unassigned task has been created'
             }
