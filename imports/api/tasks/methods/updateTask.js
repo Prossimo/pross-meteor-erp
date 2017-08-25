@@ -14,15 +14,21 @@ export default new ValidatedMethod({
       parentId,
       taskOperators: [assignee, approver],
     })
+    const oldVersionTask = Tasks.findOne(task._id)
+    // ASSIGN TASK TO USER
     Tasks.update(task._id, {
       $set: task,
     })
+    let type = 'UPDATE_TASK'
     const actorId = this.userId
+    if (oldVersionTask && !oldVersionTask.assignee && task.assignee) {
+      type = 'ASSIGN_TASK'
+    }
     Meteor.defer(() => {
       sendSlackMessage.call({
         taskId: task._id,
         parentId,
-        type: 'UPDATE_TASK',
+        type,
         actorId,
       })
     })
