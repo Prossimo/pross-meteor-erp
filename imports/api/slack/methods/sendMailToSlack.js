@@ -54,30 +54,41 @@ Meteor.methods({
         })
         const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
-        let textMail = slackify(QuotedHTMLTransformer.removeQuotedHTML(message.body, {
+        console.log('=========> Sending main to slack')
+        let mailtext = message.body.replace('\"', '"').replace('\n','')
+        mailtext = QuotedHTMLTransformer.removeQuotedHTML(mailtext, {
             keepIfWholeBodyIsQuote: true,
             includeInline: true,
             includeSignature: true,
-        }))
+        })
+        console.log(mailtext)
+        if(Buffer.byteLength(mailtext, 'utf8') >= 4000) {
+            mailtext = message.snippet
+        }
+
+        console.log('============')
+        mailtext = slackify(mailtext)
+        console.log(mailtext)
+        console.log('==========> End')
 
         if (target && conversation) {
-            textMail += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
+            mailtext += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }
 
         const params = {
             username: slack.botName,
             attachments: [
                 {
-                    'fallback': message.snippet,
-                    'color': '#36a64f',
-                    'title': message.subject,
-                    text: textMail,
-                    'image_url': 'http://my-website.com/path/to/image.jpg',
-                    'thumb_url': 'http://example.com/path/to/thumb.png',
-                    'footer': 'Prossimo CRM',
-                    'footer_icon': 'https://platform.slack-edge.com/img/default_application_icon.png',
-                    'ts': new Date().getTime() / 1000,
-                    'mrkdwn_in': ['text']
+                    fallback: message.snippet,
+                    color: '#36a64f',
+                    title: message.subject,
+                    text: mailtext,
+                    image_url: 'http://my-website.com/path/to/image.jpg',
+                    thumb_url: 'http://example.com/path/to/thumb.png',
+                    footer: 'Mavrik CRM',
+                    footer_icon: 'https://platform.slack-edge.com/img/default_application_icon.png',
+                    ts: new Date().getTime() / 1000,
+                    mrkdwn_in: ['text']
                 }
             ],
             as_user: false
