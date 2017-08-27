@@ -54,7 +54,7 @@ Meteor.methods({
         })
         const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
-        console.log('=========> Sending main to slack')
+        console.log(`=========> Sending mail(${message.id}) to slack`)
         let mailtext = message.body.replace('\"', '"').replace('\n','')
         mailtext = QuotedHTMLTransformer.removeQuotedHTML(mailtext, {
             keepIfWholeBodyIsQuote: true,
