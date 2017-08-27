@@ -175,7 +175,7 @@ Meteor.methods({
 
         // Insert conversations attached
         if (thread) {
-            console.log('thread to be attached', thread)
+            //console.log('thread to be attached', thread)
             thread.conversationId = mainConversationId
             Threads.insert(thread)
 
