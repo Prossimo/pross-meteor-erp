@@ -1,15 +1,17 @@
 import React from 'react'
 import {mount} from 'react-mounter'
 import {FlowRouter} from 'meteor/kadira:flow-router'
+import { Session } from 'meteor/session'
 
 import App from '/imports/ui/App'
 import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject'
 import SingleProjectPage from '/imports/ui/components/project/SingleProject'
 import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
 
-import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage, SlackSettingsPage} from '/imports/ui/pages'
+import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage, SlackSettingsPage, EmailViewPage} from '/imports/ui/pages'
 
 function checkAuth() {
+    Session.set('prevPath', FlowRouter.current().path)
     if(!Meteor.userId()) FlowRouter.go('Root')
 }
 
@@ -231,5 +233,13 @@ FlowRouter.route('/auth/google/callback', {
         //console.log('Meteor absoluteUrl', Meteor.absoluteUrl())
         window.close()
         window.opener.postMessage(JSON.stringify({googleAuthCode:FlowRouter.getQueryParam('code')}), Meteor.absoluteUrl())
+    }
+})
+
+FlowRouter.route('/emailview/:message_id', {
+    name: 'EmailView',
+    action() {
+        checkAuth()
+        mount(EmailViewPage)
     }
 })

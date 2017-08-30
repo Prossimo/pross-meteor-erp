@@ -12,12 +12,14 @@ import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
 
 class ItemMessage extends React.Component {
-
+    static propTypes = {
+        viewonly: React.PropTypes.bool
+    }
     constructor(props) {
         super(props)
 
         this.state = {
-            detailedHeaders: false,
+            detailedHeaders: props.viewonly,
             downloads: FileDownloadStore.downloadDataForFiles(_.pluck(props.message.files, 'id'))
         }
 
@@ -72,7 +74,7 @@ class ItemMessage extends React.Component {
                 <div className="message-item-white-wrap">
                     <div className="message-item-area">
                         {this.renderHeader()}
-                        <ItemMessageBody message={this.props.message} downloads={this.state.downloads}/>
+                        <ItemMessageBody message={this.props.message} downloads={this.state.downloads} showQuotedText={this.props.viewonly}/>
                         {this.renderAttachments()}
                     </div>
                 </div>
@@ -93,12 +95,12 @@ class ItemMessage extends React.Component {
                                       isDetailed={this.state.detailedHeaders}
                                       date={this.props.message.date}/>
 
-                    <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>
+                    {!this.props.viewonly && <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>}
                 </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}
                 {this.renderFolder()}
-                {this.renderHeaderDetailToggle()}
+                {!this.props.viewonly && this.renderHeaderDetailToggle()}
             </header>
         )
     }
