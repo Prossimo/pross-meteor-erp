@@ -12,7 +12,7 @@ class ItemMessageBody extends React.Component{
     render() {
         const body = this._mergeBodyWithFiles(this.props.message.body||'')
 
-        return <EmailFrame showQuotedText={false} content={body}/>
+        return <EmailFrame showQuotedText={this.props.showQuotedText} content={body}/>
     }
 
     _mergeBodyWithFiles(body) {

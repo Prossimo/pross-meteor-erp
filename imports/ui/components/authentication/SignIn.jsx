@@ -2,6 +2,7 @@ import React from 'react'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import Actions from '/imports/api/nylas/actions'
+import { Session } from 'meteor/session'
 
 class SignIn extends React.Component{
     constructor(props){
@@ -50,7 +51,9 @@ class SignIn extends React.Component{
               default: return this.setState({authError: 'Invalid username or password'})
             }
           }
-          FlowRouter.reload()
+          const prevPath = Session.get('prevPath')
+          if(prevPath) FlowRouter.go(prevPath)
+          else FlowRouter.reload()
           Actions.resetContacts()
       })
         //}
@@ -90,7 +93,7 @@ class SignIn extends React.Component{
         }
     }
 
-    render() {
+    render() {console.log('Prev Path',Session.get('prevPath'))
         const { validationPassword, password, email } = this.state
         return (
             <div className="sign-in-wrap">

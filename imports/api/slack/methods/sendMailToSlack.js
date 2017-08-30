@@ -75,6 +75,7 @@ Meteor.methods({
             mailtext += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }
 
+        mailtext += `\n\n<${Meteor.absoluteUrl(`emailview/${message.id}?account_id=${message.account_id}`)}|See full email>`
         const params = {
             username: slack.botName,
             attachments: [
