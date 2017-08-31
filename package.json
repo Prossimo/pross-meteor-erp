@@ -60,6 +60,7 @@
     "react-toggle": "^3.0.1",
     "recompose": "^0.24.0",
     "reflux": "^6.2.0",
+    "request-progress": "^3.0.0",
     "shallowequal": "^0.2.2",
     "simpl-schema": "^0.2.2",
     "slackbots": "^1.0.2",

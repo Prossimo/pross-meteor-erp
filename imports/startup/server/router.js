@@ -2,6 +2,8 @@ import bodyParser from 'body-parser'
 import {Picker} from 'meteor/meteorhacks:picker'
 import NylasAPI from '/imports/api/nylas/nylas-api'
 import {Threads, Messages, NylasAccounts} from '/imports/api/models'
+import config from '/imports/api/config'
+import fs from 'fs'
 
 Picker.middleware(bodyParser.json())
 Picker.middleware(bodyParser.urlencoded({extended: false}))
@@ -27,6 +29,7 @@ Picker.filter((req, res) => req.method == 'POST').route('/api/voice', (params, r
 Picker.filter((req, res) => req.method == 'GET').route('/api/download', (params, req, res, next) => {
     const query = params.query
     const request = require('request')
+
     request.get(`https://api.nylas.com/files/${query.file_id}/download`, {
         auth: {
             user: query.access_token,
@@ -35,7 +38,7 @@ Picker.filter((req, res) => req.method == 'GET').route('/api/download', (params,
         }
     })
         .on('response', (response) => {
-            if(response.statusCode == 200) {
+            if (response.statusCode == 200) {
                 const clean = require('../../api/lib/validate-http-headers')
                 let headers = {
                     'Content-Disposition': response.headers['content-disposition'],
@@ -58,18 +61,18 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
     const query = params.query
 
     const deltas = req.body.deltas
-    if(deltas && deltas.length) {
+    if (deltas && deltas.length) {
         const data = deltas[0]
-        if(data && data.object_data) {
+        if (data && data.object_data) {
             const account_id = data.object_data.account_id
             const message_id = data.object_data.id
             const attributes = data.object_data.attributes
-            if(attributes) {
+            if (attributes) {
                 const thread_id = attributes.thread_id
 
-                if(account_id && thread_id && message_id) {
-                    const nylasAccount = NylasAccounts.findOne({accountId:account_id})
-                    if(nylasAccount) {
+                if (account_id && thread_id && message_id) {
+                    const nylasAccount = NylasAccounts.findOne({accountId: account_id})
+                    if (nylasAccount) {
                         const {accessToken} = nylasAccount
 
                         const auth = {
@@ -88,19 +91,52 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                 auth
                             }).then((message) => {
                                 bound(() => {
-                                    const existingThreads = Threads.find({id:thread_id}).fetch()
-                                    if(existingThreads && existingThreads.length) {
-                                        Threads.update({id:thread_id}, {$set:thread})
+                                    const existingThreads = Threads.find({id: thread_id}).fetch()
+                                    if (existingThreads && existingThreads.length) {
+                                        Threads.update({id: thread_id}, {$set: thread})
                                     } else {
                                         Threads.insert(thread)
                                     }
 
-                                    const existingMessage = Messages.findOne({id:message.id})
-                                    if(!existingMessage) {
+                                    const existingMessage = Messages.findOne({id: message.id})
+                                    if (!existingMessage) {
                                         Messages.insert(message)
                                     }
 
                                     Meteor.call('sendMailToSlack', message)
+                                    // upload files to slack
+                                    /*if (message.files && message.files.length) {
+                                        const promises = message.files.map(file => new Promise((resolve, reject) => {
+                                                const filepath = `/Volumes/MACDATA/uploads/${file.filename}`
+                                                console.log('===> filepath', filepath)
+                                                const request = require('request')
+                                                const progress = require('request-progress')
+
+                                                progress(request.get(`${config.nylas.apiRoot}/files/${file.id}/download`, {auth}), {throtte: 250})
+                                                    .on('progress', (progress) => {console.log('Nylas file download progress', progress)})
+                                                    .on('end', () => {console.log('Nylas file download end')
+                                                        resolve(fs.createReadStream(filepath))
+                                                    })
+                                                    .on('error', (err) => {
+                                                        console.error('=====> Nylas file download error', err)
+                                                        reject(err)
+                                                    })
+                                                    .pipe(fs.createWriteStream(filepath))
+                                            })
+                                        )
+                                        Promise.all(promises).then(files => {
+                                            bound(() => {
+                                                Meteor.call('sendMailToSlack', message, files)
+                                            })
+                                        }).catch(err => {
+                                            console.error(err)
+                                            bound(() => {
+                                                Meteor.call('sendMailToSlack', message)
+                                            })
+                                        })
+                                    } else {
+                                        Meteor.call('sendMailToSlack', message)
+                                    }*/
                                 })
                             })
                         })

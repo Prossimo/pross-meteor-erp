@@ -1,14 +1,19 @@
 import slackify from 'slackify-html'
 import {Meteor} from 'meteor/meteor'
 import {check} from 'meteor/check'
+import request from 'request'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
 import {Threads, SalesRecords, SlackMails, Conversations} from '/imports/api/models'
 import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports/utils/quoted-html-transformer'
+import config from '/imports/api/config'
+
+const SLACK_MESSAGE_MAX_SIZE = 4000
 
 Meteor.methods({
-    sendMailToSlack(message) {
+    sendMailToSlack(message, files) {
         check(message, Object)
+        check(files, Match.Maybe(Array))
 
         const thread = Threads.findOne({id: message.thread_id})
         let target, conversation
@@ -62,12 +67,14 @@ Meteor.methods({
             includeSignature: true,
         })
         console.log(mailtext)
-        if(Buffer.byteLength(mailtext, 'utf8') >= 4000) {
-            mailtext = message.snippet
-        }
 
         console.log('============')
         mailtext = slackify(mailtext)
+
+        const mailtextBuf = new Buffer(mailtext, 'utf-8')
+        if(mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
+            mailtext = mailtextBuf.slice(0, SLACK_MESSAGE_MAX_SIZE).toString()
+        }
         console.log(mailtext)
         console.log('==========> End')
 
@@ -97,5 +104,18 @@ Meteor.methods({
         if (threadable && thread_ts) params.thread_ts = thread_ts
 
         Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id)
+
+        /*if(files && files.length) {
+            files.forEach(file => {console.log(file)
+                request.post({url:`${config.slack.apiRoot}/files.upload`, formData:{
+                    token: config.slack.botToken,
+                    file,
+                    channels: slackChannelId
+                }}, (err, response, body) => {
+                    if(err) console.error(err)
+                })
+            })
+
+        }*/
     },
 })
