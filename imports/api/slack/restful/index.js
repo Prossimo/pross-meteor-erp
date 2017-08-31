@@ -74,7 +74,7 @@ const chat = {
 
 const files = {
     sharedPublicURL: ({file}) => slackClient.makeRequest('files.sharedPublicURL', {file}),
-    get: ({url}) => slackClient.makeRawRequest({url}),
+    get: ({url}) => slackClient.makeRawRequest({url})
 }
 
 const attachments = {
