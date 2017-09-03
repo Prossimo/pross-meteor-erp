@@ -7,6 +7,7 @@ import {slack} from '/imports/api/config'
 import {Threads, SalesRecords, SlackMails, Conversations} from '/imports/api/models'
 import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports/utils/quoted-html-transformer'
 import config from '/imports/api/config'
+import fs from 'fs'
 
 const SLACK_MESSAGE_MAX_SIZE = 4000
 
@@ -72,12 +73,15 @@ Meteor.methods({
         mailtext = slackify(mailtext)
 
         const mailtextBuf = new Buffer(mailtext, 'utf-8')
-        if(mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
+        if (mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
             mailtext = mailtextBuf.slice(0, SLACK_MESSAGE_MAX_SIZE).toString()
         }
         console.log(mailtext)
         console.log('==========> End')
 
+        if(files && files.length) {
+            mailtext += `\n\n_This email has ${files.length} files_`
+        }
         if (target && conversation) {
             mailtext += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }
@@ -103,19 +107,25 @@ Meteor.methods({
         }
         if (threadable && thread_ts) params.thread_ts = thread_ts
 
-        Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id)
-
-        /*if(files && files.length) {
-            files.forEach(file => {console.log(file)
-                request.post({url:`${config.slack.apiRoot}/files.upload`, formData:{
-                    token: config.slack.botToken,
-                    file,
-                    channels: slackChannelId
-                }}, (err, response, body) => {
-                    if(err) console.error(err)
+        Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id, (err, res) => {
+            if (files && files.length) {
+                files.forEach(file => {
+                    console.log(file)
+                    const stream = fs.createReadStream(file)
+                    request.post({
+                        url: `${config.slack.apiRoot}/files.upload`, formData: {
+                            token: config.slack.botToken,
+                            file: stream,
+                            channels: slackChannelId
+                        }
+                    }, (err, response, body) => {
+                        if (err) console.error(err)
+                    })
                 })
-            })
 
-        }*/
+            }
+        })
+
+
     },
 })
