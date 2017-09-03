@@ -103,8 +103,9 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                         Messages.insert(message)
                                     }
 
+                                    Meteor.call('sendMailToSlack', message)
                                     // upload files to slack
-                                    if (message.files && message.files.length) {
+                                    /*if (message.files && message.files.length) {
                                         const promises = message.files.map(file => new Promise((resolve, reject) => {
                                                 const filepath = `/Volumes/MACDATA/uploads/${file.filename}`
                                                 console.log('===> filepath', filepath)
@@ -114,7 +115,7 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                                 progress(request.get(`${config.nylas.apiRoot}/files/${file.id}/download`, {auth}), {throtte: 250})
                                                     .on('progress', (progress) => {console.log('Nylas file download progress', progress)})
                                                     .on('end', () => {console.log('Nylas file download end')
-                                                        resolve(filepath)
+                                                        resolve(fs.createReadStream(filepath))
                                                     })
                                                     .on('error', (err) => {
                                                         console.error('=====> Nylas file download error', err)
@@ -135,7 +136,7 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                         })
                                     } else {
                                         Meteor.call('sendMailToSlack', message)
-                                    }
+                                    }*/
                                 })
                             })
                         })
