@@ -2,11 +2,13 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import React, {PropTypes} from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import {Alert} from 'react-bootstrap'
-import {NylasAccounts} from '/imports/api/models'
-import EmailFrame from '../components/inbox/EmailFrame'
 import ItemMessage from '../components/inbox/ItemMessage'
 import NylasAPI from '/imports/api/nylas/nylas-api'
 import classnames from 'classnames'
+import {Messages} from '/imports/api/models'
+import DraftStore from '/imports/api/nylas/draft-store'
+import NylasUtils from '/imports/api/nylas/nylas-utils'
+import ComposeModal from '../components/inbox/composer/ComposeModal'
 
 class EmailViewPage extends React.Component {
     static propTypes = {
@@ -16,58 +18,74 @@ class EmailViewPage extends React.Component {
     constructor(props) {
         super(props)
 
-        const {subscribing, messageId, accountId} = props
-        //console.log('EmailViewPage', messageId, accountId, props, NylasAccounts.findOne({accountId}))
+        const {loading, message} = props
+
         this.state = {
-            loading: subscribing,
-            notFound: !messageId || !accountId
+            loading,
+            message
         }
     }
 
-    componentDidMount() {//console.log('componentDidMount')
-        this.loadMessage(this.props)
-    }
-    componentWillReceiveProps(newProps) {
-        //console.log('componentWillReceiveProps', newProps)
-
-        this.loadMessage(newProps)
+    componentDidMount() {
+        this.unsubscribes = []
+        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
     }
 
-    loadMessage(props) {
-        const {subscribing, messageId, accountId} = props
-        if (subscribing) {
-            return this.setState({loading: true})
-        } else if (!messageId || !accountId) {
-            return this.setState({notFound: true})
-        }
+    componentWillUnmount() {
+        this.unsubscribes.forEach((unsubscribe) => {
+            unsubscribe()
+        })
 
-        this.setState({loading: true})
-        NylasAPI.makeRequest({
-            path: `/messages/${messageId}`,
-            method: 'GET',
-            accountId
-        }).then((result) => {
-            this.setState({loading: false, message: result})
-        }).catch(err => {
-            console.error('catched error', err)
-            this.setState({loading: false, notFound: true})
+    }
+
+    onDraftStoreChanged = () => {
+        this.setState({
+            composeState: DraftStore.draftViewStateForModal()
         })
     }
+
+    componentWillReceiveProps(newProps) {
+        this.setState({
+            loading:newProps.loading,
+            message:newProps.message
+        })
+    }
+
+
+
+    onCloseComposeModal = () => {
+        const {composeState} = this.state
+        if (!composeState) return
+
+        const draft = DraftStore.draftForClientId(composeState.clientId)
+
+        if (!NylasUtils.isEmptyDraft(draft)) {
+            if (confirm('Are you sure to discard?'))
+                DraftStore.removeDraftForClientId(draft.clientId)
+        } else {
+            DraftStore.removeDraftForClientId(draft.clientId)
+        }
+    }
+
+    renderComposeModal() {
+        const {composeState} = this.state
+        if(!composeState) return ''
+
+        const draft = DraftStore.draftForClientId(composeState.clientId)
+
+        return <ComposeModal isOpen={composeState.show}
+                             clientId={composeState.clientId}
+                             onClose={this.onCloseComposeModal}/>
+    }
     render() {
-        const notFoundAlert = (
-            <Alert bsStyle="danger">
-                We could not find message
-            </Alert>
-        )
         const loadingAlert = (
             <Alert bsStyle="info">
                 <i className="fa fa-spinner fa-spin fa-fw"></i>
             </Alert>
         )
 
-        const {loading, notFound, message} = this.state
-        if (loading) return loadingAlert
-        if (notFound || !message) return notFoundAlert
+        const {loading, message} = this.state
+        if (loading || !message) return loadingAlert
 
 
         const classNames = classnames({
@@ -82,7 +100,9 @@ class EmailViewPage extends React.Component {
                         className={classNames}
                         message={message}
                         viewonly
+                        conversationId={message.conversationId()}
                     />
+                    {this.renderComposeModal()}
                 </div>
             </div>
         )
@@ -90,14 +110,13 @@ class EmailViewPage extends React.Component {
 }
 
 export default createContainer(() => {
-    const subscriber = Meteor.subscribe('getNylasAccounts')
+    const subscribers = [Meteor.subscribe('getNylasAccounts'), Meteor.subscribe('MyMessages')]
 
     const messageId = FlowRouter.getParam('message_id')
-    const accountId = FlowRouter.getQueryParam('account_id')
 
+    const message = Messages.findOne({id:messageId})
     return {
-        subscribing: !subscriber.ready(),
-        messageId,
-        accountId
+        loading: subscribers.reduce((result, subscriber) => result && !subscriber.ready(), true),
+        message
     }
 }, EmailViewPage)

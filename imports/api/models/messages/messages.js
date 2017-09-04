@@ -1,6 +1,7 @@
 import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
+import Threads from '../threads/threads'
 
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -174,6 +175,11 @@ Messages.publicFields = {
 Messages.helpers({
     account() {
         return NylasAccounts.findOne({accountId: this.account_id})
+    },
+    conversationId() {
+        const thread = Threads.findOne({id:this.thread_id})
+        if(!thread) return null
+        return thread.conversationId
     }
 })
 

@@ -72,7 +72,7 @@ class DraftStore extends Reflux.Store {
             }
             this.trigger()
         } else {
-            DraftFactory.createDraftForReply({message, type}).then((draft) => {
+            DraftFactory.createDraftForReply({message, type}).then((draft) => {console.log('created draft', draft)
                 draft.conversationId = conversationId
                 this._drafts.push(draft)
 

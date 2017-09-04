@@ -54,6 +54,14 @@ class DraftFactory {
         const account = AccountStore.accountForAccountId(message.account_id)
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
+        const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c) => NylasUtils.contactDisplayFullname(c)).join(', '))
+        const fields = []
+        if (message.from.length > 0) fields.push(`From: ${contactsAsHtml(message.from)}`)
+        fields.push(`Subject: ${message.subject}`)
+        fields.push(`Date: ${NylasUtils.formattedDateForMessage(message)}`)
+        if (message.to.length > 0) fields.push(`To: ${contactsAsHtml(message.to)}`)
+        if (message.cc.length > 0) fields.push(`Cc: ${contactsAsHtml(message.cc)}`)
+
         const quotedBody = `<br/><br/><div class="gmail_quote">
             ---------- Forwarded message ---------
             <br/><br/>
@@ -62,13 +70,6 @@ class DraftFactory {
             ${message.body}
           </div>`
 
-        const contactsAsHtml = (cs) => DOMUtils.escapeHTMLCharacters(cs.map((c) => NylasUtils.contactDisplayFullname(c)).join(', '))
-        const fields = []
-        if (message.from.length > 0) fields.push(`From: ${contactsAsHtml(message.from)}`)
-        fields.push(`Subject: ${message.subject}`)
-        fields.push(`Date: ${NylasUtils.formattedDateForMessage(message)}`)
-        if (message.to.length > 0) fields.push(`To: ${contactsAsHtml(message.to)}`)
-        if (message.cc.length > 0) fields.push(`Cc: ${contactsAsHtml(message.cc)}`)
 
         return this.createDraft({
             subject: NylasUtils.subjectWithPrefix(message.subject, 'Fwd:'),
