@@ -95,7 +95,7 @@ class ItemMessage extends React.Component {
                                       isDetailed={this.state.detailedHeaders}
                                       date={this.props.message.date}/>
 
-                    {!this.props.viewonly && <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>}
+                    <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>
                 </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}
