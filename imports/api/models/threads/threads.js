@@ -60,6 +60,10 @@ Threads.schema = new SimpleSchema({
     'message_ids.$': {
         type: String
     },
+    draft_ids: {type: Array, optional: true},
+    'draft_ids.$': {
+        type: String
+    },
     version: {type: Number},
     folders: {type: Array, optional: true},
     'folders.$': {

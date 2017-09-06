@@ -1,6 +1,25 @@
+import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import { SlackMessages, Projects, ROLES } from '/imports/api/models/index'
+import { SlackMessages, People, ROLES } from '/imports/api/models/index'
+import Projects from './projects'
 
+Meteor.publishComposite('MyProjects', () => ({
+    find() {
+        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
+        return Projects.find({'members': this.userId})
+    },
+    children: [
+        {
+            find({ stakeholders }) {
+                if (stakeholders) {
+                    const peopleIds = stakeholders.map(({ peopleId }) => peopleId)
+                    return People.find({ _id: { $in: peopleIds } })
+                }
+            }
+
+        }
+    ]
+}))
 
 Meteor.publish('getNewProjects', function () {
     if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()

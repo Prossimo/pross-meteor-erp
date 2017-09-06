@@ -48,7 +48,7 @@ Tasks.schema = new SimpleSchema({
         optional: true,
         allowedValues: [
             'project',
-            'salesrecord'
+            'deal'
         ]
     },
     isRemoved: {
