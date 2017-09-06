@@ -18,6 +18,7 @@ import Toolbar from '../components/inbox/Toolbar'
 import ComposeModal from '../components/inbox/composer/ComposeModal'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
+import CreateProject from '../components/project/CreateProject'
 import PeopleForm from '../components/people/PeopleForm'
 import {People} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
@@ -31,8 +32,8 @@ class InboxPage extends (React.Component) {
         this.state = {
             addingInbox: false,
             addingTeamInbox: false,
-            showSalesRecordModal: false,
-            bindingSalesRecord: false,
+            showTargetModal: false,
+            binding: false,
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
@@ -109,7 +110,7 @@ class InboxPage extends (React.Component) {
                 return (
                     <div style={{height: '100%'}}>
                         {this.renderInbox()}
-                        {this.renderSalesRecordModal()}
+                        {this.renderTargetModal()}
                         {this.renderPeopleModal()}
                         <ComposeModal isOpen={composeState && composeState.show}
                                       clientId={composeState && composeState.clientId}
@@ -140,7 +141,7 @@ class InboxPage extends (React.Component) {
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
                 <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
-                         onSelectMenuSalesRecord={this.onSelectMenuSalesRecord}/>
+                         onSelectExtraMenu={this.onSelectExtraMenu}/>
 
                 <div className="content-panel">
                     <div className="column-panel" style={{
@@ -173,12 +174,13 @@ class InboxPage extends (React.Component) {
         )
     }
 
-    onSelectMenuSalesRecord = (option, {salesRecord, salesRecordId} = {}) => {
-        if (option === 'create' || option === 'bind') {
+    onSelectExtraMenu = (menu, {type, doc, _id} = {}) => {
+        if (menu === 'create' || menu === 'bind') {
 
             this.setState({
-                bindingSalesRecord: option === 'bind',
-                selectedSalesRecord: salesRecord
+                binding: menu === 'bind',
+                targetType: type,
+                selectedTarget: doc
             })
 
             const {participants} = this.state.currentThread
@@ -193,11 +195,11 @@ class InboxPage extends (React.Component) {
             }
 
             this.setState({
-                showSalesRecordModal: true
+                showTargetModal: true
             })
-        } else if (option === 'goto') {
-            FlowRouter.go('SalesRecord', {id: salesRecordId})
-        } else if (option === 'unbind') {
+        } else if (menu === 'goto') {
+            FlowRouter.go(type, {id: _id})
+        } else if (menu === 'unbind') {
             try {
                 unbindThreadFromConversation.call({id: this.state.currentThread.id})
             } catch (err) {
@@ -206,23 +208,32 @@ class InboxPage extends (React.Component) {
         }
     }
 
-    renderSalesRecordModal() {
-        const {showSalesRecordModal, bindingSalesRecord, currentThread, selectedSalesRecord} = this.state
+    renderTargetModal() {
+        const {showTargetModal, binding, currentThread, selectedTarget, targetType} = this.state
 
         if (!currentThread) return ''
 
-        const title = bindingSalesRecord ? 'Bind this thread to existing Deal' : 'Create new Deal from this thread'
+        const title = binding ? `Bind this thread to existing ${targetType}` : `Create new ${targetType} from this thread`
         return (
-            <Modal show={showSalesRecordModal} onHide={this.onCloseSalesRecordModal} bsSize="large">
+            <Modal show={showTargetModal} onHide={this.onCloseTargetModal} bsSize="large">
                 <Modal.Header closeButton>
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <CreateSalesRecord
-                        {...this.props}
-                        thread={currentThread}
-                        salesRecord={selectedSalesRecord}
-                    />
+                    {
+                        targetType === 'deal' &&
+                        <CreateSalesRecord
+                            {...this.props}
+                            thread={currentThread}
+                            salesRecord={selectedTarget} />
+                    }
+                    {
+                        targetType === 'project' &&
+                        <CreateProject
+                            {...this.props}
+                            thread={currentThread}
+                            project={selectedTarget} />
+                    }
                 </Modal.Body>
             </Modal>
         )
@@ -253,13 +264,14 @@ class InboxPage extends (React.Component) {
         this.setState({
             showPeopleModal: false
         }, () => {
-            this.setState({showSalesRecordModal: true})
+            this.setState({showTargetModal: true})
         })
     }
-    onCloseSalesRecordModal = () => {
+
+    onCloseTargetModal = () => {
         this.setState({
-            showSalesRecordModal: false,
-            bindingSalesRecord: false
+            showTargetModal: false,
+            binding: false
         })
     }
 
@@ -273,7 +285,8 @@ class InboxPage extends (React.Component) {
                     AccountStore.accounts().map((account) => {
                         const categoriesForAccount = CategoryStore.getCategories(account.accountId)
 
-                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ? <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
+                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
+                            <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
                         return (
                             <div key={`account-${account.accountId}`}>
                                 <div className="account-wrapper">
@@ -287,13 +300,13 @@ class InboxPage extends (React.Component) {
                                 {
                                     categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category, index) =>
                                         <div key={`category-${index}`}>
-                                            {category&&<ItemCategory
+                                            {category && <ItemCategory
                                                 category={category}
                                                 onClick={(evt) => {
                                                     this.onCategorySelected(category)
                                                 }}
                                                 selected={currentCategory && category.id == currentCategory.id}/>}
-                                            {!category&&''}
+                                            {!category && ''}
                                         </div>
                                     )
                                 }

@@ -8,13 +8,13 @@ import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
 import MailSearchBox from './MailSearchBox'
-import {SalesRecords, Threads, Conversations} from '/imports/api/models'
+import {SalesRecords, Projects, Threads, Conversations} from '/imports/api/models'
 
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
         thread: React.PropTypes.object,
-        onSelectMenuSalesRecord: React.PropTypes.func
+        onSelectExtraMenu: React.PropTypes.func
     }
 
     constructor(props) {
@@ -22,7 +22,8 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
 
         this.state = {
-            salesRecords: SalesRecords.find({}, {sort:{name:1}}).fetch()
+            salesRecords: SalesRecords.find({}, {sort:{name:1}}).fetch(),
+            projects: Projects.find({}, {sort:{name:1}}).fetch()
         }
     }
 
@@ -41,45 +42,58 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
-                    {this.renderSalesRecordMenu()}
+                    {this.renderExtraMenu()}
                 </div>
             </div>
         )
     }
 
-    renderSalesRecordMenu() {
+    renderExtraMenu() {
         const {thread} = this.props
         if(!thread) return ''
 
         const existingThread = Threads.findOne({id: thread.id})
-        let salesRecord
+        let salesRecord, project
         if(existingThread && existingThread.conversationId) {
             const conversation = Conversations.findOne(existingThread.conversationId)
             if(conversation) {
                 const parent = conversation.parent()
-                if(parent && parent.type === 'salesrecord') salesRecord = parent
+                if(parent) {
+                    if(parent.type === 'deal') salesRecord = parent
+                    else if(parent.type === 'project') project = parent
+                }
             }
         }
 
         if(salesRecord) {
             return (
                 <div style={{float:'right'}}>
-                    <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-sales-record" disabled={!thread}>
-                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('goto', {salesRecordId:salesRecord._id})}>Go to this deal</MenuItem>
+                    <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-deal">
+                        <MenuItem onSelect={() => this.props.onSelectExtraMenu('goto', {type:'deal', _id:salesRecord._id})}>Go to this deal</MenuItem>
                         <MenuItem divider/>
-                        <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('unbind')}>Unbind from this deal</MenuItem>
+                        <MenuItem onSelect={() => this.props.onSelectExtraMenu('unbind')}>Unbind from this deal</MenuItem>
+                    </DropdownButton>
+                </div>
+            )
+        } else if(project) {
+            return (
+                <div style={{float:'right'}}>
+                    <DropdownButton bsStyle="default" bsSize="small" title={project.name} pullRight id="dropdown-project">
+                        <MenuItem onSelect={() => this.props.onSelectExtraMenu('goto', {type:'project',_id:project._id})}>Go to this project</MenuItem>
+                        <MenuItem divider/>
+                        <MenuItem onSelect={() => this.props.onSelectExtraMenu('unbind')}>Unbind from this project</MenuItem>
                     </DropdownButton>
                 </div>
             )
         }
 
-        const {salesRecords} = this.state
+        const {salesRecords, projects} = this.state
         return (
             <div style={{float:'right'}}>
-                <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-sales-record" disabled={!thread}>
-                    <MenuItem onSelect={() => this.props.onSelectMenuSalesRecord('create')}>Create new Deal from this thread</MenuItem>
+                <DropdownButton bsStyle="default" bsSize="small" title="Deal" pullRight id="dropdown-deal">
+                    <MenuItem onSelect={() => this.props.onSelectExtraMenu('create', {type:'deal'})}>Create new deal from this thread</MenuItem>
                     <MenuItem divider/>
-                    <MenuItem header>Bind this thread to existing Deal</MenuItem>
+                    <MenuItem header>Bind this thread to existing deal</MenuItem>
                     <MenuItem header>
                         <InputGroup>
                             <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
@@ -87,13 +101,26 @@ export default class Toolbar extends TrackerReact(React.Component) {
                         </InputGroup>
                     </MenuItem>
                     {
-                        salesRecords.map((sr) => <MenuItem key={sr._id} onSelect={() => this.props.onSelectMenuSalesRecord('bind', {salesRecord:sr})}>{sr.name}</MenuItem>)
+                        salesRecords.map((sr) => <MenuItem key={sr._id} onSelect={() => this.props.onSelectExtraMenu('bind', {type:'deal',doc:sr})}>{sr.name}</MenuItem>)
+                    }
+                </DropdownButton>&nbsp;
+                <DropdownButton bsStyle="default" bsSize="small" title="Project" pullRight id="dropdown-project" disabled={!thread}>
+                    <MenuItem onSelect={() => this.props.onSelectExtraMenu('create', {type:'project'})}>Create new project from this thread</MenuItem>
+                    <MenuItem divider/>
+                    <MenuItem header>Bind this thread to existing project</MenuItem>
+                    <MenuItem header>
+                        <InputGroup>
+                            <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
+                            <FormControl type="text" placeholder="Search..." onChange={this.onChangeSearchProject} />
+                        </InputGroup>
+                    </MenuItem>
+                    {
+                        projects.map((pr) => <MenuItem key={pr._id} onSelect={() => this.props.onSelectExtraMenu('bind', {type:'project',doc:pr})}>{pr.name}</MenuItem>)
                     }
                 </DropdownButton>
             </div>
         )
     }
-
 
 
     onChangeSearchSalesRecord = (evt) => {
@@ -105,6 +132,19 @@ export default class Toolbar extends TrackerReact(React.Component) {
                 this.setState({salesRecords: SalesRecords.find({name:{$regex: keyword, $options: 'i'}}, {sort:{name:1}}).fetch()})
             } else {
                 this.setState({salesRecords: SalesRecords.find({}, {sort:{name:1}}).fetch()})
+            }
+        }, 500)
+    }
+
+    onChangeSearchProject = (evt) => {
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
+
+        const keyword = evt.target.value
+        this.searchTimeout = setTimeout(() => {
+            if(keyword.length) {
+                this.setState({projects: Projects.find({name:{$regex: keyword, $options: 'i'}}, {sort:{name:1}}).fetch()})
+            } else {
+                this.setState({projects: Projects.find({}, {sort:{name:1}}).fetch()})
             }
         }, 500)
     }

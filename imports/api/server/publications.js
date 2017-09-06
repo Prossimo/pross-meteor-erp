@@ -52,24 +52,6 @@ Meteor.startup(() => {
             }
         }))
 
-    Meteor.publishComposite(GET_PROJECTS, () => ({
-        find() {
-          if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find()
-          return SalesRecords.find({'members': this.userId})
-        },
-        children: [
-          {
-            find({ stakeholders }) {
-              if (stakeholders) {
-                const contactIds = stakeholders.map(({ contactId }) => contactId)
-                return Contacts.find({ _id: { $in: contactIds } })
-              }
-            }
-
-          }
-        ]
-      }))
-
     Meteor.publish(GET_QUOTES, (projectId) => {
         Match.test(projectId, String)
 

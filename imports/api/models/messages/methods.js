@@ -5,7 +5,6 @@ import SimpleSchema from 'simpl-schema'
 import Messages from './messages'
 import NylasAPI from '../../nylas/nylas-api'
 import Threads from '../threads/threads'
-import {insertThread, updateThread} from '../threads/methods'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 

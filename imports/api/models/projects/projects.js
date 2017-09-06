@@ -32,8 +32,8 @@ Projects.schema = new SimpleSchema({
     stakeholders: {type: Array, optional:true},
     'stakeholders.$': {type: Object},
     'stakeholders.$.peopleId': {type: String},
-    'stakeholders.$.isMainStakeholder': { type: Boolean },
-    'stakeholders.$.addToMain': {type: Boolean},    // to main conversation
+    'stakeholders.$.isMainStakeholder': { type: Boolean, optional:true },
+    'stakeholders.$.addToMain': {type: Boolean, optional:true},    // to main conversation
     slackChanel: {type: String, optional: true},
     slackChannelName: {type: String, optional: true},
     folderId: {type: String, optional: true},

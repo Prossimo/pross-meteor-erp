@@ -70,7 +70,7 @@ Conversations.helpers({
     },
     parent() {
         const sr = SalesRecords.findOne({conversationIds:this._id})
-        if(sr) return _.extend(sr, {type:'salesrecord'})
+        if(sr) return _.extend(sr, {type:'deal'})
 
         const pr = Projects.findOne({conversationIds:this._id})
         if(pr) return _.extend(pr, {type:'project'})

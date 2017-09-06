@@ -23,7 +23,7 @@ export default new ValidatedMethod({
     let parentType = null
 
     if (parent = SalesRecords.findOne(parentId)) {
-      parentType = 'salesrecord'
+      parentType = 'deal'
     } else {
       if (parent = Projects.findOne(parentId)) {
         parentType = 'project'

@@ -2,22 +2,27 @@ import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import SimpleSchema from 'simpl-schema'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
-import { Projects, ROLES, Conversations } from '/imports/api/models'
+import queryString from 'query-string'
+import NylasAPI from '../../nylas/nylas-api'
+import { Projects, ROLES, Conversations, Threads, Messages } from '/imports/api/models'
 import { prossDocDrive } from '/imports/api/drive'
 import { slackClient } from '/imports/api/slack'
 import config from '../../config'
 
+const bound = Meteor.bindEnvironment((callback) => callback())
+
 export const createProject = new ValidatedMethod({
     name: 'project.create',
-    validate: Projects.schema.pick('name', 'members', 'stakeholders').validator(),
-    run({ name, members, stakeholders }) {
-        const project = { name, members, stakeholders }
+    validate: Projects.schema.pick('name', 'members', 'stakeholders').extend({thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at')}, optional:true}).validator(),
+    run({ name, members, stakeholders, thread }) {
+        const project = { name, members, stakeholders, thread }
         // CHECK ROLE
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
             throw new Meteor.Error('Access denied')
 
         stakeholders = stakeholders || []
-        project.conversationIds = [Conversations.insert({name:'Main', participants:stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})]
+        const mainConversationId = Conversations.insert({name:'Main', participants:stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
+        project.conversationIds = [mainConversationId]
 
         // INSERT
         const projectId = Projects.insert(project)
@@ -58,13 +63,44 @@ export const createProject = new ValidatedMethod({
             })
         }
 
+        // Insert conversations attached
+        if (thread) {
+            //console.log('thread to be attached', thread)
+            thread.conversationId = mainConversationId
+            Threads.insert(thread)
+
+            const query = queryString.stringify({thread_id: thread.id})
+            NylasAPI.makeRequest({
+                path: `/messages?${query}`,
+                method: 'GET',
+                accountId: thread.account_id
+            }).then((messages) => {
+                if (messages && messages.length) {
+
+                    bound(() => {
+                        messages.forEach((message) => {
+                            const existingMessage = Messages.findOne({id: message.id})
+                            if (!existingMessage) {
+                                Messages.insert(message)
+                            } else {
+                                Messages.update({_id: existingMessage._id}, {$set: message})
+                            }
+                        })
+                    })
+                }
+            })
+        }
+
         return projectId
     }
 })
 export const updateProject = new ValidatedMethod({
     name: 'project.update',
-    validate: Projects.schema.validator(),
-    run({ _id, name, members, stakeholders }) {
+    validate: Projects.schema.extend({
+        thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at'), optional:true},
+        conversationId:{type: String, regEx: SimpleSchema.RegEx.Id, optional:true}
+    }).validator(),
+    run({ _id, name, members, stakeholders, thread, conversationId }) {
         // current user belongs to ADMIN LIST
         const isAdmin = Roles.userIsInRole(this.userId, ROLES.ADMIN)
 
@@ -92,9 +128,45 @@ export const updateProject = new ValidatedMethod({
             members: _.isUndefined(members) ? null : members,
             stakeholders: _.isUndefined(stakeholders) ? null : stakeholders
         }
-        return Projects.update(_id, {
+
+        Projects.update(_id, {
             $set: data
         })
+
+        // Insert conversations attached
+        if (thread) {
+            console.log('thread to be attached', thread, `conversationId=${conversationId}`)
+            if(conversationId) {
+                thread.conversationId = conversationId
+            }
+            const existingThreads = Threads.find({id: thread.id}).fetch()
+            if (existingThreads && existingThreads.length) {
+                Threads.update({id: thread.id}, {$set: thread})
+            } else {
+                Threads.insert(thread)
+            }
+
+            const query = queryString.stringify({thread_id: thread.id})
+            NylasAPI.makeRequest({
+                path: `/messages?${query}`,
+                method: 'GET',
+                accountId: thread.account_id
+            }).then((messages) => {
+                if (messages && messages.length) {
+
+                    bound(() => {
+                        messages.forEach((message) => {
+                            const existingMessage = Messages.findOne({id: message.id})
+                            if (!existingMessage) {
+                                Messages.insert(message)
+                            } else {
+                                Messages.update({_id: existingMessage._id}, {$set: message})
+                            }
+                        })
+                    })
+                }
+            })
+        }
     }
 })
 
