@@ -13,7 +13,9 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 
 export const createProject = new ValidatedMethod({
     name: 'project.create',
-    validate: Projects.schema.pick('name', 'members', 'stakeholders').extend({thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at')}, optional:true}).validator(),
+    validate: Projects.schema.pick('name', 'members', 'stakeholders').extend({
+        thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at'), optional:true}
+    }).validator(),
     run({ name, members, stakeholders, thread }) {
         const project = { name, members, stakeholders, thread }
         // CHECK ROLE
