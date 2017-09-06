@@ -35,7 +35,9 @@ export default class ComposeView extends React.Component {
             draft,
             expandedCc: draft.cc && draft.cc.length ? true : false,
             expandedBcc: draft.bcc && draft.bcc.length ? true : false,
-            downloads: FileDownloadStore.downloadDataForFiles(_.pluck(draft.downloads, 'id'))
+            downloads: FileDownloadStore.downloadDataForFiles(_.pluck(draft.downloads, 'id')),
+
+            hideQuotedBody: true
         }
     }
 
