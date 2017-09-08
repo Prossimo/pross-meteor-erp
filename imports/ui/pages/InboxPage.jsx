@@ -4,13 +4,8 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import Spinner from '../components/utils/spinner'
 import {warning} from '/imports/api/lib/alerts'
-import Actions from '../../api/nylas/actions'
+import {Actions, NylasUtils, AccountStore, CategoryStore, ThreadStore, DraftStore} from '/imports/api/nylas'
 import '../../api/nylas/tasks/task-queue'
-import NylasUtils from '../../api/nylas/nylas-utils'
-import AccountStore from '../../api/nylas/account-store'
-import CategoryStore from '../../api/nylas/category-store'
-import ThreadStore from '../../api/nylas/thread-store'
-import DraftStore from '../../api/nylas/draft-store'
 import ItemCategory from '../components/inbox/ItemCategory'
 import ItemThread from '../components/inbox/ItemThread'
 import MessageList from '../components/inbox/MessageList'
@@ -22,6 +17,7 @@ import CreateProject from '../components/project/CreateProject'
 import PeopleForm from '../components/people/PeopleForm'
 import {People} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
+import ThreadList from '../components/inbox/ThreadList'
 
 
 class InboxPage extends (React.Component) {
@@ -37,7 +33,6 @@ class InboxPage extends (React.Component) {
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
-            threads: currentCategory ? ThreadStore.getThreads() : [],
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
         }
 
@@ -51,7 +46,6 @@ class InboxPage extends (React.Component) {
         this.unsubscribes = []
         this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
         this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
-        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
 
     }
@@ -77,14 +71,6 @@ class InboxPage extends (React.Component) {
             currentCategory
         })
     }
-
-    onThreadStoreChanged = () => {
-        this.setState({
-            threads: ThreadStore.getThreads(),
-            loadingThreads: ThreadStore.loading
-        })
-    }
-
     onDraftStoreChanged = () => {
         this.setState({
             composeState: DraftStore.draftViewStateForModal()
@@ -278,9 +264,29 @@ class InboxPage extends (React.Component) {
     renderCategories() {
         const {currentCategory} = this.state
 
+        const appCategories = [{
+            id: 'assigned_to_me',
+            name: 'assigned',
+            display_name: 'Assigned to me'
+        }, {
+            id: 'following',
+            name: 'following',
+            display_name: 'Following'
+        }]
         return (
             <div className="list-category">
                 {this.renderAddInboxButtons(true)}
+                {
+                    appCategories.map((category, index) => (
+                        <ItemCategory
+                            key={`app-folder-${index}`}
+                            category={category}
+                            onClick={(evt) => {
+                                this.onSelectCategory(category)
+                            }}
+                            selected={currentCategory && category.id == currentCategory.id}/>
+                    ))
+                }
                 {
                     AccountStore.accounts().map((account) => {
                         const categoriesForAccount = CategoryStore.getCategories(account.accountId)
@@ -303,7 +309,7 @@ class InboxPage extends (React.Component) {
                                             {category && <ItemCategory
                                                 category={category}
                                                 onClick={(evt) => {
-                                                    this.onCategorySelected(category)
+                                                    this.onSelectCategory(category)
                                                 }}
                                                 selected={currentCategory && category.id == currentCategory.id}/>}
                                             {!category && ''}
@@ -370,19 +376,10 @@ class InboxPage extends (React.Component) {
     }
 
     renderThreads() {
-        const {threads, currentThread, loadingThreads} = this.state
-
+        const {currentCategory} = this.state
+        console.log('renderThreads', currentCategory)
         return (
-            <div className="list-thread">
-                {
-                    threads.map((thread) => <ItemThread key={`thread-${thread.id}`} thread={thread}
-                                                        onClick={(evt) => this.onThreadSelected(thread)}
-                                                        selected={currentThread && thread.id == currentThread.id}/>)
-
-                }
-                {loadingThreads &&
-                <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
-            </div>
+            <ThreadList category={currentCategory}/>
         )
     }
 
@@ -390,15 +387,9 @@ class InboxPage extends (React.Component) {
         return <MessageList/>
     }
 
-    onCategorySelected(category) {
+    onSelectCategory(category) {
         CategoryStore.selectCategory(category)
         this.setState({currentThread: ThreadStore.currentThread(category)})
-    }
-
-    onThreadSelected(thread) {
-        this.setState({currentThread: thread})
-
-        ThreadStore.selectThread(thread)
     }
 
     onScrollThreadList = (evt) => {

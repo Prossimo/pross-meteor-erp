@@ -9,7 +9,6 @@ export const insertThread = new ValidatedMethod({
     name: 'thread.insert',
     validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
     run(thread) {
-        console.log(this.userId, Meteor.userId())
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         Threads.insert(thread)
@@ -27,6 +26,7 @@ export const updateThread = new ValidatedMethod({
         const thread = Threads.findOne(_id)
         if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
 
+        //console.log('updateThread', _id, data)
         Threads.update({_id}, {$set: data})
 
         return true

@@ -1,9 +1,7 @@
 import _ from 'underscore'
 import React from 'react'
-import NylasUtils from '../../../api/nylas/nylas-utils'
-import MessageStore from '../../../api/nylas/message-store'
+import {NylasUtils, MessageStore, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
-import Actions from '/imports/api/nylas/actions'
 
 class MessageList extends React.Component {
 
@@ -18,14 +16,11 @@ class MessageList extends React.Component {
     }
 
     componentDidMount() {
-        this.unsubscribes = []
-        this.unsubscribes.push(MessageStore.listen(this.onMessageStoreChanged))
+        this.unsubscribe = MessageStore.listen(this.onMessageStoreChanged)
     }
 
     componentWillUnmount() {
-        this.unsubscribes.forEach((unsubscribe) => {
-            unsubscribe()
-        })
+        if(this.unsubscribe) this.unsubscribe()
     }
 
     onMessageStoreChanged() {
@@ -45,7 +40,7 @@ class MessageList extends React.Component {
         }
     }
 
-    render() {
+    render() { //console.log('render MessageList')
         if (!this.state.currentThread) return <span />
 
         return (
