@@ -18,7 +18,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
         this.state = {
             category,
             loading: false,
-            currentThread: ThreadStore.currentThread(category)
+            currentThread: ThreadStore.currentThread(category),
+            keyword: null
         }
     }
 
@@ -49,6 +50,14 @@ export default class ThreadList extends TrackerReact(React.Component) {
                 currentThread: newCurrentThread
             })
         }
+
+        const {keyword} = this.state
+        if(keyword != ThreadStore.keyword) {
+            this.setState({
+                keyword: ThreadStore.keyword
+            })
+        }
+
     }
 
     onSelectThread = (thread) => {
@@ -57,16 +66,31 @@ export default class ThreadList extends TrackerReact(React.Component) {
         ThreadStore.selectThread(thread)
     }
     render() {//console.log('render ThreadList')
-        const {category, currentThread, loading} = this.state
+        const {category, currentThread, loading, keyword} = this.state
         if(!category) return <div>Please select any folder</div>
 
-        let threads
-        if(NylasUtils.usesLabels(category.account_id)) {
-            threads = Threads.find({'labels.id':category.id}).fetch()
-        } else {
-            threads = Threads.find({'folders.id':category.id}).fetch()
+        const filters = {}
+        if(keyword && keyword.length) {
+            const regx = {$regex: keyword, $options: 'i'}
+            filters['$or'] = [{
+                'participants.email': regx
+            },{
+                'participants.name': regx
+            },{
+                subject: regx
+            },{
+                snippet: regx
+            }]
         }
 
+        if(NylasUtils.usesLabels(category.account_id)) {
+            filters['labels.id'] = category.id
+        } else {
+            filters['folders.id'] = category.id
+        }
+
+        //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
+        let threads = Threads.find(filters, {sort:{last_message_received_timestamp:-1}}).fetch()
         threads = _.uniq(threads, false, ({id}) => id)
         return (
             <div className="list-thread">
