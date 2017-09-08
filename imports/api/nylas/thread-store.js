@@ -4,7 +4,6 @@ import QueryString from 'query-string'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
-import DatabaseStore from './database-store'
 
 const PAGE_SIZE = 100
 
@@ -13,8 +12,6 @@ class ThreadStore extends Reflux.Store {
         super()
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
-        this.listenTo(DatabaseStore, this.onDatabaseStoreChanged)
-        this.listenTo(CategoryStore, this.onCategoryStoreChanged)
         this.listenTo(Actions.searchThreads, this.onSearchThreads)
 
         this.threads = []
@@ -27,8 +24,8 @@ class ThreadStore extends Reflux.Store {
 
     onSearchThreads = (keyword) => {
         this.keyword = keyword&&keyword.length ? keyword : null
-        this.loadThreadsFromBrowserDB()
         this.onLoadThreads()
+        this.trigger()
     }
     onLoadThreads = (category, {page = 1, search}={}) => {
         category = category ? category : CategoryStore.currentCategory
@@ -45,7 +42,7 @@ class ThreadStore extends Reflux.Store {
             path = `/threads/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
         } else {
             path = `/threads?${QueryString.stringify(Object.assign(query, {in:category.id}))}`
-        }
+        }//console.log('Nylas Path', path)
 
         NylasAPI.makeRequest({
             path,
@@ -63,37 +60,6 @@ class ThreadStore extends Reflux.Store {
             this.trigger()
 
             this.currentPage = page ? page : 1
-        })
-    }
-
-    onDatabaseStoreChanged = (objName) => {
-        if(objName === 'thread') {
-            this.loadThreadsFromBrowserDB()
-        }
-    }
-
-    onCategoryStoreChanged = () => {
-        this.loadThreadsFromBrowserDB()
-    }
-
-    loadThreadsFromBrowserDB() {
-        const category = CategoryStore.currentCategory
-        if(!category) return
-
-        let where = {account_id:category.account_id}
-        if(this.keyword) {
-            where = Object.assign(where, {subject:{like:this.keyword}, snippet:{like:this.keyword}})
-        }
-        DatabaseStore.findObjects('thread', where).then((threads) => {
-            this.threads = threads.filter((thread) => {
-                if (category.object === 'folder') {
-                    return _.findWhere(thread.folders, {id: category.id}) !== undefined
-                } else if (category.object === 'label') {
-                    return _.findWhere(thread.labels, {id: category.id}) !== undefined
-                }
-            }).sort((t1, t2) => t2.last_message_timestamp-t1.last_message_timestamp)
-
-            this.trigger()
         })
     }
 
