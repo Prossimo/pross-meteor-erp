@@ -107,8 +107,13 @@ class ThreadStore extends Reflux.Store {
 
     selectThread(thread) {
         this._currentThread[CategoryStore.currentCategory.id] = thread
-        Actions.loadMessages(thread)
         this.trigger()
+
+        if(this.loadMessageTimeout) { clearTimeout(this.loadMessageTimeout) }
+
+        this.loadMessageTimeout = setTimeout(() => {
+            Actions.loadMessages(thread)
+        }, 500)
     }
 
     currentThread(category=null) {

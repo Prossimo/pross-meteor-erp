@@ -5,12 +5,12 @@ import path from 'path'
 module.exports = Utils = {
 
     waitFor: (latch, options = {}) => {
-        timeout = options.timeout || 400
-        expire = Date.now() + timeout
+        const timeout = options.timeout || 400
+        const expire = Date.now() + timeout
         return new Promise((resolve, reject) => {
-            attempt = () => {
+            const attempt = () => {
                 if (Date.now() > expire)
-                    return reject(new Error("Utils.waitFor hit timeout (#{timeout}ms) without firing."))
+                    return reject(new Error('Utils.waitFor hit timeout (#{timeout}ms) without firing.'))
                 if (latch())
                     return resolve()
                 window.requestAnimationFrame(attempt)
@@ -21,14 +21,14 @@ module.exports = Utils = {
 
     isEqualReact: (a, b, options = {}) => {
         options.functionsAreEqual = true
-        options.ignoreKeys = (options.ignoreKeys || []).push("clientId")
+        options.ignoreKeys = (options.ignoreKeys || []).push('clientId')
         return Utils.isEqual(a, b, options)
     },
 
     isEqual: (a, b, options = {}) => {
-        value = Utils._isEqual(a, b, [], [], options)
+        const value = Utils._isEqual(a, b, [], [], options)
         if (options.logWhenFalse) {
-            if (!value) console.log("isEqual is false", a, b, options)
+            if (!value) console.log('isEqual is false', a, b, options)
             return value
         }
         else
@@ -48,11 +48,11 @@ module.exports = Utils = {
             if (_.isFunction(a) && _.isFunction(b)) return true
 
 
-        className = toString.call(a)
+        const className = toString.call(a)
         if (className != toString.call(b)) return false
         switch (className) {
             case '[object RegExp]', '[object String]':
-                return '' + a == '' + b
+                return `${  a}` == `${  b}`
             case '[object Number]':
                 if (+a != +a)  return +b != +b
                 return (+a == 0) ? 1 / +a == 1 / b : +a == +b
@@ -61,12 +61,12 @@ module.exports = Utils = {
         }
 
 
-        areArrays = className == '[object Array]'
+        const areArrays = className == '[object Array]'
         if (!areArrays) {
             if (typeof a != 'object' || typeof b != 'object') return false
 
-            aCtor = a.constructor
-            bCtor = b.constructor
+            const aCtor = a.constructor
+            const bCtor = b.constructor
             if (aCtor != bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor && _.isFunction(bCtor) && bCtor instanceof bCtor) && (('constructor' in a) && ('constructor' in b)))
                 return false
         }
@@ -91,13 +91,13 @@ module.exports = Utils = {
             }
         } else {
 
-            key = undefined
-            keys = Object.keys(a)
-            length = keys.length
+            let key = undefined
+            const keys = Object.keys(a)
+            let length = keys.length
             if (Object.keys(b).length != length) return false
-            keysToIgnore = {}
+            const keysToIgnore = {}
             if (options.ignoreKeys && _.isArray(options.ignoreKeys))
-                for (key of options.ignoreKeys) keysToIgnore[key] = true
+                for (const key of options.ignoreKeys) keysToIgnore[key] = true
             while (length--) {
                 key = keys[length]
                 if (key in keysToIgnore) continue
@@ -130,6 +130,6 @@ module.exports = Utils = {
         ]
 
 
-        return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase())>-1 ? folder.name : "folder"}.png`
+        return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase())>-1 ? folder.name : 'folder'}.png`
     }
 }

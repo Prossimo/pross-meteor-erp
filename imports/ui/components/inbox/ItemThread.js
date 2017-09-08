@@ -19,7 +19,7 @@ class ItemThread extends React.Component{
                 <div className="thread-info-column">
                     <div className="participants-wrapper">
                         <div className="participants">
-                            <span className={unread&&'unread'}>{NylasUtils.getParticipantsNamesString(participants)}</span>
+                            <span className={unread&&'unread'}>{NylasUtils.getParticipantsNamesString(participants, false)}</span>
                         </div>
                         {message_ids && message_ids.length>1 && <div>&nbsp;({message_ids.length})</div>}
                         {draft_ids && draft_ids.length>0 && <div className="thread-icon thread-icon-pencil"></div>}

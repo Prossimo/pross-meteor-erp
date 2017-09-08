@@ -6,7 +6,7 @@ import Threads from '../threads/threads'
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
-        ourDoc.created_at = ourDoc.created_at || new Date()
+        ourDoc.created_at = new Date()
         const result = super.insert(ourDoc, callback)
         return result
     }

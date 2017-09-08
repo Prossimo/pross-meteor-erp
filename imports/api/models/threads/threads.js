@@ -6,7 +6,7 @@ import Messages from '../messages/messages'
 class ThreadsCollection extends Mongo.Collection {
     insert(doc, callback) {
         const ourDoc = doc
-        ourDoc.created_at = ourDoc.created_at || new Date()
+        ourDoc.created_at = new Date()
         const result = super.insert(ourDoc, callback)
         return result
     }
@@ -53,6 +53,7 @@ Threads.schema = new SimpleSchema({
     last_message_timestamp: {type: Number},
     last_message_received_timestamp: {type: Number},
     first_message_timestamp: {type: Number},
+    has_attachments: {type: Boolean, optional: true},
     unread: {type: Boolean, optional: true},
     starred: {type: Boolean, optional: true},
     snippet: {type: String, optional: true},

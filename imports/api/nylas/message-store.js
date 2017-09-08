@@ -5,7 +5,6 @@ import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
 import NylasUtils from './nylas-utils'
-import DatabaseStore from './database-store'
 import ThreadStore from './thread-store'
 import {Messages} from '/imports/api/models'
 
@@ -30,7 +29,6 @@ class MessageStore extends Reflux.Store {
         this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded)
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
-        this.listenTo(DatabaseStore, this._onDatabaseStoreChanged)
         this.listenTo(ThreadStore, this._onThreadStoreChanged)
     }
 
@@ -77,36 +75,26 @@ class MessageStore extends Reflux.Store {
 
             this._loading = false
             this.trigger()
+
+            this.loadMessagesFromDB()
         })
     }
 
     _onThreadStoreChanged = () => {
         this.loadMessagesFromDB()
     }
-    _onDatabaseStoreChanged = (objName) => {
-        if(objName === 'message') {
-            this.loadMessagesFromDB()
-        }
-    }
 
     loadMessagesFromDB() {
         const thread = ThreadStore.currentThread()
         if(!thread) return
 
-        const serverMessages = Messages.find({thread_id:thread.id}).fetch()
-        //console.log('Server messages', serverMessages)
-        DatabaseStore.findObjects('message', {thread_id:thread.id}).then((messages) => {//console.log('Client messages', messages)
-            const messageIds = _.pluck(messages, 'id')
-            serverMessages.forEach(sm => {
-                if(messageIds.indexOf(sm.id) == -1) messages.push(sm)
-            })
-            this._messages = messages
-            this._messages.sort((m1, m2) => m1.date-m2.date)
-            this._expandMessagesToDefault()
-            this._fetchExpandedAttachments(this._messages)
-            this.trigger()
-        })
+        this._messages = Messages.find({thread_id:thread.id}).fetch()
+        this._messages.sort((m1, m2) => m1.date-m2.date)
+        this._expandMessagesToDefault()
+        this._fetchExpandedAttachments(this._messages)
+        this.trigger()
     }
+
     _onToggleMessageExpanded(id) {
         const message = _.findWhere(this._messages, {id})
 

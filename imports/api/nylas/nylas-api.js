@@ -4,8 +4,8 @@ import request from 'request'
 import config from '../config'
 import { APIError, TimeoutError } from './errors'
 import {Threads, Messages} from '../models'
-import {updateThread} from '../models/threads/methods'
-import {updateMessage} from '../models/messages/methods'
+import {insertThread, updateThread} from '../models/threads/methods'
+import {insertMessage, updateMessage} from '../models/messages/methods'
 
 
 const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
@@ -176,34 +176,39 @@ class NylasAPI {
         if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
 
         // Update server database
-        if(objName === 'thread') {
-            // Update threads on the server database
-            Threads.find({id:{$in:_.pluck(unlockedJSONs, 'id')}}).fetch().forEach((t) => {
-                const thread = _.findWhere(unlockedJSONs, {id:t.id})
-                if(t.version != thread.version) {
-                    try {
-                        updateThread.call({_id:t._id, ..._.extend(thread, {conversationId:t.conversationId})})
-                        //console.log('updated thread on the server database')
-                    } catch (err) {
-                        console.error(err)
+        unlockedJSONs.forEach((obj) => {
+            try {
+                if (obj.object === 'thread') {
+                    const thread = Threads.findOne({id: obj.id})
+                    if(!thread) {
+                        insertThread.call(obj)
+                    } else if (thread/* && (thread.version != obj.version || thread.unread!=obj.unread)*/) { // It should be uncommented after deployment
+                        delete thread.created_at
+                        delete thread.modified_at
+                        updateThread.call({..._.extend(thread, obj)})
+                    }
+                } else if(obj.object === 'message') {
+                    const message = Messages.findOne({id: obj.id})
+                    if(!message) {
+                        insertMessage.call(obj)
+                    } else if(message/* && message.unread!=obj.unread*/) {  // It should be uncommented after deployment
+                        delete message.created_at
+                        delete message.modified_at
+                        updateMessage.call({..._.extend(message, obj)})
                     }
                 }
-            })
-        } else if(objName === 'message') {
-            // Update messages on the server database
-            Messages.find({id:{$in:_.pluck(unlockedJSONs, 'id')}}).fetch().forEach((m) => {
-                const message = _.findWhere(unlockedJSONs, {id:m.id})
-                try {
-                    updateMessage.call({_id:m._id, ...message})
-                    //console.log('updated message on the server database')
-                } catch (err) {
-                    console.error(err, message)
-                }
-            })
-        }
+            } catch(err) {
+                console.error(err)
+            }
+        })
+
+        const ids = _.pluck(unlockedJSONs, 'id')
+        if(objName === 'thread') return Promise.resolve(Threads.find({id:{$in:ids}}).fetch())
+        else if(objName === 'message') return Promise.resolve(Messages.find({id:{$in:ids}}).fetch())
+        else return Promise.resolve(unlockedJSONs)
 
         // Update client database
-        const ids = _.pluck(unlockedJSONs, 'id')
+        /*const ids = _.pluck(unlockedJSONs, 'id')
         const DatabaseStore = require('./database-store')
         return DatabaseStore.findObjects(objName, {id:{in:ids}}).then((models) => {
             const existingModels = {}
@@ -224,7 +229,7 @@ class NylasAPI {
 
 
             return DatabaseStore.persistObjects(objName, changedModels).then(() => Promise.resolve(responseModels))
-        })
+        })*/
     }
 
     handleModel404(modelUrl) {

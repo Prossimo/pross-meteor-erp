@@ -4,6 +4,9 @@ import Task from './task'
 import NylasAPI from '../nylas-api'
 import {APIError} from '../errors'
 import DatabaseStore from '../database-store'
+import {Threads, Messages}  from '../../models'
+import {insertThread, updateThread} from '../../models/threads/methods'
+import {insertMessage, updateMessage} from '../../models/messages/methods'
 
 // MapLimit is a small helper method that implements a promise version of
 // Async.mapLimit. It runs the provided fn on each item in the `input` array,
@@ -161,11 +164,25 @@ export default class ChangeMailTask extends Task {
             return Promise.resolve()
         }
 
-        return DatabaseStore.persistObjects('thread', changed).then(() => {
-            if (!this.processNestedMessages()) {
-                return Promise.resolve()
-            }
-        })
+        //console.log('change-mail-task->performLocalThreads', changed)
+
+        try {
+            changed.forEach((obj) => {
+                let thread = Threads.findOne({id: obj.id})
+                if(!thread) {
+                    insertThread.call(obj)
+                } else if (thread && (thread.version != obj.version || thread.unread!=obj.unread)) {
+                    thread = _.extend(thread, obj)
+                    delete thread.created_at
+                    delete thread.modified_at
+                    updateThread.call(thread)
+                }
+            })
+            return Promise.resolve()
+        } catch(err) {
+            console.error(err)
+            return Promise.resolve()
+        }
     }
 
     _performLocalMessages() {
@@ -175,7 +192,26 @@ export default class ChangeMailTask extends Task {
             return Promise.resolve()
         }
 
-        return DatabaseStore.persistObjects('message', changed).then(() => Promise.resolve())
+        //console.log('change-mail-task->_performLocalMessages', changed)
+
+        try {
+            changed.forEach((obj) => {
+                let message = Messages.findOne({id: obj.id})
+                if(!message) {
+                    insertMessage.call(obj)
+                } else if (message && message.unread!=obj.unread) {
+                    message = _.extend(message, obj)
+                    delete message.created_at
+                    delete message.modified_at
+                    updateMessage.call(message)
+                }
+            })
+            return Promise.resolve()
+        } catch(err) {
+            console.error(err)
+            return Promise.resolve()
+        }
+
     }
 
     _applyChanges(modelArray) {
