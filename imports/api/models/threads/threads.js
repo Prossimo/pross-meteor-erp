@@ -2,6 +2,7 @@ import { Mongo } from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
 import Messages from '../messages/messages'
+import Users from '../users/users'
 
 class ThreadsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -101,6 +102,16 @@ Threads.schema = new SimpleSchema({
 
     conversationId: {type: String, optional: true},
 
+    assignees: {type:Array, optional:true},
+    'assignees.$': {
+        type: String
+    },
+    followers: {type:Array, optional:true},
+    'followers.$': {
+        type: String
+    },
+
+
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -136,7 +147,18 @@ Threads.helpers({
     messages() {
         const messages =  Messages.find({thread_id: this.id}).fetch()
         return messages
-    }
+    },
+    getAssignees() {
+        if(!this.assignees) return []
+
+        return Users.find({_id:{$in:this.assignees}}).fetch()
+    },
+    getFollowers() {
+        if(!this.followers) return []
+
+        return Users.find({_id:{$in:this.followers}}).fetch()
+    },
+
 })
 
 export default Threads

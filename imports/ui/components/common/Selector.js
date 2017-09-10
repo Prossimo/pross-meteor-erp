@@ -4,11 +4,13 @@ import React, {PropTypes} from 'react'
 import {Dropdown, MenuItem, FormControl} from 'react-bootstrap'
 import CustomToggle from './CustomToggle'
 
-export default class MemberSelector extends React.Component {
+export default class Selector extends React.Component {
     static propTypes = {
         value: PropTypes.oneOfType([PropTypes.object,PropTypes.array]), // Selected channel id
         multiple: PropTypes.bool,
-        onSelect: PropTypes.func
+        onSelect: PropTypes.func,
+        triggerEl: PropTypes.element,
+        disabled: PropTypes.bool
     }
 
     constructor(props) {
@@ -16,12 +18,18 @@ export default class MemberSelector extends React.Component {
 
         this.state = {
             options: props.options,
-            value: props.value
+            value: props.value || []
         }
     }
 
     componentDidMount() {
 
+    }
+
+    componentWillReceiveProps(newProps) {
+        if(!_.isEqual(this.state.value, newProps.value)) {
+            this.setState({value:newProps.value})
+        }
     }
 
     onChangeSearch = (evt) => {
@@ -88,12 +96,13 @@ export default class MemberSelector extends React.Component {
             </Dropdown.Menu>
         )
     }
-    render() {
 
+    render() {
+        const {triggerEl, disabled} = this.props
         return (
-            <Dropdown id="dropdown-custom-menu" pullRight onToggle={this.onToggle}>
+            <Dropdown id="dropdown-custom-menu" pullRight onToggle={this.onToggle} disabled={disabled}>
                 <CustomToggle bsRole="toggle">
-                    <i className="fa fa-cog"/>
+                    {triggerEl ? triggerEl : <i className="fa fa-cog"/>}
                 </CustomToggle>
 
                 {this.renderMenu()}

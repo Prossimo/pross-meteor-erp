@@ -8,7 +8,9 @@ import ThreadTrashButton from './ThreadTrashButton'
 import ThreadToggleUnreadButton from './ThreadToggleUnreadButton'
 import ThreadStarButton from './ThreadStarButton'
 import MailSearchBox from './MailSearchBox'
-import {SalesRecords, Projects, Threads, Conversations} from '/imports/api/models'
+import {SalesRecords, Projects, Threads, Conversations, Users} from '/imports/api/models'
+import {updateThread} from '/imports/api/models/threads/methods'
+import {Selector} from '../common'
 
 
 export default class Toolbar extends TrackerReact(React.Component) {
@@ -29,6 +31,8 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
     render() {
         const thread = this.props.thread
+
+
         return (
             <div className="toolbar-panel">
                 <div style={{order: 0, minWidth: 250, maxWidth: 250, flex: 1}}>
@@ -42,6 +46,8 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
+                    &nbsp;&nbsp;&nbsp;<Selector disabled={!thread} multiple value={thread && thread.getAssignees().map(u => ({value:u._id, label:u.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectAssignees} triggerEl={<Button disabled={!thread}>Assign</Button>}/>
+                    &nbsp;&nbsp;&nbsp;<Button disabled={!thread} onClick={this.onToggleFollow}>{thread && thread.followers && thread.followers.indexOf(Meteor.userId())>-1 ? 'Unfollow' : 'Follow'}</Button>
                     {this.renderExtraMenu()}
                 </div>
             </div>
@@ -147,5 +153,37 @@ export default class Toolbar extends TrackerReact(React.Component) {
                 this.setState({projects: Projects.find({}, {sort:{name:1}}).fetch()})
             }
         }, 500)
+    }
+
+    onSelectAssignees = (assignees) => {
+        const {thread} = this.props
+        if(assignees && thread.assignees && assignees.length == thread.assignees.length && assignees.every(a => thread.assignees.indexOf(a.value)>-1)) return
+
+        thread.assignees = assignees.map(a => a.value)
+        delete thread.created_at
+        delete thread.modified_at
+        try{
+            updateThread.call(thread)
+        } catch (err) {
+            console.error(err)
+        }
+    }
+
+    onToggleFollow = (evt) => {
+        const {thread} = this.props
+        thread.followers = thread.followers || []
+        if(thread.followers.indexOf(Meteor.userId())>-1) {
+            thread.followers.splice(thread.followers.indexOf(Meteor.userId()), 1)
+        } else {
+            thread.followers.push(Meteor.userId())
+        }
+
+        delete thread.created_at
+        delete thread.modified_at
+        try{
+            updateThread.call(thread)
+        } catch (err) {
+            console.error(err)
+        }
     }
 }

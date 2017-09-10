@@ -308,7 +308,7 @@ class SingleSalesRecord extends React.Component {
 
     onSelectMembers = (members) => {
         const {salesRecord} = this.props
-        if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m)>-1)) return
+        if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m.value)>-1)) return
 
         Meteor.call('updateSalesRecordMembers', salesRecord._id, members.map(m => m.value), err => {
             if (err) return console.error(err)
