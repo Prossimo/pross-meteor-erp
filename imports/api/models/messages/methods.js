@@ -34,16 +34,19 @@ export const updateMessage = new ValidatedMethod({
     }
 })
 
-export const insertMessageOnConversation = new ValidatedMethod({
-    name: 'message.insertForSalesRecord',
+export const saveMessage = new ValidatedMethod({
+    name: 'message.saveMessage',
     validate: new SimpleSchema({
-        conversationId:{type:String, optional:true},
-        message: Messages.schema.omit('_id','created_at','modified_at')
+        message: Messages.schema.omit('_id','created_at','modified_at'),
+        conversationId: {type:String, optional:true},
+        assignees: {type:Array, optional:true},
+        'assignees.$': {
+            type: String
+        }
     }).validator({clean:true}),
-    run({conversationId, message}) {
+    run({conversationId, assignees, message}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(!conversationId) throw new Meteor.Error('SalesRecordId or conversationId should be provided')
         NylasAPI.makeRequest({
             path: `/threads/${message.thread_id}`,
             method: 'GET',
@@ -54,12 +57,15 @@ export const insertMessageOnConversation = new ValidatedMethod({
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})
                         if(existingThread) {
-                            Threads.update({id:thread.id}, {$set:thread})
+                            Threads.update({id:thread.id}, {$set:_.extend(thread, {conversationId, assignees})})
                         } else {
-                            Threads.insert(_.extend(thread, {conversationId}))
+                            Threads.insert(_.extend(thread, {conversationId, assignees}))
                         }
 
-                        Messages.insert(message)
+                        const existingMessage = Messages.findOne({id:message.id})
+                        if(!existingMessage) {
+                            Messages.insert(message)
+                        }
                     }
                 })
             }

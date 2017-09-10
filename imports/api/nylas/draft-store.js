@@ -6,7 +6,7 @@ import SendDraftTask from './tasks/send-draft-task'
 import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
-import {insertMessageOnConversation} from '/imports/api/models/messages/methods'
+import {saveMessage} from '/imports/api/models/messages/methods'
 import { SalesRecords, Conversations } from '/imports/api/models'
 
 const ComposeType = {
@@ -39,6 +39,8 @@ class DraftStore extends Reflux.Store {
                 draft.to = contacts.filter(p => p.isMain)
                 draft.cc = contacts.filter(p => !p.isMain)
             }
+            draft.assignees = [Meteor.userId()]
+
             this._drafts.push(draft)
 
             if(modal) this.hideModals()
@@ -146,14 +148,12 @@ class DraftStore extends Reflux.Store {
         const draft = this.draftForClientId(clientId)
         console.log('_onSendDraftSuccess', message, clientId, draft)
 
-        const {conversationId} = draft
+        const {conversationId, assignees} = draft
 
-        if (conversationId) {    // Update conversations for sales record
-            try {
-                insertMessageOnConversation.call({conversationId, message})
-            } catch(err) {
-                console.error(err)
-            }
+        try {
+            saveMessage.call({conversationId, assignees, message})
+        } catch(err) {
+            console.error(err)
         }
 
         this.removeDraftForClientId(clientId)
