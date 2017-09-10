@@ -9,7 +9,7 @@ Meteor.methods({
         const {data} = users.list(cursor)
         if (!data.ok) return
         data.members.forEach(
-            item => SlackUsers.findOne({id: item.id}) && SlackUsers.insert(item)
+            item => !SlackUsers.findOne({id: item.id}) && SlackUsers.insert(item)
         )
 
         return data

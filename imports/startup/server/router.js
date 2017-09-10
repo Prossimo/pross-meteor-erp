@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import bodyParser from 'body-parser'
 import {Picker} from 'meteor/meteorhacks:picker'
 import NylasAPI from '/imports/api/nylas/nylas-api'
@@ -91,9 +92,18 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                 auth
                             }).then((message) => {
                                 bound(() => {
-                                    const existingThreads = Threads.find({id: thread_id}).fetch()
-                                    if (existingThreads && existingThreads.length) {
+                                    let mentions
+                                    const existingThread = Threads.findOne({id: thread_id})
+                                    if (existingThread) {
                                         Threads.update({id: thread_id}, {$set: thread})
+
+                                        //console.log('server router existingThread', existingThread)
+
+                                        const members = existingThread.getAssignees().concat(existingThread.getFollowers())
+                                        mentions = _.uniq(members.filter(m => m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
+
+                                        //console.log('mentions', mentions)
+
                                     } else {
                                         Threads.insert(thread)
                                     }
@@ -103,7 +113,7 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                         Messages.insert(message)
                                     }
 
-                                    Meteor.call('sendMailToSlack', message)
+                                    Meteor.call('sendMailToSlack', message, {mentions})
                                     // upload files to slack
                                     /*if (message.files && message.files.length) {
                                         const promises = message.files.map(file => new Promise((resolve, reject) => {
