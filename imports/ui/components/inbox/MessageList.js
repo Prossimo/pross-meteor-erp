@@ -102,7 +102,7 @@ class MessageList extends React.Component {
             const isBeforeReplyArea = isLastMsg && hasReplyArea
 
             elements.push(  // Should be replaced message.id to message.clientId in future
-                <MessageItemContainer key={message.id}
+                <MessageItemContainer key={`message-${idx}`}
                                       ref={`message-container-${message.id}`}
                                       message={message}
                                       collapsed={collapsed}
