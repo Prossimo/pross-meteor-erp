@@ -134,7 +134,7 @@ class CreateSalesRecord extends React.Component {
 
                 info('Success update Deal')
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: salesRecord._id}))
+                    FlowRouter.go(FlowRouter.path('Deal', {id: salesRecord._id}))
                 }, 300)
             })
         } else {
@@ -144,7 +144,7 @@ class CreateSalesRecord extends React.Component {
 
                 info('Success add new Deal & integration with Slack')
                 setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('SalesRecord', {id: res}))
+                    FlowRouter.go(FlowRouter.path('Deal', {id: res}))
                 }, 300)
             })
         }

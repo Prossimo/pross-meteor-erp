@@ -17,24 +17,24 @@ export default class ButtonDropdown extends React.Component {
     }
 
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             open: false
         }
 
-        this.bindMethods();
+        this.bindMethods()
     }
 
 
     bindMethods() {
-        this.toggleDropdown = this.toggleDropdown.bind(this);
-        this._onBlur = this._onBlur.bind(this);
-        this._onMenuClick = this._onMenuClick.bind(this);
+        this.toggleDropdown = this.toggleDropdown.bind(this)
+        this._onBlur = this._onBlur.bind(this)
+        this._onMenuClick = this._onMenuClick.bind(this)
     }
 
     render() {
-        classes = classnames({
+        const classes = classnames({
             'button-dropdown': true,
             'open open-up': this.state.open == 'up',
             'open open-down': this.state.open == 'down',
@@ -46,7 +46,7 @@ export default class ButtonDropdown extends React.Component {
                      className={`${classes} ${this.props.className ? this.props.className : ''}`}
                      style={this.props.style}>
                     <div className="primary-item"
-                         title={this.props.primaryTitle ? this.props.primaryTitle : ""}
+                         title={this.props.primaryTitle ? this.props.primaryTitle : ''}
                          onClick={this.props.primaryClick}>
                         {this.props.primaryItem}
                     </div>
@@ -64,7 +64,7 @@ export default class ButtonDropdown extends React.Component {
                      className={`${classes} ${this.props.className ? this.props.className : ''}`}
                      style={this.props.style}>
                     <div className="only-item"
-                         title={this.props.primaryTitle ? this.props.primaryTitle : ""}
+                         title={this.props.primaryTitle ? this.props.primaryTitle : ''}
                          onClick={this.toggleDropdown}>
                         {this.props.primaryItem}
                         <img src="/icons/inbox/icon-thread-disclosure.png" style={{marginLeft: 12}}/>
@@ -80,8 +80,8 @@ export default class ButtonDropdown extends React.Component {
         if (this.state.open)
             this.setState({open: false})
         else {
-            buttonBottom = ReactDOM.findDOMNode(this).getBoundingClientRect().bottom
-            openHeight = ReactDOM.findDOMNode(this.refs.secondaryItems).getBoundingClientRect().height
+            const buttonBottom = ReactDOM.findDOMNode(this).getBoundingClientRect().bottom
+            const openHeight = ReactDOM.findDOMNode(this.refs.secondaryItems).getBoundingClientRect().height
             if (buttonBottom + openHeight > window.innerHeight)
                 this.setState({open: 'up'})
             else
@@ -95,7 +95,7 @@ export default class ButtonDropdown extends React.Component {
     }
 
     _onBlur(event) {
-        target = event.nativeEvent.relatedTarget
+        const target = event.nativeEvent.relatedTarget
         if (target && ReactDOM.findDOMNode(this.refs.button).contains(target))
             return
         this.setState({open: false})

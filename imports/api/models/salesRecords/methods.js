@@ -166,7 +166,7 @@ Meteor.methods({
         // set channel purpose
         slackClient.channels.setPurpose({
           channel: data.slackChanel,
-          purpose: Meteor.absoluteUrl(`salesrecord/${salesRecordId}`),
+          purpose: Meteor.absoluteUrl(`deal/${salesRecordId}`),
         })
         // create folder in google drive
         Meteor.defer(() => {
