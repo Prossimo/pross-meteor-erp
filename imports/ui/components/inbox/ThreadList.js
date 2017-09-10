@@ -83,10 +83,16 @@ export default class ThreadList extends TrackerReact(React.Component) {
             }]
         }
 
-        if(NylasUtils.usesLabels(category.account_id)) {
-            filters['labels.id'] = category.id
+        if(category.id === 'assigned_to_me') {
+            filters['assignees'] = Meteor.userId()
+        } else if(category.id === 'following') {
+            filters['followers'] = Meteor.userId()
         } else {
-            filters['folders.id'] = category.id
+            if(NylasUtils.usesLabels(category.account_id)) {
+                filters['labels.id'] = category.id
+            } else {
+                filters['folders.id'] = category.id
+            }
         }
 
         //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
