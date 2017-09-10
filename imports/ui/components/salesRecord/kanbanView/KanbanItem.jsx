@@ -23,7 +23,7 @@ class KanbanItem extends Component {
 		const { _id, name, createdAt } = this.props.deal
 		return (
 			<div className="task-container"
-				onClick={() => {FlowRouter.go('SalesRecord', {id: _id})} }
+				onClick={() => {FlowRouter.go('Deal', {id: _id})} }
 				draggable='true'
 				onDragStart={ event => {
 					event.dataTransfer.setData('deal', JSON.stringify(this.props.deal))

@@ -91,8 +91,8 @@ FlowRouter.route('/project/:id', {
     }
 })
 
-FlowRouter.route('/salesrecord/:id', {
-    name: 'SalesRecord',
+FlowRouter.route('/deal/:id', {
+    name: 'Deal',
     action(){
         checkAuth()
         mount(App, {

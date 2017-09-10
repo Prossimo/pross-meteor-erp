@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import {Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import Actions from '../../../api/nylas/actions'
 import NylasUtils from '../../../api/nylas/nylas-utils'
@@ -10,6 +11,7 @@ import MessageControls from './MessageControls'
 import AttachmentComponent from '../attachment/attachment-component'
 import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
+import {info, warning} from '/imports/api/lib/alerts'
 
 class ItemMessage extends React.Component {
     static propTypes = {
@@ -83,6 +85,8 @@ class ItemMessage extends React.Component {
     }
 
     renderHeader() {
+        const {message} = this.props
+
         const classes = classNames({
             'message-header': true,
             'pending': this.props.pending
@@ -96,6 +100,7 @@ class ItemMessage extends React.Component {
                                       date={this.props.message.date}/>
 
                     <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>
+                    {message.conversation() && <Button style={{marginLeft:10}} bsSize="small" onClick={this._onClickTask}>Task</Button>}
                 </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}
@@ -291,6 +296,27 @@ class ItemMessage extends React.Component {
 
     _onDownloadStoreChanged = () => {
         this.setState({downloads: FileDownloadStore.downloadDataForFiles(_.pluck(this.props.message.files, 'id'))})
+    }
+
+    _onClickTask = () => {
+        const {message} = this.props
+        if(!message || !message.conversation()) return
+
+        const parent = message.conversation().parent()
+
+        Meteor.call('task.create', {
+            parentId: parent._id,
+            parentType: parent.type,
+            description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview/${message.id}`)}`
+        }, error => {
+            if (error) {
+                const msg = error.reason ? error.reason : error.message
+                warning(msg)
+            } else {
+                info('Task created successfully')
+            }
+        })
+
     }
 }
 

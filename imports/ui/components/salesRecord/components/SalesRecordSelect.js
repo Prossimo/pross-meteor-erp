@@ -1,6 +1,6 @@
 import React from 'react'
 import Select from 'react-select'
-import SalesRecord from '/imports/api/models/salesRecords/salesRecords'
+import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
 
 export default class SalesRecordSelect extends React.Component {
     static propTypes = {
@@ -11,9 +11,9 @@ export default class SalesRecordSelect extends React.Component {
     constructor(props) {
         super(props)
 
-        const salesRecords = SalesRecord.find().fetch()
+        const salesRecords = SalesRecords.find().fetch()
         this.state = {
-            salesRecords: salesRecords,
+            salesRecords,
             selectedSalesRecord: props.selectedSalesRecord
         }
     }

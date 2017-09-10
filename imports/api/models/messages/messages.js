@@ -2,6 +2,7 @@ import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
 import Threads from '../threads/threads'
+import Conversations from '../conversations/conversations'
 
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -180,6 +181,18 @@ Messages.helpers({
         const thread = Threads.findOne({id:this.thread_id})
         if(!thread) return null
         return thread.conversationId
+    },
+    conversation() {
+        const thread = Threads.findOne({id:this.thread_id})
+        if(!thread) return null
+        if(!thread.conversationId) return null
+
+        return Conversations.findOne(thread.conversationId)
+    },
+    thread() {
+        if(!this.thread_id) return null
+
+        return Threads.findOne({id:this.thread_id})
     }
 })
 
