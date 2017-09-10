@@ -378,7 +378,9 @@ class InboxPage extends (React.Component) {
     renderThreads() {
         const {currentCategory} = this.state
         return (
-            <ThreadList category={currentCategory}/>
+            <ThreadList category={currentCategory} onSelectThread={(thread) => {
+                this.setState({currentThread:thread})
+            }}/>
         )
     }
 
