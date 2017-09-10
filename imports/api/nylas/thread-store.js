@@ -29,7 +29,7 @@ class ThreadStore extends Reflux.Store {
     }
     onLoadThreads = (category, {page = 1, search}={}) => {
         category = category ? category : CategoryStore.currentCategory
-        if(!category) return
+        if(!category || category.id==='assigned_to_me' || category.id==='following') return
 
         this.loading = true
         Actions.loadMessages(this._currentThread[category.id])

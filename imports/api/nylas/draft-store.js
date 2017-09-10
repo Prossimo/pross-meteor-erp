@@ -39,7 +39,7 @@ class DraftStore extends Reflux.Store {
                 draft.to = contacts.filter(p => p.isMain)
                 draft.cc = contacts.filter(p => !p.isMain)
             }
-            draft.assignees = [Meteor.userId()]
+            draft.isNew = true
 
             this._drafts.push(draft)
 
@@ -76,6 +76,8 @@ class DraftStore extends Reflux.Store {
         } else {
             DraftFactory.createDraftForReply({message, type}).then((draft) => {console.log('created draft', draft)
                 draft.conversationId = conversationId
+                draft.isReply = true
+
                 this._drafts.push(draft)
 
                 if(modal) this.hideModals()
@@ -148,10 +150,10 @@ class DraftStore extends Reflux.Store {
         const draft = this.draftForClientId(clientId)
         console.log('_onSendDraftSuccess', message, clientId, draft)
 
-        const {conversationId, assignees} = draft
+        const {conversationId, isNew, isReply} = draft
 
         try {
-            saveMessage.call({conversationId, assignees, message})
+            saveMessage.call({conversationId, isNew, isReply, message})
         } catch(err) {
             console.error(err)
         }
