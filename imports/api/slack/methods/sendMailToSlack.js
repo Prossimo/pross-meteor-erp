@@ -11,9 +11,10 @@ import config from '/imports/api/config'
 const SLACK_MESSAGE_MAX_SIZE = 4000
 
 Meteor.methods({
-    sendMailToSlack(message, files) {
+    sendMailToSlack(message, {files, mentions}={}) {
         check(message, Object)
         check(files, Match.Maybe(Array))
+        check(mentions, Match.Maybe(Array))
 
         const thread = Threads.findOne({id: message.thread_id})
         let target, conversation
@@ -57,7 +58,7 @@ Meteor.methods({
         message.bcc.forEach((c) => {
             to.push(c.email)
         })
-        const slackText = `An email was sent from ${message.from[0].email} to ${to.join(', ')}`
+        const slackText = `${mentions&&mentions.length ? `${mentions.map(m => `<@${m.id}|${m.name}>`).join(', ')}. `:''}An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
         console.log(`=========> Sending mail(${message.id}) to slack`)
         let mailtext = message.body.replace('\"', '"')//.replace('\n','')
