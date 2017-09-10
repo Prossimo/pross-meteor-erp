@@ -39,12 +39,10 @@ export const saveMessage = new ValidatedMethod({
     validate: new SimpleSchema({
         message: Messages.schema.omit('_id','created_at','modified_at'),
         conversationId: {type:String, optional:true},
-        assignees: {type:Array, optional:true},
-        'assignees.$': {
-            type: String
-        }
+        isNew: {type:Boolean, optional:true},
+        isReply: {type:Boolean, optional:true}
     }).validator({clean:true}),
-    run({conversationId, assignees, message}) {
+    run({conversationId, isNew, isReply, message}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         NylasAPI.makeRequest({
@@ -56,10 +54,16 @@ export const saveMessage = new ValidatedMethod({
                 bound(() => {
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})
+                        const assignees = existingThread ? existingThread.assignees || [] : []
+                        const followers = existingThread ? existingThread.followers || [] : []
+
+                        if(isNew && assignees.indexOf(this.userId)==-1) assignees.push(this.userId)
+
                         if(existingThread) {
-                            Threads.update({id:thread.id}, {$set:_.extend(thread, {conversationId, assignees})})
+                            if(isReply && assignees && assignees.length) followers.push(this.userId)
+                            Threads.update({id:thread.id}, {$set:_.extend(thread, {conversationId, assignees, followers})})
                         } else {
-                            Threads.insert(_.extend(thread, {conversationId, assignees}))
+                            Threads.insert(_.extend(thread, {conversationId, assignees, followers}))
                         }
 
                         const existingMessage = Messages.findOne({id:message.id})
