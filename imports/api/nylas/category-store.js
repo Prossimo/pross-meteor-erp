@@ -21,7 +21,9 @@ class CategoryStore extends Reflux.Store {
     selectCategory(category) {
         this.currentCategory = category
         this.trigger()
-        Actions.loadThreads(category)
+        if(category.id !== 'assigned_to_me' && category.id !== 'following') {
+            Actions.loadThreads(category)
+        }
     }
 
     getInboxCategory(accountId) {
