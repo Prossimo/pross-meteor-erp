@@ -14,7 +14,7 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 export const createProject = new ValidatedMethod({
     name: 'project.create',
     validate: Projects.schema.pick('name', 'members', 'stakeholders').extend({
-        thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at'), optional:true}
+        thread:{type:Threads.schema, optional:true}
     }).validator(),
     run({ name, members, stakeholders, thread }) {
         const project = { name, members, stakeholders, thread }
@@ -68,8 +68,7 @@ export const createProject = new ValidatedMethod({
         // Insert conversations attached
         if (thread) {
             //console.log('thread to be attached', thread)
-            thread.conversationId = mainConversationId
-            Threads.insert(thread)
+            Threads.update({_id:thread._id},{$set:{conversationId:mainConversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
@@ -99,7 +98,7 @@ export const createProject = new ValidatedMethod({
 export const updateProject = new ValidatedMethod({
     name: 'project.update',
     validate: Projects.schema.extend({
-        thread:{type:Threads.schema.omit('_id', 'created_at', 'modified_at'), optional:true},
+        thread:{type:Threads.schema, optional:true},
         conversationId:{type: String, regEx: SimpleSchema.RegEx.Id, optional:true}
     }).validator(),
     run({ _id, name, members, stakeholders, thread, conversationId }) {
@@ -138,15 +137,9 @@ export const updateProject = new ValidatedMethod({
         // Insert conversations attached
         if (thread) {
             console.log('thread to be attached', thread, `conversationId=${conversationId}`)
-            if(conversationId) {
-                thread.conversationId = conversationId
-            }
-            const existingThreads = Threads.find({id: thread.id}).fetch()
-            if (existingThreads && existingThreads.length) {
-                Threads.update({id: thread.id}, {$set: thread})
-            } else {
-                Threads.insert(thread)
-            }
+            if(!conversationId) throw new Meteor.Error('ConversationID required')
+
+            Threads.update({_id:thread._id}, {$set:{conversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({

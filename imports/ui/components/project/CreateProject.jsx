@@ -72,7 +72,7 @@ export default class CreateProject extends Component {
 
         delete thread.object
 
-        if (project) {
+        if (project) {console.log('Before call project.update', thread)
             const {selectedConversation} = this.state
             Meteor.call('project.update', {_id:project._id, ...data, thread, conversationId:selectedConversation}, (err, res) => {
                 this.props.toggleLoader(false)

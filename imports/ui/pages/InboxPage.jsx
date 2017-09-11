@@ -1,13 +1,12 @@
 /* global FlowRouter */
+import _ from 'underscore'
 import React from 'react'
-import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import Spinner from '../components/utils/spinner'
 import {warning} from '/imports/api/lib/alerts'
 import {Actions, NylasUtils, AccountStore, CategoryStore, ThreadStore, DraftStore} from '/imports/api/nylas'
 import '../../api/nylas/tasks/task-queue'
 import ItemCategory from '../components/inbox/ItemCategory'
-import ItemThread from '../components/inbox/ItemThread'
 import MessageList from '../components/inbox/MessageList'
 import Toolbar from '../components/inbox/Toolbar'
 import ComposeModal from '../components/inbox/composer/ComposeModal'
@@ -170,7 +169,7 @@ class InboxPage extends (React.Component) {
             })
 
             const {participants} = this.state.currentThread
-            const noStoredParticipants = participants.filter((p) => People.findOne({'emails.email': p.email}) == null)
+            const noStoredParticipants = JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': p.email}) == null)))
             if (noStoredParticipants && noStoredParticipants.length) {
                 this.setState({
                     noStoredParticipants,

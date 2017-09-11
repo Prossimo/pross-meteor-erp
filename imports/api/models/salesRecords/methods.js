@@ -176,8 +176,7 @@ Meteor.methods({
         // Insert conversations attached
         if (thread) {
             //console.log('thread to be attached', thread)
-            thread.conversationId = mainConversationId
-            Threads.insert(thread)
+            Threads.update({_id:thread._id}, {$set:{conversationId:mainConversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
@@ -296,15 +295,9 @@ Meteor.methods({
         // Insert conversations attached
         if (thread) {
             //console.log('thread to be attached', thread, `conversationId=${conversationId}`)
-            if(conversationId) {
-                thread.conversationId = conversationId
-            }
-            const existingThreads = Threads.find({id: thread.id}).fetch()
-            if (existingThreads && existingThreads.length) {
-                Threads.update({id: thread.id}, {$set: thread})
-            } else {
-                Threads.insert(thread)
-            }
+            if(!conversationId) throw new Meteor.Error('ConversationID required')
+
+            Threads.update({_id:thread._id}, {$set:{conversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
