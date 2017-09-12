@@ -27,34 +27,49 @@ class ThreadStore extends Reflux.Store {
         this.onLoadThreads()
         this.trigger()
     }
+
     onLoadThreads = (category, {page = 1, search}={}) => {
         category = category ? category : CategoryStore.currentCategory
-        if(!category || category.id==='assigned_to_me' || category.id==='following') return
+        if(!category) return
+
+        Actions.loadMessages(this._currentThread[category.id])
+        if(category.id==='assigned_to_me' || category.id==='following') return
+
+        const loadThreads = (folder) => {
+            if(!folder || !folder.account_id) return Promise.resolve([])
+
+            const query = {offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE}
+
+            return new Promise((resolve, reject) => {
+                let path
+                if(this.keyword) {
+                    path = `/threads/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
+                } else {
+                    path = `/threads?${QueryString.stringify(Object.assign(query, {in:folder.id}))}`
+                }//console.log('Nylas Path', path)
+
+                return NylasAPI.makeRequest({
+                    path,
+                    method: 'GET',
+                    accountId: folder.account_id
+                }).then(threads => resolve(threads)).catch(err => reject(err))
+            })
+        }
+
+        let promises
+        if(category.id==='unassigned' || category.id==='not_filed') {
+            promises = Meteor.user().nylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+        } else if(category.type === 'teammember') {
+            promises = category.privateNylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+        } else {
+            promises = [loadThreads(category)]
+        }
 
         this.loading = true
-        Actions.loadMessages(this._currentThread[category.id])
-
         this.trigger()
 
-        const query = {offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE}
-        let path
-        if(this.keyword) {
-            path = `/threads/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
-        } else {
-            path = `/threads?${QueryString.stringify(Object.assign(query, {in:category.id}))}`
-        }//console.log('Nylas Path', path)
-
-        NylasAPI.makeRequest({
-            path,
-            method: 'GET',
-            accountId: category.account_id
-        }).then((threads) => {
-            //console.log('loadThreads result', threads)
-            if (!threads || threads.length < PAGE_SIZE) {
-                this.fullyLoaded = true
-            } else {
-                this.fullyLoaded = false
-            }
+        Promise.all(promises).then((threads) => {
+            //console.log('Load Threads result', threads)
         }).finally(() => {
             this.loading = false
             this.trigger()

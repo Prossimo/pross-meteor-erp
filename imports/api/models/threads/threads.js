@@ -102,10 +102,7 @@ Threads.schema = new SimpleSchema({
 
     conversationId: {type: String, optional: true},
 
-    assignees: {type:Array, optional:true},
-    'assignees.$': {
-        type: String
-    },
+    assignee: {type:String, optional:true},
     followers: {type:Array, optional:true},
     'followers.$': {
         type: String
@@ -148,10 +145,10 @@ Threads.helpers({
         const messages =  Messages.find({thread_id: this.id}).fetch()
         return messages
     },
-    getAssignees() {
-        if(!this.assignees) return []
+    getAssignee() {
+        if(!this.assignee) return null
 
-        return Users.find({_id:{$in:this.assignees}}).fetch()
+        return Users.findOne({_id:this.assignee})
     },
     getFollowers() {
         if(!this.followers) return []
