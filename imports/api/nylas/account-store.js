@@ -49,8 +49,9 @@ class AccountStore extends Reflux.Store {
     }
 
     accountForAccountId(accountId) {
-        if(accountId)
-            return _.findWhere(this.accounts(), {accountId})
+        if(accountId) {
+            return NylasAccounts.findOne({accountId})
+        }
 
         return this.defaultAccount()
     }

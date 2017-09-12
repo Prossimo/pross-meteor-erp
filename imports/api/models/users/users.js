@@ -140,6 +140,10 @@ Meteor.users.helpers({
         }).fetch()
     },
 
+    privateNylasAccounts() {
+        return NylasAccounts.find({isTeamAccount:{$ne:true}, userId:this._id}).fetch()
+    },
+
     isAdmin() {
         return Roles.userIsInRole(this._id, ROLES.ADMIN)
     },

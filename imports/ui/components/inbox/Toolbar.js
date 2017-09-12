@@ -31,6 +31,11 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
     render() {
         const thread = this.props.thread
+        const assignee = thread ? thread.getAssignee() : null
+        const assigneeValue = assignee ? {
+            value: assignee._id,
+            label: assignee.name()
+        } : null
 
 
         return (
@@ -46,7 +51,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
-                    &nbsp;&nbsp;&nbsp;<Selector disabled={!thread} multiple value={thread && thread.getAssignees().map(u => ({value:u._id, label:u.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectAssignees} triggerEl={<Button disabled={!thread}>Assign</Button>}/>
+                    &nbsp;&nbsp;&nbsp;<Selector disabled={!thread} value={assigneeValue} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectAssignee} triggerEl={<Button disabled={!thread}>{assignee ? <div><span style={{fontSize:11}}>Assigned to </span><span>{assignee.name()}</span></div> : 'Assign'}</Button>}/>
                     &nbsp;&nbsp;&nbsp;<Button disabled={!thread} onClick={this.onToggleFollow}>{thread && thread.followers && thread.followers.indexOf(Meteor.userId())>-1 ? 'Unfollow' : 'Follow'}</Button>
                     {this.renderExtraMenu()}
                 </div>
@@ -155,11 +160,11 @@ export default class Toolbar extends TrackerReact(React.Component) {
         }, 500)
     }
 
-    onSelectAssignees = (assignees) => {
+    onSelectAssignee = (assignee) => {
         const {thread} = this.props
-        if(assignees && thread.assignees && assignees.length == thread.assignees.length && assignees.every(a => thread.assignees.indexOf(a.value)>-1)) return
+        if(assignee && thread.assignee && assignee.value===thread.assignee) return
 
-        thread.assignees = assignees.map(a => a.value)
+        thread.assignee = assignee ? assignee.value : null
         delete thread.created_at
         delete thread.modified_at
         try{

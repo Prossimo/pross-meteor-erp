@@ -55,7 +55,7 @@ export default class Selector extends React.Component {
 
             this.setState({value})
         } else {
-            if(value.value == item.value) this.setState({value:null})
+            if(value && value.value == item.value) this.setState({value:null})
             else this.setState({value:item})
         }
 

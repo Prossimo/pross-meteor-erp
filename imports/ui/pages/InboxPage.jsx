@@ -1,5 +1,6 @@
 /* global FlowRouter */
 import _ from 'underscore'
+import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import Spinner from '../components/utils/spinner'
@@ -14,7 +15,7 @@ import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
 import CreateProject from '../components/project/CreateProject'
 import PeopleForm from '../components/people/PeopleForm'
-import {People} from '/imports/api/models'
+import {People, Users, ROLES} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
 import ThreadList from '../components/inbox/ThreadList'
 
@@ -148,7 +149,6 @@ class InboxPage extends (React.Component) {
                         overflowY: 'auto',
                         height: '100%'
                     }} onScroll={this.onScrollThreadList}>
-
                         {this.renderThreads()}
                     </div>
                     <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
@@ -267,10 +267,18 @@ class InboxPage extends (React.Component) {
             id: 'assigned_to_me',
             name: 'assigned',
             display_name: 'Assigned to me'
-        }, {
+        },{
             id: 'following',
             name: 'following',
             display_name: 'Following'
+        },{
+            id: 'not_filed',
+            name: 'not_filed',
+            display_name: 'Not Filed'
+        },{
+            id: 'unassigned',
+            name: 'unassigned',
+            display_name: 'Unassigned'
         }]
         return (
             <div className="list-category">
@@ -319,6 +327,42 @@ class InboxPage extends (React.Component) {
                         )
 
                     })
+                }
+                {
+                    Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
+                    <div>
+                        <div className="account-wrapper">
+                            <span><img src="/icons/inbox/ic-team.png" width="16px"/></span>&nbsp;
+                            <span>Team members</span>
+                            <span style={{flex: 1}}></span>
+                            <span className="action"></span>
+                        </div>
+                        {
+                            Users.find({_id:{$ne:Meteor.userId()}}).fetch().filter(user => {
+                                const nylasAccounts = user.privateNylasAccounts()
+                                return nylasAccounts && nylasAccounts.length>0
+                            }).map((user, index) => {
+                                const category = Object.assign(user, {
+                                    type:'teammember',
+                                    id:user._id,
+                                    name: 'teammember',
+                                    display_name: user.name(),
+                                    unreads: 0
+                                })
+                                return (
+                                    <div key={`teammember-${index}`}>
+                                    <ItemCategory
+                                        category={category}
+                                        onClick={(evt) => {
+                                            this.onSelectCategory(category)
+                                        }}
+                                        selected={currentCategory && category.id == currentCategory.id}/>
+                                </div>
+                                )
+                            })
+                        }
+                    </div>
+                    )
                 }
             </div>
         )

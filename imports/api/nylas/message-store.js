@@ -88,8 +88,7 @@ class MessageStore extends Reflux.Store {
         const thread = ThreadStore.currentThread()
         if(!thread) return
 
-        this._messages = Messages.find({thread_id:thread.id}).fetch()
-        this._messages.sort((m1, m2) => m1.date-m2.date)
+        this._messages = _.uniq(Messages.find({thread_id:thread.id}, {sort:{created_at:1}}).fetch(), true, ({id}) => id)
         this._expandMessagesToDefault()
         this._fetchExpandedAttachments(this._messages)
         this.trigger()

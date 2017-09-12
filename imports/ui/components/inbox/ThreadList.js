@@ -84,15 +84,31 @@ export default class ThreadList extends TrackerReact(React.Component) {
         }
 
         if(category.id === 'assigned_to_me') {
-            filters['assignees'] = Meteor.userId()
+            filters['assignee'] = Meteor.userId()
         } else if(category.id === 'following') {
             filters['followers'] = Meteor.userId()
         } else {
-            if(NylasUtils.usesLabels(category.account_id)) {
-                filters['labels.id'] = category.id
+            let inboxes
+
+            if(category.id === 'not_filed') {
+                filters['conversationId'] = null
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+            } else if(category.id === 'unassigned') {
+                filters['assignee'] = {$ne:Meteor.userId()}
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+            } else if(category.type === 'teammember') {
+                inboxes = category.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             } else {
-                filters['folders.id'] = category.id
+                inboxes = [category]
             }
+
+            filters['$or'] = inboxes.map((inbox) => {
+                if(NylasUtils.usesLabels(inbox.account_id)) {
+                    return {'labels.id': inbox.id}
+                } else {
+                    return {'folders.id': inbox.id}
+                }
+            })
         }
 
         //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
