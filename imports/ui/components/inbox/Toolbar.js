@@ -11,7 +11,7 @@ import MailSearchBox from './MailSearchBox'
 import {SalesRecords, Projects, Threads, Conversations, Users} from '/imports/api/models'
 import {updateThread} from '/imports/api/models/threads/methods'
 import {Selector} from '../common'
-
+import {sendMailAssignToSlack} from '/imports/api/slack/methods'
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
@@ -169,6 +169,15 @@ export default class Toolbar extends TrackerReact(React.Component) {
         delete thread.modified_at
         try{
             updateThread.call(thread)
+
+            const assignedUser = Users.findOne(assignee)
+            if(assignedUser.slack && Meteor.user().slack) {
+                /*sendMailAssignToSlack({
+                    assignee: assignedUser.slack,
+                    assigner: Meteor.user().slack,
+
+                })*/
+            }
         } catch (err) {
             console.error(err)
         }
