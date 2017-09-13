@@ -11,7 +11,6 @@ import MailSearchBox from './MailSearchBox'
 import {SalesRecords, Projects, Threads, Conversations, Users} from '/imports/api/models'
 import {updateThread} from '/imports/api/models/threads/methods'
 import {Selector} from '../common'
-import {sendMailAssignToSlack} from '/imports/api/slack/methods'
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
@@ -164,19 +163,30 @@ export default class Toolbar extends TrackerReact(React.Component) {
         const {thread} = this.props
         if(assignee && thread.assignee && assignee.value===thread.assignee) return
 
+        const oldAssignee = thread.assignee
+
         thread.assignee = assignee ? assignee.value : null
         delete thread.created_at
         delete thread.modified_at
         try{
             updateThread.call(thread)
 
-            const assignedUser = Users.findOne(assignee)
-            if(assignedUser.slack && Meteor.user().slack) {
-                /*sendMailAssignToSlack({
-                    assignee: assignedUser.slack,
-                    assigner: Meteor.user().slack,
-
-                })*/
+            if(assignee) {
+                const assignedUser = Users.findOne(assignee.value)
+                if (assignedUser && assignedUser.slack) {
+                    Meteor.call('sendMailAssignToSlack', thread, {
+                        assignee: assignedUser.slack,
+                        assigner: Meteor.user().slack
+                    }, (err) => {if(err) console.error(err)})
+                }
+            } else if(!assignee && oldAssignee) {
+                const unassignedUser = Users.findOne(oldAssignee)
+                if (unassignedUser && unassignedUser.slack) {
+                    Meteor.call('sendMailUnassignToSlack', thread, {
+                        unassignee: unassignedUser.slack,
+                        assigner: Meteor.user().slack
+                    }, (err) => {if(err) console.error(err)})
+                }
             }
         } catch (err) {
             console.error(err)

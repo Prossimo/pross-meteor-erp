@@ -3,11 +3,10 @@ import {check} from 'meteor/check'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
 
-
 Meteor.methods({
-    sendMailAssignToSlack(thread, {assignee, assigner}={}) {
+    sendMailUnassignToSlack(thread, {unassignee, assigner}={}) {
         check(thread, Object)
-        check(assignee, Object)
+        check(unassignee, Object)
         check(assigner, Match.Maybe(Object))
 
         let slackChannelId
@@ -27,7 +26,7 @@ Meteor.methods({
 
         if (!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')
 
-        let slackText = `An email was assigned to <@${assignee.id}|${assignee.name}>`
+        let slackText = `An email was unassigned from <@${unassignee.id}|${unassignee.name}>`
         if(assigner) slackText += ` by <@${assigner.id}|${assigner.name}>`
 
         console.log(`=========> Sending mail thread(${thread.id}) to slack`)
@@ -36,7 +35,7 @@ Meteor.methods({
             attachments: [
                 {
                     fallback: thread.snippet,
-                    color: '#f6a64f',
+                    color: '#f60000',
                     pretext: `${_.pluck(thread.participants, 'email').join(', ')}`,
                     title: thread.subject,
                     title_link: Meteor.absoluteUrl(`emailview?thread_id=${thread.id}`),

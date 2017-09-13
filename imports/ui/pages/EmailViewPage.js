@@ -112,9 +112,16 @@ class EmailViewPage extends React.Component {
 export default createContainer(() => {
     const subscribers = [Meteor.subscribe('getNylasAccounts'), Meteor.subscribe('MyMessages')]
 
-    const messageId = FlowRouter.getParam('message_id')
-
-    const message = Messages.findOne({id:messageId})
+    let message
+    const messageId = FlowRouter.getQueryParam('message_id')
+    if(messageId) {
+        message = Messages.findOne({id: messageId})
+    } else {
+        const threadId = FlowRouter.getQueryParam('thread_id')
+        if (threadId) {
+            message = Messages.findOne({thread_id: threadId}, {sort:{date:-1}})
+        }
+    }
     return {
         loading: subscribers.reduce((result, subscriber) => result && !subscriber.ready(), true),
         message
