@@ -87,6 +87,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['assignee'] = Meteor.userId()
         } else if(category.id === 'following') {
             filters['followers'] = Meteor.userId()
+        } else if(category.type === 'teammember') {
+            filters['assignee'] = category.id
         } else {
             let inboxes
 
@@ -96,9 +98,9 @@ export default class ThreadList extends TrackerReact(React.Component) {
             } else if(category.id === 'unassigned') {
                 filters['assignee'] = {$ne:Meteor.userId()}
                 inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            } else if(category.type === 'teammember') {
+            }/* else if(category.type === 'teammember') {
                 inboxes = category.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            } else {
+            }*/ else {
                 inboxes = [category]
             }
 

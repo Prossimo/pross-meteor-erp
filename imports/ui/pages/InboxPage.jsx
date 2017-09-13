@@ -339,8 +339,10 @@ class InboxPage extends (React.Component) {
                         </div>
                         {
                             Users.find({_id:{$ne:Meteor.userId()}}).fetch().filter(user => {
-                                const nylasAccounts = user.privateNylasAccounts()
-                                return nylasAccounts && nylasAccounts.length>0
+                                /*const nylasAccounts = user.privateNylasAccounts()
+                                return nylasAccounts && nylasAccounts.length>0*/
+                                const assignedThreads = user.assignedThreads()
+                                return assignedThreads && assignedThreads.length>0
                             }).map((user, index) => {
                                 const category = Object.assign(user, {
                                     type:'teammember',

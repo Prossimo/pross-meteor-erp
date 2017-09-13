@@ -4,6 +4,7 @@ import SimpleSchema from 'simpl-schema'
 import faker from 'faker'
 import { Accounts } from 'meteor/accounts-base'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
+import Threads from '../threads/threads'
 
 
 export const ROLES = {
@@ -151,6 +152,10 @@ Meteor.users.helpers({
     name() {
         if(this.profile) return `${this.profile.firstName} ${this.profile.lastName}`
         return null
+    },
+
+    assignedThreads() {
+        return Threads.find({assignee:this._id}).fetch()
     }
 
 })
