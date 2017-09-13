@@ -1,6 +1,7 @@
 /* global moment */
 import {Roles} from 'meteor/alanning:roles'
 import React, {Component, PropTypes} from 'react'
+import Select from 'react-select'
 import {Panel, Table, Dropdown, MenuItem} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
 import Tasks, {TaskStatus} from '/imports/api/models/tasks/tasks'
@@ -15,7 +16,8 @@ class MyTasks extends Component {
 
         this.state = {
             showAllTasks: false,
-            hideCompletedTasks: false,
+            showCompletedTasks: false,
+            viewOption: 'all',
             sort: {
                 by: 'dueDate',
                 asc: false
@@ -25,22 +27,28 @@ class MyTasks extends Component {
 
     componentWillReceiveProps(newProps) {
         console.log('componentWillReceiveProps')
-        const {hideCompletedTasks} = this.state
-        this.setState({tasks: hideCompletedTasks ? newProps.tasks.filter(t => t.status !== 'Complete') : newProps.tasks})
+        const {showCompletedTasks} = this.state
+        this.setState({tasks: showCompletedTasks ? newProps.tasks : newProps.tasks.filter(t => t.status !== 'Complete')})
     }
 
     getTasks() {
-        const {hideCompletedTasks, showAllTasks} = this.state
+        const {showCompletedTasks, showAllTasks, viewOption} = this.state
 
-        const tasks = showAllTasks ? Tasks.find().fetch() : this.props.tasks
+        let tasks = showAllTasks ? Tasks.find().fetch() : this.props.tasks
 
-        return hideCompletedTasks ? tasks.filter(t => t.status !== 'Complete') : tasks
+        if(!showCompletedTasks) tasks = tasks.filter(t => t.status !== 'Complete')
+
+
+        if(viewOption === 'deal') tasks = tasks.filter(t => t.parent()&&t.parent().type==='deal')
+        else if(viewOption === 'project') tasks = tasks.filter(t => t.parent()&&t.parent().type==='project')
+
+        return tasks
     }
 
-    toggleHideCompletedTasks = (e) => {
+    toggleShowCompletedTasks = (e) => {
         const checked = e.target.checked
         this.setState({
-            hideCompletedTasks: checked
+            showCompletedTasks: checked
         })
     }
 
@@ -50,6 +58,7 @@ class MyTasks extends Component {
             showAllTasks: checked
         })
     }
+
 
     getSortedData() {
         const tasks = this.getTasks()
@@ -108,6 +117,10 @@ class MyTasks extends Component {
         })
     }
 
+    selectViewOption = (option) => {
+        this.setState({viewOption:option.value})
+    }
+
     renderStatusSelector(task) {
         return (
             <Dropdown id="task-status-selector" style={{float:'right'}} pullRight>
@@ -157,16 +170,20 @@ class MyTasks extends Component {
 
     render() {
         const {by, asc} = this.state.sort
+
+        const viewOptions = [{value:'all', label:'All'},{value:'deal', label:'Deal'},{value:'project', label:'Project'}]
+
         const header = (
             <div style={{display: 'flex'}}>
                 <div style={{flex: 1}}>
                     My Tasks
                 </div>
-                <div>
+                <div style={{display:'flex'}}>
                     {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks}
-                                                                                  onChange={this.toggleShowAllTasks}/>&nbsp;Show all tasks&nbsp;&nbsp;</span>}
-                    <input type="checkbox" value={this.state.hideCompletedTasks}
-                           onChange={this.toggleHideCompletedTasks}/>&nbsp;Hide completed tasks
+                                                                                  onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
+                    <span><input type="checkbox" value={this.state.showCompletedTasks}
+                                 onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
+                    <Select className="small-select" value={this.state.viewOption} options={viewOptions} onChange={this.selectViewOption} clearable={false}/>
                 </div>
             </div>
         )
