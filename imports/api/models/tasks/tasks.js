@@ -3,7 +3,21 @@ import SimpleSchema from 'simpl-schema'
 import SalesRecords from '../salesRecords/salesRecords'
 import Projects from '../projects/projects'
 
-const Tasks = new Mongo.Collection('Tasks')
+class TasksCollection extends Mongo.Collection {
+    insert(doc, callback) {
+        const ourDoc = doc
+        ourDoc.created_at = new Date()
+        const result = super.insert(ourDoc, callback)
+        return result
+    }
+
+    remove(selector) {
+        const result = super.remove(selector)
+        return result
+    }
+}
+
+const Tasks = new TasksCollection('Tasks')
 
 export const TaskStatus = [
     'Idea',
@@ -102,6 +116,9 @@ Tasks.schema = new SimpleSchema({
     'attachments.$.createdAt': {
         type: Date,
     },
+
+    created_at: {type: Date, denyUpdate: true, optional: true},
+    modified_at: {type: Date, denyInsert: true, optional: true}
 })
 
 Tasks.attachSchema(Tasks.schema)
@@ -109,10 +126,16 @@ Tasks.attachSchema(Tasks.schema)
 Tasks.helpers({
     parent() {
         const salesRecord = SalesRecords.findOne(this.parentId)
-        if (salesRecord) return salesRecord
+        if (salesRecord) {
+            salesRecord.type = 'deal'
+            return salesRecord
+        }
 
         const project = Projects.findOne(this.parentId)
-        if (project) return project
+        if (project) {
+            project.type = 'project'
+            return project
+        }
         return null
     }
 })

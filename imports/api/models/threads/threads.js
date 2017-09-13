@@ -108,7 +108,6 @@ Threads.schema = new SimpleSchema({
         type: String
     },
 
-
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
