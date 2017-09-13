@@ -15,6 +15,10 @@ export default new ValidatedMethod({
       taskOperators: [assignee, approver],
     })
     const oldVersionTask = Tasks.findOne(task._id)
+
+    delete task.created_at
+    task.modified_at = new Date()
+
     // ASSIGN TASK TO USER
     Tasks.update(task._id, {
       $set: task,
