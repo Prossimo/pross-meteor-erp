@@ -83,7 +83,6 @@ Meteor.methods({
             mailtext += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
         }
 
-        mailtext += `\n\n<${Meteor.absoluteUrl(`emailview/${message.id}`)}|See full email>`
         const params = {
             username: slack.botName,
             attachments: [
@@ -91,6 +90,7 @@ Meteor.methods({
                     fallback: message.snippet,
                     color: '#36a64f',
                     title: message.subject,
+                    title_link: Meteor.absoluteUrl(`emailview?message_id=${message.id}`),
                     text: mailtext,
                     image_url: 'http://my-website.com/path/to/image.jpg',
                     thumb_url: 'http://example.com/path/to/thumb.png',

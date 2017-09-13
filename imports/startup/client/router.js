@@ -236,7 +236,7 @@ FlowRouter.route('/auth/google/callback', {
     }
 })
 
-FlowRouter.route('/emailview/:message_id', {
+FlowRouter.route('/emailview', {
     name: 'EmailView',
     action() {
         checkAuth()
