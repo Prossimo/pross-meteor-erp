@@ -9,7 +9,7 @@ import {warning} from '/imports/api/lib/alerts'
 
 export default class CompaniesPage extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             showCompanyModal: false,
@@ -72,7 +72,7 @@ export default class CompaniesPage extends React.Component {
                 })
             } catch(e) {
                 console.log(e)
-                return warning(e.message);
+                return warning(e.message)
             }
         }
     }

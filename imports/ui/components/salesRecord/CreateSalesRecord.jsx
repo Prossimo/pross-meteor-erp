@@ -1,8 +1,9 @@
 import {FlowRouter} from 'meteor/kadira:flow-router'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Roles} from 'meteor/alanning:roles'
 import _ from 'underscore'
 import React from 'react'
-import {FormGroup, Radio} from 'react-bootstrap'
+import {FormGroup, Radio, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import Textarea from 'react-textarea-autosize'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -15,11 +16,12 @@ import DatePicker from 'react-datepicker'
 import NumericInput from 'react-numeric-input'
 import SelectMembers from './components/SelectMembers'
 import SelectStakeholders from './components/SelectStakeholders'
-import {ROLES, People, USER_STATUS, Conversations} from '/imports/api/models'
+import {ROLES, People, USER_STATUS, Conversations, SalesRecords} from '/imports/api/models'
 import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
+import ConversationForm from './conversations/ConversationForm'
 
-class CreateSalesRecord extends React.Component {
+class CreateSalesRecord extends TrackerReact(React.Component) {
     static propTypes = {
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
@@ -162,8 +164,18 @@ class CreateSalesRecord extends React.Component {
         this.state.members = members
     }
 
-    updateStakeholders = (stakeholders) => {
+    updateStakeholders = (stakeholders) => { console.log('updateStakeholders', stakeholders)
         this.state.stakeholders = stakeholders
+    }
+
+    onClickAddConversation = () => {
+        this.setState({
+            showConversationModal: true
+        })
+    }
+
+    onSavedConversation = () => {
+        this.setState({showConversationModal:false})
     }
 
     render() {
@@ -252,13 +264,17 @@ class CreateSalesRecord extends React.Component {
                         <button className="btnn primary-btn">{ submitBtnName }</button>
                     </div>
                 </form>
+                {this.props.salesRecord && this.renderConversationModal()}
             </div>
         )
     }
 
     renderConversationSelector() {
-        const {salesRecord} = this.props
+        if(!this.props.salesRecord) return ''
+
+        const salesRecord = SalesRecords.findOne(this.props.salesRecord._id)
         if(!salesRecord || !salesRecord.conversationIds) return ''
+
         const conversations = Conversations.find({_id: {$in:salesRecord.conversationIds}}).fetch()
 
 
@@ -268,7 +284,10 @@ class CreateSalesRecord extends React.Component {
         return (
             <div className='panel panel-default'>
                 <div className='panel-heading'>
-                    Select conversation
+                    <div className="panel-header">
+                        <div className="title">Select conversation</div>
+                        <div className="action" onClick={this.onClickAddConversation}>+</div>
+                    </div>
                 </div>
                 <div className='panel-body' style={{display:'flex'}}>
                     <FormGroup>
@@ -283,9 +302,27 @@ class CreateSalesRecord extends React.Component {
         )
     }
 
+    renderConversationModal() {
+        if(!this.props.salesRecord) return ''
+
+        const {showConversationModal} = this.state
+
+        return (
+            <Modal show={showConversationModal} onHide={() => {
+                this.setState({showConversationModal: false})
+            }} bsSize="large">
+                <Modal.Header closeButton><Modal.Title>Add conversation</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <ConversationForm targetCollection={SalesRecords} targetId={this.props.salesRecord._id} onSaved={this.onSavedConversation}/>
+                </Modal.Body>
+            </Modal>
+        )
+
+    }
+
     selectConversation = (e) => {
         this.setState({selectedConversation: e.target.value})
     }
 }
 
-export default  CreateSalesRecord
+export default CreateSalesRecord

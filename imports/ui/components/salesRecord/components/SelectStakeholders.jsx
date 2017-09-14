@@ -18,16 +18,17 @@ export default class SelectStakeholders extends Component {
         }
         this.peopleOptions = people.map((person) => {
             const designation = person.designation()
-
+            const company = person.company()
             return {
-                addToMain: designation&&designation.name === 'Stakeholder',
-                addableToMain: designation&&designation.name === 'Stakeholder',
+                addToMain: designation!=null&&designation.name === 'Stakeholder',
+                addableToMain: designation!=null&&designation.name === 'Stakeholder',
                 isMainStakeholder: person.isMainStakeholder!=null ? person.isMainStakeholder : false,
                 name: person.name,
                 email: person.defaultEmail(),
                 _id: person._id,
+                company: company ? company.name : null
             }
-        }).map(person => ({label: person.name, value: person._id, ...person}))
+        }).map(person => ({label: `${person.name} ${person.company}`, value: person._id, ...person}))
 
         this.state = {
             selectedPeople: props.people ? this.peopleOptions : [],
@@ -91,6 +92,7 @@ export default class SelectStakeholders extends Component {
                 <thead>
                 <tr>
                     <th>Name</th>
+                    <th>Company</th>
                     <th>Main Stakeholder</th>
                     <th>Add To Main</th>
                 </tr>
@@ -98,10 +100,11 @@ export default class SelectStakeholders extends Component {
                 <tbody>
                 {
                     this.state.selectedPeople.map(person => {
-                        const {_id, name, email, isMainStakeholder, addToMain, addableToMain} = person
+                        const {_id, name, email, company, isMainStakeholder, addToMain, addableToMain} = person
                         return (
                             <tr key={_id}>
                                 <td><div>{ name }</div><div>{email}</div></td>
+                                <td>{company}</td>
                                 <td>
                                     <div className='radio'>
                                         <label>
@@ -144,9 +147,11 @@ export default class SelectStakeholders extends Component {
                     <label>People</label>
                     <Select
                         multi
-                        value={this.state.selectedPeople}
                         onChange={this.selectPeople}
                         options={this.peopleOptions}
+                        optionRenderer={(option) => <div style={{display:'flex'}}><span style={{flex:1}}>{option.name}</span><span>{option.company}</span></div>}
+                        value={this.state.selectedPeople}
+                        valueRenderer={(option) => <span>{option.name}</span>}
                         className={'members-select'}
                     />
                     <div>

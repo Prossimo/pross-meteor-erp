@@ -31,7 +31,7 @@ export default class CompanyForm extends React.Component {
 
         this.state = {
             typeOptions: CompanyTypes.find({}).fetch().map((t) => ({value: t._id, label: t.name})),
-            name: props.company ? props.company.name : '',
+            name: props.company ? props.company.name : props.name,
             website: props.company ? props.company.website : '',
             type_ids: props.company ? props.company.type_ids : [],
             addresses: props.company ? props.company.addresses : [],
@@ -148,13 +148,15 @@ export default class CompanyForm extends React.Component {
         if(website && website.length>0 && website.indexOf(HTTP_PROTOCOL) == -1 && website.indexOf(HTTPS_PROTOCOL) == -1) website = `http://${website}`
 
         const data= {name, website, type_id, addresses, phone_numbers}
-        this.props.toggleLoader(true)
+
+        const {company, toggleLoader, onSaved} = this.props
+        if(toggleLoader) toggleLoader(true)
         delete data.blocking
 
         try{
             let companyId
-            if (this.props.company) {
-                companyId = this.props.company._id
+            if (company && company._id) {
+                companyId = company._id
                 data._id = companyId
                 updateCompany.call(data)
             } else {
@@ -162,11 +164,11 @@ export default class CompanyForm extends React.Component {
                 console.log(companyId)
             }
 
-            this.props.toggleLoader(false)
-            if (this.props.onSaved) this.props.onSaved(Companies.findOne({_id: companyId}), this.props.company != null)
+            if(toggleLoader) toggleLoader(false)
+            if (onSaved) onSaved(Companies.findOne({_id: companyId}), company != null)
         }catch(e){
-            console.log(e)
-            this.props.toggleLoader(false)
+            console.error(e)
+            if(toggleLoader) toggleLoader(false)
             warning(e.message)
         }
     }

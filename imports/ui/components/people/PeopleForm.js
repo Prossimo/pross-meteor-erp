@@ -1,13 +1,15 @@
 import _ from 'underscore'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from '/imports/api/lib/alerts'
 import {PeopleDesignations, Companies} from '/imports/api/models'
 import {insertPeople} from '/imports/api/models/people/methods'
+import CompanyForm from '../companies/CompanyForm'
 
 
-export default class PeopleForm extends React.Component {
+export default class PeopleForm extends TrackerReact(React.Component) {
     static propTypes = {
         people: React.PropTypes.array,
         onSaved: React.PropTypes.func
@@ -17,10 +19,7 @@ export default class PeopleForm extends React.Component {
         super(props)
 
         this.state = {
-            people: props.people,
-
-            designations: PeopleDesignations.find().fetch(),
-            companies: Companies.find().fetch()
+            people: props.people
         }
     }
 
@@ -41,14 +40,54 @@ export default class PeopleForm extends React.Component {
         if(this.props.onChange) this.props.onChange(people)
     }
 
+    onClickAddCompany = () => {
+        this.setState({
+            showCompanyModal: true
+        })
+    }
+
+    onCompanyInputChange = (value) => {
+        this.setState({
+            currentCompanyInputValue: value
+        })
+    }
+
+    onSavedCompany = () => {
+        this.setState({
+            showCompanyModal: false
+        })
+    }
+
+    renderCompanyModal() {
+        const {showCompanyModal} = this.state
+
+        return (
+            <Modal show={showCompanyModal} bsSize="large" onHide={() => {
+                this.setState({showCompanyModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-building-o"/>&nbsp;Create company</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <CompanyForm onSaved={this.onSavedCompany} name={this.state.currentCompanyInputValue}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
     render() {
-        const {people, designations, companies} = this.state
+        const {people} = this.state
+
+        const designations = PeopleDesignations.find().fetch()
+        const companies = Companies.find().fetch()
 
         const designationOptions = designations.map(d => ({value: d._id, label: d.name}))
-
         const companyOptions = companies.map(c => ({value: c._id, label: c.name}))
 
 
+        const companyNoResultsEl = (
+            <div className="select-no-result">
+                <div>No results</div>
+                <div className="action" onClick={this.onClickAddCompany}>+ Add <strong><italic>{this.state.currentCompanyInputValue}</italic></strong></div>
+            </div>
+        )
         return (
             <div>
                 <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
@@ -88,7 +127,7 @@ export default class PeopleForm extends React.Component {
                                         <td><FormControl type="email" value={person.email} onChange={(e) => this.changeState(person, 'email', e.target.value)}/></td>
                                         <td><Select clearable={false} required options={designationOptions} value={designationValue} onChange={(item) => this.changeState(person, 'designation_id', item.value)}/></td>
                                         <td><Select clearable={false} required options={roleOptions} value={roleValue} onChange={(item) => this.changeState(person, 'role', item.value)}/></td>
-                                        <td><Select clearable={false} options={companyOptions} value={companyValue} onChange={(item) => this.changeState(person, 'company_id', item.value)}/></td>
+                                        <td><Select clearable={false} options={companyOptions} value={companyValue} onChange={(item) => this.changeState(person, 'company_id', item.value)} noResultsText={companyNoResultsEl} onInputChange={this.onCompanyInputChange}/></td>
                                         <td><FormControl type="text" value={person.position} onChange={(e) => this.changeState(person, 'position', e.target.value)}/></td>
                                         <td><Button bsSize="xsmall" onClick={() => this.onClickRemovePerson(index)}><i className="fa fa-trash"/></Button></td>
                                     </tr>
@@ -103,6 +142,8 @@ export default class PeopleForm extends React.Component {
                         </Col>
                     </FormGroup>
                 </Form>
+
+                {this.renderCompanyModal()}
             </div>
 
         )
@@ -113,7 +154,6 @@ export default class PeopleForm extends React.Component {
 
         const {people} = this.state
 
-        console.log(people)
         try {
             insertPeople.call({people})
             if (this.props.onSaved) this.props.onSaved()

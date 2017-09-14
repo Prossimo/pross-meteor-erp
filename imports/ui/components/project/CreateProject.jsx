@@ -1,17 +1,19 @@
 /* global FlowRouter */
 import _ from 'underscore'
-import React, { Component } from 'react'
+import TrackerReact from 'meteor/ultimatejs:tracker-react'
+import React, {Component} from 'react'
 import Select from 'react-select'
-import {FormGroup, Radio} from 'react-bootstrap'
-import { info, warning } from '/imports/api/lib/alerts'
+import {FormGroup, Radio, Modal} from 'react-bootstrap'
+import {info, warning} from '/imports/api/lib/alerts'
 import 'react-block-ui/style.css'
-import { Loader, Types } from 'react-loaders'
+import {Loader, Types} from 'react-loaders'
 import 'loaders.css/loaders.min.css'
 import SelectStakeholders from '../salesRecord/components/SelectStakeholders'
-import {Conversations, People, Users} from '/imports/api/models'
+import {Conversations, People, Users, Projects} from '/imports/api/models'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
+import ConversationForm from '../salesRecord/conversations/ConversationForm'
 
-export default class CreateProject extends Component {
+export default class CreateProject extends TrackerReact(Component) {
     constructor(props) {
         super(props)
         const curUserName = `${props.currentUser.profile.firstName} ${props.currentUser.profile.lastName}`
@@ -36,7 +38,7 @@ export default class CreateProject extends Component {
             blocking: false,
             people: null,
 
-            selectedConversation: project && project.conversationIds && project.conversationIds.length>0 ? project.conversationIds[0] : null
+            selectedConversation: project && project.conversationIds && project.conversationIds.length > 0 ? project.conversationIds[0] : null
         }
 
         if (props.thread) {
@@ -60,7 +62,7 @@ export default class CreateProject extends Component {
     submit = () => {
         const data = {
             name: this.state.projectName,
-            members: this.state.selectedMembers.map(({ label, value, checked }) => ({
+            members: this.state.selectedMembers.map(({label, value, checked}) => ({
                 userId: value,
                 isAdmin: !!checked,
             })),
@@ -72,9 +74,13 @@ export default class CreateProject extends Component {
 
         delete thread.object
 
-        if (project) {console.log('Before call project.update', thread)
+        if (project) {
             const {selectedConversation} = this.state
-            Meteor.call('project.update', {_id:project._id, ...data, thread, conversationId:selectedConversation}, (err, res) => {
+            Meteor.call('project.update', {
+                _id: project._id, ...data,
+                thread,
+                conversationId: selectedConversation
+            }, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
@@ -85,15 +91,15 @@ export default class CreateProject extends Component {
             })
         } else {
 
-            Meteor.call('project.create', {...data, thread}, (err,projectId) => {
+            Meteor.call('project.create', {...data, thread}, (err, projectId) => {
                 this.props.toggleLoader(false)
-                if(err) {
+                if (err) {
                     console.error(err)
                     warning(err.reason || err.message)
                     return
                 }
                 info('Success add new project')
-                FlowRouter.go('Project', { id: projectId })
+                FlowRouter.go('Project', {id: projectId})
             })
         }
     }
@@ -105,7 +111,7 @@ export default class CreateProject extends Component {
     }
 
     changeState = (type, checked, member) => {
-        switch(type) {
+        switch (type) {
             case 'isAdmin':
                 if (!checked) return
                 this.state.selectedMembers.forEach((member) => {
@@ -119,7 +125,7 @@ export default class CreateProject extends Component {
     }
 
     changeMembers = (members) => {
-        const hasChecked = members.reduce((result, { label, value, checked }) => result || checked !== undefined, false)
+        const hasChecked = members.reduce((result, {label, value, checked}) => result || checked !== undefined, false)
         if (!hasChecked && members.length > 0) members[0].checked = true
         this.setState({
             selectedMembers: members,
@@ -134,10 +140,20 @@ export default class CreateProject extends Component {
         this.setState({selectedConversation: e.target.value})
     }
 
+    onClickAddConversation = () => {
+        this.setState({showConversationModal: true})
+    }
+
+    onSavedConversation = () => {
+        this.setState({showConversationModal: false})
+    }
+
     renderConversationSelector() {
-        const {project} = this.props
-        if(!project || !project.conversationIds) return ''
-        const conversations = Conversations.find({_id: {$in:project.conversationIds}}).fetch()
+        if (!this.props.project) return ''
+        const project = Projects.findOne(this.props.project._id)
+        if (!project || !project.conversationIds) return ''
+
+        const conversations = Conversations.find({_id: {$in: project.conversationIds}}).fetch()
 
 
         if (!conversations || conversations.length == 0) return ''
@@ -146,13 +162,18 @@ export default class CreateProject extends Component {
         return (
             <div className='panel panel-default'>
                 <div className='panel-heading'>
-                    Select conversation
+                    <div className="panel-header">
+                        <div className="title">Select conversation</div>
+                        <div className="action" onClick={this.onClickAddConversation}>+</div>
+                    </div>
                 </div>
-                <div className='panel-body' style={{display:'flex'}}>
+                <div className='panel-body' style={{display: 'flex'}}>
                     <FormGroup>
                         {
                             conversations.map(c => (
-                                <Radio key={`conversation-radio-${c._id}`} value={c._id} checked={selectedConversation == c._id} onChange={this.selectConversation} inline> {c.name}</Radio>
+                                <Radio key={`conversation-radio-${c._id}`} value={c._id}
+                                       checked={selectedConversation == c._id} onChange={this.selectConversation}
+                                       inline> {c.name}</Radio>
                             ))
                         }
                     </FormGroup>
@@ -160,8 +181,28 @@ export default class CreateProject extends Component {
             </div>
         )
     }
+
+    renderConversationModal() {
+        if (!this.props.project) return ''
+
+        const {showConversationModal} = this.state
+
+        return (
+            <Modal show={showConversationModal} onHide={() => {
+                this.setState({showConversationModal: false})
+            }} bsSize="large">
+                <Modal.Header closeButton><Modal.Title>Add conversation</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <ConversationForm targetCollection={Projects} targetId={this.props.project._id}
+                                      onSaved={this.onSavedConversation}/>
+                </Modal.Body>
+            </Modal>
+        )
+
+    }
+
     render() {
-        const memberOptions = this.props.users.map(({ profile: { firstName, lastName }, _id }) => {
+        const memberOptions = this.props.users.map(({profile: {firstName, lastName}, _id}) => {
             const name = `${firstName} ${lastName}`
             return {
                 label: name,
@@ -190,32 +231,32 @@ export default class CreateProject extends Component {
                     />
                     <table className='table table-condensed'>
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Admin</th>
-                            </tr>
+                        <tr>
+                            <th>Name</th>
+                            <th>Admin</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {
-                                this.state.selectedMembers.map((member) => {
-                                    const { value, label, checked } = member
-                                    return (
-                                        <tr key={ value }>
-                                            <td>{ label }</td>
-                                            <td>
-                                                <div className='radio'>
-                                                    <label>
-                                                        <input
-                                                            type='checkbox'
-                                                            checked={ checked }
-                                                            onChange={(event) => this.changeState('isAdmin', event.target.checked, member)}/>
-                                                    </label>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )
-                                })
-                            }
+                        {
+                            this.state.selectedMembers.map((member) => {
+                                const {value, label, checked} = member
+                                return (
+                                    <tr key={value}>
+                                        <td>{label}</td>
+                                        <td>
+                                            <div className='radio'>
+                                                <label>
+                                                    <input
+                                                        type='checkbox'
+                                                        checked={checked}
+                                                        onChange={(event) => this.changeState('isAdmin', event.target.checked, member)}/>
+                                                </label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                        }
                         </tbody>
                     </table>
 
@@ -227,9 +268,11 @@ export default class CreateProject extends Component {
                         this.props.thread && this.props.project && this.renderConversationSelector()
                     }
                     <div className='form-group text-center'>
-                        <button className='btn btn-primary' onClick={this.submit}>{this.props.project ? 'Update Project' : 'Add Project'}</button>
+                        <button className='btn btn-primary'
+                                onClick={this.submit}>{this.props.project ? 'Update Project' : 'Add Project'}</button>
                     </div>
                 </div>
+                {this.props.project && this.renderConversationModal()}
             </div>
         )
     }
