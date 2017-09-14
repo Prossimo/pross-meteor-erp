@@ -99,8 +99,8 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
 
                                         //console.log('server router existingThread', existingThread)
 
-                                        const members = existingThread.getAssignees().concat(existingThread.getFollowers())
-                                        mentions = _.uniq(members.filter(m => m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
+                                        const members = [existingThread.getAssignee()].concat(existingThread.getFollowers())
+                                        mentions = _.uniq(members.filter(m => m&&m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
 
                                         //console.log('mentions', mentions)
 

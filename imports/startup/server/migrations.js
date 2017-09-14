@@ -1,6 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks} from '/imports/api/models'
 
 Migrations.add({
     version: 1,
@@ -151,6 +151,7 @@ Migrations.add({
     }
 
 })
+
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
         Migrations.migrateTo(7)

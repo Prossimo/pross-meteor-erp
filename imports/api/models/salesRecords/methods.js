@@ -103,7 +103,7 @@ Meteor.methods({
             members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
-                addToMain: Boolean,
+                addToMain: Match.Maybe(Boolean),
                 peopleId: String,
             }],
             actualDeliveryDate: Date,
@@ -252,7 +252,7 @@ Meteor.methods({
             members: [String],
             stakeholders: [{
                 isMainStakeholder: Boolean,
-                addToMain: Boolean,
+                addToMain: Match.Maybe(Boolean),
                 peopleId: String,
             }],
             actualDeliveryDate: Date,
