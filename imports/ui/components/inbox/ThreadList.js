@@ -65,14 +65,17 @@ export default class ThreadList extends TrackerReact(React.Component) {
 
         ThreadStore.selectThread(thread)
     }
-    render() {//console.log('render ThreadList')
+    render() {
         const {category, currentThread, loading, keyword} = this.state
         if(!category) return <div>Please select any folder</div>
 
+        //console.log('render ThreadList', keyword)
         const filters = {}
+        let keywordQuery, inboxQuery
+
         if(keyword && keyword.length) {
             const regx = {$regex: keyword, $options: 'i'}
-            filters['$or'] = [{
+            keywordQuery = [{
                 'participants.email': regx
             },{
                 'participants.name': regx
@@ -91,7 +94,6 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['assignee'] = category.id
         } else {
             let inboxes
-
             if(category.id === 'not_filed') {
                 filters['conversationId'] = null
                 inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
@@ -104,13 +106,21 @@ export default class ThreadList extends TrackerReact(React.Component) {
                 inboxes = [category]
             }
 
-            filters['$or'] = inboxes.map((inbox) => {
+            inboxQuery = inboxes.map((inbox) => {
                 if(NylasUtils.usesLabels(inbox.account_id)) {
                     return {'labels.id': inbox.id}
                 } else {
                     return {'folders.id': inbox.id}
                 }
             })
+        }
+
+        if(keywordQuery && inboxQuery) {
+            filters['$and'] = [{'$or':keywordQuery}, {'$or':inboxQuery}]
+        } else if(keywordQuery && !inboxQuery) {
+            filters['$or'] = keywordQuery
+        } else if(!keywordQuery && inboxQuery) {
+            filters['$or'] = inboxQuery
         }
 
         //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
