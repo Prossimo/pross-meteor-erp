@@ -8,6 +8,7 @@ import Messages from '../messages/messages'
 import SalesRecords from '../salesRecords/salesRecords'
 import Projects from '../projects/projects'
 import People from '../people/people'
+import Users from '../users/users'
 
 class ConversationsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -45,6 +46,7 @@ Conversations.schema = new SimpleSchema({
     'participants.$': { type: Object },
     'participants.$.peopleId': { type: String },
     'participants.$.isMain': { type: Boolean, optional: true },
+
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })
@@ -87,6 +89,25 @@ Conversations.helpers({
     contacts() {
         const peopleIds = _.pluck(this.participants, 'peopleId')
         return People.find({_id:{$in:peopleIds}}).map(p => ({name:p.name, email:p.defaultEmail(), isMain:_.findWhere(this.participants, {peopleId:p._id}).isMain})).filter(({email}) => (email && email.length))
+    },
+    getAssignees() {
+        const threads = Threads.find({conversationId:this._id}).fetch()
+
+        if(!threads || threads.length==0) return []
+
+        return threads.map(t => t.getAssignee()).filter(a => a!=null)
+    },
+    getFollowers() {
+        const threads = Threads.find({conversationId:this._id}).fetch()
+
+        if(!threads || threads.length==0) return []
+
+        let followers = []
+
+        threads.forEach(t => {
+            followers = followers.concat(t.getFollowers())
+        })
+        return followers
     }
 })
 

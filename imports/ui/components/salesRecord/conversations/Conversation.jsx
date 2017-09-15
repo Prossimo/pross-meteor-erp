@@ -1,7 +1,7 @@
 import React from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-
+import {Panel} from 'react-bootstrap'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import DraftStore from '/imports/api/nylas/draft-store'
 import ComposeButton from '../../inbox/composer/ComposeButton'
@@ -41,13 +41,13 @@ export default class Conversation extends TrackerReact(React.Component) {
 
     target = () => {
         const {targetCollection, targetId} = this.props
-        if(!targetId) return null
+        if (!targetId) return null
 
         return targetCollection.findOne(targetId)
     }
     conversation = () => {
         const {conversationId} = this.props
-        if(!conversationId) return null
+        if (!conversationId) return null
 
         return Conversations.findOne(conversationId)
     }
@@ -59,18 +59,18 @@ export default class Conversation extends TrackerReact(React.Component) {
 
     renderComposeModal() {
         const {composeState} = this.state
-        if(!composeState) return ''
+        if (!composeState) return ''
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
-        if(this.props.conversationId && draft.conversationId != this.props.conversationId) return ''
+        if (this.props.conversationId && draft.conversationId != this.props.conversationId) return ''
 
         return <ComposeModal isOpen={composeState.show}
-                      clientId={composeState.clientId}
-                      onClose={this.onCloseComposeModal}/>
+                             clientId={composeState.clientId}
+                             onClose={this.onCloseComposeModal}/>
     }
 
     renderParticipantsSelectModal() {
-        const participants = this.props.onlyStakeholders ? this.target().people().filter(p => p.designation()&&p.designation().name==='Stakeholder') : this.target().people()
+        const participants = this.props.onlyStakeholders ? this.target().people().filter(p => p.designation() && p.designation().name === 'Stakeholder') : this.target().people()
 
         const selections = this.conversation().participants.filter(p => typeof p === 'object')
 
@@ -87,6 +87,46 @@ export default class Conversation extends TrackerReact(React.Component) {
         )
     }
 
+    renderAssignees() {
+        const conversation = Conversations.findOne(this.props.conversationId)
+        if (!conversation) return ''
+
+        return (
+            <div className="list">
+                <Panel header="Assignees">
+                    {
+                        conversation.getAssignees().map((m, i) => (
+                            <div key={`assignee-${i}`} className="item">
+                                <div className="primary-text">{m.name()}</div>
+                                <div className="secondary-text">{m.email()}</div>
+                            </div>
+                        ))
+                    }
+                </Panel>
+            </div>
+        )
+    }
+
+    renderFollowers() {
+        const conversation = Conversations.findOne(this.props.conversationId)
+        if (!conversation) return ''
+
+        return (
+            <div className="list">
+                <Panel header="Followers">
+                    {
+                        conversation.getFollowers().map((m, i) => (
+                            <div key={`assignee-${i}`} className="item">
+                                <div className="primary-text">{m.name()}</div>
+                                <div className="secondary-text">{m.email()}</div>
+                            </div>
+                        ))
+                    }
+                </Panel>
+            </div>
+        )
+    }
+
     render() {
         const {conversationId} = this.props
 
@@ -97,10 +137,13 @@ export default class Conversation extends TrackerReact(React.Component) {
                 <ComposeButton conversationId={conversationId}/>
                 <div style={{display: 'flex'}}>
                     <ConversationList style={{flex: 4}} conversationId={conversationId}/>
-                    <ParticipantList style={{flex: 1}} participants={participants}
-                                     onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
-                                     onChangeParticipants={this.updateParticipants}
-                    />
+                    <div style={{flex: 1}}>
+                        {this.renderAssignees()}
+                        {this.renderFollowers()}
+                        <ParticipantList participants={participants}
+                                         onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
+                                         onChangeParticipants={this.updateParticipants}/>
+                    </div>
                 </div>
                 {this.renderComposeModal()}
                 {this.renderParticipantsSelectModal()}
@@ -110,15 +153,15 @@ export default class Conversation extends TrackerReact(React.Component) {
 
     updateParticipants = (participants) => {
         const {conversationId} = this.props
-        if(conversationId) {
+        if (conversationId) {
             try {
                 const conversation = this.conversation()
                 conversation.participants = participants
 
                 updateConversation.call({...conversation})
 
-                this.setState({showParticipantsSelectModal:false})
-            } catch(e) {
+                this.setState({showParticipantsSelectModal: false})
+            } catch (e) {
                 console.error(e)
             }
         }
