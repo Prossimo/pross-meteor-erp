@@ -47,11 +47,11 @@ export default class ParticipantList extends React.Component {
             </div>
         )
         return (
-            <div className="participant-list" style={style}>
+            <div className="panel-content-list" style={style}>
                 <Panel header={header}>
                     {
                         this.state.participants.map((p, i) => (
-                            <div key={i} className="participant-item">
+                            <div key={i} className="panel-content-item">
                                 <div style={{flex:1}}>
                                     <div>{p.name}</div>
                                     <div>{p.defaultEmail()}</div>
