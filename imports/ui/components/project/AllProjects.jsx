@@ -74,9 +74,9 @@ class AllProjects extends Component {
             })
           }),
       }).then(({ isRemoveFolders, isRemoveSlack }) => {
-          Meteor.call('project.remove',{ _id, isRemoveFolders, isRemoveSlack }, (err,res)=>{
+          Meteor.call('project.remove',{ _id, isRemoveFolders, isRemoveSlack }, (err,res) => {
               if(err) {
-                  const msg = e.reason ? e.reason : e.message
+                  const msg = err.reason ? err.reason : err.message
                   return swal('remove project failed',  msg, 'warning')
               }
               swal(
