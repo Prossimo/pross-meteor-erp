@@ -34,7 +34,7 @@ class MyTasks extends Component {
     getTasks() {
         const {showCompletedTasks, showAllTasks, viewOption} = this.state
 
-        let tasks = showAllTasks ? Tasks.find().fetch() : this.props.tasks
+        let tasks = showAllTasks ? Tasks.find().fetch().filter(t => t.parent()!=null) : this.props.tasks
 
         if(!showCompletedTasks) tasks = tasks.filter(t => t.status !== 'Complete')
 
@@ -232,7 +232,7 @@ export default createContainer(() => {
         subscribers.push(Meteor.subscribe('task.byUserId'))
     }
     loading = subscribers.reduce((result, subscriber) => result && subscriber.ready(), true)
-    tasks = Tasks.find({$or: [{assignee: userId}, {approver: userId}]}).fetch()
+    tasks = Tasks.find({$or: [{assignee: userId}, {approver: userId}]}).fetch().filter(t => t.parent()!=null)
     return {
         loading,
         tasks,
