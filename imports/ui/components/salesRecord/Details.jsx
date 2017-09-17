@@ -161,6 +161,12 @@ class Details extends TrackerReact(React.Component) {
             this.salesRecord = salesRecord
         }
     }
+
+    onKeyDownInput = (evt) => {
+        if(evt.key === 'Enter') {
+            this.saveSalesRecord()
+        }
+    }
     renderRowType(field, type, value, selectOptions) {
         switch (type) {
             case 'date':
@@ -207,6 +213,7 @@ class Details extends TrackerReact(React.Component) {
                         style={{width: '100%'}}
                         onChange={(event) => this.changeState(field, parseFloat(event.target.value))}
                         onBlur={this.saveSalesRecord}
+                        onKeyDown={this.onKeyDownInput}
                     />
                 )
             case 'daterange':
@@ -241,6 +248,7 @@ class Details extends TrackerReact(React.Component) {
                         style={{width: '100%'}}
                         onChange={(event) => this.changeState(field, event.target.value)}
                         onBlur={this.saveSalesRecord}
+                        onKeyDown={this.onKeyDownInput}
                     />
                 )
         }
