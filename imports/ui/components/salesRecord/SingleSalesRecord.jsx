@@ -2,11 +2,12 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import classNames from 'classnames'
+import swal from 'sweetalert2'
 import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select'
-import {ROLES, Users, PeopleDesignations, People, SalesRecords} from '/imports/api/models'
+import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus} from '/imports/api/models'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
 import Quotes from './Quotes'
@@ -27,6 +28,10 @@ class SingleSalesRecord extends React.Component {
         super(props)
         this.tabs = [
             {
+                label: 'Details',
+                component: <Details/>
+            },
+            {
                 label: 'Activity',
                 component: <Activity/>
             },
@@ -37,10 +42,6 @@ class SingleSalesRecord extends React.Component {
             {
                 label: 'Conversations',
                 component: <Conversations targetCollection={SalesRecords} targetId={props.salesRecord._id}/>
-            },
-            {
-                label: 'Details',
-                component: <Details/>
             },
             {
                 label: 'Invoices',
@@ -70,7 +71,7 @@ class SingleSalesRecord extends React.Component {
 
         const salesRecordId = FlowRouter.getParam('id')
         this.state = {
-            activeTab: this.tabs.find(tab => tab.label === 'Activity'),
+            activeTab: this.tabs.find(tab => tab.label === 'Details'),
             showPopup: false,
             popupTitle: '',
             popupData: null,
@@ -231,14 +232,15 @@ class SingleSalesRecord extends React.Component {
         this.setState({
             newStakeholder: {
                 selectedPerson: item,
-                addToMain: item.designation&&item.designation.name==='Stakeholder'
+                addToMain: item.designation && item.designation.name === 'Stakeholder'
             }
         })
     }
     changeNewStakeholderAddToMain = (checked) => {
         const {newStakeholder: {selectedPerson}} = this.state
-        this.setState({newStakeholder:{selectedPerson, addToMain:checked}})
+        this.setState({newStakeholder: {selectedPerson, addToMain: checked}})
     }
+
     renderAddStakeholderForm() {
         const {newStakeholder: {selectedPerson, addToMain}} = this.state
         const peopleOptions = this.props.candidateStakeholders.map(p => {
@@ -264,7 +266,7 @@ class SingleSalesRecord extends React.Component {
                             value=""
                             checked={addToMain}
                             onChange={(event) => this.changeNewStakeholderAddToMain(event.target.checked)}
-                            disabled={!(selectedPerson && selectedPerson.designation && selectedPerson.designation.name==='Stakeholder')}/>
+                            disabled={!(selectedPerson && selectedPerson.designation && selectedPerson.designation.name === 'Stakeholder')}/>
                             Add To Main
                         </label>
                     </div>
@@ -308,7 +310,7 @@ class SingleSalesRecord extends React.Component {
 
     onSelectMembers = (members) => {
         const {salesRecord} = this.props
-        if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m.value)>-1)) return
+        if (members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m.value) > -1)) return
 
         Meteor.call('updateSalesRecordMembers', salesRecord._id, members.map(m => m.value), err => {
             if (err) return console.error(err)
@@ -353,10 +355,47 @@ class SingleSalesRecord extends React.Component {
         Meteor.call('updateSalesRecordSlackChannel', {
             _id: this.props.salesRecord._id,
             channel
-        }, (err,res) => {
-            if(err) {
+        }, (err, res) => {
+            if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)
+            }
+        })
+    }
+
+    onChangeTeamLead = (option) => {
+        const {salesRecord} = this.props
+
+        if(salesRecord.teamLead != option.value) {
+            this.updateSalesRecordStatus({teamLead:option.value})
+        }
+    }
+
+    onChangeClientStatus = (option) => {
+        const {salesRecord} = this.props
+
+        if(salesRecord.clientStatus != option.value) {
+            this.updateSalesRecordStatus({clientStatus:option.value})
+        }
+    }
+
+    onChangeSupplierStatus = (option) => {
+        const {salesRecord} = this.props
+
+        if(salesRecord.supplierStatus != option.value) {
+            this.updateSalesRecordStatus({supplierStatus:option.value})
+        }
+    }
+
+    updateSalesRecordStatus(data={}) {
+        const {salesRecord} = this.props
+
+        if(!salesRecord) return
+
+        Meteor.call('updateSalesRecordStatus', salesRecord._id, data, (err) => {
+            if(err) {
+                console.error(err)
+                swal('Update status error',  err.reason ? err.reason : err.message, 'warning')
             }
         })
     }
@@ -371,10 +410,7 @@ class SingleSalesRecord extends React.Component {
 
     render() {
         const {salesRecord} = this.props
-        const sidebarTitle = 'Deal members'
-        const projectName = salesRecord.name
         const defaultStage = this.stageOptions.find(({value}) => value === salesRecord.stage)
-        const slackChannelInfo = null//salesRecord.slackChannelInfo()
 
         const members = salesRecord.getMembers()
         return (
@@ -383,25 +419,60 @@ class SingleSalesRecord extends React.Component {
                 <div className="main-content">
                     <div className="tab-container">
                         <div className='page-title'>
-                            <div className='row'>
-                                <h2 className="col-md-10">{projectName}</h2>
-                                <Select
-                                    style={{marginBottom: '5px'}}
-                                    className='col-md-2'
-                                    value={defaultStage}
-                                    options={this.stageOptions}
-                                    clearable={false}
-                                    onChange={(item) => this.changeStage(salesRecord._id, item)}
-                                />
-                                <SelectSubStage
-                                    update
-                                    style={'col-md-2'}
-                                    stage={defaultStage.value}
-                                    subStage={salesRecord.subStage}
-                                    onSelectSubStage={(item) => {
-                                        this.changeSubStage(salesRecord._id, item)
-                                    }}
-                                />
+                            <div><h2>{salesRecord.name}</h2></div>
+                            <div style={{display:'flex'}}>
+                                <div className="header-field-container" style={{flex:0.8}}>
+                                    <div className="label">Stage:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={defaultStage}
+                                            options={this.stageOptions}
+                                            clearable={false}
+                                            onChange={(item) => this.changeStage(salesRecord._id, item)}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex:1}}>
+                                    <div className="label">Sub Stage:</div>
+                                    <div className="value">
+                                        <SelectSubStage
+                                            update
+                                            stage={defaultStage.value}
+                                            subStage={salesRecord.subStage}
+                                            onSelectSubStage={(item) => {
+                                                this.changeSubStage(salesRecord._id, item)
+                                            }}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex:1}}>
+                                    <div className="label">Team Lead:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.teamLead}
+                                            options={salesRecord.getMembers().map(m => ({value:m._id,label:m.name()}))}
+                                            clearable={false}
+                                            onChange={this.onChangeTeamLead}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex:1.2}}>
+                                    <div className="label">Client Status:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.clientStatus}
+                                            options={ClientStatus.find().map(s => ({value:s._id,label:s.name}))}
+                                            clearable={false}
+                                            onChange={this.onChangeClientStatus}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex:1.2}}>
+                                    <div className="label">Supplier Status:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.supplierStatus}
+                                            options={SupplierStatus.find().map(s => ({value:s._id,label:s.name}))}
+                                            clearable={false}
+                                            onChange={this.onChangeSupplierStatus}/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="tab-controls">
@@ -420,8 +491,12 @@ class SingleSalesRecord extends React.Component {
                         </Panel>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Members" actions={<Selector multiple value={members.map(m => ({value:m._id, label:m.name()}))} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectMembers}/>}>
-                            {members&&members.length ? this.renderMembers(members) : <div>There are no members assigned to this project</div>}
+                        <Panel title="Members"
+                               actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
+                                                  options={Users.find().map(u => ({value: u._id, label: u.name()}))}
+                                                  onSelect={this.onSelectMembers}/>}>
+                            {members && members.length ? this.renderMembers(members) :
+                                <div>There are no members assigned to this project</div>}
                         </Panel>
                     </div>
                     <div className='sidebar-box'>

@@ -247,17 +247,17 @@ Meteor.methods({
         }
         check(_id, String)
         check(data, {
-            name: String,
-            shippingMode: String,
-            members: [String],
-            stakeholders: [{
+            name: Match.Maybe(String),
+            shippingMode: Match.Maybe(String),
+            members: Match.Maybe([String]),
+            stakeholders: Match.Maybe([{
                 isMainStakeholder: Boolean,
                 addToMain: Match.Maybe(Boolean),
                 peopleId: String,
-            }],
-            actualDeliveryDate: Date,
-            productionStartDate: Date,
-            estDeliveryRange: [Date],
+            }]),
+            actualDeliveryDate: Match.Maybe(Date),
+            productionStartDate: Match.Maybe(Date),
+            estDeliveryRange: Match.Maybe([Date]),
 
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
@@ -277,6 +277,15 @@ Meteor.methods({
             shipper: Match.Maybe(String),
             stage: Match.Maybe(String),
             subStage: Match.Maybe(String),
+
+            bidDueDate: Match.Maybe(Date),
+            expectedRevenue: Match.Maybe(Number),
+            totalSquareFootage: Match.Maybe(Number),
+            priority: Match.Maybe(String),
+            probability: Match.Maybe(String),
+            teamLead: Match.Maybe(String),
+            clientStatus: Match.Maybe(String),
+            supplierStatus: Match.Maybe(String)
         })
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
@@ -285,7 +294,7 @@ Meteor.methods({
         if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
 
         // Update main conversation participants
-        if(sr.conversationIds && sr.conversationIds.length>0) {
+        if(sr.conversationIds && sr.conversationIds.length>0 && data.stakeholders) {
             Conversations.update({_id:sr.conversationIds[0]}, {$set:{participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))}})
         }
 

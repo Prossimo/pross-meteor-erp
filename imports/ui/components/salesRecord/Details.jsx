@@ -3,8 +3,8 @@ import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
-import { info, warning  } from '/imports/api/lib/alerts'
-import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
+import {info, warning} from '/imports/api/lib/alerts'
+import {SHIPPING_MODE_LIST} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
@@ -16,16 +16,11 @@ import {removeClientStatus, removeSupplierStatus} from '/imports/api/models/sale
 class Details extends TrackerReact(React.Component) {
     constructor(props) {
         super(props)
+
+        this.salesRecord = props.salesRecord
         this.state = {
-            isEditingStatus: false,
-            isEditingAttributes: false,
-            isEditingShipping: false,
-            isEditingBilling: false,
-            salesRecord: props.salesRecord,
+            salesRecord: this.salesRecord,
         }
-        this.toggleEditAttributes = this.toggleEditAttributes.bind(this)
-        this.toggleEditShipping = this.toggleEditShipping.bind(this)
-        this.toggleEditBilling = this.toggleEditBilling.bind(this)
         this.changeState = this.changeState.bind(this)
         this.changeStateElem = this.changeStateElem.bind(this)
         this.saveAttributes = this.saveAttributes.bind(this)
@@ -58,8 +53,7 @@ class Details extends TrackerReact(React.Component) {
             'billingNotes',
         )
         Meteor.call('updateProjectBilling', salesRecordId, billing, (error, result) => {
-            if(error) return warning(`Problems with updating project. ${error.error}`)
-            this.toggleEditBilling()
+            if (error) return warning(`Problems with updating project. ${error.error}`)
             return info('Success update project')
         })
     }
@@ -75,8 +69,7 @@ class Details extends TrackerReact(React.Component) {
             'shippingNotes',
         )
         Meteor.call('updateProjectShipping', salesRecordId, shipping, (error, result) => {
-            if(error) return warning(`Problems with updating project. ${error.error}`)
-            this.toggleEditShipping()
+            if (error) return warning(`Problems with updating project. ${error.error}`)
             return info('Success update project')
         })
     }
@@ -94,9 +87,8 @@ class Details extends TrackerReact(React.Component) {
             'clientStatus',
             'supplierStatus',
         )
-        Meteor.call('updateSalesRecordStatus', salesRecordId, status, (error, result) => {
-            if(error) return warning(`Problems with updating project. ${error.error}`)
-            this.toggleEditStatus()
+        Meteor.call('saveSalesRecordStatus', salesRecordId, status, (error, result) => {
+            if (error) return warning(`Problems with updating project. ${error.error}`)
             return info('Success update project')
         })
     }
@@ -115,42 +107,17 @@ class Details extends TrackerReact(React.Component) {
             'estDeliveryRange',
         )
         Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result) => {
-            if(error) return warning(`Problems with updating project. ${error.error}`)
-            this.toggleEditAttributes()
+            if (error) return warning(`Problems with updating project. ${error.error}`)
             return info('Success update project')
         })
     }
 
-    toggleEditStatus = () => {
-        this.setState(({ isEditingStatus }) => ({
-            isEditingStatus: !isEditingStatus
-        }))
-    }
-
-    toggleEditAttributes() {
-        this.setState(({ isEditingAttributes }) => ({
-            isEditingAttributes: !isEditingAttributes
-        }))
-    }
-
-    toggleEditShipping() {
-        this.setState(({ isEditingShipping}) => ({
-            isEditingShipping: !isEditingShipping
-        }))
-    }
-
-    toggleEditBilling() {
-        this.setState(({ isEditingBilling }) => ({
-            isEditingBilling: !isEditingBilling
-        }))
-    }
-
     handleAddClientStatus = () => {
-        this.setState({showClientStatusModal:true})
+        this.setState({showClientStatusModal: true})
     }
 
     handleAddSupplierStatus = () => {
-        this.setState({showSupplierStatusModal:true})
+        this.setState({showSupplierStatusModal: true})
 
     }
 
@@ -164,49 +131,61 @@ class Details extends TrackerReact(React.Component) {
 
     onRemoveOption = (field, _id) => {
         try {
-            if(field === 'clientStatus') {
+            if (field === 'clientStatus') {
                 removeClientStatus.call({_id})
-            } else if(field === 'supplierStatus') {
+            } else if (field === 'supplierStatus') {
                 removeSupplierStatus.call({_id})
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e)
         }
     }
 
-    renderEditAttributesButton(edittingStatus, toggle, saveCallback) {
-        if (edittingStatus) return (
-            <button
-                className='btn btn-default btn-sm pull-right'
-                onClick={saveCallback}>
-                <i className='fa fa-floppy-o'/> Save
-            </button>
-        )
-        return (
-            <button className='btn btn-default btn-sm btn-primary pull-right' onClick={toggle}>
-                <i className='fa fa-pencil'/> Edit
-            </button>
-        )
-    }
+    saveSalesRecord = () => {
+        console.log('saveSalesRecord')
 
+        const salesRecord = _.clone(this.state.salesRecord)
+
+        if(!_.isEqual(this.salesRecord, salesRecord)) {
+
+            console.log('salesRecord', salesRecord)
+            Meteor.call('updateSalesRecord', {
+                _id: salesRecord._id,
+                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChanel', 'slackChannelName', 'conversationIds', 'taskFolderId'])}
+            }, (err) => {
+                if (err) {
+                    console.error(err)
+                }
+            })
+
+            this.salesRecord = salesRecord
+        }
+    }
     renderRowType(field, type, value, selectOptions) {
-        switch(type) {
+        switch (type) {
             case 'date':
                 return (
                     <DatePicker
                         selected={moment(value)}
                         onChange={((date) => this.changeState(field, date.toDate()))}
+                        onBlur={this.saveSalesRecord}
                     />
                 )
             case 'select':
                 return (
                     <Select
-                       value={value}
-                       onChange={({ value }) => this.changeState(field, value)}
-                       options={selectOptions}
-                       optionRenderer={Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) ? (option) => <div style={{display:'flex'}}><span style={{flex:1}}>{option.label}</span>{option.editable&&<span onMouseDown={(evt) => {evt.stopPropagation(); evt.preventDefault(); this.onRemoveOption(field, option.value)}}>×</span>}</div> : null}
-                       className={'select-role'}
-                       clearable={false}
+                        value={value}
+                        onChange={({value}) => this.changeState(field, value, true)}
+                        onBlur={this.saveSalesRecord}
+                        options={selectOptions}
+                        optionRenderer={Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) ? (option) => <div style={{display: 'flex'}}><span style={{flex: 1}}>{option.label}</span>{option.editable &&
+                        <span onMouseDown={(evt) => {
+                            evt.stopPropagation()
+                            evt.preventDefault()
+                            this.onRemoveOption(field, option.value)
+                        }}>×</span>}</div> : null}
+                        className={'select-role'}
+                        clearable={false}
                     />
                 )
             case 'textarea':
@@ -216,6 +195,7 @@ class Details extends TrackerReact(React.Component) {
                         value={value}
                         style={{width: '100%'}}
                         onChange={(event) => this.changeState(field, event.target.value)}
+                        onBlur={this.saveSalesRecord}
                     />
                 )
             case 'number':
@@ -226,6 +206,7 @@ class Details extends TrackerReact(React.Component) {
                         value={value}
                         style={{width: '100%'}}
                         onChange={(event) => this.changeState(field, parseFloat(event.target.value))}
+                        onBlur={this.saveSalesRecord}
                     />
                 )
             case 'daterange':
@@ -237,7 +218,8 @@ class Details extends TrackerReact(React.Component) {
                             selectsStart
                             startDate={moment(value[0])}
                             endDate={moment(value[1])}
-                            onChange={(date) => this.changeStateElem(field, date.toDate(), 0)} />
+                            onChange={(date) => this.changeStateElem(field, date.toDate(), 0)}
+                            onBlur={this.saveSalesRecord}/>
                         &nbsp;
                         to
                         &nbsp;
@@ -247,7 +229,8 @@ class Details extends TrackerReact(React.Component) {
                             selectsStart
                             startDate={moment(value[0])}
                             endDate={moment(value[1])}
-                            onChange={(date) => this.changeStateElem(field, date.toDate(), 1)} />
+                            onChange={(date) => this.changeStateElem(field, date.toDate(), 1)}
+                            onBlur={this.saveSalesRecord}/>
                     </div>
                 )
             default:
@@ -257,53 +240,53 @@ class Details extends TrackerReact(React.Component) {
                         value={value}
                         style={{width: '100%'}}
                         onChange={(event) => this.changeState(field, event.target.value)}
+                        onBlur={this.saveSalesRecord}
                     />
                 )
         }
     }
 
-    renderTableRows(rows, data, name){
-         return _.map(rows, ({ type, field, label }) => {
-            let value = data[field]
+    renderTableRows(rows, data, name) {
+        return _.map(rows, ({type, field, label}) => {
+            const value = data[field]
             let displayValue = value
             let selectOptions
-            if(type === 'select') {
-                if(field === 'shippingMode') {
+            if (type === 'select') {
+                if (field === 'shippingMode') {
                     selectOptions = SHIPPING_MODE_LIST.map((value) => ({label: value, value}))
-                } else if(field === 'teamLead') {
+                } else if (field === 'teamLead') {
                     const members = this.props.salesRecord.getMembers()
-                    selectOptions = members.map(m => ({label: m.name(), value:m._id}))
-                    displayValue = value && _.findWhere(members, {_id:value}).name()
-                } else if(field === 'priority') {
+                    selectOptions = members.map(m => ({label: m.name(), value: m._id}))
+                    displayValue = value && _.findWhere(members, {_id: value}).name()
+                } else if (field === 'priority') {
                     selectOptions = Object.values(DEAL_PRIORITY).map(value => ({label: value, value}))
-                } else if(field === 'probability') {
+                } else if (field === 'probability') {
                     selectOptions = Object.values(DEAL_PROBABILITY).map(value => ({label: value, value}))
-                } else if(field === 'clientStatus') {
+                } else if (field === 'clientStatus') {
                     const statuses = ClientStatus.find().fetch()
-                    selectOptions = statuses.map(s => ({label:s.name, value:s._id, editable:s.editable}))
-                    const status = _.findWhere(statuses, {_id:value})
+                    selectOptions = statuses.map(s => ({label: s.name, value: s._id, editable: s.editable}))
+                    const status = _.findWhere(statuses, {_id: value})
                     displayValue = status && status.name
-                } else if(field === 'supplierStatus') {
+                } else if (field === 'supplierStatus') {
                     const statuses = SupplierStatus.find().fetch()
-                    selectOptions = statuses.map(s => ({label:s.name, value:s._id, editable:s.editable}))
-                    const status = _.findWhere(statuses, {_id:value})
+                    selectOptions = statuses.map(s => ({label: s.name, value: s._id, editable: s.editable}))
+                    const status = _.findWhere(statuses, {_id: value})
                     displayValue = status && status.name
                 }
             }
 
-            if ((this.state.isEditingStatus && name == 'status')
-                || (this.state.isEditingAttributes && name == 'attributes')
-                || (this.state.isEditingShipping && name == 'shipping')
-                || (this.state.isEditingBilling && name == 'billing')
-            ) {
+            if(name !== 'others') {
                 return (
                     <tr key={field}>
                         <td>{label}</td>
-                        <td style={{display:'flex'}}>
-                            <div style={{flex:1}}>{this.renderRowType(field, type, value, type==='select'&&selectOptions)}</div>
+                        <td style={{display: 'flex'}}>
+                            <div
+                                style={{flex: 1}}>{this.renderRowType(field, type, value, type === 'select' && selectOptions)}</div>
                             <div>
-                            {field==='clientStatus'&&Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])&&<button className="btn btn-default" onClick={this.handleAddClientStatus}>+</button>}
-                            {field==='supplierStatus'&&Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])&&<button className="btn btn-default" onClick={this.handleAddSupplierStatus}>+</button>}
+                                {field === 'clientStatus' && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) &&
+                                <button className="btn btn-default" onClick={this.handleAddClientStatus}>+</button>}
+                                {field === 'supplierStatus' && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) &&
+                                <button className="btn btn-default" onClick={this.handleAddSupplierStatus}>+</button>}
                             </div>
                         </td>
                     </tr>
@@ -312,14 +295,16 @@ class Details extends TrackerReact(React.Component) {
             if (_.isNull(value) || _.isUndefined(value)) return null
             if (type === 'date') displayValue = moment(value).format('MM/DD/YYYY')
             if (type === 'daterange') displayValue = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`
-            if (type === 'currency') displayValue = `$ ${parseFloat(value).toLocaleString('en-US', {minimunFractionDigits:2, maximumFractionDigits:2})}`
+            if (type === 'currency') displayValue = `$ ${parseFloat(value).toLocaleString('en-US', {
+                minimunFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`
             return (
                 <tr key={field}>
                     <td>{label}</td>
                     <td>{displayValue}</td>
                 </tr>
             )
-             return null
         })
     }
 
@@ -343,7 +328,7 @@ class Details extends TrackerReact(React.Component) {
 
         return (
             <Modal show={showSupplierStatusModal} bsSize="small" onHide={() => {
-                this.setState({showClientStatusModal: false})
+                this.setState({showSupplierStatusModal: false})
             }}>
                 <Modal.Header closeButton><Modal.Title>Add new supplier status</Modal.Title></Modal.Header>
                 <Modal.Body>
@@ -352,8 +337,9 @@ class Details extends TrackerReact(React.Component) {
             </Modal>
         )
     }
+
     render() {
-        const { salesRecord } = this.state
+        const {salesRecord} = this.state
         const statusRows = [
             {label: 'Team Lead', field: 'teamLead', type: 'select'},
             {label: 'Bid Due Date', field: 'bidDueDate', type: 'date'},
@@ -389,70 +375,77 @@ class Details extends TrackerReact(React.Component) {
             {label: 'Notes', field: 'billingNotes', type: 'textarea'},
         ]
         const otherRows = [
-            { label: 'ID', field: '_id', type: 'text' },
-            { label: 'Created At', field: 'createdAt', type: 'date' },
-            { label: 'Modified At', field: 'modifiedAt', type: 'date' },
-            { label: 'Slack Chanel', field: 'slackChanel', type: 'text' },
-            { label: 'Folder Id', field: 'folderId', type: 'text' },
+            {label: 'ID', field: '_id', type: 'text'},
+            {label: 'Created At', field: 'createdAt', type: 'date'},
+            {label: 'Modified At', field: 'modifiedAt', type: 'date'},
+            {label: 'Slack Chanel', field: 'slackChanel', type: 'text'},
+            {label: 'Folder Id', field: 'folderId', type: 'text'},
         ]
 
         return (
             <div className="details-inbox-tab">
                 {this.renderClientStatusModal()}
                 {this.renderSupplierStatusModal()}
-                <div className='panel panel-default'>
-                    <div className='panel-heading'>
-                        Deal Status
-                        { this.renderEditAttributesButton(this.state.isEditingStatus, this.toggleEditStatus, this.saveStatus) }
+                <div className="row">
+                    <div className="col-md-6">
+                        <div className="panel panel-default">
+                            <div className='panel-heading'>
+                                Deal Status
+                            </div>
+                            <div className='panel-body'>
+                                <table className="table table-condensed">
+                                    <tbody>
+                                    {this.renderTableRows(statusRows, salesRecord, 'status')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <div className='panel-body'>
-                        <table className="table table-condensed">
-                            <tbody>
-                            {this.renderTableRows(statusRows, salesRecord, 'status')}
-                            </tbody>
-                        </table>
+
+                    <div className="col-md-6">
+                        <div className="panel panel-default">
+                            <div className='panel-heading'>
+                                Project Attributes
+                            </div>
+                            <div className='panel-body'>
+                                <table className="table table-condensed">
+                                    <tbody>
+                                    {this.renderTableRows(attrRows, salesRecord, 'attributes')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div className='panel panel-default'>
-                    <div className='panel-heading'>
-                        Project Attributes
-                        { this.renderEditAttributesButton(this.state.isEditingAttributes, this.toggleEditAttributes, this.saveAttributes) }
+                <div className="row">
+                    <div className="col-md-6">
+                        <div className='panel panel-default'>
+                            <div className='panel-heading'>
+                                Shipping
+                            </div>
+                            <div className='panel-body'>
+                                <table className="table table-condensed">
+                                    <tbody>
+                                    {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <div className='panel-body'>
-                        <table className="table table-condensed">
-                            <tbody>
-                            {this.renderTableRows(attrRows, salesRecord, 'attributes')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div className='panel panel-default'>
-                    <div className='panel-heading'>
-                        Shipping
-                        { this.renderEditAttributesButton(this.state.isEditingShipping, this.toggleEditShipping, this.saveShipping) }
-                    </div>
-                    <div className='panel-body'>
-                        <table className="table table-condensed">
-                            <tbody>
-                            {this.renderTableRows(shippingRows, salesRecord, 'shipping')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div className='panel panel-default'>
-                    <div className='panel-heading'>
-                        Billing
-                        { this.renderEditAttributesButton(this.state.isEditingBilling, this.toggleEditBilling, this.saveBilling) }
-                    </div>
-                    <div className='panel-body'>
-                        <table className="table table-condensed">
-                           <tbody>
-                           {this.renderTableRows(billingRows, salesRecord , 'billing')}
-                           </tbody>
-                        </table>
+                    <div className="col-md-6">
+                        <div className='panel panel-default'>
+                            <div className='panel-heading'>
+                                Billing
+                            </div>
+                            <div className='panel-body'>
+                                <table className="table table-condensed">
+                                    <tbody>
+                                    {this.renderTableRows(billingRows, salesRecord, 'billing')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className='panel panel-default'>
@@ -462,7 +455,7 @@ class Details extends TrackerReact(React.Component) {
                     <div className='panel-body'>
                         <table className="table table-condensed">
                             <tbody>
-                            {this.renderTableRows(otherRows, salesRecord, 'shipping')}
+                            {this.renderTableRows(otherRows, salesRecord, 'others')}
                             </tbody>
                         </table>
                     </div>
