@@ -72,7 +72,7 @@ export default class CreateProject extends TrackerReact(Component) {
 
         const {thread, project} = this.props
 
-        delete thread.object
+        if(thread) delete thread.object
 
         if (project) {
             const {selectedConversation} = this.state
