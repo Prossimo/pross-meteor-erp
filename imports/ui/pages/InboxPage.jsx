@@ -47,6 +47,7 @@ class InboxPage extends (React.Component) {
         this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
         this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
+        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
 
     }
 
@@ -74,6 +75,11 @@ class InboxPage extends (React.Component) {
     onDraftStoreChanged = () => {
         this.setState({
             composeState: DraftStore.draftViewStateForModal()
+        })
+    }
+    onThreadStoreChanged = () => {
+        this.setState({
+            fetching: ThreadStore.fetching
         })
     }
 
@@ -261,7 +267,7 @@ class InboxPage extends (React.Component) {
     }
 
     renderCategories() {
-        const {currentCategory} = this.state
+        const {currentCategory, fetching} = this.state
 
         const appCategories = [{
             id: 'assigned_to_me',
@@ -366,6 +372,7 @@ class InboxPage extends (React.Component) {
                     </div>
                     )
                 }
+                {fetching && <div className="status-wrapper">Fetching new messages ...</div>}
             </div>
         )
     }
