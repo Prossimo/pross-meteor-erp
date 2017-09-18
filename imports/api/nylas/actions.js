@@ -5,6 +5,7 @@ const Actions = Reflux.createActions([
     'changedThreads',
     'loadContacts',         // accountId
     'loadThreads',          // folder, {page, search}
+    'fetchNewThreads',
     'loadMessages',         // thread
     'searchThreads',         // thread
 

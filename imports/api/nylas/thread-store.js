@@ -11,6 +11,7 @@ class ThreadStore extends Reflux.Store {
     constructor() {
         super()
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
+        this.listenTo(Actions.fetchNewThreads, this.onFetchNewThreads)
         this.listenTo(Actions.changedThreads, this.trigger)
         this.listenTo(Actions.searchThreads, this.onSearchThreads)
 
@@ -75,6 +76,38 @@ class ThreadStore extends Reflux.Store {
             this.trigger()
 
             this.currentPage = page ? page : 1
+        })
+    }
+
+    onFetchNewThreads = () => {
+        const category = CategoryStore.currentCategory
+
+        if(category) {
+            Actions.loadMessages(this._currentThread[category.id])
+        }
+
+        const loadThreads = (folder) => {
+            if(!folder || !folder.account_id) return Promise.resolve([])
+
+            const query = {offset:0, limit:PAGE_SIZE}
+
+            return new Promise((resolve, reject) => NylasAPI.makeRequest({
+                    path: `/threads?${QueryString.stringify(Object.assign(query, {in:folder.id}))}`,
+                    method: 'GET',
+                    accountId: folder.account_id
+                }).then(threads => resolve(threads)).catch(err => reject(err)))
+        }
+
+        const promises = Meteor.user().nylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+
+        this.fetching = true
+        this.trigger()
+
+        Promise.all(promises).then((threads) => {
+            //console.log('Load Threads result', threads)
+        }).finally(() => {
+            this.fetching = false
+            this.trigger()
         })
     }
 
