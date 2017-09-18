@@ -3,6 +3,7 @@ import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import Users from '../users/users'
 import People from '../people/people'
+import Tasks from '../tasks/tasks'
 import Conversations from '../conversations/conversations'
 
 class ProjectsCollection extends Mongo.Collection {
@@ -18,54 +19,64 @@ class ProjectsCollection extends Mongo.Collection {
         return result
     }
 }
+
 const Projects = new ProjectsCollection('Projects')
 
 Projects.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
-    createdAt: { type: Date, denyUpdate: true, optional: true },
-    modifiedAt: { type: Date, denyInsert: true, optional: true },
+    createdAt: {type: Date, denyUpdate: true, optional: true},
+    modifiedAt: {type: Date, denyInsert: true, optional: true},
     name: {type: String},
-    members: {type: Array, optional:true},
+    members: {type: Array, optional: true},
     'members.$': {type: Object},
     'members.$.userId': {type: String},
     'members.$.isAdmin': {type: Boolean},
-    stakeholders: {type: Array, optional:true},
+    stakeholders: {type: Array, optional: true},
     'stakeholders.$': {type: Object},
     'stakeholders.$.peopleId': {type: String},
-    'stakeholders.$.isMainStakeholder': { type: Boolean, optional:true },
-    'stakeholders.$.addToMain': {type: Boolean, optional:true},    // to main conversation
+    'stakeholders.$.isMainStakeholder': {type: Boolean, optional: true},
+    'stakeholders.$.addToMain': {type: Boolean, optional: true},    // to main conversation
     slackChanel: {type: String, optional: true},
     slackChannelName: {type: String, optional: true},
     folderId: {type: String, optional: true},
     taskFolderId: {type: String, optional: true},
 
-    conversationIds: {type: Array, optional:true},
+    conversationIds: {type: Array, optional: true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 })
 
 Projects.attachSchema(Projects.schema)
 
 Projects.helpers({
+    tasks() {
+        return Tasks.find({parentId:this._id, parentType:'project'}).fetch()
+    },
     getMembers() {
         if (!this.members || this.members.length == 0) return []
 
         const memberIds = _.pluck(this.members, 'userId')
-        return Users.find({_id:{$in:memberIds}}).fetch()
+        return Users.find({_id: {$in: memberIds}}).fetch()
     },
 
     getStakeholders() {
-        if(!this.stakeholders || this.stakeholders.length == 0) return []
+        if (!this.stakeholders || this.stakeholders.length == 0) return []
 
         const peopleIds = _.pluck(this.stakeholders, 'peopleId')
         //console.log(JSON.stringify({_id: {$in:peopleIds}}))
-        return People.find({_id: {$in:peopleIds}}).map(p => {
-            const stakeholder = _.findWhere(this.stakeholders, {peopleId:p._id})
-            return {...p, email:p.defaultEmail(), designation:p.designation()?p.designation().name:null, isMainStakeholder:stakeholder.isMainStakeholder, addToMain:stakeholder.addToMain}
+        return People.find({_id: {$in: peopleIds}}).map(p => {
+            const stakeholder = _.findWhere(this.stakeholders, {peopleId: p._id})
+            return {
+                ...p,
+                email: p.defaultEmail(),
+                designation: p.designation() ? p.designation().name : null,
+                isMainStakeholder: stakeholder.isMainStakeholder,
+                addToMain: stakeholder.addToMain
+            }
         })
     },
     people() {
         const peopleIds = _.pluck(this.stakeholders, 'peopleId')
-        return People.find({_id:{$in:peopleIds}}).fetch()
+        return People.find({_id: {$in: peopleIds}}).fetch()
     }
 })
 export default Projects
