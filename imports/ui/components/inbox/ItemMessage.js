@@ -12,6 +12,7 @@ import AttachmentComponent from '../attachment/attachment-component'
 import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
 import {info, warning} from '/imports/api/lib/alerts'
+import TaskModal from '../../components/tasks/TaskModal'
 
 class ItemMessage extends React.Component {
     static propTypes = {
@@ -36,13 +37,23 @@ class ItemMessage extends React.Component {
     }
 
     render() {
-        if (this.props.collapsed) {
-            return this.renderCollapsed()
-        } else {
-            return this.renderFull()
-        }
+        return (
+            <div>
+                {
+                    this.props.collapsed ? this.renderCollapsed() : this.renderFull()
+                }
+                {this.renderTaskModal()}
+            </div>
+        )
     }
 
+    renderTaskModal() {
+        const {showTaskModal, task, taskFolderId} = this.state
+
+        if(!showTaskModal || !task) return ''
+
+        return <TaskModal onSaved={() => this.setState({showTaskModal:false})} onClose={() => this.setState({showTaskModal:false})} isOpen={showTaskModal} task={task} taskFolderId={taskFolderId}/>
+    }
     renderCollapsed() {
         let attachmentIcon = []
         if (this.props.message.files.length > 0) {
@@ -304,19 +315,16 @@ class ItemMessage extends React.Component {
 
         const parent = message.conversation().parent()
 
-        Meteor.call('task.create', {
-            parentId: parent._id,
-            parentType: parent.type,
-            description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview/${message.id}`)}`
-        }, error => {
-            if (error) {
-                const msg = error.reason ? error.reason : error.message
-                warning(msg)
-            } else {
-                info('Task created successfully')
-            }
+        this.setState({
+            showTaskModal: true,
+            task: {
+                parentId: parent._id,
+                parentType: parent.type,
+                description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview/${message.id}`)}`,
+                name: `Task #${parent.tasks().length + 1}`
+            },
+            taskFolderId: parent.taskFolderId
         })
-
     }
 }
 

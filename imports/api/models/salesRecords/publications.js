@@ -4,6 +4,7 @@ import {ROLES, People} from '../index'
 import SalesRecords from './salesRecords'
 import ClientStatus from './clientstatus'
 import SupplierStatus from './supplierstatus'
+import Tasks from '../tasks/tasks'
 
 
 Meteor.publishComposite('MySalesRecords', () => ({
@@ -20,6 +21,10 @@ Meteor.publishComposite('MySalesRecords', () => ({
                 }
             }
 
+        }, {
+            find({_id}) {
+                return Tasks.find({parentId:_id, parentType:'deal'})
+            }
         }
     ]
 }))

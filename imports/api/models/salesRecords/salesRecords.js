@@ -6,6 +6,7 @@ import faker from 'faker'
 import { STAGES, SUB_STAGES } from '../../constants/project'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
+import Tasks from '../tasks/tasks'
 import People from '../people/people'
 import Users from '../users/users'
 import Conversations from '../conversations/conversations'
@@ -161,6 +162,9 @@ SalesRecords.helpers({
         const threads = this.threads()
 
         return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+    },
+    tasks() {
+        return Tasks.find({parentId:this._id, parentType:'deal'}).fetch()
     },
     contactsForMainParticipants() {
         if(!this.conversationIds || this.conversationIds.length==0) return []

@@ -2,6 +2,7 @@ import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { SlackMessages, People, ROLES } from '/imports/api/models/index'
 import Projects from './projects'
+import Tasks from '../tasks/tasks'
 
 Meteor.publishComposite('MyProjects', () => ({
     find() {
@@ -16,7 +17,10 @@ Meteor.publishComposite('MyProjects', () => ({
                     return People.find({ _id: { $in: peopleIds } })
                 }
             }
-
+        }, {
+            find({_id}) {
+                return Tasks.find({parentId:_id, parentType:'project'})
+            }
         }
     ]
 }))
