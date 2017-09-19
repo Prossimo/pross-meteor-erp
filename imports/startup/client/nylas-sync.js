@@ -17,7 +17,7 @@ const fetchNewThreads = () => {
         Actions.fetchNewThreads()
     }
 }
-setInterval(fetchNewThreads, 1 * 1000 * 30)   // every 2 minutes
+setInterval(fetchNewThreads, 1 * 1000 * 120)   // every 2 minutes
 
 /*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {
