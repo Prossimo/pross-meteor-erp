@@ -21,10 +21,6 @@ Meteor.publishComposite('MySalesRecords', () => ({
                 }
             }
 
-        }, {
-            find({_id}) {
-                return Tasks.find({parentId:_id, parentType:'deal'})
-            }
         }
     ]
 }))

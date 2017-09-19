@@ -17,10 +17,6 @@ Meteor.publishComposite('MyProjects', () => ({
                     return People.find({ _id: { $in: peopleIds } })
                 }
             }
-        }, {
-            find({_id}) {
-                return Tasks.find({parentId:_id, parentType:'project'})
-            }
         }
     ]
 }))
