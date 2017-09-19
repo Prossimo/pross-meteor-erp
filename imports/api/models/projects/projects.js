@@ -5,6 +5,8 @@ import Users from '../users/users'
 import People from '../people/people'
 import Tasks from '../tasks/tasks'
 import Conversations from '../conversations/conversations'
+import Threads from '../threads/threads'
+import Messages from '../messages/messages'
 
 class ProjectsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -48,6 +50,15 @@ Projects.schema = new SimpleSchema({
 Projects.attachSchema(Projects.schema)
 
 Projects.helpers({
+    threads() {
+        if(!this.conversationIds) return []
+        return Threads.find({conversationId: {$in:this.conversationIds}}).fetch()
+    },
+    messages() {
+        const threads = this.threads()
+
+        return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+    },
     tasks() {
         return Tasks.find({parentId:this._id, parentType:'project'}).fetch()
     },

@@ -1,12 +1,8 @@
 import {Meteor} from 'meteor/meteor'
-import {
-  GET_PEOPLE,
-  GET_PEOPLE_DESIGNATIONS,
-} from '../../constants/collections'
 import People from './people'
 import Designations from './designations'
 
-Meteor.publish(GET_PEOPLE, function() {
+Meteor.publish('people.all', function() {
     if(!this.userId) {
         this.ready()
         return
@@ -15,7 +11,7 @@ Meteor.publish(GET_PEOPLE, function() {
     return People.find({})
 })
 
-Meteor.publish(GET_PEOPLE_DESIGNATIONS, function() {
+Meteor.publish('peopledesignations.all', function() {
     if(!this.userId) {
         this.ready()
         return

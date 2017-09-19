@@ -1,20 +1,20 @@
 const Files = new FS.Collection('files', {
   stores: [new FS.Store.FileSystem('files')],
-});
+})
 
 Files.allow({
     insert(){
-        return true;
+        return true
     },
     update(){
-        return true;
+        return true
     },
     remove(){
-        return true;
+        return true
     },
     download(){
-        return true;
+        return true
     }
-});
+})
 
-export default Files;
+export default Files

@@ -176,13 +176,13 @@ class NylasAPI {
         if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
 
         // Update server database
-        /*unlockedJSONs.forEach((obj) => {
+        unlockedJSONs.forEach((obj) => {
             try {
                 if (obj.object === 'thread') {
                     const thread = Threads.findOne({id: obj.id})
                     if(!thread) {
                         insertThread.call(obj)
-                    } else if (thread/* && (thread.version != obj.version || thread.unread!=obj.unread)*/) { // It should be uncommented after deployment
+                    } else if (thread && (thread.version != obj.version || thread.unread!=obj.unread)) { // It should be uncommented after deployment
                         delete thread.created_at
                         delete thread.modified_at
                         updateThread.call({..._.extend(thread, obj)})
@@ -191,7 +191,7 @@ class NylasAPI {
                     const message = Messages.findOne({id: obj.id})
                     if(!message) {
                         insertMessage.call(obj)
-                    } else if(message/* && message.unread!=obj.unread*/) {  // It should be uncommented after deployment
+                    } else if(message && message.unread!=obj.unread) {  // It should be uncommented after deployment
                         delete message.created_at
                         delete message.modified_at
                         updateMessage.call({..._.extend(message, obj)})
@@ -200,7 +200,7 @@ class NylasAPI {
             } catch(err) {
                 console.error(err)
             }
-        })*/
+        })
 
         const ids = _.pluck(unlockedJSONs, 'id')
         if(objName === 'thread') return Promise.resolve(Threads.find({id:{$in:ids}}).fetch())

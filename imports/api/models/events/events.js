@@ -1,3 +1,3 @@
-const Events = new Mongo.Collection('Events');
+const Events = new Mongo.Collection('Events')
 
-export default Events;
+export default Events

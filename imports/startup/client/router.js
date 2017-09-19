@@ -4,11 +4,13 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import { Session } from 'meteor/session'
 
 import App from '/imports/ui/App'
-import SingleSalesRecord from '../../api/composer/componencts/project/SingleProject'
-import SingleProjectPage from '/imports/ui/components/project/SingleProject'
+import SingleSalesRecord from '/imports/ui/components/salesRecord/SingleSalesRecord'
+import SingleProject from '/imports/ui/components/project/SingleProject'
 import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
 
 import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage, SlackSettingsPage, EmailViewPage} from '/imports/ui/pages'
+
+subsManager = new SubsManager()
 
 function checkAuth() {
     Session.set('prevPath', FlowRouter.current().path)
@@ -86,7 +88,7 @@ FlowRouter.route('/project/:id', {
     action() {
         checkAuth()
         mount(App, {
-            content: <SingleProjectPage/>
+            content: <SingleProject/>
         })
     }
 })

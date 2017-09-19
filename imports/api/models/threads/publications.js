@@ -3,7 +3,7 @@ import {Roles} from 'meteor/alanning:roles'
 import {ROLES} from '../users/users'
 import Threads from './threads'
 
-Meteor.publish('MyThreads', function() {
+Meteor.publish('threads.mine', function() {
     if(!this.userId) {
         this.ready()
         return
@@ -15,4 +15,13 @@ Meteor.publish('MyThreads', function() {
 
     const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts()
     return Threads.find({account_id:{$in:_.pluck(nylasAccounts, 'accountId')}})
+})
+
+Meteor.publish('threads.all', function() {
+    if(!this.userId) {
+        this.ready()
+        return
+    }
+
+    return Threads.find()
 })

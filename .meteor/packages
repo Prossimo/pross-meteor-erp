@@ -68,3 +68,4 @@ random
 picker
 percolate:synced-cron
 templating
+meteorhacks:subs-manager

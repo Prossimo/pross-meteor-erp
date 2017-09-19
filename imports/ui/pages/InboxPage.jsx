@@ -1,5 +1,7 @@
-/* global FlowRouter */
+/* global FlowRouter, subsManager */
 import _ from 'underscore'
+
+import { createContainer  } from 'meteor/react-meteor-data'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
@@ -36,10 +38,10 @@ class InboxPage extends (React.Component) {
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
         }
 
-
         if (this.state.hasNylasAccounts) {
             Actions.loadContacts()
         }
+
     }
 
     componentDidMount() {
@@ -51,11 +53,10 @@ class InboxPage extends (React.Component) {
 
     }
 
-    componentWillUnmount() {
+    componentWillUnmount() { console.log('InboxPage compnentWillUnmount')
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
         })
-
     }
 
     onAccountStoreChanged = () => {
@@ -84,6 +85,8 @@ class InboxPage extends (React.Component) {
     }
 
     render() {
+        if(this.props.loading) return <Spinner visible={true}/>
+
         return (
             <div className="inbox-page">
                 {this.renderContents()}
@@ -454,4 +457,12 @@ class InboxPage extends (React.Component) {
     }
 }
 
-export default InboxPage
+export default createContainer(() => {
+    const subscribers = []
+    subscribers.push(subsManager.subscribe('threads.all'))
+    subscribers.push(subsManager.subscribe('messages.all'))
+
+    return {
+        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
+    }
+}, InboxPage)
