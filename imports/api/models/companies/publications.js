@@ -1,10 +1,9 @@
 import {Meteor} from 'meteor/meteor'
-import {GET_COMPANIES, GET_COMPANY_TYPES} from '../../constants/collections'
 import Companies from './companies'
 import CompanyTypes from '../companies/companytypes'
 
 
-Meteor.publish(GET_COMPANIES, function() {
+Meteor.publish('companies.all', function() {
     if(!this.userId) {
         this.ready()
         return
@@ -12,7 +11,7 @@ Meteor.publish(GET_COMPANIES, function() {
     return Companies.find({})
 })
 
-Meteor.publish(GET_COMPANY_TYPES, function() {
+Meteor.publish('companytypes.all', function() {
     if(!this.userId) {
         this.ready()
         return

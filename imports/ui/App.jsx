@@ -10,19 +10,7 @@ import Header from './components/header/Header'
 import Aside from './components/aside/Aside'
 import Spinner from './components/utils/spinner'
 import {SalesRecords} from '/imports/api/models'
-import {
-    GET_USERS,
-    GET_PROJECTS,
-    GET_MY_CONTACTS,
-    GET_NYLAS_ACCOUNTS,
-    GET_MAILTEMPLATES,
-    GET_THREADS,
-    GET_SLACK_MAILS,
-    GET_COMPANIES,
-    GET_COMPANY_TYPES,
-    GET_PEOPLE,
-    GET_PEOPLE_DESIGNATIONS
-} from '/imports/api/constants/collections'
+
 class App extends React.Component{
     constructor(props){
         super(props)
@@ -72,23 +60,20 @@ class App extends React.Component{
 
 export default createContainer(() => {
     const subscribers = []
-    subscribers.push(Meteor.subscribe(GET_USERS))
-    subscribers.push(Meteor.subscribe(GET_NYLAS_ACCOUNTS))
-    subscribers.push(Meteor.subscribe(GET_MY_CONTACTS))
-    subscribers.push(Meteor.subscribe(GET_MAILTEMPLATES))
-    subscribers.push(Meteor.subscribe(GET_THREADS))
-    subscribers.push(Meteor.subscribe(GET_SLACK_MAILS))
-    subscribers.push(Meteor.subscribe(GET_COMPANIES))
-    subscribers.push(Meteor.subscribe(GET_COMPANY_TYPES))
-    subscribers.push(Meteor.subscribe(GET_PEOPLE))
-    subscribers.push(Meteor.subscribe(GET_PEOPLE_DESIGNATIONS))
-    subscribers.push(Meteor.subscribe('MySalesRecords'))
-    subscribers.push(Meteor.subscribe('MyProjects'))
-    subscribers.push(Meteor.subscribe('MyThreads'))
-    subscribers.push(Meteor.subscribe('MyMessages'))
-    subscribers.push(Meteor.subscribe('Conversations'))
-    subscribers.push(Meteor.subscribe('ClientStatus'))
-    subscribers.push(Meteor.subscribe('SupplierStatus'))
+    subscribers.push(Meteor.subscribe('users.all'))
+    subscribers.push(Meteor.subscribe('nylasaccounts.all'))
+    subscribers.push(Meteor.subscribe('contacts.mine'))
+    subscribers.push(Meteor.subscribe('mailtemplates.all'))
+    subscribers.push(Meteor.subscribe('slackmails.all'))
+    subscribers.push(Meteor.subscribe('companies.all'))
+    subscribers.push(Meteor.subscribe('companytypes.all'))
+    subscribers.push(Meteor.subscribe('people.all'))
+    subscribers.push(Meteor.subscribe('peopledesignations.all'))
+    subscribers.push(Meteor.subscribe('salesrecords.mine'))
+    subscribers.push(Meteor.subscribe('projects.mine'))
+    subscribers.push(Meteor.subscribe('conversations.all'))
+    subscribers.push(Meteor.subscribe('clientstatuses.all'))
+    subscribers.push(Meteor.subscribe('supplierstatuses.all'))
     subscribers.push(Meteor.subscribe('task.all'))
 
     const currentUser = Meteor.users.findOne(Meteor.userId())

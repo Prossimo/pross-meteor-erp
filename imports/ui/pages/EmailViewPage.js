@@ -110,7 +110,7 @@ class EmailViewPage extends React.Component {
 }
 
 export default createContainer(() => {
-    const subscribers = [Meteor.subscribe('getNylasAccounts'), Meteor.subscribe('MyMessages')]
+    const subscribers = [Meteor.subscribe('nylasaccounts.all'), Meteor.subscribe('messages.mine')]
 
     let message
     const messageId = FlowRouter.getQueryParam('message_id')

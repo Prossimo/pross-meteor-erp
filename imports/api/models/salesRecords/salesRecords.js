@@ -156,7 +156,8 @@ SalesRecords.before.update((userId, doc, fieldNames, modifier, options) => {
 
 SalesRecords.helpers({
     threads() {
-        return Threads.find({salesRecordId: this._id}).fetch()
+        if(!this.conversationIds) return []
+        return Threads.find({conversationId: {$in:this.conversationIds}}).fetch()
     },
     messages() {
         const threads = this.threads()

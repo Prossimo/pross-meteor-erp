@@ -2,7 +2,6 @@ import {Roles} from 'meteor/alanning:roles'
 import React, { Component } from 'react'
 import EditableUsersTable  from '../components/admin/EditableUsersTable'
 import { createContainer  } from 'meteor/react-meteor-data'
-import { GET_ALL_USERS } from '/imports/api/constants/collections'
 import {ROLES} from '/imports/api/models'
 
 class AdminPage extends Component{
@@ -37,7 +36,7 @@ class AdminPage extends Component{
 export default createContainer(() => {
   const subscribers = []
   let users = []
-  subscribers.push(Meteor.subscribe(GET_ALL_USERS))
+  subscribers.push(Meteor.subscribe('users.all'))
 
   if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
     users = Meteor.users.find({username: { $ne: 'root' }}).fetch()

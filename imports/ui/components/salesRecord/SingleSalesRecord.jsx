@@ -7,14 +7,14 @@ import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select'
-import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus} from '/imports/api/models'
+import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus, SlackMessages, Events, Quotes, Files} from '/imports/api/models'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
-import Quotes from './Quotes'
+import QuotesComponent from './Quotes'
 import Details from './Details'
 import Activity from './Activity'
 import Tasks from '../tasks/TaskBoard.jsx'
-import Files from '../files/Files'
+import FilesComponent from '../files/Files'
 import Invoices from './Invoices'
 import Documents from './Documents'
 import Conversations from './conversations/Conversations'
@@ -22,40 +22,11 @@ import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
 import SelectSubStage from './components/SelectSubStage'
 import {Panel, SlackChannelSelector, Selector} from '../common'
+import Spinner from '../utils/spinner'
 
 class SingleSalesRecord extends React.Component {
     constructor(props) {
         super(props)
-        this.tabs = [
-            {
-                label: 'Details',
-                component: <Details/>
-            },
-            {
-                label: 'Activity',
-                component: <Activity/>
-            },
-            {
-                label: 'Quotes',
-                component: <Quotes/>
-            },
-            {
-                label: 'Conversations',
-                component: <Conversations targetCollection={SalesRecords} targetId={props.salesRecord._id}/>
-            },
-            {
-                label: 'Invoices',
-                component: <Invoices/>
-            },
-            {
-                label: 'Files',
-                component: <Files type='salesRecord'/>
-            },
-            {
-                label: 'Tasks',
-                component: <Tasks projectId={props.salesRecord._id}/>
-            }
-        ]
 
         this.memberTypeOptions = [
             {label: 'Add Team Member', value: 'member'},
@@ -71,7 +42,7 @@ class SingleSalesRecord extends React.Component {
 
         const salesRecordId = FlowRouter.getParam('id')
         this.state = {
-            activeTab: this.tabs.find(tab => tab.label === 'Details'),
+            activeTab: null,
             showPopup: false,
             popupTitle: '',
             popupData: null,
@@ -84,16 +55,7 @@ class SingleSalesRecord extends React.Component {
                 addToMain: false,
             },
             memberType: this.memberTypeOptions[0],
-            selectedMembers: [],
-
-            subscribes: {
-                events: Meteor.subscribe('getProjectEvents', salesRecordId),
-                project: Meteor.subscribe('getProject', salesRecordId),
-                quotes: Meteor.subscribe('getQuotes', salesRecordId),
-                files: Meteor.subscribe('getProjectFiles', salesRecordId),
-                slackMessages: Meteor.subscribe('getSlackMsg', salesRecordId),
-                messages: Meteor.subscribe('getMessages', salesRecordId)
-            }
+            selectedMembers: []
         }
 
         this.renderPeople = this.renderPeople.bind(this)
@@ -122,8 +84,40 @@ class SingleSalesRecord extends React.Component {
     }
 
     getTabs() {
-        const {activeTab} = this.state
+        this.tabs = [
+            {
+                label: 'Details',
+                component: <Details/>
+            },
+            {
+                label: 'Activity',
+                component: <Activity/>
+            },
+            {
+                label: 'Quotes',
+                component: <QuotesComponent/>
+            },
+            {
+                label: 'Conversations',
+                component: <Conversations targetCollection={SalesRecords} targetId={this.props.salesRecord._id}/>
+            },
+            {
+                label: 'Invoices',
+                component: <Invoices/>
+            },
+            {
+                label: 'Files',
+                component: <FilesComponent type='salesRecord'/>
+            },
+            {
+                label: 'Tasks',
+                component: <Tasks projectId={this.props.salesRecord._id}/>
+            }
+        ]
 
+        let {activeTab} = this.state
+
+        if(!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
         return <ul>
             {this.tabs.map(item => (
                 <li key={item.label}
@@ -135,7 +129,8 @@ class SingleSalesRecord extends React.Component {
     }
 
     getContent() {
-        const {activeTab} = this.state
+        let {activeTab} = this.state
+        if(!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
         if (activeTab.component) {
             return React.cloneElement(activeTab.component, this.props)
         } else {
@@ -409,6 +404,8 @@ class SingleSalesRecord extends React.Component {
     }
 
     render() {
+        if(this.props.loading) return <Spinner/>
+
         const {salesRecord} = this.props
         const defaultStage = this.stageOptions.find(({value}) => value === salesRecord.stage)
 
@@ -529,19 +526,55 @@ class SingleSalesRecord extends React.Component {
 }
 
 export default createContainer(props => {
-    const peopleIds = props.salesRecord.stakeholders.map(({peopleId}) => peopleId)
-    const stakeholders = People
-        .find({_id: {$in: peopleIds}})
-        .fetch()
-        .map(p => {
-            p.designation = PeopleDesignations.findOne(p.designation_id)
-            return p
+    const _id = FlowRouter.getParam('id')
+    if (Meteor.subscribe('salesrecords.one', _id).ready()) {
+        const files = {}
+        Files
+            .find({})
+            .fetch()
+            .forEach(item => files[item._id] = item)
+        const msg = SlackMessages.find({}, {sort: {createAt: -1}}).fetch().map( item => {
+            item.userId && (item.author = props.usersArr[item.userId])
+            return item
         })
-    const candidateStakeholders = People.find({_id: {$nin: peopleIds}}).fetch()
-    const designations = PeopleDesignations.find().fetch()
-    return {
-        designations,
-        stakeholders,
-        candidateStakeholders,
+
+        const salesRecord = SalesRecords.findOne(_id)
+        if(salesRecord) {
+            salesRecord.members = salesRecord.members.map(member => {
+                member.user = props.usersArr[member]
+                return member
+            })
+        }
+
+        const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch()
+
+        const events = Events.find().fetch().map(item => {
+            item.type = 'event'
+            item.author = props.usersArr[item.createBy]
+            return item
+        })
+        const messages = msg.concat(events).sort((a,b) => a.createAt > b.createAt ? -1 : 1)
+
+        const peopleIds = salesRecord.stakeholders.map(({peopleId}) => peopleId)
+        const stakeholders = People
+            .find({_id: {$in: peopleIds}})
+            .fetch()
+            .map(p => {
+                p.designation = PeopleDesignations.findOne(p.designation_id)
+                return p
+            })
+        const candidateStakeholders = People.find({_id: {$nin: peopleIds}}).fetch()
+        const designations = PeopleDesignations.find().fetch()
+        return {
+            loading: false,
+            designations,
+            stakeholders,
+            candidateStakeholders,
+            messages, salesRecord, quotes
+        }
+    } else {
+        return {
+            loading: true
+        }
     }
 }, SingleSalesRecord)

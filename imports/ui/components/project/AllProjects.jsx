@@ -1,4 +1,4 @@
-/* global FlowRouter */
+/* global FlowRouter, subsManager */
 import React, { Component } from 'react'
 import { createContainer  } from 'meteor/react-meteor-data'
 import Projects from '/imports/api/models/projects/projects'
@@ -29,7 +29,7 @@ class AllProjects extends Component {
     }
 
     componentWillUnmount() {
-        this.props.subscribers.forEach((subscriber) => subscriber.stop())
+
     }
 
     saveProjectProperty(projectId, { key, value }, callback) {
@@ -116,9 +116,8 @@ class AllProjects extends Component {
 
 export default createContainer(() => {
     const subscribers = []
-    subscribers.push(Meteor.subscribe('getNewProjects'))
+    subscribers.push(subsManager.subscribe('projects.mine'))
     return {
-        subscribers,
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         projects: Projects.find({},{sort:{createdAt:-1}}).fetch(),
     }

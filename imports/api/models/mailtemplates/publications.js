@@ -1,7 +1,6 @@
 import MailTemplates from './mailtemplates'
-import {GET_MAILTEMPLATES} from '../../constants/collections'
 
-Meteor.publish(GET_MAILTEMPLATES, function () {
+Meteor.publish('mailtemplates.all', function () {
     if(!this.userId) return this.ready()
 
     return MailTemplates.find()

@@ -67,8 +67,8 @@ class Activities extends Component {
 export default createContainer(props => {
   const { projectId } = props
   const subscribers = []
-  subscribers.push(Meteor.subscribe('getNewProject', projectId))
-  subscribers.push(Meteor.subscribe('project.slackMessages', projectId))
+  subscribers.push(Meteor.subscribe('projects.one', projectId))
+  subscribers.push(Meteor.subscribe('projects.slackMessages', projectId))
   const { slackChanel } = Projects.findOne(projectId)
   return {
     messages: SlackMessages.find({ channel: slackChanel }, { sort: { createAt: -1 } }).fetch(),

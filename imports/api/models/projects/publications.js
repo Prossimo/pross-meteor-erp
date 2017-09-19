@@ -1,13 +1,12 @@
+import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import { SlackMessages, People, ROLES } from '/imports/api/models/index'
-import Projects from './projects'
-import Tasks from '../tasks/tasks'
+import { SlackMessages, People, ROLES, Projects, Tasks, Events, Quotes, Messages, Files } from '/imports/api/models/index'
 
-Meteor.publishComposite('MyProjects', () => ({
+Meteor.publishComposite('projects.mine', () => ({
     find() {
         if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
-        return Projects.find({'members': this.userId})
+        return Projects.find({'members.userId': this.userId})
     },
     children: [
         {
@@ -21,19 +20,46 @@ Meteor.publishComposite('MyProjects', () => ({
     ]
 }))
 
-Meteor.publish('getNewProjects', function () {
-    if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
-    return Projects.find({'members.userId': this.userId})
-})
-
-
-Meteor.publish('getNewProject', function (_id) {
+Meteor.publishComposite('projects.one', function (_id) {
+    check(_id, String)
     if (!Match.test(_id, String)) return this.ready()
-    if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find({_id})
-    return Projects.find({_id, 'members.userId': this.userId})
+
+    return {
+        find() {
+            return Projects.find({_id})
+        },
+
+        children: [{
+            find({_id}) {
+                return Events.find({projectId:_id})
+            }
+        },{
+            find({slackChanel}) {
+                return SlackMessages.find({channel: slackChanel})
+            }
+        },{
+            find({_id}) {
+                return Quotes.find({projectId:_id})
+            }
+        },{
+            find(project) {
+                const threads = project.threads()
+
+                return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
+            }
+        },{
+            find({_id}) {
+                return Files.find({'metadata.projectId': _id})
+            }
+        },{
+            find({_id}) {
+                return Tasks.find({parentType:'project', parentId: _id})
+            }
+        },]
+    }
 })
 
-Meteor.publish('project.slackMessages', function (projectId) {
+Meteor.publish('projects.slackMessages', function (projectId) {
   check(projectId, String)
   const project = Projects.findOne(projectId)
   if (!project) return this.ready()
