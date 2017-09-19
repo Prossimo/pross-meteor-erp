@@ -176,7 +176,7 @@ class NylasAPI {
         if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
 
         // Update server database
-        unlockedJSONs.forEach((obj) => {
+        /*unlockedJSONs.forEach((obj) => {
             try {
                 if (obj.object === 'thread') {
                     const thread = Threads.findOne({id: obj.id})
@@ -200,7 +200,7 @@ class NylasAPI {
             } catch(err) {
                 console.error(err)
             }
-        })
+        })*/
 
         const ids = _.pluck(unlockedJSONs, 'id')
         if(objName === 'thread') return Promise.resolve(Threads.find({id:{$in:ids}}).fetch())
