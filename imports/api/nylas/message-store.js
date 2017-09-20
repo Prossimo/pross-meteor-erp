@@ -34,20 +34,11 @@ class MessageStore extends Reflux.Store {
 
     _onLoadMessages(thread) {
         const currentThread = ThreadStore.currentThread()
-        this._loading = true
-
-        if(!thread || !currentThread || thread.id !== currentThread.id) {
-            this._messages = []
-        }
-
-        this.trigger()
 
 
         if(!thread || !thread.account_id){
-            this._loading = false
             return
         }
-        subsManager.subscribe('messages.byThread', thread.id)
 
         //console.log(`===> Started load message for thread: ${thread.id} at ${new Date().getTime()}`)
         const query = queryString.stringify({thread_id: thread.id})
@@ -74,16 +65,16 @@ class MessageStore extends Reflux.Store {
             }
 
         }).finally(() => {
-
-            this._loading = false
-            this.trigger()
-
-            this.loadMessagesFromDB()
+            setTimeout(() => this.loadMessagesFromDB(), 500)
         })
     }
 
     _onThreadStoreChanged = () => {
-        this.loadMessagesFromDB()
+        const thread = ThreadStore.currentThread()
+        if(!thread) return
+        subsCache.subscribe('messages.byThread', thread.id).onReady(() => {
+            this.loadMessagesFromDB()
+        })
     }
 
     loadMessagesFromDB() {

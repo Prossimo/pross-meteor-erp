@@ -10,7 +10,7 @@ import DriveSettingsPage from '/imports/ui/pages/DriveSettingsPage'
 
 import {AuthenticationPage, SalesRecordPage, UserAccount, InboxPage, InboxSettingsPage, ContactsPage, CompaniesPage, FinancialPage, ProjectsPage, AdminPage, DashboardPage, PeoplePage, SlackSettingsPage, EmailViewPage} from '/imports/ui/pages'
 
-subsManager = new SubsManager()
+subsCache = new SubsCache({expireAfter:-1, cacheLimit:-1})
 
 function checkAuth() {
     Session.set('prevPath', FlowRouter.current().path)

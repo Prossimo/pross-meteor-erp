@@ -51,12 +51,24 @@ class InboxPage extends (React.Component) {
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
 
+
+        this.fetchNewThreadsInterval = setInterval(() => {
+            console.log('fetch threads')
+            if (Meteor.userId()) {
+                Meteor.call('thread.fetchNewThreads', {accounts:Meteor.user().nylasAccounts()}, (err) => {
+                    if(err) console.error(err)
+                })
+            }
+        }, 1 * 1000 * 120)   // every 5 minutes
+
     }
 
     componentWillUnmount() { console.log('InboxPage compnentWillUnmount')
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
         })
+
+        clearInterval(this.fetchNewThreadsInterval)
     }
 
     onAccountStoreChanged = () => {
@@ -345,12 +357,7 @@ class InboxPage extends (React.Component) {
                             <span className="action"></span>
                         </div>
                         {
-                            Users.find({_id:{$ne:Meteor.userId()}}).fetch().filter(user => {
-                                /*const nylasAccounts = user.privateNylasAccounts()
-                                return nylasAccounts && nylasAccounts.length>0*/
-                                const assignedThreads = user.assignedThreads()
-                                return assignedThreads && assignedThreads.length>0
-                            }).map((user, index) => {
+                            Users.find({_id:{$ne:Meteor.userId()}}).map((user, index) => {
                                 const category = Object.assign(user, {
                                     type:'teammember',
                                     id:user._id,

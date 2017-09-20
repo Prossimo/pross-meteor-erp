@@ -122,7 +122,7 @@ class SingleSalesRecord extends React.Component {
             {this.tabs.map(item => (
                 <li key={item.label}
                     onClick={this.toggleTab.bind(this, item)}
-                    className={classNames({'active': item === activeTab})}
+                    className={classNames({'active': item.label === activeTab.label})}
                 >{item.label}</li>
             ))}
         </ul>
@@ -527,7 +527,7 @@ class SingleSalesRecord extends React.Component {
 
 export default createContainer(props => {
     const _id = FlowRouter.getParam('id')
-    if (Meteor.subscribe('salesrecords.one', _id).ready()) {
+    if (subsCache.subscribe('salesrecords.one', _id).ready()) {
         const files = {}
         Files
             .find({})

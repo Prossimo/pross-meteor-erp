@@ -29,8 +29,10 @@ export default class ThreadList extends TrackerReact(React.Component) {
     componentDidMount() {
         this.unsubscribe = ThreadStore.listen(this.onThreadStoreChanged)
 
-        const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
-        this.subscriptions = [subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort()))]
+        //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
+        //this.subscriptions = [subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort()))]
+        subsCache.subscribe('threads.params', this.filter())
+
     }
 
     componentWillUnmount() {
@@ -43,6 +45,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
             this.setState({
                 category:newProps.category,
                 currentThread: ThreadStore.currentThread(newProps.category)
+            }, () => {
+                subsCache.subscribe('threads.params', this.filter())
             })
         }
     }
@@ -169,7 +173,7 @@ export default class ThreadList extends TrackerReact(React.Component) {
             //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
             //this.subscriptions.push(subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort())))
 
-            Actions.loadThreads(null, {page: ThreadStore.currentPage + 1})
+            //Actions.loadThreads(null, {page: ThreadStore.currentPage + 1})
         }
     }
 }

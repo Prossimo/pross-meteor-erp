@@ -248,7 +248,7 @@ class SingleProject extends Component {
 export default createContainer(() => {
     const projectId = FlowRouter.getParam('id')
     const subscribers = []
-    subscribers.push(Meteor.subscribe('projects.one', projectId))
+    subscribers.push(subsCache.subscribe('projects.one', projectId))
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         project: Projects.findOne(projectId)
