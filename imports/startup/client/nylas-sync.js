@@ -12,15 +12,6 @@ const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
 }
 const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 120)    // every 2 minutes
 
-const fetchNewThreads = () => {
-    console.log('fetch threads')
-    if (Meteor.userId()) {
-        Meteor.call('thread.fetchNewThreads', {accounts:Meteor.user().nylasAccounts()}, (err) => {
-            if(err) console.error(err)
-        })
-    }
-}
-setInterval(fetchNewThreads, 1 * 1000 * 30)   // every 2 minutes
 
 /*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {

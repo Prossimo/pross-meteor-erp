@@ -4,8 +4,8 @@ import Task from './task'
 import NylasAPI from '../nylas-api'
 import {APIError} from '../errors'
 import {Threads, Messages}  from '../../models'
-import {insertThread, updateThread} from '../../models/threads/methods'
-import {insertMessage, updateMessage} from '../../models/messages/methods'
+import {upsertThread} from '../../models/threads/methods'
+import {upsertMessage} from '../../models/messages/methods'
 
 // MapLimit is a small helper method that implements a promise version of
 // Async.mapLimit. It runs the provided fn on each item in the `input` array,
@@ -167,15 +167,7 @@ export default class ChangeMailTask extends Task {
 
         try {
             changed.forEach((obj) => {
-                let thread = Threads.findOne({id: obj.id})
-                if(!thread) {
-                    insertThread.call(obj)
-                } else if (thread && (thread.version != obj.version || thread.unread!=obj.unread)) {
-                    thread = _.extend(thread, obj)
-                    delete thread.created_at
-                    delete thread.modified_at
-                    updateThread.call(thread)
-                }
+                upsertThread.call(obj)
             })
             return Promise.resolve()
         } catch(err) {
@@ -195,15 +187,7 @@ export default class ChangeMailTask extends Task {
 
         try {
             changed.forEach((obj) => {
-                let message = Messages.findOne({id: obj.id})
-                if(!message) {
-                    insertMessage.call(obj)
-                } else if (message && message.unread!=obj.unread) {
-                    message = _.extend(message, obj)
-                    delete message.created_at
-                    delete message.modified_at
-                    updateMessage.call(message)
-                }
+                upsertMessage.call(obj)
             })
             return Promise.resolve()
         } catch(err) {

@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import {ROLES, People, SalesRecords, ClientStatus, SupplierStatus, Tasks, Quotes, Files, Events, Messages, SlackMessages} from '../index'
+import {ROLES, People, SalesRecords, ClientStatus, SupplierStatus, Tasks, Quotes, Files, Events, Messages, SlackMessages, Conversations} from '../index'
 
 
 
@@ -41,7 +41,11 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
             find({_id}) {
                 return Tasks.find({parentType:'project', parentId: _id})
             }
-        },]
+        },{
+            find({conversationIds}) {
+                return Conversations.find({_id:{$in:conversationIds}})
+            }
+        }]
     }
 })
 

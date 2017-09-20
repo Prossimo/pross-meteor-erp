@@ -23,6 +23,19 @@ Meteor.publish('messages.mine', function() {
 })
 
 
+Meteor.publish('messages.one', function({threadId, messageId}) {
+    check(threadId, Match.Maybe(String))
+    check(messageId, Match.Maybe(String))
+
+    if(!this.userId) {
+        this.ready()
+        return
+    }
+
+    return Messages.find({'$or':[{id:messageId}, {thread_id:threadId}]})
+})
+
+
 Meteor.publish('messages.all', function () {
     if(!this.userId) return this.ready()
 

@@ -116,7 +116,7 @@ class AllProjects extends Component {
 
 export default createContainer(() => {
     const subscribers = []
-    subscribers.push(subsManager.subscribe('projects.mine'))
+    subscribers.push(subsCache.subscribe('projects.mine'))
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         projects: Projects.find({},{sort:{createdAt:-1}}).fetch(),

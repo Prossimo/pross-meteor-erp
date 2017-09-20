@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import { SlackMessages, People, ROLES, Projects, Tasks, Events, Quotes, Messages, Files } from '/imports/api/models/index'
+import { SlackMessages, People, ROLES, Projects, Tasks, Events, Quotes, Messages, Files, Conversations } from '/imports/api/models/index'
 
 Meteor.publishComposite('projects.mine', () => ({
     find() {
@@ -55,7 +55,11 @@ Meteor.publishComposite('projects.one', function (_id) {
             find({_id}) {
                 return Tasks.find({parentType:'project', parentId: _id})
             }
-        },]
+        },{
+            find({conversationIds}) {
+                return Conversations.find({_id:{$in:conversationIds}})
+            }
+        }]
     }
 })
 
