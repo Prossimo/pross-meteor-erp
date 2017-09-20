@@ -173,7 +173,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
             //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
             //this.subscriptions.push(subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort())))
 
-            //Actions.loadThreads(null, {page: ThreadStore.currentPage + 1})
+            console.log('loadOldThreads')
+            Actions.loadThreads(null, {page: ThreadStore.currentPage + 1})
         }
     }
 }
