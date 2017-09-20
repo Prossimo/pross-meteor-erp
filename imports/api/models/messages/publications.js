@@ -62,3 +62,10 @@ Meteor.publish('messages.byProject', function (projectId) {
     }
     return this.ready()
 })
+Meteor.publish('messages.byThread', function (threadId) {
+    check(threadId, String)
+
+    if(!this.userId) return this.ready()
+
+    return Messages.find({thread_id: threadId})
+})

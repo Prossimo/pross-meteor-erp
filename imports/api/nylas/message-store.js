@@ -47,6 +47,8 @@ class MessageStore extends Reflux.Store {
             this._loading = false
             return
         }
+        subsManager.subscribe('messages.byThread', thread.id)
+
         //console.log(`===> Started load message for thread: ${thread.id} at ${new Date().getTime()}`)
         const query = queryString.stringify({thread_id: thread.id})
         NylasAPI.makeRequest({

@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import Actions from '/imports/api/nylas/actions'
 import '/imports/api/nylas/contact-store'
 import '/imports/api/nylas/thread-store'
@@ -14,10 +15,12 @@ const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 120)    // e
 const fetchNewThreads = () => {
     console.log('fetch threads')
     if (Meteor.userId()) {
-        Actions.fetchNewThreads()
+        Meteor.call('thread.fetchNewThreads', {accounts:Meteor.user().nylasAccounts()}, (err) => {
+            if(err) console.error(err)
+        })
     }
 }
-setInterval(fetchNewThreads, 1 * 1000 * 120)   // every 2 minutes
+setInterval(fetchNewThreads, 1 * 1000 * 30)   // every 2 minutes
 
 /*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {
