@@ -25,3 +25,20 @@ Meteor.publish('threads.all', function() {
 
     return Threads.find()
 })
+Meteor.publish('threads.params', function(filters={}, options={}) {
+    check(filters, Object)
+    check(options, {
+        sort: Match.Maybe(Object),
+        skip: Match.Maybe(Number),
+        limit: Match.Maybe(Number)
+    })
+    if(!this.userId) {
+        this.ready()
+        return
+    }
+
+    //if(!options.skip) options.skip = 0
+    //if(!options.limit) options.limit = 100
+    //console.log('threads.params publication', filters, options, Threads.find(filters, options).fetch().length)
+    return Threads.find(filters, options)
+})

@@ -1,4 +1,5 @@
 export const Actions = require('./actions')
+export const NylasAPI = require('./nylas-api')
 export const NylasUtils = require('./nylas-utils')
 export const RegExpUtils = require('./RegExpUtils')
 

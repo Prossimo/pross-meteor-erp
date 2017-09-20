@@ -154,10 +154,8 @@ class InboxPage extends (React.Component) {
                         order: 2,
                         minWidth: 250,
                         maxWidth: 450,
-                        borderRight: '1px solid rgba(221,221,221,0.6)',
-                        overflowY: 'auto',
-                        height: '100%'
-                    }} onScroll={this.onScrollThreadList}>
+                        borderRight: '1px solid rgba(221,221,221,0.6)'
+                    }}>
                         {this.renderThreads()}
                     </div>
                     <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
@@ -447,22 +445,15 @@ class InboxPage extends (React.Component) {
         CategoryStore.selectCategory(category)
         this.setState({currentThread: ThreadStore.currentThread(category)})
     }
-
-    onScrollThreadList = (evt) => {
-        const el = evt.target
-
-        if (!this.state.loadingThreads && !ThreadStore.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
-            Actions.loadThreads(CategoryStore.currentCategory, {page: ThreadStore.currentPage + 1})
-        }
-    }
 }
 
 export default createContainer(() => {
-    const subscribers = []
+    /*const subscribers = []
     subscribers.push(subsManager.subscribe('threads.all'))
     subscribers.push(subsManager.subscribe('messages.all'))
 
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
-    }
+    }*/
+    return {loading: false}
 }, InboxPage)

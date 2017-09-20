@@ -2,10 +2,10 @@ import '../models/users/users'
 import _ from 'underscore'
 import request from 'request'
 import config from '../config'
-import { APIError, TimeoutError } from './errors'
+import {APIError, TimeoutError} from './errors'
 import {Threads, Messages} from '../models'
-import {insertThread, updateThread} from '../models/threads/methods'
-import {insertMessage, updateMessage} from '../models/messages/methods'
+import {upsertThread} from '../models/threads/methods'
+import {upsertMessage} from '../models/messages/methods'
 
 
 const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
@@ -30,8 +30,8 @@ class NylasAPIRequest {
     }
 
     run() {
-        if(!this.options.auth) {
-            if(!this.options.accountId) {
+        if (!this.options.auth) {
+            if (!this.options.accountId) {
                 const err = new APIError({
                     statusCode: 400,
                     body: 'Cannot make Nylas request without specifying `auth` or an `accountId`.'
@@ -39,7 +39,7 @@ class NylasAPIRequest {
                 return Promise.reject(err)
             }
             const token = this.api.accessTokenForAccountId(this.options.accountId)
-            if(!token) {
+            if (!token) {
                 const err = new APIError({
                     statusCode: 400,
                     body: `Cannot make Nylas request for account ${this.options.accountId} auth token.`
@@ -57,17 +57,17 @@ class NylasAPIRequest {
 
         return new Promise((resolve, reject) => {
             const req = request(this.options, (error, response, body) => {
-                if(error || response.statusCode > 299) {
-                    if(!response || !response.statusCode) {
+                if (error || response.statusCode > 299) {
+                    if (!response || !response.statusCode) {
                         response = response || {}
                         response.statusCode = TimeoutErrorCodes[0]
                     }
                     const apiError = new APIError({error, response, body, requestOptions: this.options})
-                    if(this.options.error) this.options.error(apiError)
+                    if (this.options.error) this.options.error(apiError)
 
                     reject(apiError)
                 } else {
-                    if(this.options.success) this.options.success(body)
+                    if (this.options.success) this.options.success(body)
                     resolve(body)
                 }
             })
@@ -80,7 +80,7 @@ class NylasAPIRequest {
                 reject(cancelled)
             })
 
-            if(this.options.started) {
+            if (this.options.started) {
                 this.options.started(req)
             }
         })
@@ -100,7 +100,7 @@ class NylasAPI {
         this.APIRoot = config.nylas.apiRoot
     }
 
-    accessTokenForAccountId (aid) {
+    accessTokenForAccountId(aid) {
         AccountStore = AccountStore || require('./account-store')
         return AccountStore.tokenForAccountId(aid)
     }
@@ -108,17 +108,18 @@ class NylasAPI {
     makeRequest(options = {}) {
         //console.log("makeRequest", options);
         const success = (body) => { //console.log("========NyalsAPIRequest result", body);
-            if(options.beforeProcessing) {
+            if (options.beforeProcessing) {
                 body = options.beforeProcessing(body)
             }
 
-            if(/*options.returnsModel*/Meteor.isClient) {
+            if (/*options.returnsModel*/Meteor.isClient) {
                 return this.handleModelResponse(body).then((objects) => Promise.resolve(body))
             }
             return Promise.resolve(body)
         }
 
-        const error = (err) => { console.error('=========NyalsAPIRequest error', err)
+        const error = (err) => {
+            console.error('=========NyalsAPIRequest error', err)
             /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {
@@ -143,15 +144,15 @@ class NylasAPI {
 
     handleModelResponse(jsons) {
 
-        if(!jsons) {
+        if (!jsons) {
             return Promise.reject(new Error('handleModelResponse with no JSON provided'))
         }
 
-        if(!(jsons instanceof Array)) {
+        if (!(jsons instanceof Array)) {
             jsons = [jsons]
         }
 
-        if(jsons.length == 0) {
+        if (jsons.length == 0) {
             return Promise.resolve([])
         }
 
@@ -159,77 +160,37 @@ class NylasAPI {
 
         const uniquedJSONs = _.uniq(jsons, false, (model) => model.id)
 
-        if(uniquedJSONs.length < jsons.length) {
+        if (uniquedJSONs.length < jsons.length) {
             console.warn('NylasAPI::handleModelResponse: called with non-unique object set. Maybe an API request returned the same object more than once?')
         }
 
-        const unlockedJSONs = _.filter(uniquedJSONs, (json) => 
+        const unlockedJSONs = _.filter(uniquedJSONs, (json) =>
             /*if(!this.lockTracker.acceptRemoteChangesTo(klass, json.id)) {
                 if(json.delta) json.delta.ignoredBecause = "Model is locked, possibly because it's already been deleted.";
                 return false;
             }*/
-             true)
+            true)
 
-        if(unlockedJSONs.length == 0) {
+        if (unlockedJSONs.length == 0) {
             return Promise.resolve([])
         }
-        if(objName!=='thread' && objName!=='message') return Promise.resolve(uniquedJSONs)
+        if (objName !== 'thread' && objName !== 'message') return Promise.resolve(uniquedJSONs)
 
         // Update server database
         unlockedJSONs.forEach((obj) => {
             try {
                 if (obj.object === 'thread') {
-                    const thread = Threads.findOne({id: obj.id})
-                    if(!thread) {
-                        insertThread.call(obj)
-                    } else if (thread && (thread.version != obj.version || thread.unread!=obj.unread)) { // It should be uncommented after deployment
-                        delete thread.created_at
-                        delete thread.modified_at
-                        updateThread.call({..._.extend(thread, obj)})
-                    }
+                    upsertThread.call(obj)
                 } else if(obj.object === 'message') {
-                    const message = Messages.findOne({id: obj.id})
-                    if(!message) {
-                        insertMessage.call(obj)
-                    } else if(message && message.unread!=obj.unread) {  // It should be uncommented after deployment
-                        delete message.created_at
-                        delete message.modified_at
-                        updateMessage.call({..._.extend(message, obj)})
-                    }
+                    upsertMessage.call(obj)
                 }
             } catch(err) {
                 console.error(err)
             }
         })
 
-        const ids = _.pluck(unlockedJSONs, 'id')
-        if(objName === 'thread') return Promise.resolve(Threads.find({id:{$in:ids}}).fetch())
-        else if(objName === 'message') return Promise.resolve(Messages.find({id:{$in:ids}}).fetch())
-        else return Promise.resolve(unlockedJSONs)
+        return Promise.resolve(unlockedJSONs)
 
-        // Update client database
-        /*const ids = _.pluck(unlockedJSONs, 'id')
-        const DatabaseStore = require('./database-store')
-        return DatabaseStore.findObjects(objName, {id:{in:ids}}).then((models) => {
-            const existingModels = {}
-            models.forEach((model) => {
-                existingModels[model.id] = model
-            })
-            const responseModels = [], changedModels = []
-
-            unlockedJSONs.forEach((json) => {
-                let model = existingModels[json.id]
-
-                if(!model || (model.version && json.version && json.version>model.version) || !_.isEqual(model, json)) {
-                    model = _.clone(json)
-                    changedModels.push(model)
-                }
-                responseModels.push(model)
-            })
-
-
-            return DatabaseStore.persistObjects(objName, changedModels).then(() => Promise.resolve(responseModels))
-        })*/
     }
 
     handleModel404(modelUrl) {
@@ -241,7 +202,7 @@ class NylasAPI {
     }
 
     makeDraftDeletionRequest = (draft) => {
-        if(!draft.id) return
+        if (!draft.id) return
 
         //this.incrementRemoteChangeLock(Message, draft.serverId)
         this.makeRequest({
@@ -255,4 +216,5 @@ class NylasAPI {
     }
 
 }
+
 module.exports = new NylasAPI()

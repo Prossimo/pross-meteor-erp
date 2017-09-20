@@ -2,9 +2,10 @@ import _ from 'underscore'
 import React, {PropTypes} from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Threads} from '/imports/api/models'
-import {NylasUtils, ThreadStore} from '/imports/api/nylas'
+import {NylasUtils, ThreadStore, Actions} from '/imports/api/nylas'
 import ItemThread from './ItemThread'
 
+const LIMIT = 100
 export default class ThreadList extends TrackerReact(React.Component) {
     static propTypes = {
         category: PropTypes.object,
@@ -21,16 +22,20 @@ export default class ThreadList extends TrackerReact(React.Component) {
             currentThread: ThreadStore.currentThread(category),
             keyword: null
         }
+
+        this.page = 1
     }
 
     componentDidMount() {
         this.unsubscribe = ThreadStore.listen(this.onThreadStoreChanged)
 
+        const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
+        this.subscriptions = [subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort()))]
     }
 
     componentWillUnmount() {
         if(this.unsubscribe) this.unsubscribe()
-
+        //this.subscriptions.forEach(subscription => subscription.stop())
     }
 
     componentWillReceiveProps(newProps) {
@@ -42,34 +47,13 @@ export default class ThreadList extends TrackerReact(React.Component) {
         }
     }
 
-    onThreadStoreChanged = () => {
-        const {category, currentThread} = this.state
-        const newCurrentThread = ThreadStore.currentThread(category)
-        if(!_.isEqual(currentThread, newCurrentThread)) {
-            this.setState({
-                currentThread: newCurrentThread
-            })
-        }
+    sort = () => ({sort:{last_message_received_timestamp:-1}})
 
-        const {keyword} = this.state
-        if(keyword != ThreadStore.keyword) {
-            this.setState({
-                keyword: ThreadStore.keyword
-            })
-        }
+    filter = () => {
+        const {category, keyword} = this.state
 
-    }
+        if(!category) return {}
 
-    onSelectThread = (thread) => {
-        if(this.props.onSelectThread) this.props.onSelectThread(thread)
-
-        ThreadStore.selectThread(thread)
-    }
-    render() {
-        const {category, currentThread, loading, keyword} = this.state
-        if(!category) return <div>Please select any folder</div>
-
-        //console.log('render ThreadList', keyword)
         const filters = {}
         let keywordQuery, inboxQuery
 
@@ -123,11 +107,48 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['$or'] = inboxQuery
         }
 
+        return filters
+    }
+    onThreadStoreChanged = () => {
+        const {category, currentThread} = this.state
+        const newCurrentThread = ThreadStore.currentThread(category)
+        if(!_.isEqual(currentThread, newCurrentThread)) {
+            this.setState({
+                currentThread: newCurrentThread
+            })
+        }
+
+        const {keyword} = this.state
+        if(keyword != ThreadStore.keyword) {
+            this.setState({
+                keyword: ThreadStore.keyword
+            })
+        }
+
+    }
+
+    onSelectThread = (thread) => {
+        if(this.props.onSelectThread) this.props.onSelectThread(thread)
+
+        ThreadStore.selectThread(thread)
+    }
+
+    render() {
+        const {category, currentThread, loading} = this.state
+        if(!category) return <div>Please select any folder</div>
+
+        //console.log('render ThreadList', keyword)
+
+
         //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
-        let threads = Threads.find(filters, {sort:{last_message_received_timestamp:-1}}).fetch()
+        let threads = Threads.find(this.filter(), this.sort()).fetch()
         threads = _.uniq(threads, false, ({id}) => id)
         return (
-            <div className="list-thread">
+            <div className="column-panel" style={{
+                overflowY: 'auto',
+                height: '100%'
+            }} onScroll={this.onScrollThreadList}>
+                <div className="list-thread">
                 {
                     threads.map((thread, index) => <ItemThread key={`thread-${index}`} thread={thread}
                                                         onClick={(evt) => this.onSelectThread(thread)}
@@ -135,7 +156,20 @@ export default class ThreadList extends TrackerReact(React.Component) {
 
                 }
                 {loading && <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
+                </div>
             </div>
         )
+    }
+
+    onScrollThreadList = (evt) => {
+        const el = evt.target
+
+        if (el.scrollTop + el.clientHeight == el.scrollHeight) {
+            this.page ++
+            //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
+            //this.subscriptions.push(subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort())))
+
+            Actions.loadThreads(null, {page: ThreadStore.currentPage + 1})
+        }
     }
 }
