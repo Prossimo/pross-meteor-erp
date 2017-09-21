@@ -528,32 +528,15 @@ class SingleSalesRecord extends React.Component {
 export default createContainer(props => {
     const _id = FlowRouter.getParam('id')
     if (subsCache.subscribe('salesrecords.one', _id).ready()) {
-        const files = {}
-        Files
-            .find({})
-            .fetch()
-            .forEach(item => files[item._id] = item)
-        const msg = SlackMessages.find({}, {sort: {createAt: -1}}).fetch().map( item => {
-            item.userId && (item.author = props.usersArr[item.userId])
-            return item
-        })
-
         const salesRecord = SalesRecords.findOne(_id)
-        if(salesRecord) {
-            salesRecord.members = salesRecord.members.map(member => {
-                member.user = props.usersArr[member]
-                return member
-            })
+        if(!salesRecord) return {
+            notFound: true
         }
 
-        const quotes = Quotes.find({}, {sort: {createAt: -1}}).fetch()
-
-        const events = Events.find().fetch().map(item => {
-            item.type = 'event'
-            item.author = props.usersArr[item.createBy]
-            return item
+        salesRecord.members = salesRecord.members.map(member => {
+            member.user = props.usersArr[member]
+            return member
         })
-        const messages = msg.concat(events).sort((a,b) => a.createAt > b.createAt ? -1 : 1)
 
         const peopleIds = salesRecord.stakeholders.map(({peopleId}) => peopleId)
         const stakeholders = People
@@ -570,7 +553,9 @@ export default createContainer(props => {
             designations,
             stakeholders,
             candidateStakeholders,
-            messages, salesRecord, quotes
+            messages: salesRecord.slackActivities(),
+            salesRecord,
+            quotes: salesRecord.quotes()
         }
     } else {
         return {
