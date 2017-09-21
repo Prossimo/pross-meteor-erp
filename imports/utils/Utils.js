@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import fs from 'fs-plus'
 import path from 'path'
+import {SlackUsers} from '/imports/api/models'
 
 module.exports = Utils = {
 
@@ -131,5 +132,53 @@ module.exports = Utils = {
 
 
         return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase())>-1 ? folder.name : 'folder'}.png`
+    },
+
+    slackParsedText: (text) => {
+        // Convert user mention
+        let matches = text.match(/\<\@[^\>]+\|[^\>]+\>/g)
+        if (matches!=null && matches.length) {
+            //console.log(matches)
+            matches.forEach((m) => {
+                //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+                text = text.replace(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+            })
+        }
+        matches = text.match(/\<\@[^\>]+\>/g)
+        if (matches!=null && matches.length) {
+            //console.log(matches)
+            matches.forEach((m) => {
+                //console.log(m, m.substr(2, m.length - 3))
+                const slackUser = SlackUsers.findOne({id: m.substr(2, m.length - 3)})
+                //console.log(slackUser)
+                if (slackUser) {
+                    text = text.replace(m, `@${slackUser.name}`)
+                }
+            })
+        }
+
+        // Convert channel mention
+        matches = text.match(/\<\#[^\>]+\|[^\>]+\>/g)
+        if (matches!=null && matches.length) {
+            //console.log(matches)
+            matches.forEach((m) => {
+                //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+                text = text.replace(m, `#${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+            })
+        }
+        /*matches = text.match(/\<\#[^\>]+\>/g)
+        if (matches!=null && matches.length) {
+            //console.log(matches)
+            matches.forEach((m) => {
+                //console.log(m, m.substr(2, m.length - 3))
+                const slackChannel = SlackChannels.findOne({id: m.substr(2, m.length - 3)})
+                //console.log(slackUser)
+                if (slackChannel) {
+                    text = text.replace(m, `#${slackChannel.name}`)
+                }
+            })
+        }*/
+
+        return text
     }
 }

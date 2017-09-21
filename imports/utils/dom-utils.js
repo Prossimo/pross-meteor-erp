@@ -4,17 +4,17 @@ import _s from 'underscore.string'
 DOMUtils = {
     Mutating: {
         replaceFirstListItem: (li, replaceWith) => {
-            let list = DOMUtils.closest(li, "ul, ol")
+            const list = DOMUtils.closest(li, 'ul, ol')
 
             let text
             if (replaceWith.length == 0) {
-                replaceWith = replaceWith.replace(/\s/g, "&nbsp;")
-                text = document.createElement("div")
-                text.innerHTML = "<br>"
+                replaceWith = replaceWith.replace(/\s/g, '&nbsp;')
+                text = document.createElement('div')
+                text.innerHTML = '<br>'
             } else {
-                replaceWith = replaceWith.replace(/\s/g, "&nbsp;")
-                text = document.createElement("span")
-                text.innerHTML = "#{replaceWith}"
+                replaceWith = replaceWith.replace(/\s/g, '&nbsp;')
+                text = document.createElement('span')
+                text.innerHTML = '#{replaceWith}'
             }
 
             if (list.querySelectorAll('li').length <= 1) {
@@ -25,9 +25,9 @@ DOMUtils = {
                 li.parentNode.removeChild(li)
                 list.parentNode.insertBefore(text, list)
             }
-            let child = text.childNodes[0] ? text : null
-            let index = Math.max(replaceWith.length - 1, 0)
-            let selection = document.getSelection()
+            const child = text.childNodes[0] ? text : null
+            const index = Math.max(replaceWith.length - 1, 0)
+            const selection = document.getSelection()
             selection.setBaseAndExtent(child, index, child, index)
         },
 
@@ -50,21 +50,21 @@ DOMUtils = {
             els = [...els]
 
             let seenEls = []
-            let toMerge = []
+            const toMerge = []
 
-            for (let el of els) {
+            for (const el of els) {
                 if (seenEls.indexOf(el) > -1) continue
-                let adjacent = DOMUtils.collectAdjacent(el)
+                const adjacent = DOMUtils.collectAdjacent(el)
                 seenEls = seenEls.concat(adjacent)
                 if (adjacent.length <= 1) continue
                 toMerge.push(adjacent)
             }
 
-            let anchors = []
-            for (let mergeSet of toMerge) {
-                let anchor = mergeSet[0]
-                let remaining = mergeSet.slice(1)
-                for (let el of remaining) {
+            const anchors = []
+            for (const mergeSet of toMerge) {
+                const anchor = mergeSet[0]
+                const remaining = mergeSet.slice(1)
+                for (const el of remaining) {
                     while (el.childNodes.length > 0)
                         anchor.appendChild(el.childNodes[0])
                 }
@@ -76,7 +76,7 @@ DOMUtils = {
         },
 
         removeElements: (elements = []) => {
-            for (let el of elements) {
+            for (const el of elements) {
                 try {
                     if (el.parentNode) el.parentNode.removeChild(el)
                 } catch (err) {
@@ -89,7 +89,7 @@ DOMUtils = {
 
         applyTextInRange: (range, selection, newText) => {
             range.deleteContents()
-            let node = document.createTextNode(newText)
+            const node = document.createTextNode(newText)
             range.insertNode(node)
             range.selectNode(node)
             selection.removeAllRanges()
@@ -109,9 +109,9 @@ DOMUtils = {
 
         // This method finds the bounding points of the word that the range is currently within and selects that word.
         selectWordContainingRange: (range) => {
-            let selection = document.getSelection()
-            let node = selection.focusNode
-            let text = node.textContent
+            const selection = document.getSelection()
+            const node = selection.focusNode
+            const text = node.textContent
             let wordStart = _s.reverse(text.substring(0, selection.focusOffset)).search(/\s/)
             if (wordStart == -1)
                 wordStart = 0
@@ -132,14 +132,14 @@ DOMUtils = {
 
         moveSelectionToIndexInAnchorNode: (selection, index) => {
             if (!selection.isCollapsed) return
-            let node = selection.anchorNode
+            const node = selection.anchorNode
             selection.setBaseAndExtent(node, index, node, index)
         },
 
         moveSelectionToEnd: (selection) => {
             if (!selection.isCollapsed) return
-            let node = DOMUtils.findLastTextNode(selection.anchorNode)
-            let index = node.length
+            const node = DOMUtils.findLastTextNode(selection.anchorNode)
+            const index = node.length
             selection.setBaseAndExtent(node, index, node, index)
         }
     },
@@ -150,7 +150,7 @@ DOMUtils = {
             '<': '&lt;',
             '>': '&gt;',
             '"': '&quot;',
-            "'": '&#039;'
+            '\'': '&#039;'
         }
         return text.replace(/[&<>"']/g, (m) => map[m])
     },
@@ -175,12 +175,12 @@ DOMUtils = {
 
      Returns an array of DOM Nodes*/
     nodesWithContent: (elementOrHTML) => {
-        let nodes = []
+        const nodes = []
         let allNodes
 
         if (_.isString(elementOrHTML)) {
-            let domParser = new DOMParser()
-            let doc = domParser.parseFromString(elementOrHTML, "text/html")
+            const domParser = new DOMParser()
+            const doc = domParser.parseFromString(elementOrHTML, 'text/html')
             allNodes = doc.body.childNodes
         } else if (elementOrHTML && elementOrHTML.childNodes) {
             allNodes = elementOrHTML.childNodes
@@ -191,8 +191,8 @@ DOMUtils = {
         // We need to check `childNodes` instead of `children` to look for
         // plain Text nodes.
         for (let i = allNodes.length - 1; i >= 0; i--) {
-            let node = allNodes[i]
-            if (node.nodeName == "IMG")
+            const node = allNodes[i]
+            if (node.nodeName == 'IMG')
                 nodes.unshift(node)
 
             /* It's important to use `textContent` and NOT `innerText`.
@@ -200,15 +200,15 @@ DOMUtils = {
              calcaultes CSS styles to determine if the text is truly visible or
              not. This utility method must NOT cause a reflow. We instead will
              check for basic cases ourselves.*/
-            if ((node.textContent || "").trim().length == 0) {
+            if ((node.textContent || '').trim().length == 0) {
                 continue
             }
 
             if (node.style &&
                 (node.style.opacity === 0 ||
-                    node.style.opacity === "0" ||
-                    node.style.visibility === "hidden" ||
-                    node.style.display === "none"
+                    node.style.opacity === '0' ||
+                    node.style.visibility === 'hidden' ||
+                    node.style.display === 'none'
                 )
             ) {
                 continue
@@ -236,7 +236,7 @@ DOMUtils = {
      nodName is optional. if left blank it'll be the nodeName of the root*/
     collectAdjacent: (root, nodeName) => {
         nodeName = nodeName ? nodeName : root.nodeName
-        let adjacent = []
+        const adjacent = []
 
         let node = root
         while (node.nextSibling && node.nextSibling.nodeName == nodeName) {
@@ -260,7 +260,7 @@ DOMUtils = {
         if (!node) return null
         if (node.nodeType == Node.TEXT_NODE) return node
         for (let i = node.childNodes.length - 1; i >= 0; i--) {
-            let childNode = node.childNodes[i]
+            const childNode = node.childNodes[i]
 
             if (childNode.nodeType == Node.TEXT_NODE)
                 return childNode
