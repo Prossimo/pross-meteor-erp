@@ -1,15 +1,15 @@
-import React from 'react';
-import {FlowRouter} from 'meteor/kadira:flow-router';
-import Massage from './Massage';
-import { getUserName } from '../../../api/lib/filters';
+import React from 'react'
+import {FlowRouter} from 'meteor/kadira:flow-router'
+import Massage from './Massage'
+import { getUserName } from '../../../api/lib/filters'
 
 class Activity extends React.Component{
     constructor(props){
-        super(props);
+        super(props)
     }
 
     getMassageList(){
-        const { users } = this.props;
+        const { users } = this.props
         if(!this.props.messages.length){
             return (
                 <div className="massage-list">
@@ -17,23 +17,23 @@ class Activity extends React.Component{
                 </div>
             )
         }
-        const activityList = this.props.messages.map(item=>{
+        const activityList = this.props.messages.map(item => {
             switch (item.type) {
                 case 'message': {
                     return <Massage key={item._id}  message={item}/>
-                }break;
+                }break
                 case 'event':{
                     return (
                         <li key={item._id}
                             className="event-message">
                             {getUserName(item.author, true)}
                             {item.name} at
-                            {moment(item.createAt).format("h:mm, MMMM Do YYYY")}
+                            {moment(item.createAt).format('h:mm, MMMM Do YYYY')}
                         </li>
                     )
-                }break;
+                }break
                 default:
-                    return null;
+                    return null
             }
         })
         return(
@@ -55,4 +55,4 @@ class Activity extends React.Component{
     }
 }
 
-export default  Activity;
+export default  Activity

@@ -44,7 +44,9 @@ class SingleProject extends Component {
         }
     }
 
-
+    componentDidMount() {
+        subsCache.subscribe('slackusers.all')
+    }
     toggleTab(activeTab) {
         this.setState({activeTab})
     }

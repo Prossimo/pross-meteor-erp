@@ -77,6 +77,7 @@ class SingleSalesRecord extends React.Component {
 
     componentDidMount() {
         Meteor.call('getSlackUsers')
+        subsCache.subscribe('slackusers.all')
     }
 
     toggleTab(activeTab) {
