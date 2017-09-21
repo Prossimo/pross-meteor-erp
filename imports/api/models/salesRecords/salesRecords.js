@@ -10,6 +10,9 @@ import Tasks from '../tasks/tasks'
 import People from '../people/people'
 import Users from '../users/users'
 import Conversations from '../conversations/conversations'
+import SlackMessages from '../slackMessages/slackMessages'
+import Events from '../events/events'
+import Quotes from '../quotes/quotes'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -182,6 +185,27 @@ SalesRecords.helpers({
     getMembers() {
         if (!this.members || this.members.length == 0) return []
         return Users.find({_id:{$in:this.members}}).fetch()
+    },
+
+    slackActivities() {
+
+        const msg = SlackMessages.find({channel: this.slackChanel}, {sort: {createAt: -1}}).map( item => {
+            if(item.userId) item.author = Users.findOne(item.userId)
+            return item
+        })
+
+        const events = Events.find({projectId:this._id}).map(item => {
+            item.type = 'event'
+            if(item.createBy) item.author = Users.findOne(item.createBy)
+            return item
+        })
+
+        return msg.concat(events).sort((a,b) => a.createAt > b.createAt ? -1 : 1)
+
+    },
+
+    quotes() {
+        return Quotes.find({projectId:this._id}, {sort: {createAt: -1}}).fetch()
     }
 })
 
