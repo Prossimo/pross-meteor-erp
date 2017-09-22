@@ -13,18 +13,27 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 
 export const createProject = new ValidatedMethod({
     name: 'project.create',
-    validate: Projects.schema.pick('name', 'members', 'stakeholders').extend({
-        thread:{type:Threads.schema, optional:true}
+    validate: Projects.schema.pick('name', 'members', 'stakeholders', 'nylasAccountId').extend({
+        thread:{type:Threads.schema, optional:true},
+        isServer: {type:Boolean, optional:true}
     }).validator(),
-    run({ name, members, stakeholders, thread }) {
-        const project = { name, members, stakeholders, thread }
+    run({ name, members, stakeholders, thread, nylasAccountId, isServer }) {
+        const project = { name, members, stakeholders, nylasAccountId }
         // CHECK ROLE
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
+        if (!isServer && !Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
             throw new Meteor.Error('Access denied')
 
-        stakeholders = stakeholders || []
-        const mainConversationId = Conversations.insert({name:'Main', participants:stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
-        project.conversationIds = [mainConversationId]
+        if(!nylasAccountId) {
+            stakeholders = stakeholders || []
+            const mainConversationId = Conversations.insert({
+                name: 'Main',
+                participants: stakeholders.filter(s => s.addToMain).map(({peopleId, isMainStakeholder}) => ({
+                    peopleId,
+                    isMain: isMainStakeholder
+                }))
+            })
+            project.conversationIds = [mainConversationId]
+        }
 
         // INSERT
         const projectId = Projects.insert(project)
@@ -33,18 +42,25 @@ export const createProject = new ValidatedMethod({
         let { data } = slackClient.channels.create({ name: `p-${project.name}` })
         // RETRY WITH UNIQUE NAME
         if (!data.ok) {
-            data = slackClient.channels.create({ name: `p-${project.name}-${Random.id()}` })
+            data = slackClient.channels.create({ name: `p-${project.name}-${Random.id()}` }).data
         }
-        if (data.ok) {
+
+        console.log('slack channel create response', data, data.ok)
+        if (data.ok) { console.log('data.ok in', data.channel)
             const slackChanel = data.channel.id
             const slackChannelName = data.channel.name
             // INVITE MEMBERS to CHANNEL
-            Meteor.users.find({
-                _id: { $in: project.members.map(({ userId }) => userId) },
-                slack: { $exists: true },
-            }).forEach(
-                ({ slack: { id } }) => slackClient.channels.invite({ channel: slackChanel, user: id })
-            )
+            if(members) {
+
+                Meteor.users.find({
+                    _id: { $in: members.map(({ userId }) => userId) },
+                    slack: { $exists: true },
+                }).forEach(
+                    ({ slack: { id } }) => slackClient.channels.invite({ channel: slackChanel, user: id })
+                )
+            }
+
+            console.log('update project', projectId, { slackChanel, slackChannelName })
             // UPDATE slackChanel
             Projects.update(projectId, {
                 $set: { slackChanel, slackChannelName },

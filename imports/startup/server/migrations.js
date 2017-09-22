@@ -1,18 +1,17 @@
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts} from '/imports/api/models'
+import {createProject} from '/imports/api/models/projects/methods'
 
 Migrations.add({
     version: 1,
     name: 'Add roles',
     up() {
-        console.log('=== migrate up to version 1')
         Object.values(ROLES).forEach((role) => {
             Roles.createRole(role)
         })
     },
     down() {
-        console.log('=== migrate down to version 1')
 
         Object.values(ROLES).forEach((role) => {
             Roles.deleteRole(role)
@@ -23,13 +22,11 @@ Migrations.add({
     version: 2,
     name: 'Add company types',
     up() {
-        console.log('=== migrate up to version 2')
         const types = ['Architect', 'Engineer', 'Developer', 'Freight Forwarder', 'Energy Consultant', 'Shipping Line', 'Trucker', 'Procurement Consultant', 'Facade Consultant', 'Testing Lab', 'General Contractor', 'Installer', 'Fabricator', 'Glass Processor', 'Aluminum Extruder']
 
         types.forEach((type) => CompanyTypes.insert({name:type}))
     },
     down() {
-        console.log('=== migrate down from version 2')
         CompanyTypes.remove({})
     }
 })
@@ -37,7 +34,6 @@ Migrations.add({
     version: 3,
     name: 'Add people designations',
     up() {
-        console.log('=== migrate up to version 3')
         const designations = [{
             name: 'Stakeholder',
             role_addable: true,
@@ -59,7 +55,6 @@ Migrations.add({
         designations.forEach((d) => PeopleDesignations.insert(d))
     },
     down() {
-        console.log('=== migrate down from version 3')
         PeopleDesignations.remove({})
     }
 })
@@ -67,7 +62,6 @@ Migrations.add({
     version: 4,
     name: 'Change designation role schema',
     up() {
-        console.log('=== migrate up to version 4')
         const designations = [{
             name: 'Stakeholder',
             role_addable: true,
@@ -112,7 +106,6 @@ Migrations.add({
     version: 6,
     name: 'Add ClientStatus and SupplierStatus',
     up() {
-        console.log('==== migrate up to version 6 ====')
 
         const clientStatuses = ['Waiting on Client', 'Quote Sent', 'Change Requested', 'Intent To Buy', 'Client Accept', 'Submittal Sent', 'RFC', 'Stuck!']
         clientStatuses.forEach((status) => ClientStatus.insert({name:status,editable:false}))
@@ -127,7 +120,6 @@ Migrations.add({
     version: 7,
     name: 'Add conversationIds data to SalesRecord and Project',
     up() {
-        console.log('===== migrate up to version 7 =====')
 
         // For SalesRecord
         const salesRecords = SalesRecords.find().fetch()
@@ -144,7 +136,6 @@ Migrations.add({
         })
     },
     down() {
-        console.log('==== migrate down to version 7 ====')
         Conversations.remove()
         SalesRecords.update({}, {$set:{conversationIds:null}})
         Projects.update({}, {$set:{conversationIds:null}})
@@ -152,8 +143,31 @@ Migrations.add({
 
 })
 
+Migrations.add({
+    version: 8,
+    name: 'Create projects for inboxes',
+    up() {
+
+        const nylasAccounts = NylasAccounts.find().fetch()
+
+        nylasAccounts.forEach(({_id, name}) => {
+            const project = Projects.findOne({nylasAccountId: _id})
+
+            if(!project) {
+                try {
+                    createProject.call({name, nylasAccountId:_id, isServer:true})
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+        })
+    },
+    down() {
+        Projects.remove({nylasAccountId:{$ne:null}})
+    }
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(7)
+        Migrations.migrateTo(8)
     }
 })
