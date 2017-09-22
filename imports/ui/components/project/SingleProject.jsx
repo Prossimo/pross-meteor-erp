@@ -136,11 +136,17 @@ class SingleProject extends Component {
         })
     }
 
+    getTabs() {
+        if(this.props.project.nylasAccountId) {
+            return this.tabs.filter(t => t.label!=='Conversations')
+        }
+        return this.tabs
+    }
     renderTabs() {
         const {activeTab} = this.state
 
         return <ul>
-            {this.tabs.map(item => (
+            {this.getTabs().map(item => (
                 <li key={item.label}
                     onClick={this.toggleTab.bind(this, item)}
                     className={classNames({'active': item === activeTab})}
@@ -200,6 +206,8 @@ class SingleProject extends Component {
         if (this.props.loading) return (<div>Loading ...</div>)
 
         const {project} = this.props
+        if(!project) return <div>Could not load project</div>
+
         const members = project.getMembers()
         const stakeholders = project.getStakeholders()
         return (

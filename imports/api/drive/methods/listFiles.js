@@ -1,5 +1,6 @@
-import { drive } from './drive';
-import SimpleSchema from 'simpl-schema';
+import { drive } from './drive'
+import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
     name: 'drive.listFiles',
@@ -7,9 +8,9 @@ export default new ValidatedMethod({
         query: { type: String, optional: true }
     }).validator(),
     run({ query, parent }) {
-        const params = query ? { q: query } : {};
-        params.fields = 'files';
-        return Meteor.wrapAsync(drive.files.list)(params);
+        const params = query ? { q: query } : {}
+        params.fields = 'files'
+        return Meteor.wrapAsync(drive.files.list)(params)
     }
 })
 
