@@ -4,6 +4,7 @@ import NylasAPI from '../../nylas/nylas-api'
 import config from '../../config'
 import NylasAccounts from './nylas-accounts'
 import {ROLES} from '../users/users'
+import {createProject} from '../projects/methods'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -98,7 +99,7 @@ Meteor.methods({
                 }).then((categories) => {
 
                      bound(() => {
-                         NylasAccounts.insert({
+                         const nylasAccountId = NylasAccounts.insert({
                              accessToken: account.access_token,
                              accountId: account.account_id,
                              emailAddress: account.email_address,
@@ -109,6 +110,12 @@ Meteor.methods({
                              userId: !isTeamAccount ? currentUserId : null,
                              categories
                          })
+
+                         try {
+                             createProject.call({name: account.name, nylasAccountId, isServer:true})
+                         } catch (err) {
+                             console.error(err)
+                         }
                      })
 
                     return true
