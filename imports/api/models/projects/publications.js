@@ -3,7 +3,7 @@ import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { SlackMessages, People, ROLES, Projects, Tasks, Events, Quotes, Messages, Files, Conversations } from '/imports/api/models/index'
 
-Meteor.publishComposite('projects.mine', () => ({
+/*Meteor.publishComposite('projects.mine', () => ({
     find() {
         if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return Projects.find()
         return Projects.find({'members.userId': this.userId})
@@ -18,7 +18,16 @@ Meteor.publishComposite('projects.mine', () => ({
             }
         }
     ]
-}))
+}))*/
+
+Meteor.publish('projects.mine', function() {
+    if(!this.userId) return this.ready()
+
+    if(Roles.userIsInRole(this.userId, ROLES.ADMIN))
+        return Projects.find()
+
+    return Projects.find({'members.userId': this.userId})
+})
 
 Meteor.publishComposite('projects.one', function (_id) {
     check(_id, String)

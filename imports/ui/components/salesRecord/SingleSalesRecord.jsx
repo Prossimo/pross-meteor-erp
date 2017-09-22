@@ -77,7 +77,6 @@ class SingleSalesRecord extends React.Component {
 
     componentDidMount() {
         Meteor.call('getSlackUsers')
-        subsCache.subscribe('slackusers.all')
     }
 
     toggleTab(activeTab) {
@@ -528,7 +527,7 @@ class SingleSalesRecord extends React.Component {
 
 export default createContainer(props => {
     const _id = FlowRouter.getParam('id')
-    if (subsCache.subscribe('salesrecords.one', _id).ready()) {
+    if (subsCache.subscribe('salesrecords.one', _id).ready() && subsCache.subscribe('slackusers.all')) {
         const salesRecord = SalesRecords.findOne(_id)
         if(!salesRecord) return {
             notFound: true
