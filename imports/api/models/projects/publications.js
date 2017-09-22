@@ -66,6 +66,7 @@ Meteor.publishComposite('projects.one', function (_id) {
             }
         },{
             find({conversationIds}) {
+                if(!conversationIds) return []
                 return Conversations.find({_id:{$in:conversationIds}})
             }
         }]
