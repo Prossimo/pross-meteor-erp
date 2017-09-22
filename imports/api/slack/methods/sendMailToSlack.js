@@ -4,7 +4,7 @@ import {check} from 'meteor/check'
 import request from 'request'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
-import {Threads, SalesRecords, SlackMails, Conversations} from '/imports/api/models'
+import {Threads, SalesRecords, SlackMails, Conversations, NylasAccounts, Projects} from '/imports/api/models'
 import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports/utils/quoted-html-transformer'
 import config from '/imports/api/config'
 
@@ -21,12 +21,16 @@ Meteor.methods({
         if (thread && thread.conversationId) {
             conversation = Conversations.findOne({_id: thread.conversationId})
             target = conversation.parent()
+        } else {
+            const nylasAccount = NylasAccounts.findOne({accountId: message.account_id})
+            target = Projects.findOne({nylasAccountId: nylasAccount._id})
         }
 
         let threadable = false
         let slackChannelId = target ? target.slackChanel : null
 
         if (!slackChannelId) {
+
             const channelsListRes = slackClient.channels.list()
             if (channelsListRes.statusCode != 200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
 
