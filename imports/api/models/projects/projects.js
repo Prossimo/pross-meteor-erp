@@ -7,6 +7,7 @@ import Tasks from '../tasks/tasks'
 import Conversations from '../conversations/conversations'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
+import NylasAccounts from '../nylasaccounts/nylas-accounts'
 
 class ProjectsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -45,6 +46,8 @@ Projects.schema = new SimpleSchema({
 
     conversationIds: {type: Array, optional: true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
+
+    nylasAccountId: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}
 })
 
 Projects.attachSchema(Projects.schema)
@@ -88,6 +91,11 @@ Projects.helpers({
     people() {
         const peopleIds = _.pluck(this.stakeholders, 'peopleId')
         return People.find({_id: {$in: peopleIds}}).fetch()
+    },
+    nylasAccount() {
+        if(!this.nylasAccountId) return null
+
+        return NylasAccounts.findOne(this.nylasAccountId)
     }
 })
 export default Projects

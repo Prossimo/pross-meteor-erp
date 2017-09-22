@@ -45,7 +45,7 @@ class SingleProject extends Component {
     }
 
     componentDidMount() {
-        subsCache.subscribe('slackusers.all')
+
     }
     toggleTab(activeTab) {
         this.setState({activeTab})
@@ -249,8 +249,8 @@ class SingleProject extends Component {
 
 export default createContainer(() => {
     const projectId = FlowRouter.getParam('id')
-    const subscribers = []
-    subscribers.push(subsCache.subscribe('projects.one', projectId))
+    const subscribers = [subsCache.subscribe('slackusers.all'), subsCache.subscribe('projects.one', projectId)]
+
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         project: Projects.findOne(projectId)

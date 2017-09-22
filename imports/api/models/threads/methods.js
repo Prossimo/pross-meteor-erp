@@ -22,7 +22,7 @@ export const insertThread = new ValidatedMethod({
     name: 'thread.insert',
     validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
     run(thread) {
-        console.log('insertThread')
+        //console.log('insertThread')
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         return Threads.insert(thread)
@@ -55,10 +55,10 @@ export const upsertThread = new ValidatedMethod({
         if(Meteor.isServer) {
             const existingThread = Threads.findOne({id: thread.id})
             if (!existingThread) {
-                console.log('insetThread')
+                //console.log('insetThread')
                 Threads.insert(thread)
             } else if (existingThread && (thread.version != existingThread.version || thread.unread!=existingThread.unread)) { // It should be uncommented after deployment
-                console.log('updateThread')
+                //console.log('updateThread')
                 thread.conversationId = existingThread.conversationId
                 Threads.update({_id: existingThread._id}, {$set: {...thread}})
             }
