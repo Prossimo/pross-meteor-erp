@@ -22,7 +22,18 @@ class AllProjects extends Component {
                 type: 'text',
                 selected: false,
                 editable: true,
-            },
+            }, {
+                key: 'nylasAccountId',
+                label: 'Inbox',
+                value: (project) => {
+                    const nylasAccount = project.nylasAccount()
+                    if(!nylasAccount) return ''
+                    else return nylasAccount.emailAddress
+                },
+                type: 'text',
+                selected: false,
+                editable: false,
+            }
         ]
         this.saveProjectProperty = this.saveProjectProperty.bind(this)
         this.removeProject = this.removeProject.bind(this)
