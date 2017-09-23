@@ -53,7 +53,7 @@ Meteor.publishComposite('projects.one', function (_id) {
         },{
             find(project) {
                 const threads = project.threads()
-
+                if(!threads || threads.length==0) return []
                 return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
             }
         },{
