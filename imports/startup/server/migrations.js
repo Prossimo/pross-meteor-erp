@@ -148,7 +148,7 @@ Migrations.add({
     name: 'Create projects for inboxes',
     up() {
 
-        const nylasAccounts = NylasAccounts.find().fetch()
+        const nylasAccounts = NylasAccounts.find({isTeamAccount:true}).fetch()
 
         nylasAccounts.forEach(({_id, name}) => {
             const project = Projects.findOne({nylasAccountId: _id})

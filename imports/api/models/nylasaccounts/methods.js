@@ -111,10 +111,12 @@ Meteor.methods({
                              categories
                          })
 
-                         try {
-                             createProject.call({name: account.name, nylasAccountId, isServer:true})
-                         } catch (err) {
-                             console.error(err)
+                         if(isTeamAccount) {
+                             try {
+                                 createProject.call({name: account.name, nylasAccountId, isServer: true})
+                             } catch (err) {
+                                 console.error(err)
+                             }
                          }
                      })
 

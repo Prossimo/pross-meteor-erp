@@ -113,40 +113,42 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                         Messages.insert(message)
                                     }
 
-                                    Meteor.call('sendMailToSlack', message, {mentions})
-                                    // upload files to slack
-                                    /*if (message.files && message.files.length) {
-                                        const promises = message.files.map(file => new Promise((resolve, reject) => {
-                                                const filepath = `/Volumes/MACDATA/uploads/${file.filename}`
-                                                console.log('===> filepath', filepath)
-                                                const request = require('request')
-                                                const progress = require('request-progress')
+                                    if(nylasAccount.isTeamAccount) {
+                                        Meteor.call('sendMailToSlack', message, {mentions})
+                                        // upload files to slack
+                                        /*if (message.files && message.files.length) {
+                                            const promises = message.files.map(file => new Promise((resolve, reject) => {
+                                                    const filepath = `/Volumes/MACDATA/uploads/${file.filename}`
+                                                    console.log('===> filepath', filepath)
+                                                    const request = require('request')
+                                                    const progress = require('request-progress')
 
-                                                progress(request.get(`${config.nylas.apiRoot}/files/${file.id}/download`, {auth}), {throtte: 250})
-                                                    .on('progress', (progress) => {console.log('Nylas file download progress', progress)})
-                                                    .on('end', () => {console.log('Nylas file download end')
-                                                        resolve(fs.createReadStream(filepath))
-                                                    })
-                                                    .on('error', (err) => {
-                                                        console.error('=====> Nylas file download error', err)
-                                                        reject(err)
-                                                    })
-                                                    .pipe(fs.createWriteStream(filepath))
+                                                    progress(request.get(`${config.nylas.apiRoot}/files/${file.id}/download`, {auth}), {throtte: 250})
+                                                        .on('progress', (progress) => {console.log('Nylas file download progress', progress)})
+                                                        .on('end', () => {console.log('Nylas file download end')
+                                                            resolve(fs.createReadStream(filepath))
+                                                        })
+                                                        .on('error', (err) => {
+                                                            console.error('=====> Nylas file download error', err)
+                                                            reject(err)
+                                                        })
+                                                        .pipe(fs.createWriteStream(filepath))
+                                                })
+                                            )
+                                            Promise.all(promises).then(files => {
+                                                bound(() => {
+                                                    Meteor.call('sendMailToSlack', message, files)
+                                                })
+                                            }).catch(err => {
+                                                console.error(err)
+                                                bound(() => {
+                                                    Meteor.call('sendMailToSlack', message)
+                                                })
                                             })
-                                        )
-                                        Promise.all(promises).then(files => {
-                                            bound(() => {
-                                                Meteor.call('sendMailToSlack', message, files)
-                                            })
-                                        }).catch(err => {
-                                            console.error(err)
-                                            bound(() => {
-                                                Meteor.call('sendMailToSlack', message)
-                                            })
-                                        })
-                                    } else {
-                                        Meteor.call('sendMailToSlack', message)
-                                    }*/
+                                        } else {
+                                            Meteor.call('sendMailToSlack', message)
+                                        }*/
+                                    }
                                 })
                             })
                         })
