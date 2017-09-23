@@ -150,7 +150,7 @@ class Sheets extends Component {
         return this.props.rows.map((project, index) => (
                 <tr key={project._id}>
                 {
-                    selectedColumns.map(({ key, type, options }) => {
+                    selectedColumns.map(({ key, type, options, value }) => {
                         if (key === this.state.edittingCell.key && index === this.state.edittingCell.rowIndex) {
                             switch(type) {
                                 case 'date':
@@ -218,7 +218,7 @@ class Sheets extends Component {
                                             onMouseEnter={() => this.handleMouseEnter(key, index, project[key])}
                                         >
                                             <div>
-                                                { project[key] }
+                                                { value&&typeof value === 'function' ? value(project) : project[key] }
                                                 { this.renderEditButton(key, index, project[key]) }
                                             </div>
                                         </td>)
