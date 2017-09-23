@@ -1,3 +1,4 @@
+import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
 import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts} from '/imports/api/models'
@@ -148,7 +149,7 @@ Migrations.add({
     name: 'Create projects for inboxes',
     up() {
 
-        const nylasAccounts = NylasAccounts.find({isTeamAccount:true}).fetch()
+        const nylasAccounts = _.uniq(NylasAccounts.find({isTeamAccount:true}).fetch(), false, ({emailAddress}) => emailAddress)
 
         nylasAccounts.forEach(({_id, name}) => {
             const project = Projects.findOne({nylasAccountId: _id})
@@ -168,6 +169,6 @@ Migrations.add({
 })
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(7)
+        Migrations.migrateTo(8)
     }
 })
