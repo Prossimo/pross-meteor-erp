@@ -20,8 +20,9 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
             }
         },{
             find({slackChanel}) {
-                if(!slackChanel) return []
-                return SlackMessages.find({channel: slackChanel})
+                if(slackChanel) {
+                    return SlackMessages.find({channel: slackChanel})
+                }
             }
         },{
             find({_id}) {
@@ -31,7 +32,9 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
             find(project) {
                 const threads = project.threads()
 
-                return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
+                if(threads && threads.length > 0) {
+                    return Messages.find({thread_id: {$in: _.pluck(threads, 'id')}})
+                }
             }
         },{
             find({_id}) {
@@ -43,7 +46,9 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
             }
         },{
             find({conversationIds}) {
-                return Conversations.find({_id:{$in:conversationIds}})
+                if(conversationIds && conversationIds.length>0) {
+                    return Conversations.find({_id: {$in: conversationIds}})
+                }
             }
         }]
     }
