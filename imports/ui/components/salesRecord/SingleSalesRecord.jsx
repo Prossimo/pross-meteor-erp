@@ -205,6 +205,17 @@ class SingleSalesRecord extends React.Component {
         )
     }
 
+    renderDealer(dealer) {
+        return (
+            <div className="list">
+                <div className="item">
+                    <div className="primary-text">{dealer.name}</div>
+                    <div className="secondary-text">{dealer.defaultEmail()}</div>
+                </div>
+            </div>
+        )
+    }
+
     changeStage(salesRecordId, item) {
         if (item) {
             Meteor.call('changeStageOfSalesRecord', salesRecordId, item.value, (error) => {
@@ -312,6 +323,16 @@ class SingleSalesRecord extends React.Component {
         })
     }
 
+    onSelectDealer = (dealerItem) => {
+        const {salesRecord} = this.props
+        const dealer = dealerItem ? dealerItem.value : null
+        if (salesRecord.dealer === dealer) return
+
+        Meteor.call('updateSalesRecordDealer', salesRecord._id, dealer, err => {
+            if (err) return console.error(err)
+        })
+    }
+
     hidePopup() {
         this.setState({showPopup: false, popupData: null})
     }
@@ -410,6 +431,12 @@ class SingleSalesRecord extends React.Component {
         const defaultStage = this.stageOptions.find(({value}) => value === salesRecord.stage)
 
         const members = salesRecord.getMembers()
+        const dealer = salesRecord.getDealer()
+        const dealers = People.find().fetch().filter(p => {
+            const designation = p.designation()
+            return designation&&designation.name==='Dealer'
+        })
+
         return (
             <div className="page-container single-project">
                 {this.renderPopup()}
@@ -494,6 +521,15 @@ class SingleSalesRecord extends React.Component {
                                                   onSelect={this.onSelectMembers}/>}>
                             {members && members.length ? this.renderMembers(members) :
                                 <div>There are no members assigned to this project</div>}
+                        </Panel>
+                    </div>
+                    <div className="sidebar-box">
+                        <Panel title="Dealer"
+                               actions={<Selector value={dealer&&{value: dealer._id, label: dealer.name}}
+                                                  options={dealers.map(d => ({value: d._id, label: d.name}))}
+                                                  onSelect={this.onSelectDealer}/>}>
+                            {dealer ? this.renderDealer(dealer) :
+                                <div>Dealer is not set yet.</div>}
                         </Panel>
                     </div>
                     <div className='sidebar-box'>

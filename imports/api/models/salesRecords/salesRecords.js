@@ -60,6 +60,7 @@ SalesRecords.schema = new SimpleSchema({
     members: { type: Array },
     'members.$': { type: String, regEx: SimpleSchema.RegEx.Id },
     teamLead: {type: String, regEx: SimpleSchema.RegEx.Id, optional:true},
+    dealer: {type: String, regEx: SimpleSchema.RegEx.Id, optional:true},    // person with dealer designation
 
     stakeholders: { type: Array },
     'stakeholders.$': { type: Object },
@@ -111,8 +112,6 @@ SalesRecords.publicFields = {
     name: 1,
     members: 1,
     slackChanel: 1,
-    createdAt: 1,
-    modifiedAt: 1,
     actualDeliveryDate: 1,
     productionStartDate: 1,
     estDeliveryRange: 1,
@@ -133,6 +132,8 @@ SalesRecords.publicFields = {
     actProductionTime: 1,
     stage: 1,
 
+    dealer: 1,
+
     teamLead: 1,
     bidDueDate: 1,
     expectedRevenue: 1,
@@ -140,7 +141,10 @@ SalesRecords.publicFields = {
     priority: 1,
     probability: 1,
     clientStatus: 1,
-    supplierStatus: 1
+    supplierStatus: 1,
+
+    createdAt: 1,
+    modifiedAt: 1
 }
 
 Factory.define('salesRecord', SalesRecords, {
@@ -206,6 +210,12 @@ SalesRecords.helpers({
 
     quotes() {
         return Quotes.find({projectId:this._id}, {sort: {createAt: -1}}).fetch()
+    },
+
+    getDealer() {
+        if(!this.dealer) return null
+
+        return People.findOne(this.dealer)
     }
 })
 

@@ -332,6 +332,17 @@ Meteor.methods({
 
     },
 
+    updateSalesRecordDealer(salesRecordId, dealer) {
+        check(salesRecordId, String)
+        check(dealer, String)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+
+        const salesRecord = SalesRecords.findOne(salesRecordId)
+        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
+
+        SalesRecords.update({_id:salesRecordId}, {$set:{dealer}})
+    },
     updateSalesRecordMembers(salesRecordId, members){
         check(salesRecordId, String)
         check(members, Array)
