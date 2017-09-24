@@ -59,7 +59,7 @@ People.schema = new SimpleSchema({
     facebook: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
     linkedin: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true},
     designation_id: {type: String, regEx: SimpleSchema.RegEx.Id},
-    role: {type: String},
+    role: {type: String, optional:true},
     is_user: {type: Boolean, optional: true},
     emails: {type: Array, optional: true, defaultValue:[]},
     'emails.$': {type: People.Email},

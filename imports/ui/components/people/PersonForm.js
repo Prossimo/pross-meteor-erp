@@ -25,7 +25,7 @@ export default class PersonForm extends React.Component {
 
         const person = props.person ? props.person : (props.person_id ? People.findOne(props.person_id) : null)
         const name = person ? person.name : props.name
-        const emails = person ? person.emails : (props.email ? [{email:props.email, is_default:true}] : [])
+        const emails = person ? person.emails : (props.email ? [{email: props.email, is_default: true}] : [])
 
         this.state = {
             name: name || '',
@@ -58,8 +58,10 @@ export default class PersonForm extends React.Component {
             designation = PeopleDesignations.findOne({_id: designation_id})
             if (designation) {
                 designationValue = {value: designation._id, label: designation.name}
-                roleOptions = designation.roles.map(r => ({value: r.name, label: r.name, is_custom:r.is_custom}))
-                roleValue = _.findIndex(designation.roles, {name:role}) > -1 ? {value: role, label: role} : null
+                if (designation.roles && designation.roles.length > 0) {
+                    roleOptions = designation.roles.map(r => ({value: r.name, label: r.name, is_custom: r.is_custom}))
+                    roleValue = _.findIndex(designation.roles, {name: role}) > -1 ? {value: role, label: role} : null
+                }
                 roleAddable = designation.role_addable && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN])
             }
         }
@@ -88,7 +90,8 @@ export default class PersonForm extends React.Component {
                         </Col>
                         <Col sm={9}>
                             <FormControl type="text" placeholder="Twitter" value={twitter}
-                                         onChange={(evt) => this.setState({twitter: evt.target.value})} pattern={URL_PATTERN}/>
+                                         onChange={(evt) => this.setState({twitter: evt.target.value})}
+                                         pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalFacebook">
@@ -97,7 +100,8 @@ export default class PersonForm extends React.Component {
                         </Col>
                         <Col sm={9}>
                             <FormControl type="text" placeholder="Facebook" value={facebook}
-                                         onChange={(evt) => this.setState({facebook: evt.target.value})} pattern={URL_PATTERN}/>
+                                         onChange={(evt) => this.setState({facebook: evt.target.value})}
+                                         pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalLinkedin">
@@ -106,7 +110,8 @@ export default class PersonForm extends React.Component {
                         </Col>
                         <Col sm={9}>
                             <FormControl type="text" placeholder="LinkedIn" value={linkedin}
-                                         onChange={(evt) => this.setState({linkedin: evt.target.value})} pattern={URL_PATTERN}/>
+                                         onChange={(evt) => this.setState({linkedin: evt.target.value})}
+                                         pattern={URL_PATTERN}/>
                         </Col>
                     </FormGroup>
                     <FormGroup controlId="formHorizontalDesignation">
@@ -128,15 +133,21 @@ export default class PersonForm extends React.Component {
                         </Col>
                         <Col sm={9}>
                             <div style={{display: 'flex', flexDirection: 'row'}}>
-                                <div style={{flex:1}}>
+                                <div style={{flex: 1}}>
                                     <Select
-                                    options={roleOptions}
-                                    optionRenderer={roleAddable ? (option) => <div style={{display:'flex'}}><span style={{flex:1}}>{option.label}</span>{option.is_custom&&<span onMouseDown={(evt) => {evt.stopPropagation(); evt.preventDefault(); this.onRemoveRole(option.value)}}>×</span>}</div> : null}
-                                    value={roleValue}
-                                    onChange={this.onChangeRole}
-                                    required
-                                /></div>
-                                {roleAddable && <Button onClick={this.onClickAddRole}><i className="fa fa-plus"/></Button>}
+                                        options={roleOptions}
+                                        optionRenderer={roleAddable ? (option) => <div style={{display: 'flex'}}><span
+                                            style={{flex: 1}}>{option.label}</span>{option.is_custom &&
+                                        <span onMouseDown={(evt) => {
+                                            evt.stopPropagation()
+                                            evt.preventDefault()
+                                            this.onRemoveRole(option.value)
+                                        }}>×</span>}</div> : null}
+                                        value={roleValue}
+                                        onChange={this.onChangeRole}
+                                    /></div>
+                                {roleAddable &&
+                                <Button onClick={this.onClickAddRole}><i className="fa fa-plus"/></Button>}
                             </div>
                         </Col>
                     </FormGroup>
@@ -177,7 +188,7 @@ export default class PersonForm extends React.Component {
     }
 
     renderRoleModal(designation) {
-        if(!designation) return ''
+        if (!designation) return ''
 
         const {showRoleModal} = this.state
         const title = 'Add role'
@@ -224,7 +235,7 @@ export default class PersonForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        var {
+        let {
             name,
             twitter,
             facebook,
@@ -238,9 +249,9 @@ export default class PersonForm extends React.Component {
             contact_id
         } = this.state
 
-        if(twitter && twitter.length>0 && twitter.indexOf(HTTP_PROTOCOL) == -1 && twitter.indexOf(HTTPS_PROTOCOL) == -1) twitter = `http://${twitter}`
-        if(facebook && facebook.length>0 && facebook.indexOf(HTTP_PROTOCOL) == -1 && facebook.indexOf(HTTPS_PROTOCOL) == -1) facebook = `http://${facebook}`
-        if(linkedin && linkedin.length>0 && linkedin.indexOf(HTTP_PROTOCOL) == -1 && linkedin.indexOf(HTTPS_PROTOCOL) == -1) linkedin = `http://${linkedin}`
+        if (twitter && twitter.length > 0 && twitter.indexOf(HTTP_PROTOCOL) == -1 && twitter.indexOf(HTTPS_PROTOCOL) == -1) twitter = `http://${twitter}`
+        if (facebook && facebook.length > 0 && facebook.indexOf(HTTP_PROTOCOL) == -1 && facebook.indexOf(HTTPS_PROTOCOL) == -1) facebook = `http://${facebook}`
+        if (linkedin && linkedin.length > 0 && linkedin.indexOf(HTTP_PROTOCOL) == -1 && linkedin.indexOf(HTTPS_PROTOCOL) == -1) linkedin = `http://${linkedin}`
 
         const data = {
             name,
@@ -276,7 +287,7 @@ export default class PersonForm extends React.Component {
 
     onRemoveRole = (role) => {
         try {
-            removeRole.call({_id:this.state.designation_id, roleName:role})
+            removeRole.call({_id: this.state.designation_id, roleName: role})
         } catch (err) {
             console.error(err)
             warning(err.error)

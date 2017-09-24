@@ -40,7 +40,7 @@ Designations.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
     name: {type: String},
     role_addable: {type: Boolean, optional: true},
-    roles: {type: Array},
+    roles: {type: Array, optional: true},
     'roles.$': {type: Designations.Role},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
