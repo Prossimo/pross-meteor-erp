@@ -167,8 +167,19 @@ Migrations.add({
         Projects.remove({nylasAccountId:{$ne:null}})
     }
 })
+
+Migrations.add({
+    version: 9,
+    name: 'Add "Dealer" designation',
+    up() {
+        PeopleDesignations.insert({name:'Dealer', role_addable:false})
+    },
+    down() {
+
+    }
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(8)
+        Migrations.migrateTo(9)
     }
 })
