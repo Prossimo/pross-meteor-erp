@@ -44,7 +44,9 @@ Meteor.publishComposite('projects.one', function (_id) {
             }
         },{
             find({slackChanel}) {
-                return SlackMessages.find({channel: slackChanel})
+                if(slackChanel) {
+                    return SlackMessages.find({channel: slackChanel})
+                }
             }
         },{
             find({_id}) {
@@ -53,8 +55,9 @@ Meteor.publishComposite('projects.one', function (_id) {
         },{
             find(project) {
                 const threads = project.threads()
-                if(!threads || threads.length==0) return []
-                return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}})
+                if(threads && threads.length>0) {
+                    return Messages.find({thread_id: {$in: _.pluck(threads, 'id')}})
+                }
             }
         },{
             find({_id}) {
@@ -66,8 +69,9 @@ Meteor.publishComposite('projects.one', function (_id) {
             }
         },{
             find({conversationIds}) {
-                if(!conversationIds) return []
-                return Conversations.find({_id:{$in:conversationIds}})
+                if(conversationIds && conversationIds.length>0) {
+                    return Conversations.find({_id: {$in: conversationIds}})
+                }
             }
         }]
     }
