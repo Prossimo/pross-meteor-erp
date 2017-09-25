@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
-import {ROLES, People, SalesRecords, ClientStatus, SupplierStatus, Tasks, Quotes, Files, Events, Messages, SlackMessages, Conversations} from '../index'
+import {ROLES, People, SalesRecords, ClientStatus, SupplierStatus, Tasks, Quotes, Files, Events, Messages, SlackMessages, Conversations, Threads} from '../index'
 
 
 
@@ -29,14 +29,6 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
                 return Quotes.find({projectId:_id})
             }
         },{
-            find(project) {
-                const threads = project.threads()
-
-                if(threads && threads.length > 0) {
-                    return Messages.find({thread_id: {$in: _.pluck(threads, 'id')}})
-                }
-            }
-        },{
             find({_id}) {
                 return Files.find({'metadata.projectId': _id})
             }
@@ -48,6 +40,20 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
             find({conversationIds}) {
                 if(conversationIds && conversationIds.length>0) {
                     return Conversations.find({_id: {$in: conversationIds}})
+                }
+            }
+        },{
+            find({conversationIds}) {
+                if(conversationIds && conversationIds.length>0) {
+                    return Threads.find({conversationId: {$in:conversationIds}})
+                }
+            }
+        },{
+            find(salesRecord) {
+                const threads = salesRecord.threads()
+
+                if(threads && threads.length > 0) {
+                    return Messages.find({thread_id: {$in: _.pluck(threads, 'id')}})
                 }
             }
         }]
