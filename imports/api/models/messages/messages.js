@@ -3,6 +3,7 @@ import SimpleSchema from 'simpl-schema'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
 import Threads from '../threads/threads'
 import Conversations from '../conversations/conversations'
+import Projects from '../projects/projects'
 
 class MessagesCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -193,6 +194,10 @@ Messages.helpers({
         if(!this.thread_id) return null
 
         return Threads.findOne({id:this.thread_id})
+    },
+    project() {
+        const nylasAccount = this.account()
+        return Projects.findOne({nylasAccountId:nylasAccount._id})
     }
 })
 
