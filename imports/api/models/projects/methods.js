@@ -124,7 +124,7 @@ export const updateProject = new ValidatedMethod({
         // current user belongs to salesRecords
         const project = Projects.findOne(_id)
         if (!project) throw new Meteor.Error('Project does not exists')
-        const isMember = !!project.members.find(({ userId }) => userId === this.userId)
+        const isMember = project.members && !!project.members.find(({ userId }) => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
@@ -142,9 +142,11 @@ export const updateProject = new ValidatedMethod({
         }
         const data = {
             name: _.isUndefined(name) ? null : name,
-            members: _.isUndefined(members) ? null : members,
-            stakeholders: _.isUndefined(stakeholders) ? null : stakeholders
+            members: _.isUndefined(members) ? [] : members,
+            stakeholders: _.isUndefined(stakeholders) ? [] : stakeholders
         }
+
+        console.log(data)
 
         Projects.update(_id, {
             $set: data
