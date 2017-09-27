@@ -14,6 +14,7 @@ import FileDownloadStore from '../../../api/nylas/file-download-store'
 import {info, warning} from '/imports/api/lib/alerts'
 import TaskModal from '../../components/tasks/TaskModal'
 
+
 class ItemMessage extends React.Component {
     static propTypes = {
         viewonly: React.PropTypes.bool
@@ -111,7 +112,7 @@ class ItemMessage extends React.Component {
                                       date={this.props.message.date}/>
 
                     <MessageControls message={this.props.message} conversationId={this.props.conversationId}/>
-                    {message.conversation() && <Button style={{marginLeft:10}} bsSize="small" onClick={this._onClickTask}>Task</Button>}
+                    <Button style={{marginLeft:10}} bsSize="small" onClick={this._onClickTask}>Task</Button>
                 </div>
                 {this.renderFromParticipants()}
                 {this.renderToParticipants()}
@@ -311,9 +312,16 @@ class ItemMessage extends React.Component {
 
     _onClickTask = () => {
         const {message} = this.props
-        if(!message || !message.conversation()) return
+        if(!message) return
 
-        const parent = message.conversation().parent()
+        let parent
+        const conversation = message.conversation()
+        if(conversation) {
+            parent = conversation.parent()
+        } else {
+            parent = message.project()
+            parent.type = 'project'
+        }
 
         this.setState({
             showTaskModal: true,
