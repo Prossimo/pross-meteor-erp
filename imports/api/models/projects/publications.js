@@ -71,14 +71,12 @@ Meteor.publishComposite('projects.one', function (_id) {
                 if(conversationIds && conversationIds.length>0) {
                     return Threads.find({conversationId: {$in:conversationIds}})
                 }
-            }
-        },{
-            find(project) {
-                const threads = project.threads()
-                if(threads && threads.length>0) {
-                    return Messages.find({thread_id: {$in: _.pluck(threads, 'id')}})
+            },
+            children: [{
+                find({id}) {
+                    return Messages.find({thread_id: id})
                 }
-            }
+            }]
         }]
     }
 })

@@ -14,10 +14,7 @@ export default class Conversations extends TrackerReact(React.Component) {
         super(props)
 
         this.state = {
-            key: 0,
-            subscriptions: {
-                //conversations: Meteor.subscribe('conversations')
-            }
+            key: 0
         }
     }
     handleSelect = (key) => {
