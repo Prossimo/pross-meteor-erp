@@ -17,10 +17,10 @@ Meteor.methods({
         check(mentions, Match.Maybe(Array))
 
         const thread = Threads.findOne({id: message.thread_id})
-        let target, conversation
+        let target
         if (thread && thread.conversationId) {
-            conversation = Conversations.findOne({_id: thread.conversationId})
-            target = conversation.parent()
+            const conversation = Conversations.findOne({_id: thread.conversationId})
+            target = conversation ? conversation.parent() : null
         } else {
             const nylasAccount = NylasAccounts.findOne({accountId: message.account_id})
             target = Projects.findOne({nylasAccountId: nylasAccount._id})
