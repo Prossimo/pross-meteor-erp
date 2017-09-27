@@ -17,9 +17,9 @@ Meteor.methods({
         check(mentions, Match.Maybe(Array))
 
         const thread = Threads.findOne({id: message.thread_id})
-        let target
+        let target, conversation
         if (thread && thread.conversationId) {
-            const conversation = Conversations.findOne({_id: thread.conversationId})
+            conversation = Conversations.findOne({_id: thread.conversationId})
             target = conversation ? conversation.parent() : null
         } else {
             const nylasAccount = NylasAccounts.findOne({accountId: message.account_id})
