@@ -4,7 +4,7 @@ import React from 'react'
 import { Table, Glyphicon, Button } from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'
-import {ROLES, Users, ClientStatus, SupplierStatus} from '/imports/api/models'
+import {ROLES, Users, ClientStatus, SupplierStatus, People} from '/imports/api/models'
 import { SHIPPING_MODE_LIST } from '/imports/api/constants/project'
 import { info, warning  } from '/imports/api/lib/alerts'
 import Select from 'react-select'
@@ -56,6 +56,21 @@ class AllSalesRecords extends React.Component{
                     type: 'text',
                     selected: false,
                     editable: true,
+                },
+                {
+                    key: 'dealer',
+                    label: '  Dealer  ',
+                    selected: false,
+                    options: record => People.find().fetch().filter(p => {
+                        const designation = p.designation()
+                        return designation&&designation.name==='Dealer'
+                    }).map(p => ({value:p._id,label:p.name})),
+                    type: 'select',
+                    editable: true,
+                    renderer: record => {
+                        const dealer = record.getDealer()
+                        return dealer ? dealer.name : null
+                    }
                 },
                 {
                     key: 'productionStartDate',
