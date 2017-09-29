@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import HtmlToReact from 'html-to-react'
+
 import {getUserName, getAvatarUrl} from '../../../api/lib/filters'
 import styled from 'styled-components'
 import moment from 'moment'
@@ -27,9 +29,9 @@ class Massage extends Component {
         let formattedMessage = null
         // RENDER TEXT MESSAGE
         if (message.text) {
-            message.text = Utils.slackParsedText(message.text)
+            const html = (Utils.slackParsedText(message.text))
 
-            formattedMessage = <div className='text'>{message.text}</div>
+            formattedMessage = <div className='text'>{new HtmlToReact.Parser().parse(html)}</div>
         }
         // RENDER ATTACHMENT
         if (message.attachments && message.attachments.length > 0) {
@@ -54,11 +56,7 @@ class Massage extends Component {
                                     <div className='content'>
                                         <div><strong><a href={title_link} target='_blank'>{title}</a></strong></div>
                                         {
-                                            url ? (
-                                                <a href={url[1]}>{url[2]}</a>
-                                            ) : (
-                                                <div>{_.unescape(text)}</div>
-                                            )
+                                            //text ? new HtmlToReact.Parser().parse(Utils.slackParsedText(text)) : ''
                                         }
                                     </div>
                                 </Attachment>
