@@ -30,8 +30,14 @@ class Massage extends Component {
         // RENDER TEXT MESSAGE
         if (message.text) {
             const html = (Utils.slackParsedText(message.text))
-
-            formattedMessage = <div className='text'>{new HtmlToReact.Parser().parse(html)}</div>
+            let el
+            try {
+                el = new HtmlToReact.Parser().parse(html)
+            } catch (err) {
+                console.error(err)
+                el = html
+            }
+            formattedMessage = <div className='text'>{el}</div>
         }
         // RENDER ATTACHMENT
         if (message.attachments && message.attachments.length > 0) {
@@ -50,13 +56,32 @@ class Massage extends Component {
                 border-left: 3px solid #${color};
               }
             `
+                            let pretextEl = '', textEl = ''
+                            if(pretext) {
+                                const html = Utils.slackParsedText(pretext)
+                                try {
+                                    pretextEl = new HtmlToReact.Parser().parse(html)
+                                } catch (err) {
+                                    console.error(err)
+                                    pretextEl = html
+                                }
+                            }
+                            if(text) {
+                                const html = Utils.slackParsedText(text)
+                                try {
+                                    textEl = new HtmlToReact.Parser().parse(html)
+                                } catch (err) {
+                                    console.error(err)
+                                    textEl = html
+                                }
+                            }
                             return (
                                 <Attachment key={id}>
-                                    <div>{pretext && new HtmlToReact.Parser().parse(Utils.slackParsedText(pretext))}</div>
+                                    <div>{pretextEl}</div>
                                     <div className='content'>
                                         <div><strong><a href={title_link} target='_blank'>{title}</a></strong></div>
                                         {
-                                            text ? new HtmlToReact.Parser().parse(Utils.slackParsedText(text)) : ''
+                                            textEl
                                         }
                                     </div>
                                 </Attachment>
