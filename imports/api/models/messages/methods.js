@@ -75,16 +75,19 @@ export const saveMessage = new ValidatedMethod({
                 bound(() => {
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})
-                        const assignees = existingThread ? existingThread.assignees || [] : []
-                        const followers = existingThread ? existingThread.followers || [] : []
 
-                        if(isNew && assignees.indexOf(this.userId)==-1) assignees.push(this.userId)
-
+                        const data = {}
+                        if(conversationId) data.conversationId = conversationId
+                        if(isNew) data.assignee = this.userId
+                        if(isReply && existingThread && existingThread.assignee!==this.userId) {
+                            const followers = existingThread.followers || []
+                            followers.push(this.userId)
+                            data.followers = followers
+                        }
                         if(existingThread) {
-                            if(isReply && assignees && assignees.length) followers.push(this.userId)
-                            Threads.update({id:thread.id}, {$set:_.extend(thread, {conversationId, assignees, followers})})
+                            Threads.update({id:thread.id}, {$set:_.extend(thread, data)})
                         } else {
-                            Threads.insert(_.extend(thread, {conversationId, assignees, followers}))
+                            Threads.insert(_.extend(thread, data))
                         }
 
                         const existingMessage = Messages.findOne({id:message.id})
