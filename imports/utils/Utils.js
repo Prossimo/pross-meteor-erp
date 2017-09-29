@@ -139,28 +139,28 @@ module.exports = Utils = {
         // Convert normal <asdfasdf> format
         const matches = text.match(/\<[^\>]+\>/g)
         if (matches!=null && matches.length) {
-            console.log(matches)
+            //console.log(matches)
             matches.forEach((m) => {
                 if (new RegExp(/\<\@[^\>]+\|[^\>]+\>/g).test(m)) { // <@U4RPWJB0R|if0109>
-                    console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+                    //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
                     text = text.replace(m, `<a href="#">@${_.escape(m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2))}</a>`)
                 } else if (new RegExp(/\<\@[^\>]+\>/g).test(m)) {   // <@U4RPWJB0R>
-                    console.log(m, m.substr(2, m.length - 3))
+                    //console.log(m, m.substr(2, m.length - 3))
                     const slackUser = SlackUsers.findOne({id: m.substr(2, m.length - 3)})
                     //console.log(slackUser)
                     if (slackUser) {
                         text = text.replace(m, `<a href="#">@${slackUser.name}</a>`)
                     }
                 } else if (new RegExp(/\<\#[^\>]+\|[^\>]+\>/g).test(m)) { // <#C716GCL3E|channel>
-                    console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
+                    //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
                     text = text.replace(m, `<a href="#">#${_.escape(m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2))}</a>`)
                 } else if(new RegExp(/\<+[^\>]+\|[^\>]+\>/g).test(m)) { //<https://crm.mavrik.build/salesrecord/c2g2obaetJxHMLYwr|Go to salesrecord>
                     const index = m.indexOf('|')
-                    console.log(m, m.substr(1, index-1), m.substr(index + 1, m.length - index - 2))
+                    //console.log(m, m.substr(1, index-1), m.substr(index + 1, m.length - index - 2))
                     text = text.replace(m, `<a href="${m.substr(1, index-1)}">${_.escape(m.substr(index + 1, m.length - index - 2))}</a>`)
                 } else {    // <https://crm.mavrik.build/salesrecord/c2g2obaetJxHMLYwr>
                     const token = m.substr(1, m.length-2)
-                    console.log(token)
+                    //console.log(token)
                     text = text.replace(m, `<a href="${token}">${_.escape(token)}</a>`)
                 }
             })
