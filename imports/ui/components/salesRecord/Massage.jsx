@@ -52,11 +52,11 @@ class Massage extends Component {
             `
                             return (
                                 <Attachment key={id}>
-                                    <div>{pretext && Utils.slackParsedText(pretext)}</div>
+                                    <div>{pretext && new HtmlToReact.Parser().parse(Utils.slackParsedText(pretext))}</div>
                                     <div className='content'>
                                         <div><strong><a href={title_link} target='_blank'>{title}</a></strong></div>
                                         {
-                                            //text ? new HtmlToReact.Parser().parse(Utils.slackParsedText(text)) : ''
+                                            text ? new HtmlToReact.Parser().parse(Utils.slackParsedText(text)) : ''
                                         }
                                     </div>
                                 </Attachment>
