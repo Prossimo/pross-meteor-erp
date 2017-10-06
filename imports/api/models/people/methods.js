@@ -14,7 +14,7 @@ export const insertPerson = new ValidatedMethod({
     run({name, twitter, facebook, linkedin, designation_id, role, is_user, emails, phone_numbers, company_id, position, contact_id}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        const uniquedEmails = _.uniq(emails, true, ({email}) => email)
+        const uniquedEmails = _.uniq(emails, true, ({email}) => email.toLowerCase())
         if(uniquedEmails.length !== emails.length) throw new Meteor.Error('Duplicated email')
 
         const defaultEmails = _.filter(emails, ({is_default}) => is_default)
@@ -26,7 +26,7 @@ export const insertPerson = new ValidatedMethod({
         const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
         if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
 
-        const existingPeople = People.find({'emails.email':{$in:_.pluck(emails, 'email')}}).fetch()
+        const existingPeople = People.find({'emails.email':{$in:emails.map(({email}) => new RegExp(`^${email}$`,'i'))}}).fetch()
         if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
         const data = {
@@ -54,7 +54,7 @@ export const updatePerson = new ValidatedMethod({
 
         //if(!Roles.userIsInRole(this.userId, ROLES.ADMIN)) throw new Meteor.Error('Permission denied')
 
-        const uniquedEmails = _.uniq(emails, true, ({email}) => email)
+        const uniquedEmails = _.uniq(emails, true, ({email}) => email.toLowerCase())
         if(uniquedEmails.length !== emails.length) throw new Meteor.Error('Duplicated email')
 
         const defaultEmails = _.filter(emails, ({is_default}) => is_default)
@@ -66,7 +66,7 @@ export const updatePerson = new ValidatedMethod({
         const defaultPhoneNumbers = _.filter(phone_numbers, ({is_default}) => is_default)
         if(defaultPhoneNumbers.length > 1) throw new Meteor.Error('Duplicated default phone numbers')
 
-        const existingPeople = People.findOne({'emails.email':{$in:_.pluck(emails, 'email')}})
+        const existingPeople = People.findOne({'emails.email':{$in:emails.map(({email}) => new RegExp(`^${email}$`,'i'))}})
         if(existingPeople && existingPeople._id!==person._id) throw new Meteor.Error('Person with same email is exist')
 
         const data = {
@@ -119,10 +119,10 @@ export const insertPeople = new ValidatedMethod({
     run({people}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        const uniquedEmails = _.uniq(_.pluck(people, 'email'))
+        const uniquedEmails = _.uniq(people.map(({email}) => email.toLowerCase()))
         if(uniquedEmails.length !== people.length) throw new Meteor.Error('Duplicated email')
 
-        const existingPeople = People.find({'emails.email':{$in:uniquedEmails}}).fetch()
+        const existingPeople = People.find({'emails.email':{$in:uniquedEmails.map(email => new RegExp(`^${email}$`,'i'))}}).fetch()
         if(existingPeople && existingPeople.length) throw new Meteor.Error('Person with same email is exist')
 
 
