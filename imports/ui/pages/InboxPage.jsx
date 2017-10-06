@@ -187,20 +187,29 @@ class InboxPage extends (React.Component) {
                 selectedTarget: doc
             })
 
-            const {participants} = this.state.currentThread
-            const noStoredParticipants = JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': p.email}) == null)))
-            if (noStoredParticipants && noStoredParticipants.length) {
+            const temp = () => {
+                const {participants} = this.state.currentThread
+                const noStoredParticipants = JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null)))
+                if (noStoredParticipants && noStoredParticipants.length) {
+                    this.setState({
+                        noStoredParticipants,
+                        showPeopleModal: true
+                    })
+
+                    return
+                }
+
                 this.setState({
-                    noStoredParticipants,
-                    showPeopleModal: true
+                    showTargetModal: true
                 })
-
-                return
             }
-
-            this.setState({
-                showTargetModal: true
-            })
+            if(menu === 'bind') {
+                subsCache.subscribe(type==='deal' ? 'salesrecords.one' : 'projects.one', doc._id).onReady(() => {
+                    temp()
+                })
+            } else {
+                temp()
+            }
         } else if (menu === 'goto') {
             FlowRouter.go(type, {id: _id})
         } else if (menu === 'unbind') {
