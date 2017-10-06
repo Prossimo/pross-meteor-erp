@@ -22,14 +22,11 @@ export default class CreateProject extends TrackerReact(Component) {
 
         this.state = {
             projectName: project ? project.name : '',
-            selectedMembers: project ? project.members.map(m => {
-                const member = Users.findOne(m.userId)
-                return {
-                    label: member.name(),
-                    value: m.userId,
-                    checked: m.isAdmin
-                }
-            }) : [
+            selectedMembers: project ? project.members.map(m => Users.findOne(m.userId)).filter(m => m!=null).map(m => ({
+                    label: m.name(),
+                    value: m._id,
+                    checked: _.findWhere(project.members, {userId:m._id}).isAdmin
+                })) : [
                 {
                     label: curUserName,
                     value: props.currentUser._id
