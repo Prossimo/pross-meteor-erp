@@ -66,6 +66,7 @@ export default createContainer(() => {
     subscribers.push(Meteor.subscribe('mailtemplates.all'))
     subscribers.push(Meteor.subscribe('companies.all'))
     subscribers.push(Meteor.subscribe('companytypes.all'))
+    subscribers.push(Meteor.subscribe('conversations.all'))
     subscribers.push(Meteor.subscribe('people.all'))
     subscribers.push(Meteor.subscribe('peopledesignations.all'))
     subscribers.push(Meteor.subscribe('salesrecords.mine'))

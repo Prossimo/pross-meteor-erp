@@ -1,12 +1,25 @@
-export const Actions = require('./actions')
-export const NylasAPI = require('./nylas-api')
-export const NylasUtils = require('./nylas-utils')
-export const RegExpUtils = require('./RegExpUtils')
+import Actions from './actions'
+import NylasAPI from './nylas-api'
+import NylasUtils from './nylas-utils'
+import RegExpUtils from './RegExpUtils'
+import ContactStore from './contact-store'
+import DraftStore from './draft-store'
+import ThreadStore from './thread-store'
+import MessageStore from './message-store'
+import DraftFactory from './draft-factory'
+import AccountStore from './account-store'
+import CategoryStore from './category-store'
 
-export const AccountStore = require('./account-store')
-export const CategoryStore = require('./category-store')
-export const ContactStore = require('./contact-store')
-export const DraftStore = require('./draft-store')
-export const ThreadStore = require('./thread-store')
-export const MessageStore = require('./message-store')
-export const DraftFactory = require('./draft-factory')
+export {
+    Actions,
+    NylasAPI,
+    NylasUtils,
+    RegExpUtils,
+    ContactStore,
+    DraftFactory,
+    DraftStore,
+    ThreadStore,
+    MessageStore,
+    CategoryStore,
+    AccountStore
+}

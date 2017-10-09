@@ -4,7 +4,7 @@ import Actions from './actions'
 import CategoryStore from './category-store'
 import {NylasAccounts} from '../models'
 
-class AccountStore extends Reflux.Store {
+class AccountStoreClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -33,7 +33,7 @@ class AccountStore extends Reflux.Store {
 
         Actions.loadContacts()
     }
-    accounts() {
+    accounts = () => {
         if(!Meteor.user()) return null
         this._accounts = Meteor.user().nylasAccounts()
 
@@ -79,4 +79,5 @@ class AccountStore extends Reflux.Store {
     }
 }
 
-module.exports = new AccountStore()
+const AccountStore = new AccountStoreClass()
+export default AccountStore

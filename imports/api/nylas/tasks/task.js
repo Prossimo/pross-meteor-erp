@@ -1,6 +1,6 @@
 /* eslint no-unused-vars: 0*/
 import _ from 'underscore'
-import {generateTempId} from '../nylas-utils'
+import NylasUtils from '../nylas-utils'
 import {PermanentErrorCodes} from '../nylas-api'
 import {APIError} from '../errors'
 
@@ -166,7 +166,7 @@ export default class Task {
     // On construction, all Tasks instances are given a unique `id`.
     constructor() {
         this._rememberedToCallSuper = true
-        this.id = generateTempId()
+        this.id = NylasUtils.generateTempId()
         this.sequentialId = null // set when queued
         this.queueState = {
             isProcessing: false,

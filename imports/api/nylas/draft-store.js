@@ -15,7 +15,7 @@ const ComposeType = {
     ReplyingAll: 'replying all',
     Forwarding: 'forwarding'
 }
-class DraftStore extends Reflux.Store {
+class DraftStoreClass extends Reflux.Store {
     constructor() {
         super()
         this.listenTo(Actions.composeNew, this._onComposeNew)
@@ -266,4 +266,5 @@ class DraftStore extends Reflux.Store {
     }
 }
 
-module.exports = new DraftStore()
+const DraftStore = new DraftStoreClass()
+export default DraftStore

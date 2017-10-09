@@ -75,7 +75,7 @@ class Upload {
     }
 }
 
-class FileUploadStore extends Reflux.Store {
+class FileUploadStoreClass extends Reflux.Store {
     constructor() {
         super()
         this.listenTo(Actions.addAttachment, this._onAddAttachment)
@@ -116,4 +116,6 @@ class FileUploadStore extends Reflux.Store {
     }
 
 }
-module.exports = new FileUploadStore()
+
+const FileUploadStore = new FileUploadStoreClass()
+export default FileUploadStore

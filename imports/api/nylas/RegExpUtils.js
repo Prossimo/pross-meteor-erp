@@ -12,4 +12,4 @@ const RegExpUtils = {
     }
 }
 
-module.exports = RegExpUtils
+export default RegExpUtils

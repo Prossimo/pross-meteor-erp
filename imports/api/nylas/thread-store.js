@@ -7,7 +7,7 @@ import CategoryStore from './category-store'
 
 const PAGE_SIZE = 100
 
-class ThreadStore extends Reflux.Store {
+class ThreadStoreClass extends Reflux.Store {
     constructor() {
         super()
         this.listenTo(Actions.loadThreads, this.onLoadThreads)
@@ -148,4 +148,5 @@ class ThreadStore extends Reflux.Store {
     }
 }
 
-module.exports = new ThreadStore()
+const ThreadStore = new ThreadStoreClass()
+export default ThreadStore

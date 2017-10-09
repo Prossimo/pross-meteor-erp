@@ -5,7 +5,7 @@ import Download from './downloads/download'
 import EmailFileDownload from './downloads/email-file-download'
 import NylasUtils from './nylas-utils'
 
-class FileDownloadStore extends Reflux.Store {
+class FileDownloadStoreClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -80,4 +80,5 @@ class FileDownloadStore extends Reflux.Store {
     }
 }
 
-module.exports = new FileDownloadStore()
+const FileDownloadStore = new FileDownloadStoreClass()
+export default FileDownloadStore

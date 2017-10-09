@@ -3,13 +3,13 @@ import '../models/users/users'
 import moment from 'moment-timezone'
 import RegExpUtils from './RegExpUtils'
 import AccountStore from './account-store'
+import {ThreadStore} from '/imports/api/nylas'
 
 import filesize from 'filesize'
 import path from 'path'
 
 
-let NylasUtils
-module.exports = NylasUtils = {
+const NylasUtils = {
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     isMe: (email) => AccountStore.accountForEmail(email)!=null,
     isFromMe: (message) => message.from[0] && NylasUtils.isMe(message.from[0].email),
@@ -242,3 +242,5 @@ module.exports = NylasUtils = {
 
 
 }
+
+export default NylasUtils

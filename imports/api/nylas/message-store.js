@@ -8,7 +8,7 @@ import NylasUtils from './nylas-utils'
 import ThreadStore from './thread-store'
 import {Messages} from '/imports/api/models'
 
-class MessageStore extends Reflux.Store {
+class MessageStoreClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -171,4 +171,5 @@ class MessageStore extends Reflux.Store {
 
 }
 
-module.exports = new MessageStore()
+const MessageStore = new MessageStoreClass()
+export default MessageStore
