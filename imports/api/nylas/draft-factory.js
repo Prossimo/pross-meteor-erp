@@ -3,7 +3,7 @@ import NylasUtils from './nylas-utils'
 import DOMUtils from '/imports/utils/dom-utils'
 
 
-class DraftFactory {
+class DraftFactoryClass {
     createDraft = (fields = {}) => {
         const account = fields.account_id ? AccountStore.accountForAccountId(fields.account_id) : AccountStore.getSelectedAccount()
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
@@ -94,4 +94,5 @@ class DraftFactory {
     }
 }
 
-module.exports = new DraftFactory()
+const DraftFactory = new DraftFactoryClass()
+export default DraftFactory

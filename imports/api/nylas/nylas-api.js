@@ -3,7 +3,7 @@ import _ from 'underscore'
 import request from 'request'
 import config from '../config'
 import {APIError, TimeoutError} from './errors'
-import {Threads, Messages} from '../models'
+import AccountStore from './account-store'
 import {upsertThread} from '../models/threads/methods'
 import {upsertMessage} from '../models/messages/methods'
 
@@ -12,7 +12,6 @@ const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENE
 const PermanentErrorCodes = [400, 401, 402, 403, 404, 405, 500, 'ENOTFOUND', 'ECONNREFUSED', 'EHOSTDOWN', 'EHOSTUNREACH']
 const CancelledErrorCode = [-123, 'ECONNABORTED']
 
-let AccountStore = null
 
 class NylasAPIRequest {
     constructor(api, options) {
@@ -87,7 +86,7 @@ class NylasAPIRequest {
     }
 }
 
-class NylasAPI {
+class NylasAPIClass {
 
     static TimeoutErrorCodes = TimeoutErrorCodes
     static PermanentErrorCodes = PermanentErrorCodes
@@ -101,7 +100,6 @@ class NylasAPI {
     }
 
     accessTokenForAccountId(aid) {
-        AccountStore = AccountStore || require('./account-store')
         return AccountStore.tokenForAccountId(aid)
     }
 
@@ -217,4 +215,5 @@ class NylasAPI {
 
 }
 
-module.exports = new NylasAPI()
+const NylasAPI = new NylasAPIClass()
+export default NylasAPI

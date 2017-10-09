@@ -7,7 +7,7 @@ import RegExpUtils from './RegExpUtils'
 import Contacts from '../models/contacts/contacts'
 const PAGESIZE = 100
 
-class ContactStore extends Reflux.Store {
+class ContactStoreClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -209,4 +209,5 @@ class ContactStore extends Reflux.Store {
 
 }
 
-module.exports = new ContactStore()
+const ContactStore = new ContactStoreClass()
+export default ContactStore

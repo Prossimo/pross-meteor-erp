@@ -43,4 +43,4 @@ const Actions = Reflux.createActions([
     'showTaskModal'
 ])
 
-module.exports = Actions
+export default Actions

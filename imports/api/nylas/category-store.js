@@ -5,7 +5,7 @@ import NylasAPI from './nylas-api'
 import NylasUtils from './nylas-utils'
 import AccountStore from './account-store'
 
-class CategoryStore extends Reflux.Store {
+class CategoryStoreClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -53,4 +53,5 @@ class CategoryStore extends Reflux.Store {
     }
 }
 
-module.exports = new CategoryStore()
+const CategoryStore = new CategoryStoreClass()
+export default CategoryStore;

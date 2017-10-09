@@ -1,7 +1,7 @@
 import _  from 'underscore'
 import _s from 'underscore.string'
 
-DOMUtils = {
+const DOMUtils = {
     Mutating: {
         replaceFirstListItem: (li, replaceWith) => {
             const list = DOMUtils.closest(li, 'ul, ol')
@@ -10,7 +10,7 @@ DOMUtils = {
             if (replaceWith.length == 0) {
                 replaceWith = replaceWith.replace(/\s/g, '&nbsp;')
                 text = document.createElement('div')
-                text.innerHTML = '<br>'
+                text.innerHTML = '<br/>'
             } else {
                 replaceWith = replaceWith.replace(/\s/g, '&nbsp;')
                 text = document.createElement('span')
@@ -97,7 +97,7 @@ DOMUtils = {
         },
 
         getRangeAtAndSelectWord: (selection, index) => {
-            range = selection.getRangeAt(index)
+            let range = selection.getRangeAt(index)
 
             // On Windows, right-clicking a word does not select it at the OS-level.
             if (range.collapsed) {
@@ -117,7 +117,7 @@ DOMUtils = {
                 wordStart = 0
             else
                 wordStart = selection.focusOffset - wordStart
-            wordEnd = text.substring(selection.focusOffset).search(/\s/)
+            let wordEnd = text.substring(selection.focusOffset).search(/\s/)
             if (wordEnd == -1)
                 wordEnd = text.length
             else
