@@ -102,7 +102,7 @@ export default class EmailFrame extends React.Component {
         // the new height is computed.
         const holderNode = ReactDOM.findDOMNode(this.refs.iframeHeightHolder)
         const iframeNode = ReactDOM.findDOMNode(this.refs.iframe)
-        const height = this._getFrameHeight(iframeNode.contentDocument)
+        const height = this._getFrameHeight(iframeNode.contentDocument) + 35
 
         // Why 5px? Some emails have elements with a height of 100%, and then put
         // tracking pixels beneath that. In these scenarios, the scrollHeight of the
