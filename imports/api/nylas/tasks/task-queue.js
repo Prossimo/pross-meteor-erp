@@ -2,7 +2,7 @@ import Reflux from 'reflux'
 import Task from './task'
 import Actions from '../actions'
 
-class TaskQueue extends Reflux.Store {
+class TaskQueueClass extends Reflux.Store {
     constructor() {
         super()
 
@@ -238,4 +238,5 @@ class TaskQueue extends Reflux.Store {
 
 }
 
-module.exports = new TaskQueue()
+const TaskQueue = new TaskQueueClass()
+export default TaskQueue

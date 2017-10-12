@@ -3,7 +3,7 @@ import DOMUtils from './dom-utils'
 import quoteStringDetector from './quote-string-detector'
 
 const SIGNATURE_CLASSES = ['.nylas-signature', '.moz-signature', '.front-signature']
-class QuotedHTMLTransformer {
+class QuotedHTMLTransformerClass {
     annotationClass = 'nylas-quoted-text-segment'
 
     constructor({isServerSide=false}={}) {
@@ -248,6 +248,7 @@ class QuotedHTMLTransformer {
 
 }
 
-export const ServerSideQuotedHTMLTransformer = new QuotedHTMLTransformer({isServerSide:true})
+export const ServerSideQuotedHTMLTransformer = new QuotedHTMLTransformerClass({isServerSide:true})
+const QuotedHTMLTransformer = new QuotedHTMLTransformerClass()
 
-module.exports = new QuotedHTMLTransformer
+export default QuotedHTMLTransformer
