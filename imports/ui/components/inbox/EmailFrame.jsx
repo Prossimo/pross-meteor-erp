@@ -12,6 +12,14 @@ export default class EmailFrame extends React.Component {
         content: React.PropTypes.string
     }
 
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            showQuotedText: props.showQuotedText,
+            shouldShowDetailMark: !props.showQuotedText && QuotedHTMLTransformer.hasQuotedHTML(props.content)
+        }
+    }
     componentDidMount() {
         this._mounted = true
         this._writeContent()
@@ -33,11 +41,20 @@ export default class EmailFrame extends React.Component {
         }
     }
 
+    componentWillReceiveProps (newProps) {
+        if(newProps.content !== this.props.content) {
+            this.setState({
+                shouldShowDetailMark: !this.props.showQuotedText && QuotedHTMLTransformer.hasQuotedHTML(newProps.content)
+            })
+        }
+    }
+
     _emailContent() {
         // When showing quoted text, always return the pure content
-        if (this.props.showQuotedText) {
+        if (this.state.showQuotedText) {
             return this.props.content
         }
+
         return QuotedHTMLTransformer.removeQuotedHTML(this.props.content, {
             keepIfWholeBodyIsQuote: true,
             includeInline: true
@@ -110,7 +127,7 @@ export default class EmailFrame extends React.Component {
         // This is a hack, but I'm not sure of a better solution.
         if (Math.abs(height - this._lastComputedHeight) > 5) {
             this.refs.iframe.setHeightQuietly(height)
-            holderNode.style.height = `${height}px`
+            holderNode.style.height = `${height + 20}px`
             this._lastComputedHeight = height
         }
 
@@ -119,24 +136,25 @@ export default class EmailFrame extends React.Component {
         }
     }
 
+    _toggleQuotedBody = () => {
+        const {showQuotedText} = this.state
+        this.setState({showQuotedText: !showQuotedText})
+    }
     render() {
         return (
             <div
                 className="iframe-container"
                 ref="iframeHeightHolder"
-                style={{height: this._lastComputedHeight}}>
+                style={{height: this._lastComputedHeight + 20}}>
                 <EventedIFrame
                     ref="iframe"
                     seamless="seamless"
                     //searchable
                     //onResize={this._onMustRecalculateFrameHeight}
                 />
+
+                {this.state.shouldShowDetailMark && <i className="fa fa-ellipsis-h btn-detail-toggle" onClick={this._toggleQuotedBody}/>}
             </div>
         )
     }
-}
-
-EmailFrame.propTypes = {
-    content: React.PropTypes.string.isRequired,
-    showQuotedText: React.PropTypes.bool,
 }
