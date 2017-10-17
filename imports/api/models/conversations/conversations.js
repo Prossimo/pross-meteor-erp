@@ -80,15 +80,25 @@ Conversations.helpers({
         return null
     },
     getParticipants() {
+        let participants = []
+        const parent = this.parent()
+        if(parent && parent.type === 'deal' && parent.dealer) participants.push(People.findOne(parent.dealer))
+
         const peopleIds = _.pluck(this.participants, 'peopleId')
-        return People.find({_id:{$in:peopleIds}}).map(p => {
+        participants = participants.concat(People.find({_id:{$in:peopleIds}}).map(p => {
             p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
             return p
-        })
+        }))
+
+        return participants
     },
     contacts() {
-        const peopleIds = _.pluck(this.participants, 'peopleId')
-        return People.find({_id:{$in:peopleIds}}).map(p => ({name:p.name, email:p.defaultEmail(), isMain:_.findWhere(this.participants, {peopleId:p._id}).isMain})).filter(({email}) => (email && email.length))
+        return this.getParticipants().map(p => ({
+            name: p.name,
+            email: p.defaultEmail(),
+            isMain: p.isMain
+        })).filter(({email}) => (email && email.length))
+
     },
     getAssignees() {
         const threads = Threads.find({conversationId:this._id}).fetch()
