@@ -112,7 +112,7 @@ export default new ValidatedMethod({
             const actor = Meteor.users.findOne(actorId)
             const actorRefer = (actor.slack && actor.slack.id) ? `<@${actor.slack.id}>` : actor.username
             const attachments = slackClient.attachments.create({
-              pretext: `A task have been updated by ${actorRefer} in ${status} board`,
+              pretext: `A task have been updated by ${actorRefer} in ${status} board of ${parent.name}`,
               title,
               text,
               color: ORANGE,
