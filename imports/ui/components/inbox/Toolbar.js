@@ -39,6 +39,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
         return (
             <div className="toolbar-panel">
+                <input defaultValue="asdf"/>
                 <div style={{order: 0, minWidth: 250, maxWidth: 250, flex: 1}}>
                     <ComposeButton/>
                 </div>
