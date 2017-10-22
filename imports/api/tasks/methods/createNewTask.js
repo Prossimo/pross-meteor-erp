@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema'
 import {ValidatedMethod} from 'meteor/mdg:validated-method'
 import inviteUsers from './inviteUsers'
 import sendSlackMessage from './sendSlackMessage'
-import {Tasks} from '../../models'
+import {Tasks, SalesRecords, Projects} from '../../models'
 
 export default new ValidatedMethod({
     name: 'task.create',
@@ -64,6 +64,27 @@ export default new ValidatedMethod({
         }
 
         const _id = Tasks.insert(task)
+
+        // Add approver and assignee as teammember to project or deal
+        if(parentType === 'deal') {
+            const salesrecord = SalesRecords.findOne(parentId)
+            if(salesrecord) {
+                const members = salesrecord.members || []
+                if(members.indexOf(assignee) == -1) members.push(assignee)
+                if(members.indexOf(approver) == -1) members.push(approver)
+                SalesRecords.update(parentId, {$set:{members}})
+            }
+        } else if(parentType === 'project') {
+            const project = Projects.findOne(parentId)
+            if(project) {
+                const members = project.members || []
+                if(members.map(m => m.userId).indexOf(assignee) == -1) members.push({userId:assignee})
+                if(members.map(m => m.userId).indexOf(approver) == -1) members.push({userId:approver})
+                Projects.update(parentId, {$set:{members}})
+            }
+        }
+
+        // Send slack message
         const actorId = this.userId
         Meteor.defer(() => {
             sendSlackMessage.call({

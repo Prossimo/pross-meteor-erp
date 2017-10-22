@@ -1,7 +1,7 @@
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import inviteUsers from './inviteUsers'
-import { Tasks } from '../../models'
+import { Tasks, SalesRecords, Projects } from '../../models'
 import sendSlackMessage from './sendSlackMessage'
 
 export default new ValidatedMethod({
@@ -23,6 +23,26 @@ export default new ValidatedMethod({
     Tasks.update(task._id, {
       $set: task,
     })
+
+      // Add approver and assignee as teammember to project or deal
+      if(task.parentType === 'deal') {
+          const salesrecord = SalesRecords.findOne(parentId)
+          if(salesrecord) {
+              const members = salesrecord.members || []
+              if(members.indexOf(assignee) == -1) members.push(assignee)
+              if(members.indexOf(approver) == -1) members.push(approver)
+              SalesRecords.update(parentId, {$set:{members}})
+          }
+      } else if(task.parentType === 'project') {
+          const project = Projects.findOne(parentId)
+          if(project) {
+              const members = project.members || []
+              if(members.map(m => m.userId).indexOf(assignee) == -1) members.push({userId:assignee})
+              if(members.map(m => m.userId).indexOf(approver) == -1) members.push({userId:approver})
+              Projects.update(parentId, {$set:{members}})
+          }
+      }
+
     let type = 'UPDATE_TASK'
     const actorId = this.userId
     if (oldVersionTask && !oldVersionTask.assignee && task.assignee) {
