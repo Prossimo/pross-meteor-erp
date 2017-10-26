@@ -154,6 +154,7 @@ class DraftStoreClass extends Reflux.Store {
 
         try {
             saveMessage.call({conversationId, isNew, isReply, message})
+            setTimeout(Actions.changedMessages, 500)
         } catch(err) {
             console.error(err)
         }
