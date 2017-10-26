@@ -24,7 +24,7 @@ export default new ValidatedMethod({
     const taskParent = project || salesRecord
     if (taskParent) {
       const { members = [] } = taskParent
-      const memberIds = members.map(({ userId }) => userId)
+      const memberIds = members.filter(m => m && m.userId).map(({ userId }) => userId)
 
       // Invite assigned users to project/saleRecord
       const willInviteUserIds = taskOperators

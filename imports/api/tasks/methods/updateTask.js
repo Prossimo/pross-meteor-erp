@@ -29,16 +29,16 @@ export default new ValidatedMethod({
           const salesrecord = SalesRecords.findOne(parentId)
           if(salesrecord) {
               const members = salesrecord.members || []
-              if(members.indexOf(assignee) == -1) members.push(assignee)
-              if(members.indexOf(approver) == -1) members.push(approver)
+              if(assignee&&assignee.length>0&&members.indexOf(assignee) == -1) members.push(assignee)
+              if(approver&&approver.length>0&&members.indexOf(approver) == -1) members.push(approver)
               SalesRecords.update(parentId, {$set:{members}})
           }
       } else if(task.parentType === 'project') {
           const project = Projects.findOne(parentId)
           if(project) {
               const members = project.members || []
-              if(members.map(m => m.userId).indexOf(assignee) == -1) members.push({userId:assignee})
-              if(members.map(m => m.userId).indexOf(approver) == -1) members.push({userId:approver})
+              if(assignee&&assignee.length>0&&members.map(m => m.userId).indexOf(assignee) == -1) members.push({userId:assignee})
+              if(approver&&approver.length>0&&members.map(m => m.userId).indexOf(approver) == -1) members.push({userId:approver})
               Projects.update(parentId, {$set:{members}})
           }
       }
