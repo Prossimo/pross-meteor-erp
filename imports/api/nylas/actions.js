@@ -3,6 +3,7 @@ import Reflux from 'reflux'
 const Actions = Reflux.createActions([
     'changedAccounts',
     'changedThreads',
+    'changedMessages',
     'loadContacts',         // accountId
     'loadThreads',          // folder, {page, search}
     'fetchNewThreads',

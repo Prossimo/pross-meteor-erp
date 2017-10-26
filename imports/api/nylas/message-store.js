@@ -29,6 +29,7 @@ class MessageStoreClass extends Reflux.Store {
         this.listenTo(Actions.toggleMessageExpanded, this._onToggleMessageExpanded)
         this.listenTo(Actions.toggleAllMessagesExpanded, this._onToggleAllMessagesExpanded)
         this.listenTo(Actions.toggleHiddenMessages, this._onToggleHiddenMessages)
+        this.listenTo(Actions.changedMessages, this._onThreadStoreChanged)
         this.listenTo(ThreadStore, this._onThreadStoreChanged)
     }
 
