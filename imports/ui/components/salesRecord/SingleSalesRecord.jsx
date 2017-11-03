@@ -569,7 +569,7 @@ export default createContainer(props => {
             notFound: true
         }
 
-        salesRecord.members = salesRecord.members.map(member => {
+        salesRecord.members = salesRecord.members.filter(m => m!==null).map(member => {
             member.user = props.usersArr[member]
             return member
         })

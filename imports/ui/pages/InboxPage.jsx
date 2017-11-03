@@ -63,7 +63,7 @@ class InboxPage extends (React.Component) {
 
     }
 
-    componentWillUnmount() { console.log('InboxPage compnentWillUnmount')
+    componentWillUnmount() {
         this.unsubscribes.forEach((unsubscribe) => {
             unsubscribe()
         })

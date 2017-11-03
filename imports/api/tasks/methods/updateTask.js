@@ -28,7 +28,7 @@ export default new ValidatedMethod({
       if(task.parentType === 'deal') {
           const salesrecord = SalesRecords.findOne(parentId)
           if(salesrecord) {
-              const members = salesrecord.members || []
+              const members = (salesrecord.members || []).filter(m => m!==null)
               if(assignee&&assignee.length>0&&members.indexOf(assignee) == -1) members.push(assignee)
               if(approver&&approver.length>0&&members.indexOf(approver) == -1) members.push(approver)
               SalesRecords.update(parentId, {$set:{members}})
@@ -36,7 +36,7 @@ export default new ValidatedMethod({
       } else if(task.parentType === 'project') {
           const project = Projects.findOne(parentId)
           if(project) {
-              const members = project.members || []
+              const members = (project.members || []).filter(m => m!==null)
               if(assignee&&assignee.length>0&&members.map(m => m.userId).indexOf(assignee) == -1) members.push({userId:assignee})
               if(approver&&approver.length>0&&members.map(m => m.userId).indexOf(approver) == -1) members.push({userId:approver})
               Projects.update(parentId, {$set:{members}})
