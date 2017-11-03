@@ -91,7 +91,7 @@ People.publicFields = {
     modified_at: 1
 }
 
-Factory.define('person', People, {
+/*Factory.define('person', People, {
     name: faker.name.findName(),
     twitter: faker.internet.url(),
     facebook: faker.internet.url(),
@@ -110,7 +110,7 @@ Factory.define('person', People, {
         type: _.sample(People.PhoneNumberTypes),
         is_default: true
     }]
-})
+})*/
 
 People.helpers({
     designation() {

@@ -1,39 +1,40 @@
-import { Mongo } from 'meteor/mongo';
-import SimpleSchema from 'simpl-schema';
-import {Factory} from 'meteor/dburles:factory';
-import {_} from 'meteor/underscore';
-import faker from 'faker';
+import { Mongo } from 'meteor/mongo'
+import SimpleSchema from 'simpl-schema'
+import {Factory} from 'meteor/dburles:factory'
+import {_} from 'meteor/underscore'
+import faker from 'faker'
 import CompanyTypes from './companytypes'
 import Contacts from '../contacts/contacts'
+import People from '../people/people'
 
 class CompaniesCollection extends Mongo.Collection {
     insert(doc, callback) {
-        const ourDoc = doc;
-        ourDoc.created_at = ourDoc.created_at || new Date();
-        const result = super.insert(ourDoc, callback);
+        const ourDoc = doc
+        ourDoc.created_at = ourDoc.created_at || new Date()
+        const result = super.insert(ourDoc, callback)
         return result
     }
 
     remove(selector) {
-        const result = super.remove(selector);
-        return result;
+        const result = super.remove(selector)
+        return result
     }
 }
 
-const Companies = new CompaniesCollection("Companies");
+const Companies = new CompaniesCollection('Companies')
 
 // Deny all client-side updates since we will be using methods to manage this collection
 Companies.deny({
     insert() {
-        return true;
+        return true
     },
     update() {
-        return true;
+        return true
     },
     remove() {
-        return true;
+        return true
     }
-});
+})
 
 Companies.Address = new SimpleSchema({
     address: {type: String},
@@ -62,9 +63,9 @@ Companies.schema = new SimpleSchema({
     user_id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
-});
+})
 
-Companies.attachSchema(Companies.schema);
+Companies.attachSchema(Companies.schema)
 
 Companies.publicFields = {
     name: 1,
@@ -75,7 +76,7 @@ Companies.publicFields = {
     user_id: 1,
     created_at: 1,
     modified_at: 1
-};
+}
 
 Factory.define('company', Companies, {
     name: faker.company.companyName(),
@@ -96,13 +97,16 @@ Factory.define('company', Companies, {
 })
 
 Companies.helpers({
-    contacts: function() {
+    people() {
+        return People.find({company_id:this._id}).fetch()
+    },
+    contacts() {
         return Contacts.find({company_id:this._id}).fetch()
     },
-    types: function() {
+    types() {
         if(!this.type_ids || this.type_ids.length==0) return []
         return CompanyTypes.find({_id:{$in:this.type_ids}}).fetch()
     }
-});
+})
 
-export default Companies;
+export default Companies

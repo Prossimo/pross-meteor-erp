@@ -36,14 +36,14 @@ export default class CompaniesList extends TrackerReact(React.Component) {
         const {removedCompany} = nextProps
 
         if(removedCompany) {
-            this.setState({removedCompany:removedCompany})
+            this.setState({removedCompany})
         }
     }
 
     loadCompanies() {
         const {keyword, page, removedCompany} = this.state
 
-        let filters = {removed:{$ne:true}}
+        const filters = {removed:{$ne:true}}
         if(keyword && keyword.length) {
             const regx = {$regex: keyword, $options: 'i'}
             filters['$or'] = [{email: regx}, {name: regx}]
@@ -51,8 +51,8 @@ export default class CompaniesList extends TrackerReact(React.Component) {
 
         const result = Companies.find(filters, {skip:(page-1)*PAGESIZE,limit:PAGESIZE,sort:{name:1}}).fetch()
         if(result.length!=PAGESIZE) this.fullyLoaded = true
-        result.forEach((c)=>{
-            const index = this.companies.findIndex((c1)=>c1._id==c._id)
+        result.forEach((c) => {
+            const index = this.companies.findIndex((c1) => c1._id==c._id)
             if(index >= 0) {
                 this.companies.splice(index, 1, c)
             } else {
@@ -83,7 +83,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{flex: 1}}>
-                    <Button bsStyle="primary" onClick={()=>{this.props.onCreateCompany&&this.props.onCreateCompany()}}><i className="fa fa-plus"/></Button>
+                    <Button bsStyle="primary" onClick={() => {this.props.onCreateCompany&&this.props.onCreateCompany()}}><i className="fa fa-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
                     <InputGroup>
@@ -124,7 +124,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
         if (!companies || companies.length == 0) return
 
 
-        compare = (c1, c2) => {
+        const compare = (c1, c2) => {
             if (c1.name > c2.name) return 1
             else if (c1.name < c2.name) return -1
             else {
@@ -138,10 +138,10 @@ export default class CompaniesList extends TrackerReact(React.Component) {
                 <td width="5%">{index + 1}</td>
                 <td width="20%">{company.name}</td>
                 <td width="15%">{company.website}</td>
-                <td width="10%">{company.types().map(t=>t.name).join(',')}</td>
-                <td width="20%">{company.phone_numbers.map((phone)=>`${phone.number}(${phone.type})`).join(', ')}</td>
-                <td width="20%">{company.addresses.map((address)=>`${address.address}(${address.type})`).join(', ')}</td>
-                <td width="10%">{company.contacts().length}</td>
+                <td width="10%">{company.types().map(t => t.name).join(',')}</td>
+                <td width="20%">{company.phone_numbers.map((phone) => `${phone.number}(${phone.type})`).join(', ')}</td>
+                <td width="20%">{company.addresses.map((address) => `${address.address}(${address.type})`).join(', ')}</td>
+                <td width="10%">{company.people().length}</td>
             </tr>
         ))
     }
@@ -156,7 +156,7 @@ export default class CompaniesList extends TrackerReact(React.Component) {
 
         if (!this.fullyLoaded && el.scrollTop + el.clientHeight == el.scrollHeight) {
             if (this.scrollTimeout) {
-                clearTimeout(this.scrollTimeout);
+                clearTimeout(this.scrollTimeout)
             }
 
             this.scrollTimeout = setTimeout(() => {
@@ -169,13 +169,13 @@ export default class CompaniesList extends TrackerReact(React.Component) {
     }
 
     onChangeSearch = (evt) => {
-        if(this.searchTimeout) { clearTimeout(this.searchTimeout); }
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
 
         const keyword = evt.target.value
         this.searchTimeout = setTimeout(() => {
             this.companies = []
             this.fullyLoaded = false
-            this.setState({keyword:keyword,page:1})
+            this.setState({keyword,page:1})
         }, 500)
     }
 }
