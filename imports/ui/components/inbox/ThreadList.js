@@ -83,7 +83,9 @@ export default class ThreadList extends TrackerReact(React.Component) {
         } else {
             let inboxes
             if(category.id === 'not_filed') {
-                filters['conversationId'] = null
+                const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
+                //filters['conversationId'] = null
+                filters['id'] = {$nin:conversationThreadIds}
                 inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             } else if(category.id === 'unassigned') {
                 filters['assignee'] = {$ne:Meteor.userId()}
@@ -144,7 +146,6 @@ export default class ThreadList extends TrackerReact(React.Component) {
         //console.log('render ThreadList', keyword)
 
 
-        //console.log(JSON.stringify(filters), JSON.stringify({sort:{last_message_received_timestamp:-1}}))
         let threads = Threads.find(this.filter(), this.sort()).fetch()
         threads = _.uniq(threads, false, ({id}) => id)
         return (

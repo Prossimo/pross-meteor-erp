@@ -143,11 +143,11 @@ export default class CompanyForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        var {name, website, type_id, addresses, phone_numbers} = this.state
+        var {name, website, type_ids, addresses, phone_numbers} = this.state
 
         if(website && website.length>0 && website.indexOf(HTTP_PROTOCOL) == -1 && website.indexOf(HTTPS_PROTOCOL) == -1) website = `http://${website}`
 
-        const data= {name, website, type_id, addresses, phone_numbers}
+        const data= {name, website, type_ids, addresses, phone_numbers}
 
         const {company, toggleLoader, onSaved} = this.props
         if(toggleLoader) toggleLoader(true)
