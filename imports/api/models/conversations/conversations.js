@@ -55,7 +55,6 @@ Conversations.attachSchema(Conversations.schema)
 
 Conversations.publicFields = {
     name: 1,
-    salesRecordId: 1,
     participants: 1,
     created_at: 1,
     modified_at: 1
