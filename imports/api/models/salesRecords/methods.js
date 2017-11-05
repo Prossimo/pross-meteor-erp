@@ -284,8 +284,11 @@ Meteor.methods({
             priority: Match.Maybe(String),
             probability: Match.Maybe(String),
             teamLead: Match.Maybe(String),
+            dealer: Match.Maybe(String),
             clientStatus: Match.Maybe(String),
-            supplierStatus: Match.Maybe(String)
+            supplierStatus: Match.Maybe(String),
+
+            archived: Match.Maybe(Boolean)
         })
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
