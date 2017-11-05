@@ -98,12 +98,35 @@ class AllProjects extends Component {
           })
       })
     }
+    archiveProject({ _id }) {
+      swal({
+        title: 'Are you sure to archive this project?',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, archive it!'
+      }).then(() => {
+          Meteor.call('archiveProject', _id, true, (err,res) => {
+              if(err) {
+                  const msg = err.reason ? err.reason : err.message
+                  return swal('archiving project failed',  msg, 'warning')
+              }
+              swal(
+                  'Archive!',
+                  'Project has been archived.',
+                  'success'
+              )
+          })
+      })
+    }
 
     goTo(project) {
         FlowRouter.go('Project', {id: project._id})
     }
 
     render() {
+
         return (
             <div>
             {
@@ -117,6 +140,7 @@ class AllProjects extends Component {
                         settingKey={'newProject'}
                         goTo={this.goTo}
                         remove={this.removeProject}
+                        archive={this.archiveProject}
                     />
                 )
             }

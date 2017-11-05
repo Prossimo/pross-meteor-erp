@@ -642,7 +642,7 @@ class AllSalesRecords extends React.Component {
                     return swal('archiving deal failed', msg, 'warning')
                 }
                 swal(
-                    'Archived!',
+                    'Archive!',
                     'Deal has been archived.',
                     'success'
                 )
