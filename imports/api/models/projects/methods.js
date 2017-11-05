@@ -244,5 +244,19 @@ Meteor.methods({
             }
         }
         Projects.update(_id, {$set:{slackChanel, slackChannelName}})
+    },
+    archiveProject(_id, archived) {
+        check(_id, String)
+        check(archived, Boolean)
+
+        const project = Projects.findOne(_id)
+        if (!project) throw new Meteor.Error('Project does not exists')
+        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
+        const isMember = !!project.members.find(({userId}) => userId === this.userId)
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+
+        Projects.update(_id, {$set:{archived}})
     }
 })

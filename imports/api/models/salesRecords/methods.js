@@ -441,6 +441,21 @@ Meteor.methods({
         })
     },
 
+    archiveSalesRecord(_id, archived) {
+        check(_id, String)
+        check(archived, Boolean)
+
+        const salesRecord = SalesRecords.findOne(_id)
+        if (!salesRecord) throw new Meteor.Error('Deal does not exists')
+        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+
+        SalesRecords.update(_id, {$set:{archived}})
+    }
+
 })
 
 
