@@ -77,7 +77,7 @@ export default createContainer(() => {
   const { taskFolderId } = SaleRecords.findOne(parentId) || Projects.findOne(parentId)
   subscribers.push(Meteor.subscribe('task.all', { parentId, filter }))
   loading = subscribers.reduce((result, subscriber) => result && subscriber.ready(), true)
-  tasks = Tasks.find({ parentId }).fetch()
+  tasks = Tasks.find({ parentId, isRemoved:{$ne:true} }).fetch()
   return {
     subscribers,
     loading,
