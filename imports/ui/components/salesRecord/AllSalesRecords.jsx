@@ -549,8 +549,11 @@ class AllSalesRecords extends React.Component {
                         {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
                             <Button onClick={() => this.removeProject(project._id)} bsStyle='danger' bsSize='small'><i
                                 className='fa fa-trash'/></Button>)}
-                        {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
-                            <Button onClick={() => this.archiveSalesRecord(project._id)} bsStyle='success'
+                        {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && !project.archived && (
+                            <Button onClick={() => this.archiveSalesRecord(project._id)} bsStyle='warning'
+                                    bsSize='small'><i className='fa fa-archive'/></Button>)}
+                        {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && project.archived && (
+                            <Button onClick={() => this.activeSalesRecord(project._id)} bsStyle='success'
                                     bsSize='small'><i className='fa fa-archive'/></Button>)}
                     </div>
                 </td>
@@ -647,6 +650,20 @@ class AllSalesRecords extends React.Component {
                     'success'
                 )
             })
+        })
+    }
+
+    activeSalesRecord(_id) {
+        Meteor.call('archiveSalesRecord', _id, false, (error, result) => {
+            if (error) {
+                const msg = error.reason ? error.reason : error.message
+                return swal('activating deal failed', msg, 'warning')
+            }
+            swal(
+                'Active!',
+                'Deal has been actived again.',
+                'success'
+            )
         })
     }
 

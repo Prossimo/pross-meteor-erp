@@ -247,11 +247,18 @@ class Sheets extends Component {
                             ) : ''
                         }
                         {
-                            (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) ? (
-                                <Button onClick={() => this.props.archive(project)} bsSize='small' bsStyle='success'>
+                            Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && !project.archived && (
+                                <Button onClick={() => this.props.archive(project)} bsSize='small' bsStyle='warning'>
                                     <i className='fa fa-archive'/>
                                 </Button>
-                            ) : ''
+                            )
+                        }
+                        {
+                            Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && project.archived && (
+                                <Button onClick={() => this.props.active(project)} bsSize='small' bsStyle='success'>
+                                    <i className='fa fa-archive'/>
+                                </Button>
+                            )
                         }
                     </div>
                 </td>

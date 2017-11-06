@@ -120,6 +120,19 @@ class AllProjects extends Component {
           })
       })
     }
+    activeProject({ _id }) {
+        Meteor.call('archiveProject', _id, false, (err,res) => {
+            if(err) {
+                const msg = err.reason ? err.reason : err.message
+                return swal('activating project failed',  msg, 'warning')
+            }
+            swal(
+                'Active!',
+                'Project has been actived again.',
+                'success'
+            )
+        })
+    }
 
     goTo(project) {
         FlowRouter.go('Project', {id: project._id})
@@ -141,6 +154,7 @@ class AllProjects extends Component {
                         goTo={this.goTo}
                         remove={this.removeProject}
                         archive={this.archiveProject}
+                        active={this.activeProject}
                     />
                 )
             }
