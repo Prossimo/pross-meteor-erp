@@ -284,8 +284,11 @@ Meteor.methods({
             priority: Match.Maybe(String),
             probability: Match.Maybe(String),
             teamLead: Match.Maybe(String),
+            dealer: Match.Maybe(String),
             clientStatus: Match.Maybe(String),
-            supplierStatus: Match.Maybe(String)
+            supplierStatus: Match.Maybe(String),
+
+            archived: Match.Maybe(Boolean)
         })
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
@@ -440,6 +443,21 @@ Meteor.methods({
             $set: status,
         })
     },
+
+    archiveSalesRecord(_id, archived) {
+        check(_id, String)
+        check(archived, Boolean)
+
+        const salesRecord = SalesRecords.findOne(_id)
+        if (!salesRecord) throw new Meteor.Error('Deal does not exists')
+        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
+        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+
+        SalesRecords.update(_id, {$set:{archived}})
+    }
 
 })
 

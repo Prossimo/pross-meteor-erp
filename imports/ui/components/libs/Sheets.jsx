@@ -1,9 +1,9 @@
 import {Roles} from 'meteor/alanning:roles'
-import React, { Component, PropTypes } from 'react'
-import { Table, Glyphicon, Button } from 'react-bootstrap'
+import React, {Component, PropTypes} from 'react'
+import {Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'
-import { info, warning  } from '/imports/api/lib/alerts'
+import {info, warning} from '/imports/api/lib/alerts'
 import Select from 'react-select'
 import {ROLES} from '/imports/api/models'
 import 'bootstrap-select'
@@ -12,7 +12,7 @@ import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 class Sheets extends Component {
     constructor(props) {
         super(props)
-        const { columns: possibleColumns } = props
+        const {columns: possibleColumns} = props
         this.state = {
             // cell that you are hovering
             hoverCell: {
@@ -28,6 +28,8 @@ class Sheets extends Component {
             },
             // all possible columns
             possibleColumns,
+
+            showArchivedProjects: false
         }
 
         this.renderList = this.renderList.bind(this)
@@ -54,7 +56,7 @@ class Sheets extends Component {
     }
 
     // view save button when enter mouse
-    handleMouseEnter(key, rowIndex, value ) {
+    handleMouseEnter(key, rowIndex, value) {
         const {editable} = this.state.possibleColumns.find((column) => column.key === key)
         if (!editable) return
         this.setState({
@@ -100,11 +102,12 @@ class Sheets extends Component {
             )
         }
     }
+
     // save data to database
     saveCell() {
-        const { type } = this.state.possibleColumns.find(({ key }) => key === this.state.edittingCell.key)
-        const { _id } = this.props.rows[this.state.edittingCell.rowIndex]
-        let { key, value } = this.state.edittingCell
+        const {type} = this.state.possibleColumns.find(({key}) => key === this.state.edittingCell.key)
+        const {_id} = this.props.rows[this.state.edittingCell.rowIndex]
+        let {key, value} = this.state.edittingCell
         switch (type) {
             case 'date':
                 value = value.toDate()
@@ -116,7 +119,7 @@ class Sheets extends Component {
             default:
                 break
         }
-        this.props.onSave(_id, { key, value }, (error, message) => {
+        this.props.onSave(_id, {key, value}, (error, message) => {
             if (error) {
                 warning(error.reason)
             } else {
@@ -137,7 +140,7 @@ class Sheets extends Component {
         return (
             <button
                 className='btn btn-warning btn-sm pull-right'
-                onClick={ this.saveCell}
+                onClick={this.saveCell}
             >
                 <i className='fa fa-save'/> Save
             </button>
@@ -146,13 +149,18 @@ class Sheets extends Component {
     }
 
     renderRows() {
-        const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
-        return this.props.rows.map((project, index) => (
-                <tr key={project._id}>
+        const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
+
+        let projects = this.props.rows
+
+        if (!this.state.showArchivedProjects) projects = projects.filter(p => !p.archived)
+
+        return projects.map((project, index) => (
+            <tr key={project._id}>
                 {
-                    selectedColumns.map(({ key, type, options, value }) => {
+                    selectedColumns.map(({key, type, options, value}) => {
                         if (key === this.state.edittingCell.key && index === this.state.edittingCell.rowIndex) {
-                            switch(type) {
+                            switch (type) {
                                 case 'date':
                                     return (
                                         <td key={key}>
@@ -161,7 +169,7 @@ class Sheets extends Component {
                                                     selected={this.state.edittingCell.value}
                                                     onChange={this.handleChange}
                                                 />
-                                                { this.renderSaveButton() }
+                                                {this.renderSaveButton()}
                                             </div>
                                         </td>
                                     )
@@ -175,7 +183,7 @@ class Sheets extends Component {
                                                     options={options}
                                                     onChange={this.handleChange}
                                                 />
-                                                { this.renderSaveButton() }
+                                                {this.renderSaveButton()}
                                             </div>
                                         </td>
                                     )
@@ -188,14 +196,14 @@ class Sheets extends Component {
                                                     value={this.state.edittingCell.value}
                                                     onChange={(event) => this.handleChange(event.target.value)}
                                                 />
-                                                { this.renderSaveButton() }
+                                                {this.renderSaveButton()}
                                             </div>
                                         </td>
                                     )
                                     break
                             }
                         } else {
-                            switch(type) {
+                            switch (type) {
                                 case 'date':
                                     const date = moment(project[key]).format('MM/DD/YYYY')
                                     return (
@@ -205,8 +213,8 @@ class Sheets extends Component {
                                             onMouseEnter={() => this.handleMouseEnter(key, index, moment(project[key]))}
                                         >
                                             <div>
-                                                { date }
-                                                { this.renderEditButton(key, index, moment(project[key])) }
+                                                {date}
+                                                {this.renderEditButton(key, index, moment(project[key]))}
                                             </div>
                                         </td>
                                     )
@@ -218,8 +226,8 @@ class Sheets extends Component {
                                             onMouseEnter={() => this.handleMouseEnter(key, index, project[key])}
                                         >
                                             <div>
-                                                { value&&typeof value === 'function' ? value(project) : project[key] }
-                                                { this.renderEditButton(key, index, project[key]) }
+                                                {value && typeof value === 'function' ? value(project) : project[key]}
+                                                {this.renderEditButton(key, index, project[key])}
                                             </div>
                                         </td>)
                             }
@@ -227,41 +235,55 @@ class Sheets extends Component {
                     })
                 }
                 <td>
-                  <div className='btn-group'>
-                    <Button onClick={() => this.goTo(project)} bsSize='small'>
-                      <i className='fa fa-link'/>
-                    </Button>
-                    {
-                      (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) ? (
-                        <Button onClick={() => this.props.remove(project)} bsSize='small' bsStyle='danger'>
-                          <i className='fa fa-times'/>
+                    <div className='btn-group'>
+                        <Button onClick={() => this.goTo(project)} bsSize='small'>
+                            <i className='fa fa-link'/>
                         </Button>
-                      ) : ''
-                    }
-                  </div>
+                        {
+                            (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) ? (
+                                <Button onClick={() => this.props.remove(project)} bsSize='small' bsStyle='danger'>
+                                    <i className='fa fa-times'/>
+                                </Button>
+                            ) : ''
+                        }
+                        {
+                            Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && !project.archived && (
+                                <Button onClick={() => this.props.archive(project)} bsSize='small' bsStyle='warning'>
+                                    <i className='fa fa-archive'/>
+                                </Button>
+                            )
+                        }
+                        {
+                            Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && project.archived && (
+                                <Button onClick={() => this.props.active(project)} bsSize='small' bsStyle='success'>
+                                    <i className='fa fa-archive'/>
+                                </Button>
+                            )
+                        }
+                    </div>
                 </td>
-                </tr>
-            ))
+            </tr>
+        ))
     }
 
-    renderList(){
-        const selectedColumns = this.state.possibleColumns.filter(({ selected }) => selected)
+    renderList() {
+        const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         return (
             <Table condensed hover>
                 <thead>
-                  <tr>
+                <tr>
                     {
-                        selectedColumns.map(({ label, key }) => (
-                                <th key={key}>{label}</th>
-                            ))
+                        selectedColumns.map(({label, key}) => (
+                            <th key={key}>{label}</th>
+                        ))
                     }
                     <th></th>
-                  </tr>
+                </tr>
                 </thead>
                 <tbody>
-                    { this.renderRows() }
+                {this.renderRows()}
                 </tbody>
-              </Table>
+            </Table>
         )
     }
 
@@ -288,7 +310,7 @@ class Sheets extends Component {
 
                 $('.selectpicker').selectpicker('val', selectedFields)
 
-                $('.selectpicker').on('changed.bs.select', function() {
+                $('.selectpicker').on('changed.bs.select', function () {
                     const selectedKeys = $(this).val()
                     const possibleColumns = _this.state.possibleColumns
                     possibleColumns.forEach((column) => {
@@ -319,20 +341,23 @@ class Sheets extends Component {
         return (
             <div>
                 <div>
+                    <input type="checkbox" value={this.state.showArchivedProjects}
+                           onChange={e => this.setState({showArchivedProjects: e.target.checked})}/>&nbsp;Show Archived
+                    Projects&nbsp;&nbsp;
                     <select className='selectpicker pull-right' multiple>
-                    {
-                        this.state.possibleColumns.map(({ key, label }) => <option value={key} key={key}>{label}</option>)
-                    }
+                        {
+                            this.state.possibleColumns.map(({key, label}) => <option value={key}
+                                                                                     key={key}>{label}</option>)
+                        }
                     </select>
-                    <br/>
-                    {
-                        ( this.props.loading ) ? (
-                            <div>loading....</div>
-                        ) : (
-                           this.renderList()
-                        )
-                    }
                 </div>
+                {
+                    ( this.props.loading ) ? (
+                        <div>loading....</div>
+                    ) : (
+                        this.renderList()
+                    )
+                }
             </div>
         )
     }

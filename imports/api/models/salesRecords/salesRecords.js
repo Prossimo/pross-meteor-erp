@@ -104,6 +104,8 @@ SalesRecords.schema = new SimpleSchema({
 
     conversationIds: {type: Array, optional:true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
+
+    archived: {type: Boolean, optional: true}
 })
 
 SalesRecords.attachSchema(SalesRecords.schema)
