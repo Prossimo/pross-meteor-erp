@@ -169,6 +169,13 @@ class Details extends TrackerReact(React.Component) {
     }
     renderRowType(field, type, value, selectOptions) {
         switch (type) {
+            case 'checkbox':
+                return (
+                    <input type="checkbox" checked={value}
+                           onChange={e => this.changeState(field, e.target.checked)}
+                           onBlur={this.saveSalesRecord}/>
+
+            )
             case 'date':
                 return (
                     <DatePicker
@@ -349,6 +356,7 @@ class Details extends TrackerReact(React.Component) {
     render() {
         const {salesRecord} = this.state
         const statusRows = [
+            {label: 'Active/Archived', field: 'archived', type: 'checkbox'},
             {label: 'Team Lead', field: 'teamLead', type: 'select'},
             {label: 'Bid Due Date', field: 'bidDueDate', type: 'date'},
             {label: 'Priority', field: 'priority', type: 'select'},
