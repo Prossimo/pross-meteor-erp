@@ -7,7 +7,7 @@ SalesRecords.before.update((userId, doc, fieldNames, modifier) => {
   if (fieldNames.includes('name')) {
     if (modifier.$set && modifier.$set.name) {
       const { name, slackChanel } = doc
-      const newName = modifier.$set.name
+      const newName = `d-${modifier.$set.name}`
       if (newName !== name) {
         Meteor.defer(() => {
           const { data: { ok } } = slackClient.channels.rename({
