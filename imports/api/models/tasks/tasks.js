@@ -28,6 +28,10 @@ export const TaskStatus = [
     'Blocked',
 ]
 
+export const TaskParentType = {
+    deal: 'deal',
+    project: 'project'
+}
 Tasks.schema = new SimpleSchema({
     _id: {
         type: String,
