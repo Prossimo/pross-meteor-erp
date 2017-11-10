@@ -35,7 +35,7 @@ export default new ValidatedMethod({
     // share folder with members
     const salesRecord = SalesRecords.findOne(salesRecordId)
     if (salesRecord) {
-      const memberIds = salesRecord.members.map(({ userId }) => userId)
+      const memberIds = salesRecord.members.map(userId => userId)
       const emails = Meteor
         .users
         .find({ _id: { $in: memberIds } })

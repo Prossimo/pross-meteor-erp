@@ -55,13 +55,14 @@ class Files extends Component {
         this.checkRemoteFolder = _.once(({folderId, name, type, _id}) => {
             Meteor.call('drive.getFiles', {fileId: folderId}, error => {
                 if (error) {
+                    const newName = props.project ? `p-${name}` : `d-${name}`
                     switch (type) {
                         case 'project':
-                            return Meteor.call('drive.createProjectFolder', {projectId: _id, name}, this.listFiles)
+                            return Meteor.call('drive.createProjectFolder', {projectId: _id, newName}, this.listFiles)
                         case 'salesRecord':
                             return Meteor.call('drive.createSalesRecordFolder', {
                                 salesRecordId: _id,
-                                name
+                                newName
                             }, this.listFiles)
                     }
                 }
