@@ -55,7 +55,7 @@ module.exports = Utils = {
             case '[object RegExp]', '[object String]':
                 return `${  a}` == `${  b}`
             case '[object Number]':
-                if (+a != +a)  return +b != +b
+                if (+a != +a) return +b != +b
                 return (+a == 0) ? 1 / +a == 1 / b : +a == +b
             case '[object Date]', '[object Boolean]':
                 return +a == +b
@@ -131,14 +131,14 @@ module.exports = Utils = {
         ]
 
 
-        return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase())>-1 ? folder.name : 'folder'}.png`
+        return `/icons/inbox/ic-category-${folder.name && icons.indexOf(folder.name.trim().toLowerCase()) > -1 ? folder.name : 'folder'}.png`
     },
 
     slackParsedText: (text) => {
 
         // Convert normal <asdfasdf> format
         const matches = text.match(/\<[^\>]+\>/g)
-        if (matches!=null && matches.length) {
+        if (matches != null && matches.length) {
             //console.log(matches)
             matches.forEach((m) => {
                 if (new RegExp(/\<\@[^\>]+\|[^\>]+\>/g).test(m)) { // <@U4RPWJB0R|if0109>
@@ -154,12 +154,12 @@ module.exports = Utils = {
                 } else if (new RegExp(/\<\#[^\>]+\|[^\>]+\>/g).test(m)) { // <#C716GCL3E|channel>
                     //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)
                     text = text.replace(m, `<a href="#">#${_.escape(m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2))}</a>`)
-                } else if(new RegExp(/\<+[^\>]+\|[^\>]+\>/g).test(m)) { //<https://crm.mavrik.build/salesrecord/c2g2obaetJxHMLYwr|Go to salesrecord>
+                } else if (new RegExp(/\<+[^\>]+\|[^\>]+\>/g).test(m)) { //<https://crm.mavrik.build/salesrecord/c2g2obaetJxHMLYwr|Go to salesrecord>
                     const index = m.indexOf('|')
                     //console.log(m, m.substr(1, index-1), m.substr(index + 1, m.length - index - 2))
-                    text = text.replace(m, `<a href="${m.substr(1, index-1)}">${_.escape(m.substr(index + 1, m.length - index - 2))}</a>`)
+                    text = text.replace(m, `<a href="${m.substr(1, index - 1)}">${_.escape(m.substr(index + 1, m.length - index - 2))}</a>`)
                 } else {    // <https://crm.mavrik.build/salesrecord/c2g2obaetJxHMLYwr>
-                    const token = m.substr(1, m.length-2)
+                    const token = m.substr(1, m.length - 2)
                     //console.log(token)
                     text = text.replace(m, `<a href="${token}">${_.escape(token)}</a>`)
                 }
@@ -167,7 +167,8 @@ module.exports = Utils = {
         }
 
 
-
         return text
-    }
+    },
+
+    jsUcfirst: (string) => string.charAt(0).toUpperCase() + string.slice(1)
 }
