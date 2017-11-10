@@ -1,6 +1,4 @@
 /* global FlowRouter, subsManager */
-import _ from 'underscore'
-
 import { createContainer  } from 'meteor/react-meteor-data'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
@@ -20,6 +18,8 @@ import PeopleForm from '../components/people/PeopleForm'
 import {People, Users, ROLES} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
 import ThreadList from '../components/inbox/ThreadList'
+
+import Utils from '../../utils/Utils'
 
 
 class InboxPage extends (React.Component) {
@@ -211,7 +211,7 @@ class InboxPage extends (React.Component) {
                 temp()
             }
         } else if (menu === 'goto') {
-            FlowRouter.go(type, {id: _id})
+            FlowRouter.go(Utils.jsUcfirst(type), {id: _id})
         } else if (menu === 'unbind') {
             try {
                 unbindThreadFromConversation.call({id: this.state.currentThread.id})
