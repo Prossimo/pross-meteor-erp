@@ -9,17 +9,19 @@ import getParents from './getParents'
 import createFile from './createFile'
 import copyFiles from './copyFiles'
 import shareWith from './shareWith'
+import updateFolderName from './updateFolderName'
 
 export {
-  listFiles,
-  createFolder,
-  createSalesRecordFolder,
-  createProjectFolder,
-  removeFiles,
-  getFiles,
-  copyFiles,
-  createFile,
-  shareWith,
-  getAccessToken,
-  getParents,
+    listFiles,
+    createFolder,
+    createSalesRecordFolder,
+    createProjectFolder,
+    removeFiles,
+    getFiles,
+    copyFiles,
+    createFile,
+    shareWith,
+    getAccessToken,
+    getParents,
+    updateFolderName
 }
