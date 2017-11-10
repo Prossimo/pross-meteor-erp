@@ -132,11 +132,13 @@ Meteor.methods({
 
         check(thread, Match.Maybe(Object))
 
-        let responseCreateChannel = slackClient.channels.create({ name: `d-${data.name}` })
+        let newName = `d-${data.name}`
+        let responseCreateChannel = slackClient.channels.create({ name: newName })
         //console.log("Create slack channel response", responseCreateChannel)
         if (!responseCreateChannel.data.ok) {
             // RETRY WITH UNIQUE NAME
-            responseCreateChannel = slackClient.channels.create({ name: `d-${data.name}-${Random.id()}` })
+            newName = `${newName}-${Random.id()}`
+            responseCreateChannel = slackClient.channels.create({ name: newName })
             if (!responseCreateChannel.data.ok) {
                 throw new Meteor.Error('Some problems with created slack channel! Sorry try later')
             }
@@ -170,7 +172,8 @@ Meteor.methods({
         })
         // create folder in google drive
         Meteor.defer(() => {
-            prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
+            const createFolderRes = prossDocDrive.createSalesRecordFolder.call({name: newName, salesRecordId})
+            console.log(createFolderRes)
         })
 
         // Insert conversations attached
@@ -346,6 +349,7 @@ Meteor.methods({
 
         SalesRecords.update({_id:salesRecordId}, {$set:{dealer}})
     },
+
     updateSalesRecordMembers(salesRecordId, members){
         check(salesRecordId, String)
         check(members, Array)

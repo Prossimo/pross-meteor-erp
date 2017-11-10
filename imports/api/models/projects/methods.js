@@ -23,9 +23,10 @@ export const createProject = new ValidatedMethod({
         if (!isServer && !Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
             throw new Meteor.Error('Access denied')
 
-        if(!nylasAccountId) {
+        let mainConversationId
+        if(!nylasAccountId) {   // if it is not inbox project
             stakeholders = stakeholders || []
-            const mainConversationId = Conversations.insert({
+            mainConversationId = Conversations.insert({
                 name: 'Main',
                 participants: stakeholders.filter(s => s.addToMain).map(({peopleId, isMainStakeholder}) => ({
                     peopleId,
@@ -39,14 +40,15 @@ export const createProject = new ValidatedMethod({
         const projectId = Projects.insert(project)
 
         // CREATE NEW CHANNEL
-        let { data } = slackClient.channels.create({ name: `p-${project.name}` })
+        let newName = `p-${project.name}`
+        let { data } = slackClient.channels.create({ name: newName })
         // RETRY WITH UNIQUE NAME
         if (!data.ok) {
-            data = slackClient.channels.create({ name: `p-${project.name}-${Random.id()}` }).data
+            newName = `${newName}-${Random.id()}`
+            data = slackClient.channels.create({ name: newName }).data
         }
 
-        console.log('slack channel create response', data, data.ok)
-        if (data.ok) { console.log('data.ok in', data.channel)
+        if (data.ok) {
             const slackChanel = data.channel.id
             const slackChannelName = data.channel.name
             // INVITE MEMBERS to CHANNEL
@@ -60,7 +62,6 @@ export const createProject = new ValidatedMethod({
                 )
             }
 
-            console.log('update project', projectId, { slackChanel, slackChannelName })
             // UPDATE slackChanel
             Projects.update(projectId, {
                 $set: { slackChanel, slackChannelName },
@@ -77,7 +78,7 @@ export const createProject = new ValidatedMethod({
 
             Meteor.defer(() => {
                 // CREATE DRIVE
-                prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+                prossDocDrive.createProjectFolder.call({ name: newName, projectId })
             })
         }
 
@@ -136,7 +137,6 @@ export const updateProject = new ValidatedMethod({
             }).forEach(
                 ({ slack: { id } }) => {
                     const {data} = slackClient.channels.invite({ channel:project.slackChanel, user:id })
-                    console.log(data)
                 }
             )
         }
@@ -146,7 +146,6 @@ export const updateProject = new ValidatedMethod({
             stakeholders: _.isUndefined(stakeholders) ? [] : stakeholders
         }
 
-        console.log(data)
 
         Projects.update(_id, {
             $set: data
@@ -154,7 +153,6 @@ export const updateProject = new ValidatedMethod({
 
         // Insert conversations attached
         if (thread) {
-            console.log('thread to be attached', thread, `conversationId=${conversationId}`)
             if(!conversationId) throw new Meteor.Error('ConversationID required')
 
             Threads.update({_id:thread._id}, {$set:{conversationId}})
@@ -258,5 +256,46 @@ Meteor.methods({
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
         Projects.update(_id, {$set:{archived}})
+    },
+
+    updateProjectMembers(projectId, members){
+        check(projectId, String)
+        check(members, Array)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+
+        const project = Projects.findOne(projectId)
+        if(!project) throw new Meteor.Error(`Not found SalesRecord with _id: ${projectId}`)
+
+        if(members && project.members && members.length == project.members.length && members.every(m => project.members.indexOf(m)>-1)) return
+
+        if(members && members.length) {
+            Meteor.users.find({
+                _id: { $in: members.filter(({userId}) => project.members.map(({userId}) => userId).indexOf(userId)==-1) },
+                slack: { $exists: true },
+            }).forEach(
+                ({ slack: { id } }) => {
+                    const {data} = slackClient.channels.invite({ channel:project.slackChanel, user:id })
+                    console.log(data)
+                }
+            )
+        }
+
+        Projects.update(projectId, {$set: {members}})
+
+        // allow edit folder
+        Meteor.defer(() => {
+            _.each(members, ({userId}) => {
+                const user = Meteor.users.findOne(userId)
+                if (user && user.emails && user.emails.length > 0) {
+                    const email = user.emails[0].address
+                    if (email) {
+                        if (project && project.folderId) {
+                            prossDocDrive.shareWith.call({fileId: project.folderId, email})
+                        }
+                    }
+                }
+            })
+        })
     }
 })

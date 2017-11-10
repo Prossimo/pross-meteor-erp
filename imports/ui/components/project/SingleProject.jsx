@@ -56,8 +56,8 @@ class SingleProject extends Component {
         const userIds = _.pluck(project.members, 'userId')
         if (members && project.members && members.length == project.members.length && members.every(m => userIds.indexOf(m.value) > -1)) return
 
-        project.members = members.map(m => ({userId: m.value, isAdmin: false}))
-        Meteor.call('project.update', {...this.props.project}, (err, res) => {
+
+        Meteor.call('updateProjectMembers', project._id, members.map(m => ({userId: m.value, isAdmin: false})), (err, res) => {
             if (err) {
                 console.warn(err)
                 warning(err.message || err.reason)

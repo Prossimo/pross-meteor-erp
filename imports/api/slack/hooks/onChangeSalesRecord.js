@@ -33,9 +33,11 @@ SalesRecords.before.update((userId, doc, fieldNames, modifier) => {
                 })
 
                 // Rename google drive folder name
-                Meteor.defer(() => {
-                    prossDocDrive.updateFolderName.call({folderId, name:newName})
-                })
+                if(folderId) {
+                    Meteor.defer(() => {
+                        prossDocDrive.updateFolderName.call({folderId, name: newName})
+                    })
+                }
             }
         }
     }

@@ -47,7 +47,7 @@ Projects.schema = new SimpleSchema({
     conversationIds: {type: Array, optional: true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 
-    nylasAccountId: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
+    nylasAccountId: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},   // For inbox projects
 
     archived: {type:Boolean, optional:true}
 })
