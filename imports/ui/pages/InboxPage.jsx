@@ -18,6 +18,7 @@ import PeopleForm from '../components/people/PeopleForm'
 import {People, Users, ROLES} from '/imports/api/models'
 import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
 import ThreadList from '../components/inbox/ThreadList'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 import Utils from '../../utils/Utils'
 
@@ -56,7 +57,7 @@ class InboxPage extends (React.Component) {
             console.log('fetch threads')
             if (Meteor.userId()) {
                 Meteor.call('thread.fetchNewThreads', {accounts:Meteor.user().nylasAccounts()}, (err) => {
-                    if(err) console.error(err)
+                    if(err) ClientErrorLog.error(err)
                 })
             }
         }, 1 * 1000 * 120)   // every 5 minutes
@@ -216,7 +217,7 @@ class InboxPage extends (React.Component) {
             try {
                 unbindThreadFromConversation.call({id: this.state.currentThread.id})
             } catch (err) {
-                console.error(err)
+                ClientErrorLog.error(err)
             }
         }
     }

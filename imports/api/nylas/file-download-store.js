@@ -4,6 +4,7 @@ import AccountStore from './account-store'
 import Download from './downloads/download'
 import EmailFileDownload from './downloads/email-file-download'
 import NylasUtils from './nylas-utils'
+import {ErrorLog} from '/imports/utils/logger'
 
 class FileDownloadStoreClass extends Reflux.Store {
     constructor() {
@@ -74,7 +75,7 @@ class FileDownloadStoreClass extends Reflux.Store {
             }
 
         } catch(err) {
-            console.error('FileDownloadError', err)
+            ErrorLog.error('FileDownloadError', err)
             return Promise.reject(err)
         }
     }

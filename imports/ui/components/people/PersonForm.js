@@ -9,6 +9,7 @@ import {insertPerson, updatePerson, removeRole} from '/imports/api/models/people
 import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
 import RoleForm from './RoleForm'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
 const HTTP_PROTOCOL = 'http://'
@@ -289,7 +290,7 @@ export default class PersonForm extends React.Component {
         try {
             removeRole.call({_id: this.state.designation_id, roleName: role})
         } catch (err) {
-            console.error(err)
+            ClientErrorLog.error(err)
             warning(err.error)
         }
     }

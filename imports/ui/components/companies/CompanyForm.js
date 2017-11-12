@@ -13,6 +13,7 @@ import 'loaders.css/loaders.min.css'
 import AddressInput from './AddressInput'
 import PhoneNumberInput from './PhoneNumberInput'
 import CompanyTypeForm from './CompanyTypeForm'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 
 const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
@@ -167,7 +168,7 @@ export default class CompanyForm extends React.Component {
             if(toggleLoader) toggleLoader(false)
             if (onSaved) onSaved(Companies.findOne({_id: companyId}), company != null)
         }catch(e){
-            console.error(e)
+            ClientErrorLog.error(e)
             if(toggleLoader) toggleLoader(false)
             warning(e.message)
         }

@@ -8,6 +8,7 @@ import Tasks, {TaskStatus} from '/imports/api/models/tasks/tasks'
 import {getUserName} from '/imports/api/lib/filters'
 import {ROLES} from '/imports/api/models'
 import {CustomToggle} from '../common'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 class MyTasks extends Component {
     constructor(props) {
@@ -112,7 +113,7 @@ class MyTasks extends Component {
 
         Meteor.call('task.update', {...task}, (err, res) => {
             if (err) {
-                return console.error(err)
+                return ClientErrorLog.error(err)
             }
         })
     }

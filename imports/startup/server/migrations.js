@@ -4,6 +4,7 @@ import { Migrations } from 'meteor/percolate:migrations'
 import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts} from '/imports/api/models'
 import {createProject} from '/imports/api/models/projects/methods'
 
+
 Migrations.add({
     version: 1,
     name: 'Add roles',

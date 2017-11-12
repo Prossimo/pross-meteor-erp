@@ -3,12 +3,13 @@ import React from 'react'
 import Menu from '../../utils/Menu'
 import ButtonDropdown from '../../utils/ButtonDropdown'
 import Actions from '../../../../api/nylas/actions'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 
-const CONFIG_KEY = "core.sending.defaultSendType";
+const CONFIG_KEY = 'core.sending.defaultSendType'
 
 export default class SendActionButton extends React.Component {
-    static displayName = "SendActionButton";
+    static displayName = 'SendActionButton';
 
     static propTypes = {
         clientId: React.PropTypes.string,
@@ -25,7 +26,7 @@ export default class SendActionButton extends React.Component {
         super(props)
         this.state = {
             actionConfigs: this._actionConfigs(this.props),
-        };
+        }
     }
 
     componentDidMount() {
@@ -33,7 +34,7 @@ export default class SendActionButton extends React.Component {
     }
 
     componentWillReceiveProps(newProps) {
-        this.setState({actionConfigs: this._actionConfigs(newProps)});
+        this.setState({actionConfigs: this._actionConfigs(newProps)})
     }
 
     componentWillUnmount() {
@@ -41,23 +42,23 @@ export default class SendActionButton extends React.Component {
     }
 
     primaryClick = () => {
-        this._onPrimaryClick();
+        this._onPrimaryClick()
     }
 
     _defaultActionConfig() {
         return ({
-            title: "Send",
+            title: 'Send',
             iconUrl: null,
             onSend: (clientId) => Actions.sendDraft(clientId),
-            configKey: "send",
-        });
+            configKey: 'send',
+        })
     }
 
     _actionConfigs(props) {
         const actionConfigs = [this._defaultActionConfig()]
 
         actionConfigs.push({
-            title: "Send and archive",
+            title: 'Send and archive',
             iconUrl: null,
             onSend: (clientId) => {
                 Actions.sendDraft(clientId)
@@ -66,78 +67,76 @@ export default class SendActionButton extends React.Component {
                 //tasks = TaskFactory.tasksForArchiving({threads:threads})
                 //Actions.queueTasks(tasks)
             },
-            configKey: "sendAndArchive"
+            configKey: 'sendAndArchive'
         })
         actionConfigs.push({
-            title: "Send later",
+            title: 'Send later',
             iconUrl: null,
             onSend: ({draft}) => {
                 // TO DO: implement send later logic here
             },
-            configKey: "sendLater"
+            configKey: 'sendLater'
         })
-        return actionConfigs;
+        return actionConfigs
     }
 
     _onPrimaryClick = () => {
-        const {preferred} = this._orderedActionConfigs();
-        this._onSendWithAction(preferred);
+        const {preferred} = this._orderedActionConfigs()
+        this._onSendWithAction(preferred)
     }
 
     _onSendWithAction = ({onSend}) => {
         if (this.props.isValidDraft()) {
             try {
-                onSend(this.props.clientId);
+                onSend(this.props.clientId)
             } catch (err) {
-                console.error(err)
+                ClientErrorLog.error(err)
             }
         }
     }
 
     _orderedActionConfigs() {
-        const configKeys = _.pluck(this.state.actionConfigs, "configKey");
+        const configKeys = _.pluck(this.state.actionConfigs, 'configKey')
         let preferredKey = null // Should set from user preferred send type
         if (!preferredKey || !configKeys.includes(preferredKey)) {
-            preferredKey = this._defaultActionConfig().configKey;
+            preferredKey = this._defaultActionConfig().configKey
         }
 
-        const preferred = _.findWhere(this.state.actionConfigs, {configKey: preferredKey});
-        const rest = _.without(this.state.actionConfigs, preferred);
+        const preferred = _.findWhere(this.state.actionConfigs, {configKey: preferredKey})
+        const rest = _.without(this.state.actionConfigs, preferred)
 
-        return {preferred, rest};
+        return {preferred, rest}
     }
 
-    _contentForAction = ({iconUrl, title}) => {
-        return (
+    _contentForAction = ({iconUrl, title}) => (
             <span>
                 <img src="/icons/inbox/icon-composer-send.png" width="16px"/>
                 <span className="text">{title}</span>
             </span>
-        );
-    }
+        )
 
     _renderSingleButton() {
         if (this.props.disabled())
             return (
                 <button
                     tabIndex={-1}
-                    className={"btn1 btn-toolbar btn-normal btn-emphasis btn-text btn-send"}
+                    className={'btn1 btn-toolbar btn-normal btn-emphasis btn-text btn-send'}
                     style={{order: -100}}
                     onClick={this._onPrimaryClick}
                     disabled>
                     {this._contentForAction(this.state.actionConfigs[0])}
                 </button>
-            );
+            )
         else
             return (
                 <button
                     tabIndex={-1}
-                    className={"btn1 btn-toolbar btn-normal btn-emphasis btn-text btn-send"}
+                    className={'btn1 btn-toolbar btn-normal btn-emphasis btn-text btn-send'}
                     style={{order: -100}}
                     onClick={this._onPrimaryClick}>
                     {this._contentForAction(this.state.actionConfigs[0])}
                 </button>
-            );
+            )
     }
 
     _renderButtonDropdown() {
@@ -150,13 +149,13 @@ export default class SendActionButton extends React.Component {
                 itemContent={this._contentForAction}
                 onSelect={this._onSendWithAction}
             />
-        );
+        )
 
         if (this.props.disabled())
         {
             return (
                 <ButtonDropdown
-                    className={"btn-send btn-emphasis btn-text"}
+                    className={'btn-send btn-emphasis btn-text'}
                     style={{order: -100}}
                     primaryItem={this._contentForAction(preferred)}
                     primaryTitle={preferred.title}
@@ -165,13 +164,13 @@ export default class SendActionButton extends React.Component {
                     menu={menu}
                     disabled
                 />
-            );
+            )
         }
         else
         {
             return (
                 <ButtonDropdown
-                    className={"btn-send btn-emphasis btn-text"}
+                    className={'btn-send btn-emphasis btn-text'}
                     style={{order: -100}}
                     primaryItem={this._contentForAction(preferred)}
                     primaryTitle={preferred.title}
@@ -179,16 +178,16 @@ export default class SendActionButton extends React.Component {
                     closeOnMenuClick
                     menu={menu}
                 />
-            );
+            )
         }
 
     }
 
     render() {
         if (this.state.actionConfigs.length === 1) {
-            return this._renderSingleButton();
+            return this._renderSingleButton()
         }
-        return this._renderButtonDropdown();
+        return this._renderButtonDropdown()
     }
 
 }

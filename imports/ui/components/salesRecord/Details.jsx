@@ -12,6 +12,7 @@ import {ClientStatus, SupplierStatus, ROLES} from '/imports/api/models'
 import ClientStatusForm from './components/ClientStatusForm'
 import SupplierStatusForm from './components/SupplierStatusForm'
 import {removeClientStatus, removeSupplierStatus} from '/imports/api/models/salesRecords/verified-methods'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 class Details extends TrackerReact(React.Component) {
     constructor(props) {
@@ -137,7 +138,7 @@ class Details extends TrackerReact(React.Component) {
                 removeSupplierStatus.call({_id})
             }
         } catch (e) {
-            console.error(e)
+            ClientErrorLog.error(e)
         }
     }
 
@@ -154,7 +155,7 @@ class Details extends TrackerReact(React.Component) {
                 data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChanel', 'slackChannelName', 'conversationIds', 'taskFolderId'])}
             }, (err) => {
                 if (err) {
-                    console.error(err)
+                    ClientErrorLog.error(err)
                 }
             })
 

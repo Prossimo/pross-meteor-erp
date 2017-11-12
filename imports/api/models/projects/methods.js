@@ -8,6 +8,7 @@ import { Projects, ROLES, Conversations, Threads, Messages } from '/imports/api/
 import { prossDocDrive } from '/imports/api/drive'
 import { slackClient } from '/imports/api/slack'
 import config from '../../config'
+import {ErrorLog} from '/imports/utils/logger'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -237,7 +238,7 @@ Meteor.methods({
             })
 
             if (!responseInviteBot.data.ok) {
-                console.error(slackChanel, responseInviteBot.data)
+                ErrorLog.error(slackChanel, responseInviteBot.data)
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }

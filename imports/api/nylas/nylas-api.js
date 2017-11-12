@@ -6,6 +6,7 @@ import {APIError, TimeoutError} from './errors'
 import AccountStore from './account-store'
 import {upsertThread} from '../models/threads/methods'
 import {upsertMessage} from '../models/messages/methods'
+import {ErrorLog} from '/imports/utils/logger'
 
 
 const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
@@ -117,7 +118,7 @@ class NylasAPIClass {
         }
 
         const error = (err) => {
-            console.error('=========NyalsAPIRequest error', err)
+            ErrorLog.error('=========NyalsAPIRequest error', err)
             /*handlePromise = Promise.resolve();
             if(err.response) {
                 if(err.response.statusCode == 404 && options.returnsModel) {
@@ -183,7 +184,7 @@ class NylasAPIClass {
                     upsertMessage.call(obj)
                 }
             } catch(err) {
-                console.error(err)
+                ErrorLog.error(err)
             }
         })
 

@@ -12,6 +12,7 @@ import SelectStakeholders from '../salesRecord/components/SelectStakeholders'
 import {Conversations, People, Users, Projects} from '/imports/api/models'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import ConversationForm from '../salesRecord/conversations/ConversationForm'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 export default class CreateProject extends TrackerReact(Component) {
     constructor(props) {
@@ -91,7 +92,7 @@ export default class CreateProject extends TrackerReact(Component) {
             Meteor.call('project.create', {...data, thread}, (err, projectId) => {
                 this.props.toggleLoader(false)
                 if (err) {
-                    console.error(err)
+                    ClientErrorLog.error(err)
                     warning(err.reason || err.message)
                     return
                 }

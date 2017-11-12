@@ -385,30 +385,6 @@ Meteor.methods({
         })
     },
 
-    addMemberToProject(salesRecordId, member){
-        check(salesRecordId, String)
-        check(member, {
-            userId: String,
-            isMainStakeholder: Boolean,
-            category: Match.OneOf([String], [])
-        })
-
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
-
-        SalesRecords.update(salesRecordId, {$push: {members: member}})
-        // allow edit folder
-        const user = Meteor.users.findOne(member.userId)
-        if (user && user.emails && user.emails.length > 0) {
-            const email = user.emails[0].address
-            if (email) {
-                const salesRecord = SalesRecords.findOne(salesRecordId)
-                if (salesRecord && salesRecord.folderId) {
-                    prossDocDrive.shareWith.call({fileId: salesRecord.folderId, email})
-                }
-            }
-        }
-    },
-
     updateUserInfo(user){
         if (user.userId !== this.userId && !Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
             throw new Meteor.Error('Access denied')

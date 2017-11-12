@@ -8,6 +8,7 @@ import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
 import {saveMessage} from '/imports/api/models/messages/methods'
 import { SalesRecords, Conversations } from '/imports/api/models'
+import {ErrorLog} from '/imports/utils/logger'
 
 const ComposeType = {
     Creating: 'creating',
@@ -156,7 +157,7 @@ class DraftStoreClass extends Reflux.Store {
             saveMessage.call({conversationId, isNew, isReply, message})
             setTimeout(Actions.changedMessages, 500)
         } catch(err) {
-            console.error(err)
+            ErrorLog.error(err)
         }
 
         this.removeDraftForClientId(clientId)
