@@ -6,6 +6,7 @@ import {Table, Button, InputGroup, FormControl, Modal, Panel, ListGroup, ListGro
 import People from '/imports/api/models/people/people'
 import {removePerson} from '/imports/api/models/people/methods'
 import PersonForm from './PersonForm'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 const PAGESIZE = 100
 export default class PeopleList extends TrackerReact(React.Component) {
@@ -292,7 +293,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
             try {
                 removePerson.call({_id:person._id}, error => !error && this.setState({ removedPerson: person }))
             } catch(e) {
-                console.error(e)
+                ClientErrorLog.error(e)
             }
         }
     }

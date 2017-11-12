@@ -23,6 +23,7 @@ import {createContainer} from 'meteor/react-meteor-data'
 import SelectSubStage from './components/SelectSubStage'
 import {Panel, SlackChannelSelector, Selector} from '../common'
 import Spinner from '../utils/spinner'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 class SingleSalesRecord extends React.Component {
     constructor(props) {
@@ -319,7 +320,7 @@ class SingleSalesRecord extends React.Component {
         if (members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m.value) > -1)) return
 
         Meteor.call('updateSalesRecordMembers', salesRecord._id, members.map(m => m.value), err => {
-            if (err) return console.error(err)
+            if (err) return ClientErrorLog.error(err)
         })
     }
 
@@ -329,7 +330,7 @@ class SingleSalesRecord extends React.Component {
         if (salesRecord.dealer === dealer) return
 
         Meteor.call('updateSalesRecordDealer', salesRecord._id, dealer, err => {
-            if (err) return console.error(err)
+            if (err) return ClientErrorLog.error(err)
         })
     }
 
@@ -410,7 +411,7 @@ class SingleSalesRecord extends React.Component {
 
         Meteor.call('updateSalesRecordStatus', salesRecord._id, data, (err) => {
             if(err) {
-                console.error(err)
+                ClientErrorLog.error(err)
                 swal('Update status error',  err.reason ? err.reason : err.message, 'warning')
             }
         })

@@ -5,6 +5,7 @@ import config from '../../config'
 import NylasAccounts from './nylas-accounts'
 import {ROLES} from '../users/users'
 import {createProject} from '../projects/methods'
+import {ErrorLog} from '/imports/utils/logger'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -82,7 +83,7 @@ Meteor.methods({
                     sendImmediately: true
                 },
                 error: (error) => {
-                    console.error('NylasAPI makeRequest(\'/connect/token\') error', error)
+                    ErrorLog.error('NylasAPI makeRequest(\'/connect/token\') error', error)
                 }
             }).then((account) =>
 
@@ -115,14 +116,14 @@ Meteor.methods({
                              try {
                                  createProject.call({name: account.name, nylasAccountId, isServer: true})
                              } catch (err) {
-                                 console.error(err)
+                                 ErrorLog.error(err)
                              }
                          }
                      })
 
                     return true
                 }))).catch((error) => {
-            console.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
+            ErrorLog.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
             throw error
         })
     },
@@ -180,7 +181,7 @@ Meteor.methods({
                             NylasAccounts.update({_id,'categories.id':category.id}, {$set:{'categories.$.unreads':result.count}})
                         })
                     }).catch((err) => {
-                        console.error(err)
+                        ErrorLog.error(err)
                     })
                 }, 1000 * 10 * index)
             }

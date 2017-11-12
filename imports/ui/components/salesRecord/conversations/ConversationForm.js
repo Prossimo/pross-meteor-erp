@@ -3,6 +3,7 @@ import {Button, Form, FormGroup, FormControl, Col, Alert, Table, Checkbox} from 
 import {insertConversation, updateConversation} from '/imports/api/models/conversations/methods'
 import {SalesRecords, Projects} from '/imports/api/models'
 import ParticipantsSelector from './ParticipantsSelector'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 export default class ConversationForm extends React.Component {
     static propTypes = {
@@ -85,7 +86,7 @@ export default class ConversationForm extends React.Component {
                     methodName = 'project.pushConversation'
                 }
                 Meteor.call(methodName, {_id:targetId, conversationId}, (err) => {
-                    if(err) console.error(err)
+                    if(err) ClientErrorLog.error(err)
                 })
             }
             if(this.props.onSaved) this.props.onSaved()

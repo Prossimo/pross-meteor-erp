@@ -11,6 +11,7 @@ import MailSearchBox from './MailSearchBox'
 import {SalesRecords, Projects, Threads, Conversations, Users} from '/imports/api/models'
 import {updateThread} from '/imports/api/models/threads/methods'
 import {Selector} from '../common'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
@@ -177,7 +178,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     Meteor.call('sendMailAssignToSlack', thread, {
                         assignee: assignedUser.slack,
                         assigner: Meteor.user().slack
-                    }, (err) => {if(err) console.error(err)})
+                    }, (err) => {if(err) ClientErrorLog.error(err)})
                 }
             } else if(!assignee && oldAssignee) {
                 const unassignedUser = Users.findOne(oldAssignee)
@@ -185,11 +186,11 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     Meteor.call('sendMailUnassignToSlack', thread, {
                         unassignee: unassignedUser.slack,
                         assigner: Meteor.user().slack
-                    }, (err) => {if(err) console.error(err)})
+                    }, (err) => {if(err) ClientErrorLog.error(err)})
                 }
             }
         } catch (err) {
-            console.error(err)
+            ClientErrorLog.error(err)
         }
     }
 
@@ -207,7 +208,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
         try{
             updateThread.call(thread)
         } catch (err) {
-            console.error(err)
+            ClientErrorLog.error(err)
         }
     }
 }

@@ -9,6 +9,7 @@ import NylasAPI from '../../nylas/nylas-api'
 import {SalesRecords, Threads, Messages, ROLES, Conversations} from '../index'
 import {prossDocDrive} from '../../drive'
 import {getSubStages} from '../../lib/filters.js'
+import {ErrorLog} from '/imports/utils/logger'
 
 import config from '../../config'
 
@@ -411,7 +412,7 @@ Meteor.methods({
             })
 
             if (!responseInviteBot.data.ok) {
-                console.error(slackChanel, responseInviteBot.data)
+                ErrorLog.error(slackChanel, responseInviteBot.data)
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }

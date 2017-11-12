@@ -6,6 +6,7 @@ import {APIError} from '../errors'
 import {Threads, Messages}  from '../../models'
 import {upsertThread} from '../../models/threads/methods'
 import {upsertMessage} from '../../models/messages/methods'
+import {ErrorLog} from '/imports/utils/logger'
 
 // MapLimit is a small helper method that implements a promise version of
 // Async.mapLimit. It runs the provided fn on each item in the `input` array,
@@ -171,7 +172,7 @@ export default class ChangeMailTask extends Task {
             })
             return Promise.resolve()
         } catch(err) {
-            console.error(err)
+            ErrorLog.error(err)
             return Promise.resolve()
         }
     }
@@ -191,7 +192,7 @@ export default class ChangeMailTask extends Task {
             })
             return Promise.resolve()
         } catch(err) {
-            console.error(err)
+            ErrorLog.error(err)
             return Promise.resolve()
         }
 

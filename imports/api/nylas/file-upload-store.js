@@ -5,6 +5,7 @@ import Actions from './actions'
 import AccountStore from './account-store'
 import NylasUtils from './nylas-utils'
 import DraftStore from './draft-store'
+import {ErrorLog} from '/imports/utils/logger'
 
 class Upload {
     static Status = {
@@ -112,7 +113,7 @@ class FileUploadStoreClass extends Reflux.Store {
     }
 
     _onAttachFileError = (error) => {
-        console.error(error.message)
+        ErrorLog.error(error.message)
     }
 
 }

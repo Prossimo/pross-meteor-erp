@@ -10,6 +10,7 @@ import ConversationList from './ConversationList'
 import ParticipantList from './ParticipantList'
 import {SalesRecords, Conversations, Projects} from '/imports/api/models'
 import {updateConversation} from '/imports/api/models/conversations/methods'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 import ParticipantsSelectModal from './ParticipantsSelectModal'
 
@@ -162,7 +163,7 @@ export default class Conversation extends TrackerReact(React.Component) {
 
                 this.setState({showParticipantsSelectModal: false})
             } catch (e) {
-                console.error(e)
+                ClientErrorLog.error(e)
             }
         }
     }

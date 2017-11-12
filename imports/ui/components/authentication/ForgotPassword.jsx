@@ -3,6 +3,7 @@ import {Accounts} from 'meteor/accounts-base'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {isValidEmail} from '../../../api/lib/validation.js'
 import {warning, info} from '/imports/api/lib/alerts'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 export default class ForgotPassword extends React.Component{
     constructor(props){
@@ -26,7 +27,7 @@ export default class ForgotPassword extends React.Component{
         Accounts.forgotPassword({email}, (err) => {
             self.setState({submitting:false})
             if(err) {
-                console.error(err)
+                ClientErrorLog.error(err)
                 return warning(err.message)
             }
 

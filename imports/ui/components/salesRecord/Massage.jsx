@@ -5,6 +5,7 @@ import {getUserName, getAvatarUrl} from '../../../api/lib/filters'
 import styled from 'styled-components'
 import moment from 'moment'
 import Utils from '/imports/utils/Utils'
+import {ClientErrorLog} from '/imports/utils/logger'
 
 class Massage extends Component {
     constructor(props) {
@@ -34,7 +35,7 @@ class Massage extends Component {
             try {
                 el = new HtmlToReact.Parser().parse(html)
             } catch (err) {
-                console.error(err)
+                ClientErrorLog.error(err)
                 el = html
             }
             formattedMessage = <div className='text'>{el}</div>
@@ -62,7 +63,7 @@ class Massage extends Component {
                                 try {
                                     pretextEl = new HtmlToReact.Parser().parse(html)
                                 } catch (err) {
-                                    console.error(err)
+                                    ClientErrorLog.error(err)
                                     pretextEl = html
                                 }
                             }
@@ -71,7 +72,7 @@ class Massage extends Component {
                                 try {
                                     textEl = new HtmlToReact.Parser().parse(html)
                                 } catch (err) {
-                                    console.error(err)
+                                    ClientErrorLog.error(err)
                                     textEl = html
                                 }
                             }
