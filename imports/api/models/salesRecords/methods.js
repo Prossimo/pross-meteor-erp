@@ -9,7 +9,7 @@ import NylasAPI from '../../nylas/nylas-api'
 import {SalesRecords, Threads, Messages, ROLES, Conversations} from '../index'
 import {prossDocDrive} from '../../drive'
 import {getSubStages} from '../../lib/filters.js'
-import {ErrorLog} from '/imports/utils/logger'
+import {ServerLog} from '/imports/utils/logger'
 
 import config from '../../config'
 
@@ -43,7 +43,12 @@ Meteor.methods({
         const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
         if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
             const subStage = getSubStages(stage, {gettingFirstStage: true})
+
+            const oldStage = salesRecord.stage
             SalesRecords.update(salesRecordId, {$set: {stage, subStage}})
+
+            ServerLog.info(JSON.stringify({salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage}))
+            Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage})
         }
     },
 
@@ -52,7 +57,11 @@ Meteor.methods({
         check(subStage, String)
         const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
         if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
+            const oldSubStage = salesRecord.subStage
             SalesRecords.update(salesRecordId, {$set: {subStage}})
+
+            ServerLog.info(JSON.stringify({salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage}))
+            Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage})
         }
     },
 
@@ -412,7 +421,7 @@ Meteor.methods({
             })
 
             if (!responseInviteBot.data.ok) {
-                ErrorLog.error(slackChanel, responseInviteBot.data)
+                ServerLog.error(slackChanel, responseInviteBot.data)
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }
@@ -436,17 +445,41 @@ Meteor.methods({
         const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
         // current user belongs to salesRecords
-        const salesRecord = SalesRecords.findOne(salesRecordId)
+        let salesRecord = SalesRecords.findOne(salesRecordId)
         if (!salesRecord) throw new Meteor.Error('Project does not exists')
         const isMember = !!salesRecord.members.find(userId => userId === this.userId)
 
         // check permission
         if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
+        const statusValue = (key) => {
+            if(key === 'teamLead') {
+                const teamLead = salesRecord.getTeamLead()
+                if(teamLead) {
+                    return teamLead.slack ? `<@${teamLead.slack.id}|${teamLead.slack.name}>` : teamLead.username
+                } else {
+                    return null
+                }
+            } else if(key === 'clientStatus') {
+                const clientStatus = salesRecord.getClientStatus()
+                return clientStatus ? clientStatus.name : null
+            } else if(key === 'supplierStatus') {
+                const supplierStatus = salesRecord.getSupplierStatus()
+                return supplierStatus ? supplierStatus.name : null
+            } else {
+                return salesRecord[key]
+            }
+        }
+        const oldValues = Object.keys(status).map((key) => statusValue(key))
         status.modifiedAt = new Date()
-        return SalesRecords.update(salesRecordId, {
+        SalesRecords.update(salesRecordId, {
             $set: status,
         })
+        salesRecord = SalesRecords.findOne(salesRecordId)
+
+        delete status.modifiedAt
+        ServerLog.info('sendDealStatusChangeToSlack data for updateSalesRecordStatus', {salesRecordId, statusName:Object.keys(status).join(','), oldValue:oldValues.join(','), newValue:Object.keys(status).map(key => status[key])})
+        Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:Object.keys(status).join(','), oldValue:oldValues.join(','), newValue:Object.keys(status).map(key => statusValue(key)).join(',')})
     },
 
     archiveSalesRecord(_id, archived) {
