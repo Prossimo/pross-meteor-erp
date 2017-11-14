@@ -14,7 +14,7 @@ import '../../api/slack'
 import '../../api/nylas/methods'
 import '../../api/slack/methods'
 
-import {ServerErrorLog, MeteorErrorLog} from '/imports/utils/logger'
+import {ServerErrorLog, MeteorErrorLog, ErrorLog} from '/imports/utils/logger'
 
 process.on('uncaughtException', (err) => {
     ServerErrorLog.error('Server Crashed!', err)
@@ -34,3 +34,4 @@ Meteor._debug = (message, stack) => {
 
 ServerErrorLog.error('Server error logging test')
 MeteorErrorLog.error('Meteor error logging test')
+ErrorLog.error('Error logging test')
