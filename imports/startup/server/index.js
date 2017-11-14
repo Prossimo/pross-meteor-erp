@@ -23,14 +23,14 @@ process.on('uncaughtException', (err) => {
 })
 
 // store original Meteor error
-const originalMeteorDebug = Meteor._debug
+/*const originalMeteorDebug = Meteor._debug
 
-Meteor._debug = (message, stack) => {
+Meteor._debug = (message, stack) => { console.log('========>Meteor Error',message, stack)
     const error = new Error(message)
     error.stack = stack
-    MeteorErrorLog.error('Meteor Error!', error)
+    MeteorErrorLog.error(message, error)
     return originalMeteorDebug.apply(this, arguments)
-}
+}*/
 
 ServerErrorLog.error('Server error logging test')
 MeteorErrorLog.error('Meteor error logging test')

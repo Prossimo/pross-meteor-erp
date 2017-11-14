@@ -2,7 +2,7 @@ import {Meteor} from 'meteor/meteor'
 import {check} from 'meteor/check'
 import {slack} from '/imports/api/config'
 import {SalesRecords} from '/imports/api/models'
-
+import {ServerLog} from '/imports/utils/logger'
 
 Meteor.methods({
     sendDealStatusChangeToSlack({salesRecordId, statusName, oldValue, newValue}) {
@@ -11,6 +11,7 @@ Meteor.methods({
         check(oldValue, Match.Maybe(String))
         check(newValue, Match.Maybe(String))
 
+        ServerLog.info(JSON.stringify({salesRecordId, statusName, oldValue, newValue}), {salesRecordId, statusName, oldValue, newValue}, Meteor.user())
         const user = Meteor.user()
         if(!user) throw new Meteor.Error('[sendDealStatusChangeToSlack]: Invalid user')
 
@@ -26,14 +27,13 @@ Meteor.methods({
         const pretext = `${slackUser ? `<@${slackUser.id}|${slackUser.name}>` : `@${user.username}`} changed ${statusName} from [${oldValue}] to [${newValue}] in [${salesRecord.name}]`
         const text = `<${Meteor.absoluteUrl(`deal/${salesRecordId}`)}|Go to Deal: ${salesRecord.name}>`
 
-        console.log(`[sendDealStatusChangeToSlack]: sending message ----- ${pretext} \r\n ${text}`)
+        ServerLog.info(`[sendDealStatusChangeToSlack]: sending message ----- ${pretext} \r\n ${text}`)
 
         const params = {
             username: slack.botName,
             attachments: [
                 {
                     color: '#7CD197',
-                    pretext,
                     text,
                     image_url: 'http://my-website.com/path/to/image.jpg',
                     thumb_url: 'http://example.com/path/to/thumb.png',

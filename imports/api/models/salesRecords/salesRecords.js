@@ -13,6 +13,8 @@ import Conversations from '../conversations/conversations'
 import SlackMessages from '../slackMessages/slackMessages'
 import Events from '../events/events'
 import Quotes from '../quotes/quotes'
+import ClientStatus from './clientstatus'
+import SupplierStatus from './supplierstatus'
 
 class SalesRecordsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -218,6 +220,21 @@ SalesRecords.helpers({
         if(!this.dealer) return null
 
         return People.findOne(this.dealer)
+    },
+
+    getClientStatus() {
+        if(!this.clientStatus) return null
+        return ClientStatus.findOne(this.clientStatus)
+    },
+
+    getSupplierStatus() {
+        if(!this.supplierStatus) return null
+        return SupplierStatus.findOne(this.supplierStatus)
+    },
+
+    getTeamLead() {
+        if(!this.teamLead) return null
+        return Meteor.users.findOne(this.teamLead)
     }
 })
 
