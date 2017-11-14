@@ -59,7 +59,6 @@ export default class SalesRecordPage extends React.Component{
         const keyfilter = new RegExp(this.state.keyword,'i')
         return (props.stage ? stage === props.stage : 1) && (this.state.keyword == null || (name.search(keyfilter) > -1))
       })
-      props.stage = props.stage || 'lead'
 
       return (
           <div className="projects-page">

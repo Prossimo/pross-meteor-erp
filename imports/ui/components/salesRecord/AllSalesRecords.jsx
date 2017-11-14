@@ -728,15 +728,14 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    renderKanbanView() {
+    renderKanbanView() { console.log(this.props)
         const {stage} = this.props
         let {salesRecords} = this.props
         if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
 
-        const isSubStage = !this.props.showAllDeals
-        const columns = isSubStage ?
-            this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) :
-            STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
+        const isSubStage = stage !== undefined
+        const columns = isSubStage ? this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) : STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
+        console.log('====> Kanban view columns', columns)
         return (
             <KanbanView
                 columns={columns}
