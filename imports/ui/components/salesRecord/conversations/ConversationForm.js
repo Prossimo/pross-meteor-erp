@@ -67,7 +67,7 @@ export default class ConversationForm extends React.Component {
         const {name, selectedPeople} = this.state
 
         if(!name || name.length == 0) return this.setState({error:'Name required'})
-        if(!selectedPeople || selectedPeople.length == 0) return this.setState({error:'Should select people'})
+        //if(!selectedPeople || selectedPeople.length == 0) return this.setState({error:'Should select people'})
 
         const {_id} = this.props
 

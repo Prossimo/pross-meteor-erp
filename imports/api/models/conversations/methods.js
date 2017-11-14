@@ -11,7 +11,7 @@ export const insertConversation = new ValidatedMethod({
     run({name, participants}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
+        if(participants && participants.length > 0 &&_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
 
         const data = {
             name,
