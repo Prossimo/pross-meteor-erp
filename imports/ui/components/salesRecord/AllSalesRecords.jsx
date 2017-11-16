@@ -735,7 +735,6 @@ class AllSalesRecords extends React.Component {
 
         const isSubStage = stage !== undefined
         const columns = isSubStage ? this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) : STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
-        console.log('====> Kanban view columns', columns)
         return (
             <KanbanView
                 columns={columns}
