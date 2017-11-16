@@ -186,5 +186,16 @@ Meteor.methods({
                 }, 1000 * 10 * index)
             }
         })
+    },
+
+    updateNylasAccountTeamMembers(_id, teamMembers) {
+        check(_id, String)
+        check(teamMembers, Array)
+
+        const account = NylasAccounts.findOne({_id})
+        if(!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
+
+        ServerLog.info('updateNylasAccountTeamMembers', {$set:{teamMembers}})
+        NylasAccounts.update({_id}, {$set:{teamMembers}})
     }
 })

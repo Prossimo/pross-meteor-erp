@@ -1,11 +1,13 @@
 import React from 'react'
 import {Tabs, Tab, PanelGroup, Panel, Button, Col} from 'react-bootstrap'
+import {Users} from '/imports/api/models'
 import AccountStore from '../../api/nylas/account-store'
 import Actions from '../../api/nylas/actions'
 import AccountSettingForm from '../components/inbox/AccountSettingForm'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import {warning} from '/imports/api/lib/alerts'
 import TemplatesView from '../components/mailtemplates/TemplatesView'
+import {Selector} from '../components/common'
 
 export default class InboxSettingsPage extends React.Component {
     static propTypes = {}
@@ -38,12 +40,18 @@ export default class InboxSettingsPage extends React.Component {
         this.setState({accounts: AccountStore.accounts()})
     }
 
+    onSelectTeamMembers = (account, members) => {
+        Meteor.call('updateNylasAccountTeamMembers', account._id, members.map(({value}) => value), (err, res) => {
+            if(err) warning(err.reason)
+        })
+    }
+
     render() {
         return (
             <div className="inbox-settings-page">
-                <Tabs defaultActiveKey={1} id="inbox-settings-tab" style={{height:'100%'}}>
-                    <Tab eventKey={1} title="Inboxes" style={{height:'100%'}}>{this.renderInboxesTab()}</Tab>
-                    <Tab eventKey={2} title="Templates" style={{height:'100%'}}>{this.renderTemplatesTab()}</Tab>
+                <Tabs defaultActiveKey={1} id="inbox-settings-tab" style={{height: '100%'}}>
+                    <Tab eventKey={1} title="Inboxes" style={{height: '100%'}}>{this.renderInboxesTab()}</Tab>
+                    <Tab eventKey={2} title="Templates" style={{height: '100%'}}>{this.renderTemplatesTab()}</Tab>
                 </Tabs>
             </div>
         )
@@ -51,7 +59,7 @@ export default class InboxSettingsPage extends React.Component {
 
     renderInboxesTab() {
         return (
-            <PanelGroup style={{height:'100%'}}>
+            <PanelGroup style={{height: '100%'}}>
                 {Meteor.user().isAdmin() &&
                 <Panel header="Team Inboxes" eventKey="1">{this.renderInboxesComponent(true)}</Panel>}
                 <Panel header="Individual Inboxes" eventKey="2">{this.renderInboxesComponent()}</Panel>
@@ -86,10 +94,23 @@ export default class InboxSettingsPage extends React.Component {
                                         {account.emailAddress}
                                     </div>
                                     <div>
-                                        <Button bsStyle="danger" bsSize="xsmall"
-                                                onClick={() => this.onClickRemoveAccount(account)}>
-                                            <i className="fa fa-trash"/>
-                                        </Button>
+                                        {
+                                            isTeamAccount && <Selector multiple
+                                                                       triggerEl={<i className="fa fa-user"/>}
+                                                                       value={(account.getTeamMembers() || []).map(m => ({
+                                                                           value: m._id,
+                                                                           label: m.name()
+                                                                       }))}
+                                                                       options={Users.find().map(u => ({
+                                                                           value: u._id,
+                                                                           label: u.name()
+                                                                       }))}
+                                                                       onSelect={(members) => this.onSelectTeamMembers(account, members)}/>
+                                        }
+                                        &nbsp;<Button bsStyle="danger" bsSize="xsmall"
+                                                      onClick={() => this.onClickRemoveAccount(account)}>
+                                        <i className="fa fa-trash"/>
+                                    </Button>
                                     </div>
                                 </div>
                             )

@@ -50,6 +50,9 @@ NylasAccounts.schema = new SimpleSchema({
     provider: {type: String},
 
     isTeamAccount: {type: Boolean, optional: true},
+    teamMembers: {type: Array, optional: true},
+    'teamMembers.$': {type: String},
+
     userId: {type: String, optional: true},  // if isTeamAccount=true then null
 
     signature: {type: String, optional: true},
@@ -92,11 +95,22 @@ NylasAccounts.publicFields = {
     emailAddress: 1,
     provider: 1,
     isTeamAccount: 1,
+    teamMembers: 1,
     userId: 1,
     categories: 1,
     signature: 1,
     createdAt: 1,
     modifiedAt: 1
 }
+
+NylasAccounts.helpers({
+    getTeamMembers() {
+        if(!this.isTeamAccount) return []
+        if(!this.teamMembers) return []
+
+        return this.teamMembers.map(userId => Meteor.users.findOne(userId))
+    }
+})
+
 
 export default NylasAccounts
