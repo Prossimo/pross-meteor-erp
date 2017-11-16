@@ -12,8 +12,8 @@ export default class AccountSettingForm extends React.Component {
         super(props)
 
         this.state = {
-            name: props.account.name,
-            signature: props.account.signature
+            name: props.account.name || '',
+            signature: props.account.signature || ''
         }
     }
 
