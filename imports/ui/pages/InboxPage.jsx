@@ -1,4 +1,5 @@
 /* global FlowRouter, subsManager */
+import _ from 'underscore'
 import { createContainer  } from 'meteor/react-meteor-data'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
@@ -191,7 +192,7 @@ class InboxPage extends (React.Component) {
 
             const temp = () => {
                 const {participants} = this.state.currentThread
-                const noStoredParticipants = JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null)))
+                const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
                 if (noStoredParticipants && noStoredParticipants.length) {
                     this.setState({
                         noStoredParticipants,

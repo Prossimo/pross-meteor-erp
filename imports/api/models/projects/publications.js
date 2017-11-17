@@ -23,7 +23,7 @@ import { SlackMessages, People, ROLES, Projects, Tasks, Events, Quotes, Messages
 Meteor.publish('projects.mine', function() {
     if(!this.userId) return this.ready()
 
-    if(Roles.userIsInRole(this.userId, ROLES.ADMIN))
+    if(Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
         return Projects.find()
 
     return Projects.find({'members.userId': this.userId})
