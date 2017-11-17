@@ -59,7 +59,8 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
 
 Meteor.publishComposite('salesrecords.mine', () => ({
     find() {
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) return SalesRecords.find()
+        if (Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.MANAGER])) return SalesRecords.find()
+
         return SalesRecords.find({'members': this.userId})
     },
     children: [
