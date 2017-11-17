@@ -21,6 +21,7 @@ import ThreadList from '../components/inbox/ThreadList'
 import {ClientErrorLog} from '/imports/utils/logger'
 
 import Utils from '../../utils/Utils'
+import {Panel} from '../components/common'
 
 
 class InboxPage extends (React.Component) {
@@ -31,7 +32,7 @@ class InboxPage extends (React.Component) {
         this.state = {
             addingInbox: false,
             addingTeamInbox: false,
-            showTargetModal: false,
+            showTargetForm: false,
             binding: false,
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
@@ -118,7 +119,6 @@ class InboxPage extends (React.Component) {
                 return (
                     <div style={{height: '100%'}}>
                         {this.renderInbox()}
-                        {this.renderTargetModal()}
                         {this.renderPeopleModal()}
                         <ComposeModal isOpen={composeState && composeState.show}
                                       clientId={composeState && composeState.clientId}
@@ -174,6 +174,7 @@ class InboxPage extends (React.Component) {
                     <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
                         {this.renderMessages()}
                     </div>
+                    {this.renderTargetForm()}
                 </div>
             </div>
         )
@@ -201,7 +202,7 @@ class InboxPage extends (React.Component) {
                 }
 
                 this.setState({
-                    showTargetModal: true
+                    showTargetForm: true
                 })
             }
             if(menu === 'bind') {
@@ -222,18 +223,15 @@ class InboxPage extends (React.Component) {
         }
     }
 
-    renderTargetModal() {
-        const {showTargetModal, binding, currentThread, selectedTarget, targetType} = this.state
+    renderTargetForm() {
+        const {showTargetForm, binding, currentThread, selectedTarget, targetType} = this.state
 
-        if (!currentThread) return ''
+        if (!currentThread || !showTargetForm) return ''
 
         const title = binding ? `Bind this thread to existing ${targetType}` : `Create new ${targetType} from this thread`
         return (
-            <Modal show={showTargetModal} onHide={this.onCloseTargetModal} bsSize="large">
-                <Modal.Header closeButton>
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
+            <div className="column-panel" style={{order: 4, overflowY: 'auto', height: '100%', padding:10}}>
+                <Panel title={title} actions={<i className="fa fa-arrow-right" onClick={this.hideTargetForm}/> }>
                     {
                         targetType === 'deal' &&
                         <CreateSalesRecord
@@ -248,8 +246,8 @@ class InboxPage extends (React.Component) {
                             thread={currentThread}
                             project={selectedTarget} />
                     }
-                </Modal.Body>
-            </Modal>
+                </Panel>
+            </div>
         )
     }
 
@@ -278,13 +276,13 @@ class InboxPage extends (React.Component) {
         this.setState({
             showPeopleModal: false
         }, () => {
-            this.setState({showTargetModal: true})
+            this.setState({showTargetForm: true})
         })
     }
 
-    onCloseTargetModal = () => {
+    hideTargetForm = () => {
         this.setState({
-            showTargetModal: false,
+            showTargetForm: false,
             binding: false
         })
     }

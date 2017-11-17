@@ -17,7 +17,7 @@ export default class Panel extends React.Component {
             <div>
                 <div style={{display:'flex'}}>
                     <div style={{flex:1,fontWeight:'bold'}}>{title}</div>
-                    <div>{actions}</div>
+                    <div style={{cursor:'pointer'}}>{actions}</div>
                 </div>
                 <div style={{padding:10}}>{children}</div>
             </div>
