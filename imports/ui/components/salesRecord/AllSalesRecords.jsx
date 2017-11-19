@@ -300,8 +300,6 @@ class AllSalesRecords extends React.Component {
         this.renderEditButton = this.renderEditButton.bind(this)
         this.renderSaveButton = this.renderSaveButton.bind(this)
         this.updateProject = this.updateProject.bind(this)
-        this.renderKanbanView = this.renderKanbanView.bind(this)
-        this.renderSwitchLabels = this.renderSwitchLabels.bind(this)
         this.removeProject = this.removeProject.bind(this)
         this.updateStage = this.updateStage.bind(this)
     }
@@ -565,25 +563,27 @@ class AllSalesRecords extends React.Component {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         const {by, asc} = this.state.sort
         return (
-            <Table condensed hover>
-                <thead>
-                <tr>
-                    {
-                        selectedColumns.map(({label, key}) => (
-                            <th style={{cursor: 'pointer'}} key={key} onClick={() => this.sortBy(key)}>
-                                {label}
-                                {by == key && asc && <i style={{marginLeft: 5}} className="fa fa-caret-up"/>}
-                                {by == key && !asc && <i style={{marginLeft: 5}} className="fa fa-caret-down"/>}
-                            </th>
-                        ))
-                    }
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {this.renderRows()}
-                </tbody>
-            </Table>
+            <div className="list-view-content">
+                <Table condensed hover>
+                    <thead>
+                    <tr>
+                        {
+                            selectedColumns.map(({label, key}) => (
+                                <th style={{cursor: 'pointer'}} key={key} onClick={() => this.sortBy(key)}>
+                                    {label}
+                                    {by == key && asc && <i style={{marginLeft: 5}} className="fa fa-caret-up"/>}
+                                    {by == key && !asc && <i style={{marginLeft: 5}} className="fa fa-caret-down"/>}
+                                </th>
+                            ))
+                        }
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {this.renderRows()}
+                    </tbody>
+                </Table>
+            </div>
         )
     }
 
@@ -728,7 +728,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    renderKanbanView() { console.log(this.props)
+    renderKanbanView() {
         const {stage} = this.props
         let {salesRecords} = this.props
         if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
@@ -736,18 +736,37 @@ class AllSalesRecords extends React.Component {
         const isSubStage = stage !== undefined
         const columns = isSubStage ? this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) : STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
         return (
-            <KanbanView
-                columns={columns}
-                salesRecords={salesRecords}
-                isSubStage={isSubStage}
-            />
+            <div className="kanban-view-container">
+                <KanbanView
+                    columns={columns}
+                    salesRecords={salesRecords}
+                    isSubStage={isSubStage}
+                />
+            </div>
+        )
+    }
+
+    renderListView() {
+        return (
+            <div className="list-view-container">
+                <div className="list-view-toolbar">
+                    <div style={{flex:1}}>&nbsp;</div>
+                    <select className='selectpicker' multiple>
+                        {
+                            this.state.possibleColumns.map(({key, label}) => <option value={key}
+                                                                                     key={key}>{label}</option>)
+                        }
+                    </select>
+                </div>
+                {this.renderProjectList()}
+            </div>
         )
     }
 
     renderSwitchLabels() {
         const active = this.state.showKanbanView ? 'active' : ''
         return (
-            <div className="flex">
+            <div className="flex toolbar-wrapper">
                 <div className="margin-auto"><input type="checkbox" value={this.state.showArchivedDeals}
                             onChange={e => this.setState({showArchivedDeals:e.target.checked})}/>&nbsp;Show Archived Deals&nbsp;&nbsp;</div>
                 <div className="flex-1 text-right input-group-btn">
@@ -779,20 +798,10 @@ class AllSalesRecords extends React.Component {
     render() {
         const showKaban = this.state.showKanbanView
         return (
-            <div className="">
+            <div className="content-container">
                 {this.renderSwitchLabels()}
-                <div className="col-md-12">&nbsp;</div>
-                {showKaban ? this.renderKanbanView() : ''}
-                <div className={showKaban ? 'hidden' : ''}>
-                    <select className='selectpicker pull-right' multiple>
-                        {
-                            this.state.possibleColumns.map(({key, label}) => <option value={key}
-                                                                                     key={key}>{label}</option>)
-                        }
-                    </select>
-                    <br/>
-                    {this.renderProjectList()}
-                </div>
+                {showKaban && this.renderKanbanView()}
+                {!showKaban && this.renderListView()}
             </div>
         )
     }

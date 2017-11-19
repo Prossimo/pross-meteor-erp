@@ -17,7 +17,7 @@ class KanbanView extends Component {
 		const colSize = Math.floor(12 / columns.length)
 		return (
 			<div className="task-board-container">
-				<div className="col-md-12">
+				<div className="col-md-12" style={{height:'100%'}}>
 					{columns.map((col) => {
 						let data = this.filterColumn(col, isSubStage)
 						data = _.sortBy(data, ({ createdAt }) => -createdAt.getTime())
