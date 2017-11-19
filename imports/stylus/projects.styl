@@ -5,8 +5,9 @@
 .projects-page
   margin 0 auto
   max-width 1200px
-  padding 20px 15px 0
+  padding 10px
   background $white
+  height: 100%
   td
     position: relative
     button
@@ -109,9 +110,10 @@
   .tab-container
     background $white
     min-height 500px
+    height: 100%
 
   .tab-controls
-    padding 0px 30px 20px
+    height: 45px;
 
     ul
       display flex
@@ -151,7 +153,34 @@
           bottom 0
 
   .tab-content
-    padding 20px 30px
+    height: calc(100% - 45px)
+
+    .content-container {
+      height: 100%;
+
+      .toolbar-wrapper {
+        height: 44px;
+        padding: 5px;
+      }
+
+      .list-view-container {
+        height: calc(100% - 44px)
+
+        .list-view-toolbar {
+          height: 44px;
+          display: flex;
+        }
+
+        .list-view-content {
+          height: calc(100% - 44px);
+          overflow-y: auto;
+        }
+      }
+
+      .kanban-view-container {
+        height: calc(100% - 44px)
+      }
+    }
 
 .file-tab.default-form
   max-width: 100%

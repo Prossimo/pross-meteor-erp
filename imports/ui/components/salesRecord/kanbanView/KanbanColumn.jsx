@@ -31,9 +31,7 @@ class KanbanColumn extends Component {
             {colName}
           </div>
           <div>
-            {deals.map((deal) => {
-              return <KanbanItem deal={deal} key={deal._id}/>
-            })}
+            {deals.map((deal) => <KanbanItem deal={deal} key={deal._id}/>)}
           </div>
       </div>
     </div>

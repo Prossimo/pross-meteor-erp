@@ -269,21 +269,23 @@ class Sheets extends Component {
     renderList() {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         return (
-            <Table condensed hover>
-                <thead>
-                <tr>
-                    {
-                        selectedColumns.map(({label, key}) => (
-                            <th key={key}>{label}</th>
-                        ))
-                    }
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {this.renderRows()}
-                </tbody>
-            </Table>
+            <div className="list-view-container" style={{overflowY:'auto'}}>
+                <Table condensed hover>
+                    <thead>
+                    <tr>
+                        {
+                            selectedColumns.map(({label, key}) => (
+                                <th key={key}>{label}</th>
+                            ))
+                        }
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {this.renderRows()}
+                    </tbody>
+                </Table>
+            </div>
         )
     }
 
@@ -339,11 +341,12 @@ class Sheets extends Component {
 
     render() {
         return (
-            <div>
-                <div>
+            <div className="content-container">
+                <div className="flex toolbar-wrapper">
                     <input type="checkbox" value={this.state.showArchivedProjects}
                            onChange={e => this.setState({showArchivedProjects: e.target.checked})}/>&nbsp;Show Archived
                     Projects&nbsp;&nbsp;
+                    <div style={{flex:1}}>&nbsp;</div>
                     <select className='selectpicker pull-right' multiple>
                         {
                             this.state.possibleColumns.map(({key, label}) => <option value={key}
