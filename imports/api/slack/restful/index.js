@@ -52,6 +52,8 @@ const channels = {
   list: () => slackClient.makeRequest('channels.list'),
   rename: ({ channel, name }) => slackClient.makeRequest('channels.rename', { channel, name }),
   setPurpose: ({ channel, purpose }) => slackClient.makeRequest('channels.setPurpose', { channel, purpose }),
+  history: ({ channel, count, inclusive, latest }) => slackClient.makeRequest('channels.history', { channel, count, inclusive, latest }),
+  replies: ({ channel, thread_ts }) => slackClient.makeRequest('channels.replies', { channel, thread_ts }),
 }
 
 const chat = {
@@ -62,14 +64,20 @@ const chat = {
         as_user: false,
         attachments
     }),
-    postRawMessage: ({channel, text, attachments, icon_url, as_user, username}) => slackClient.makeBotRequest('chat.postMessage', {
-        channel,
-        as_user,
-        username,
-        attachments,
-        icon_url,
-        text
-    }),
+    postRawMessage: ({channel, text, attachments, icon_url, as_user, username, thread_ts}) => {
+        const params = {
+            channel,
+            as_user,
+            username,
+            attachments,
+            icon_url,
+            text
+        }
+        if(thread_ts) params.thread_ts = thread_ts
+        return slackClient.makeBotRequest('chat.postMessage', params)
+    },
+    deleteMessage: ({channel, ts}) => slackClient.makeBotRequest('chat.delete', {channel, ts}),
+
 }
 
 const files = {

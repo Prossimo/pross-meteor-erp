@@ -1,12 +1,10 @@
 import slackify from 'slackify-html'
 import {Meteor} from 'meteor/meteor'
 import {check} from 'meteor/check'
-import request from 'request'
 import slackClient from '../restful'
 import {slack} from '/imports/api/config'
-import {Threads, SalesRecords, SlackMails, Conversations, NylasAccounts, Projects} from '/imports/api/models'
+import {Threads, SlackMails, Conversations, NylasAccounts, Projects} from '/imports/api/models'
 import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports/utils/quoted-html-transformer'
-import config from '/imports/api/config'
 
 const SLACK_MESSAGE_MAX_SIZE = 4000
 
@@ -26,7 +24,6 @@ Meteor.methods({
             target = Projects.findOne({nylasAccountId: nylasAccount._id})
         }
 
-        let threadable = false
         let slackChannelId = target ? target.slackChanel : null
 
         if (!slackChannelId) {
@@ -43,13 +40,13 @@ Meteor.methods({
             } else {
                 slackChannelId = inboxChannel.id
             }
-            threadable = true
         }
 
         if (!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')
 
         let thread_ts = null
         const slackMail = SlackMails.findOne({thread_id: message.thread_id})
+        console.log('=====> slackmails', slackMail)
         if (slackMail) thread_ts = slackMail.thread_ts
 
         const to = []
@@ -106,9 +103,12 @@ Meteor.methods({
             ],
             as_user: false
         }
-        if (threadable && thread_ts) params.thread_ts = thread_ts
+        if (thread_ts) params.thread_ts = thread_ts
 
-        Meteor.call('sendBotMessage', slackChannelId, slackText, params, message.thread_id)
+        console.log('===> sendBotMessage', params)
+        const ts = Meteor.call('sendBotMessage', slackChannelId, slackText, params)
+
+        if(!slackMail) SlackMails.insert({ thread_id: message.thread_id, thread_ts: ts })
 
         /*if(files && files.length) {
             files.forEach(file => {console.log(file)
