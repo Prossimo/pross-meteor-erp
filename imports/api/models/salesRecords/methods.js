@@ -211,6 +211,8 @@ Meteor.methods({
                     })
                 }
             })
+
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:data.slackChanel})
         }
 
         HTTP.post('http://78.47.83.46:8000/api/login_check', {
@@ -344,6 +346,8 @@ Meteor.methods({
                     })
                 }
             })
+
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:sr.slackChanel})
         }
 
     },

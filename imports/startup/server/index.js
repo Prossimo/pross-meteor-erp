@@ -13,7 +13,6 @@ import '../../api/crobjob'
 import '../../api/slack'
 import '../../api/nylas/methods'
 import '../../api/slack/methods'
-
 import {ServerErrorLog, MeteorErrorLog, ErrorLog} from '/imports/utils/logger'
 
 process.on('uncaughtException', (err) => {
@@ -35,3 +34,4 @@ Meteor._debug = (message, stack) => { console.log('========>Meteor Error',messag
 ServerErrorLog.error('Server error logging test')
 MeteorErrorLog.error('Meteor error logging test')
 ErrorLog.error('Error logging test')
+

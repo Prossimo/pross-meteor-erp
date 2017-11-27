@@ -3,8 +3,6 @@ import bodyParser from 'body-parser'
 import {Picker} from 'meteor/meteorhacks:picker'
 import NylasAPI from '/imports/api/nylas/nylas-api'
 import {Threads, Messages, NylasAccounts} from '/imports/api/models'
-import config from '/imports/api/config'
-import fs from 'fs'
 
 Picker.middleware(bodyParser.json())
 Picker.middleware(bodyParser.urlencoded({extended: false}))

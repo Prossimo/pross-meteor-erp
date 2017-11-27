@@ -49,8 +49,9 @@ export const createProject = new ValidatedMethod({
             data = slackClient.channels.create({ name: newName }).data
         }
 
+        let slackChanel
         if (data.ok) {
-            const slackChanel = data.channel.id
+            slackChanel = data.channel.id
             const slackChannelName = data.channel.name
             // INVITE MEMBERS to CHANNEL
             if(members) {
@@ -108,6 +109,10 @@ export const createProject = new ValidatedMethod({
                     })
                 }
             })
+        }
+
+        if(slackChanel) {
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: slackChanel})
         }
 
         return projectId
@@ -178,6 +183,8 @@ export const updateProject = new ValidatedMethod({
                     })
                 }
             })
+
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: project.slackChanel})
         }
     }
 })
