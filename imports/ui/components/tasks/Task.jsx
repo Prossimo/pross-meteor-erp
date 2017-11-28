@@ -50,6 +50,8 @@ class Task extends Component {
   }
 
   render() {
+    const { task } = this.props
+
     const AssigneeIcon = styled.div `
       width: 35px;
       height: 20px;
@@ -78,7 +80,7 @@ class Task extends Component {
     const DueDateIcon = styled(ApproverIcon) `
       float: left;
       width: 80px;
-      background-color: ${this.props.task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46'};
+      background-color: ${task.status === 'Complete' ? '#ccc' : (task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46')};
       color: white;
     `
     const CloseButton = styled.a `
@@ -108,7 +110,7 @@ class Task extends Component {
           { this.props.approver ? this.shortenName(this.props.approver) : '?' }
         </ApproverIcon>
         <DueDateIcon>
-          { moment(this.props.task.dueDate).format('YYYY/MM/DD') }
+          { moment(task.dueDate).format('YYYY/MM/DD') }
         </DueDateIcon>
         <TaskModifying
           ref='taskModifying'
