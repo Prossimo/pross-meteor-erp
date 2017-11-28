@@ -182,7 +182,7 @@ Meteor.methods({
         })
         // create folder in google drive
         Meteor.defer(() => {
-            const createFolderRes = prossDocDrive.createSalesRecordFolder.call({name: newName, salesRecordId})
+            const createFolderRes = prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
             console.log(createFolderRes)
         })
 
