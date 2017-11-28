@@ -103,7 +103,10 @@ Meteor.methods({
             ],
             as_user: false
         }
-        if (thread_ts) params.thread_ts = thread_ts
+        if (thread_ts) {
+            params.thread_ts = thread_ts
+            params.reply_broadcast = true
+        }
 
         console.log('===> sendBotMessage', params)
         const ts = Meteor.call('sendBotMessage', slackChannelId, slackText, params)

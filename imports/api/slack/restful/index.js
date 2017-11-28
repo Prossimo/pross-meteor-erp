@@ -64,14 +64,15 @@ const chat = {
         as_user: false,
         attachments
     }),
-    postRawMessage: ({channel, text, attachments, icon_url, as_user, username, thread_ts}) => {
+    postRawMessage: ({channel, text, attachments, icon_url, as_user, username, thread_ts, reply_broadcast}) => {
         const params = {
             channel,
             as_user,
             username,
             attachments,
             icon_url,
-            text
+            text,
+            reply_broadcast
         }
         if(thread_ts) params.thread_ts = thread_ts
         return slackClient.makeBotRequest('chat.postMessage', params)
