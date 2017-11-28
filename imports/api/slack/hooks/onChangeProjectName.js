@@ -11,7 +11,8 @@ Projects.before.update((userId, doc, fieldNames, modifier) => {
             const {name, slackChanel, folderId} = doc
 
             let newName = `p-${modifier.$set.name}`
-            if (newName !== name) {
+            const oldName = `p-${name}`
+            if (newName !== oldName) {
 
                 // Slack channel rename
                 Meteor.defer(() => {

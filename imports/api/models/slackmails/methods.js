@@ -51,7 +51,10 @@ Meteor.methods({
                 attachments,
                 as_user: false
             }
-            if (thread_ts) params.thread_ts = thread_ts
+            if (thread_ts) {
+                params.thread_ts = thread_ts
+                params.reply_broadcast = true
+            }
 
             return Meteor.call('sendBotMessage', channel, text, params)
         }
