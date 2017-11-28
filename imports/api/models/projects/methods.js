@@ -80,7 +80,7 @@ export const createProject = new ValidatedMethod({
 
             Meteor.defer(() => {
                 // CREATE DRIVE
-                prossDocDrive.createProjectFolder.call({ name: newName, projectId })
+                prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
             })
         }
 
