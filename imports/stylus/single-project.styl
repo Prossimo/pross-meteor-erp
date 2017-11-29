@@ -4,6 +4,8 @@
   .activity
     padding 0 20px
     position relative
+    height: 100%;
+    overflow-y: auto;
 
     &:after
       content '\f198'
@@ -401,12 +403,19 @@
     td
       width 25%
 .details-inbox-tab
+  height: 100%;
+  overflow-y: auto;
   display flex
   flex-direction column
 
 
+.conversations {
+  height: 100%;
+  overflow-y: auto;
+  padding: 10px;
+}
 .conversations-tab {
-
+  padding: 5px;
   .conversation-item-container {
     padding: 5px;
     border-bottom: 1px solid rgba(220, 220, 220, 1);

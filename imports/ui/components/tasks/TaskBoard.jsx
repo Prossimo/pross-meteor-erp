@@ -44,9 +44,9 @@ class TaskBoard extends Component {
       'Blocked',
     ]
     return (
-      <div className='task-board-container'>
+      <div className='task-board-container flex column'>
         <TaskFilter taskFilter={taskFilter}/>
-        <div className='col-md-12'>
+        <div className='col-md-12 flex-1'>
           {
             allowedStatus.map(allowedStatus => {
               const tasks = this.props.tasks.filter(({ status }) => status === allowedStatus)
