@@ -76,13 +76,13 @@ div.error-msg
       left $aside-width
 
 .page-container
-  padding 30px 0
+  padding 10px
   display flex
   height 100%
 
   .main-content
     flex-grow 1
-    padding 0 20px
+    padding 0
     transition .3s
     margin 0 auto
     height 100%
@@ -108,7 +108,7 @@ div.error-msg
     overflow: auto
 
   .tab-controls
-    padding 0px 30px 20px
+    height: 45px;
 
     ul
       display flex
@@ -148,13 +148,40 @@ div.error-msg
           bottom 0
 
   .tab-content
-    padding 20px 10px
+    height: calc(100% - 189px)
+
+    .content-container {
+      height: 100%;
+
+      .toolbar-wrapper {
+        height: 44px;
+        padding: 5px;
+      }
+
+      .list-view-container {
+        height: calc(100% - 44px)
+
+        .list-view-toolbar {
+          height: 44px;
+          display: flex;
+        }
+
+        .list-view-content {
+          height: calc(100% - 44px);
+          overflow-y: auto;
+        }
+      }
+
+      .kanban-view-container {
+        height: calc(100% - 44px)
+      }
+    }
 
   .right-sidebar
     background #fff
     width 300px
     flex-shrink 0
-    padding 0 15px
+    margin-left 10px
 
     .title
       text-transform uppercase
@@ -1014,6 +1041,9 @@ div.error-msg
 .flex {
   display: flex !important;
 
+  &.column {
+    flex-direction: column;
+  }
   .flex-1 {
     flex: 1;
   }
