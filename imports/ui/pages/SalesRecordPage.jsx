@@ -2,6 +2,7 @@ import React from 'react'
 import {Modal} from 'react-bootstrap'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
 import CreateSalesRecord from '/imports/ui/components/salesRecord/CreateSalesRecord'
+import {SearchInput} from '../components/common'
 
 export default class SalesRecordPage extends React.Component{
     constructor(props){
@@ -28,29 +29,35 @@ export default class SalesRecordPage extends React.Component{
                 return 'All Deals'
         }
     }
-    getTabs = () => {
-      const showsearchbar = false
-      return <div>
-          <div className="sale-title">
-              {this.getTitle()}
-          </div>
-          <div style={{float: 'left', width: 100, marginLeft: 50}}>
-            <button
-              className="btn btn-primary"
-              onClick={() => this.setState({showModal:true})}
-            >
-              <span className="fa fa-plus"></span> Add Deal
-            </button>
-          </div>
-          {showsearchbar &&
-          <div style={{float: 'left', width: 250, marginLeft: 50}}>
-              <InputGroup>
-                  <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
-                  <FormControl type="text" placeholder="Search..." onChange={this.onChangeSearch}/>
-              </InputGroup>
-          </div>
-          }
-      </div>
+
+
+    onChangeSearch = (keyword) => {
+        if(this.searchTimeout) { clearTimeout(this.searchTimeout) }
+
+        this.searchTimeout = setTimeout(() => {
+            this.setState({keyword})
+        }, 500)
+    }
+
+    renderTabs = () => {
+        return (
+            <div className="flex">
+                <div className="sale-title">
+                    {this.getTitle()}
+                </div>
+                <div>
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => this.setState({showModal:true})}
+                    >
+                        <span className="fa fa-plus"></span> Add Deal
+                    </button>
+                </div>
+                <div className="flex-1">&nbsp;</div>
+                <div style={{width:250}}><SearchInput onChange={this.onChangeSearch}/></div>
+            </div>
+        )
+
     }
 
     render() {
@@ -64,10 +71,10 @@ export default class SalesRecordPage extends React.Component{
           <div className="projects-page">
            	<div className="tab-container">
             		<div className="tab-controls">
-              		{this.getTabs()}
+              		{this.renderTabs()}
             		</div>
             		<div className="tab-content">
-              		<AllSalesRecords {...props} />
+              		<AllSalesRecords {...props} keword={this.state.keyword}/>
             		</div>
            	</div>
               {this.renderModal(props)}

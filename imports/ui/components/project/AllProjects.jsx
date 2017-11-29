@@ -139,7 +139,11 @@ class AllProjects extends Component {
     }
 
     render() {
-
+        const {keyword} = this.props
+        let {projects} = this.props
+        if(keyword && keyword.length > 0) {
+            projects = projects.filter((p) => p.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+        }
         return (
             <div style={{height:'100%'}}>
             {
@@ -147,7 +151,7 @@ class AllProjects extends Component {
                     <div>Loading ...</div>
                 ) : (
                     <Sheets
-                        rows={this.props.projects}
+                        rows={projects}
                         columns={this.possibleColumns}
                         onSave={this.saveProjectProperty}
                         settingKey={'newProject'}

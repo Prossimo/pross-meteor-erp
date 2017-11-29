@@ -439,9 +439,14 @@ class AllSalesRecords extends React.Component {
 
     getSortedData() {
         let {salesRecords} = this.props
+        const {keyword} = this.props
         const {by, asc} = this.state.sort
 
         if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
+        if(keyword && keyword.length > 0) {
+            salesRecords = salesRecords.filter((s) => s.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+        }
+
         if (asc) {
             return _.sortBy(salesRecords, by)
         } else {
@@ -729,9 +734,12 @@ class AllSalesRecords extends React.Component {
     }
 
     renderKanbanView() {
-        const {stage} = this.props
+        const {stage, keyword} = this.props
         let {salesRecords} = this.props
         if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
+        if(keyword && keyword.length > 0) {
+            salesRecords = salesRecords.filter((s) => s.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+        }
 
         const isSubStage = stage !== undefined
         const columns = isSubStage ? this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label})) : STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
