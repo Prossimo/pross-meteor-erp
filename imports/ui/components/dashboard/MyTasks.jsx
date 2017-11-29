@@ -23,7 +23,8 @@ class MyTasks extends Component {
                 by: 'dueDate',
                 asc: false
             },
-            dueDateOption: 'all'
+            dueDateOption: 'all',
+            userOption: 'all'
         }
     }
 
@@ -33,7 +34,7 @@ class MyTasks extends Component {
     }
 
     getTasks() {
-        const {showCompletedTasks, showAllTasks, viewOption, dueDateOption} = this.state
+        const {showCompletedTasks, showAllTasks, viewOption, dueDateOption, userOption} = this.state
 
         let tasks = showAllTasks ? Tasks.find().fetch().filter(t => t.parent()!=null) : this.props.tasks
 
@@ -45,6 +46,9 @@ class MyTasks extends Component {
 
         if(dueDateOption === 'past') tasks = tasks.filter(({dueDate}) => dueDate < new Date())
         else if(dueDateOption === 'today') tasks = tasks.filter(({dueDate}) => moment(dueDate).isSame(moment(), 'day'))
+
+        if(userOption === 'assignee') tasks = tasks.filter(({assignee}) => assignee === Meteor.userId())
+        if(userOption === 'approver') tasks = tasks.filter(({approver}) => approver === Meteor.userId())
 
         return tasks
     }
@@ -129,6 +133,10 @@ class MyTasks extends Component {
         this.setState({dueDateOption:option.value})
     }
 
+    selectUserOption = (option) => {
+        this.setState({userOption:option.value})
+    }
+
     renderStatusSelector(task) {
         return (
             <Dropdown id="task-status-selector" style={{float:'right'}} pullRight>
@@ -181,6 +189,7 @@ class MyTasks extends Component {
 
         const viewOptions = [{value:'all', label:'All'},{value:'deal', label:'Deal'},{value:'project', label:'Project'}]
         const dueDateOptions = [{value:'all', label:'All'},{value:'past', label:'Past due'},{value:'today', label:'Due today'}]
+        const usersOptions = [{value:'all', label:'All'},{value:'assignee', label:'Assignee'},{value:'approver', label:'Approver'}]
 
         const header = (
             <div style={{display: 'flex'}}>
@@ -192,8 +201,9 @@ class MyTasks extends Component {
                                                                                   onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
                     <span><input type="checkbox" value={this.state.showCompletedTasks}
                                  onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
-                    <Select className="small-select" value={this.state.viewOption} options={viewOptions} onChange={this.selectViewOption} clearable={false}/>
-                    <Select className="small-select" value={this.state.dueDateOption} options={dueDateOptions} onChange={this.selectDueDateOption} clearable={false}/>
+                    <Select className="small-select" value={this.state.viewOption} options={viewOptions} onChange={this.selectViewOption} clearable={false}/>&nbsp;
+                    <Select className="small-select" value={this.state.dueDateOption} options={dueDateOptions} onChange={this.selectDueDateOption} clearable={false}/>&nbsp;
+                    <Select className="small-select" value={this.state.userOption} options={usersOptions} onChange={this.selectUserOption} clearable={false}/>
                 </div>
             </div>
         )
