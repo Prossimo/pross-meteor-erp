@@ -72,15 +72,16 @@ export const createProject = new ValidatedMethod({
             // INVITE SLACKBOT to CHANNEL
             slackClient.channels.inviteBot({ channel: slackChanel })
 
-            // SET SLACK PURPOSE
-            slackClient.channels.setPurpose({
-                channel: slackChanel,
-                purpose: Meteor.absoluteUrl(`project/${projectId}`),
-            })
-
             Meteor.defer(() => {
                 // CREATE DRIVE
-                prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+                const folderId = prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+                const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
+
+                // set topic on slack channel
+                slackClient.channels.setTopic({
+                    channel: slackChanel,
+                    topic: `${Meteor.absoluteUrl(`project/${projectId}`)}\n${webViewLink || webContentLink}`,
+                })
             })
         }
 
@@ -109,10 +110,10 @@ export const createProject = new ValidatedMethod({
                     })
                 }
             })
-        }
 
-        if(slackChanel) {
-            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: slackChanel})
+            if(slackChanel) {
+                Meteor.call('moveSlackMails', {thread_id: thread.id, channel: slackChanel})
+            }
         }
 
         return projectId

@@ -52,6 +52,7 @@ const channels = {
   list: () => slackClient.makeRequest('channels.list'),
   rename: ({ channel, name }) => slackClient.makeRequest('channels.rename', { channel, name }),
   setPurpose: ({ channel, purpose }) => slackClient.makeRequest('channels.setPurpose', { channel, purpose }),
+  setTopic: ({ channel, topic }) => slackClient.makeRequest('channels.setTopic', { channel, topic }),
   history: ({ channel, count, inclusive, latest }) => slackClient.makeRequest('channels.history', { channel, count, inclusive, latest }),
   replies: ({ channel, thread_ts }) => slackClient.makeRequest('channels.replies', { channel, thread_ts }),
 }
