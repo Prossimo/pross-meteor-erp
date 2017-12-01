@@ -293,7 +293,7 @@ Meteor.methods({
 
         // allow edit folder
         Meteor.defer(() => {
-            _.each(members, ({userId}) => {
+            members.filter(({userId}) => project.members.map(({userId}) => userId).indexOf(userId) === -1).forEach((userId) => {
                 const user = Meteor.users.findOne(userId)
                 if (user && user.emails && user.emails.length > 0) {
                     const email = user.emails[0].address
