@@ -391,8 +391,8 @@ Meteor.methods({
 
         // allow edit folder
         Meteor.defer(() => {
-            _.each(members, (member) => {
-                const user = Meteor.users.findOne(member)
+            members.filter((m) => salesRecord.members.indexOf(m) === -1).forEach((m) => {
+                const user = Meteor.users.findOne(m)
                 if (user && user.emails && user.emails.length > 0) {
                     const email = user.emails[0].address
                     if (email) {
