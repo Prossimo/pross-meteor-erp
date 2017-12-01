@@ -15,6 +15,7 @@ export default new ValidatedMethod({
   run({ name, projectId }) {
     const { value: projectParentFolderId } = Settings.findOne({ key: 'PROJECT_ROOT_FOLDER' })
     const { value: projectTemplateFolder } = Settings.findOne({ key: 'PROJECT_TEMPLATE_FOLDER' })
+
     const { id: folderId } =  createFolder.call({ name , parent: projectParentFolderId })
     const { id: taskFolderId } = createFolder.call({ name:  'Tasks', parent: folderId })
     Projects.update(projectId, {
@@ -42,5 +43,7 @@ export default new ValidatedMethod({
         .map(({ emails }) => emails[0].address)
       emails.forEach(email => shareWith.call({ fileId: folderId, email }))
     }
+
+    return folderId
   },
 })

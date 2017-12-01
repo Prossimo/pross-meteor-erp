@@ -44,5 +44,7 @@ export default new ValidatedMethod({
         .map(({ emails }) => emails[0].address)
       emails.forEach(email => shareWith.call({ fileId: folderId, email }))
     }
+
+    return folderId
   },
 })

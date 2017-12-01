@@ -1,5 +1,6 @@
-import { drive } from './drive';
-import SimpleSchema from 'simpl-schema';
+import { drive } from './drive'
+import SimpleSchema from 'simpl-schema'
+import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({
     name: 'drive.createFolder',
@@ -8,15 +9,15 @@ export default new ValidatedMethod({
         parent: { type: String, optional: true },
     }).validator(),
     run({ name, parent }) {
-        const parents = parent ? [parent] : [];
+        const parents = parent ? [parent] : []
         const params = {
             resource: {
                 name,
                 mimeType: 'application/vnd.google-apps.folder',
                 parents,
             },
-        };
-        return Meteor.wrapAsync(drive.files.create)(params);
+        }
+        return Meteor.wrapAsync(drive.files.create)(params)
     }
 })
 

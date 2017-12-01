@@ -175,15 +175,17 @@ Meteor.methods({
         data.conversationIds = [mainConversationId]
         const salesRecordId = SalesRecords.insert(data)
 
-        // set channel purpose
-        slackClient.channels.setPurpose({
-          channel: data.slackChanel,
-          purpose: Meteor.absoluteUrl(`deal/${salesRecordId}`),
-        })
         // create folder in google drive
         Meteor.defer(() => {
-            const createFolderRes = prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
-            console.log(createFolderRes)
+            const folderId = prossDocDrive.createSalesRecordFolder.call({name: data.name, salesRecordId})
+            const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
+
+            // set topic on slack channel
+            slackClient.channels.setTopic({
+                channel: data.slackChanel,
+                topic: `${Meteor.absoluteUrl(`deal/${salesRecordId}`)}\n${webViewLink || webContentLink}`,
+            })
+
         })
 
         // Insert conversations attached
