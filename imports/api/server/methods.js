@@ -257,7 +257,6 @@ Meteor.methods({
     },
 
     adminEditUser(userId, userFields){
-        console.log('userFields', userFields)
         check(userId, String)
         check(userFields, {
             firstName: String,
@@ -266,6 +265,7 @@ Meteor.methods({
             status: Match.Maybe(String)
         })
 
+        console.log('userFields', userFields)
         if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
         if (Roles.userIsInRole(this.userId), role === ROLES.ADMIN) throw new Meteor.Error('Can not set current user as super admin')
         const {firstName, lastName, role, status} = userFields
