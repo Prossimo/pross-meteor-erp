@@ -68,18 +68,22 @@ class EditableUsersTable extends Component {
         // return false for reject the editing
         let validationStatus = true
 
-        const uniqueUsername = this.props.createdUsers.filter(person => {
-            if (person.username !== cellValue) return true
-        })
-        const uniqueEmail = this.props.createdUsers.filter(person => {
-            if (person.email !== cellValue) return true
-        })
-        if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
-            validationStatus = false
-        }
+        if(cellName === 'username') {
+            const uniqueUsername = this.props.createdUsers.filter(person => {
+                if (person.username !== cellValue) return true
+            })
 
-        if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
-            validationStatus = false
+            if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
+                validationStatus = false
+            }
+        } else if(cellName === 'email') {
+            const uniqueEmail = this.props.createdUsers.filter(person => {
+                if (person.email !== cellValue) return true
+            })
+
+            if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
+                validationStatus = false
+            }
         }
         return validationStatus
     }
