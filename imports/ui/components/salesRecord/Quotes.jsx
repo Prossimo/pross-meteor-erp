@@ -22,7 +22,7 @@ class QuoteItem extends React.Component {
 
   renderQuoteName(quote) {
     const {editQuoteNameMode} = this.state
-    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) {
+    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES]) && this.props.salesRecord.members.indexOf(Meteor.userId()) === -1) {
       return <p className="title">{quote.name}</p>
     }
     return (
@@ -39,7 +39,7 @@ class QuoteItem extends React.Component {
   }
 
   changeEditMode(event) {
-    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return
+    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES]) && this.props.salesRecord.members.indexOf(Meteor.userId()) === -1) return
     event.persist()
     this.setState({editQuoteNameMode: true})
     setTimeout(() => {
@@ -268,7 +268,7 @@ class Quotes extends React.Component {
   }
 
   renderQuotes() {
-    const {quotes} = this.props
+    const {quotes, salesRecord} = this.props
     if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>
       return (
         <ul
@@ -279,7 +279,9 @@ class Quotes extends React.Component {
             <QuoteItem
               key={quote._id}
               addRevision={this.addRevision.bind(this)}
-              quote={quote}/>
+              quote={quote}
+              salesRecord={salesRecord}
+            />
           )
         }
         </ul>
@@ -287,7 +289,7 @@ class Quotes extends React.Component {
   }
 
   renderAddQuotes() {
-    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
+    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES]) && this.props.salesRecord.members.indexOf(Meteor.userId()) === -1) return null
 
     return (
       <div className="add-quotes">
@@ -336,7 +338,7 @@ class Quotes extends React.Component {
   }
 
   getGoogleDriveFileList() {
-    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
+    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES]) && this.props.salesRecord.members.indexOf(Meteor.userId()) === -1) return null
 
     return (
       <div className="add-quotes">
@@ -348,7 +350,7 @@ class Quotes extends React.Component {
   }
 
   saveFileToGoogleDrive() {
-    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES])) return null
+    if (!Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN, ROLES.SALES]) && this.props.salesRecord.members.indexOf(Meteor.userId()) === -1) return null
 
     return (
       <div className="field-wrap">

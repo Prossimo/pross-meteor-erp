@@ -254,7 +254,7 @@ class SingleSalesRecord extends React.Component {
             const designation = p.designation()
             return {value: p._id, label: p.name, designation}
         })
-        if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
+        if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) || this.props.salesRecord.members.indexOf(Meteor.userId()) > -1) {
             return (
                 <div className='form'>
                     <div className='form-group'>
@@ -304,7 +304,10 @@ class SingleSalesRecord extends React.Component {
             peopleId: selectedPerson.value,
             addToMain
         }, (error, result) => {
-            if (error) return warning(error.reason ? error.reason : 'Add stakeholder failed!')
+            if (error) {
+                console.error(error)
+                return warning(error.reason ? error.reason : 'Add stakeholder failed!')
+            }
             this.setState({
                 newStakeholder: {
                     addToMain: false,

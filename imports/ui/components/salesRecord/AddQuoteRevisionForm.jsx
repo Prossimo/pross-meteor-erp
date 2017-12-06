@@ -143,7 +143,7 @@ class AddQuoteForm extends React.Component{
             // step # 2 - add new or update revision
             if(needUpdate) {
                 Meteor.call('updateQuoteRevision', revisionData, revisionCb)
-            }else{
+            } else {
                 Meteor.call('addQuoteRevision', revisionData, revisionCb)
             }
         }

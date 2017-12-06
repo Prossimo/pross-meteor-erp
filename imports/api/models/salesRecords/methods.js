@@ -69,10 +69,10 @@ Meteor.methods({
         check(_id, String)
         check(peopleId, String)
         check(addToMain, Boolean)
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access Denined')
 
         const salesRecord = SalesRecords.findOne(_id)
         if(!salesRecord) throw new Meteor.Error(`Could not found SalesRecord with _id:${_id}`)
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access Denined')
 
         const stakeholder = {
             peopleId,
@@ -356,12 +356,12 @@ Meteor.methods({
 
     updateSalesRecordDealer(salesRecordId, dealer) {
         check(salesRecordId, String)
-        check(dealer, String)
-
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
+        check(dealer, Match.Maybe(String))
 
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
 
         SalesRecords.update({_id:salesRecordId}, {$set:{dealer}})
     },
@@ -370,10 +370,10 @@ Meteor.methods({
         check(salesRecordId, String)
         check(members, Array)
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
-
         const salesRecord = SalesRecords.findOne(salesRecordId)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
 
         if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m)>-1)) return
 
@@ -416,10 +416,10 @@ Meteor.methods({
         const slackChannelName = channel.name
         const slackMembers = channel.members
 
-        //if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
-
         const salesRecord = SalesRecords.findOne(_id)
         if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
 
         if(slackMembers.indexOf(config.slack.botId) == -1) {
             const responseInviteBot = slackClient.channels.inviteBot({

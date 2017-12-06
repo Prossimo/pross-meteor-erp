@@ -51,9 +51,9 @@ Threads.schema = new SimpleSchema({
         type: String,
         regEx: SimpleSchema.RegEx.Email
     },
-    last_message_timestamp: {type: Number},
-    last_message_received_timestamp: {type: Number},
-    first_message_timestamp: {type: Number},
+    last_message_timestamp: {type: Number, optional: true},
+    last_message_received_timestamp: {type: Number, optional: true},
+    first_message_timestamp: {type: Number, optional: true},
     has_attachments: {type: Boolean, optional: true},
     unread: {type: Boolean, optional: true},
     starred: {type: Boolean, optional: true},
