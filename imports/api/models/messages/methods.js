@@ -72,6 +72,7 @@ export const saveMessage = new ValidatedMethod({
             accountId: message.account_id
         }).then((thread) => {
             if (thread) {
+                console.log(thread)
                 bound(() => {
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})

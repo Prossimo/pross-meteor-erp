@@ -419,7 +419,17 @@ Meteor.methods({
     },
 
     addNewQuote(data){
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+        check(data, {
+            name: String,
+            createAt: Date,
+            projectId: String,
+            revisions: Array
+        })
+
+        const salesRecord = SalesRecords.findOne(data.projectId)
+        if(!salesRecord) throw new Meteor.Error('Could not find salesRecord with _id:', data.projectId)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]) && salesRecord.members.indexOf(this.userId) === -1) {
             throw new Meteor.Error('Access denied')
         }
 
@@ -439,7 +449,11 @@ Meteor.methods({
             fileId: String,
             note: String
         })
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+
+        const quote = Quotes.findOne(data.quoteId)
+        if(!quote) throw new Meteor.Error('Could not find quote with _id:', data.quoteId)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]) && quote.salesRecord().members.indexOf(this.userId) === -1) {
             throw new Meteor.Error('Access denied')
         }
 
@@ -464,12 +478,16 @@ Meteor.methods({
             fileId: String,
             note: String
         })
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
-            throw new Meteor.Error('Access denied')
-        }
-        let oldFileId
 
         const quote = Quotes.findOne(data.quoteId)
+        if(!quote) throw new Meteor.Error('Could not find quote with _id:', data.quoteId)
+
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]) && quote.salesRecord().members.indexOf(this.userId) === -1) {
+            throw new Meteor.Error('Access denied')
+        }
+
+        let oldFileId
+
 
         const revisions = quote.revisions.map(revision => {
             if (revision.revisionNumber === data.revisionNumber) {
@@ -492,7 +510,12 @@ Meteor.methods({
     editQuoteName(quoteId, name){
         check(quoteId, String)
         check(name, String)
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES])) {
+
+        const quote = Quotes.findOne(quoteId)
+        if(!quote) throw new Meteor.Error('Could not find quote with _id:', quoteId)
+
+        const salesRecord = quote.salesRecord()
+        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]) && salesRecord.members.indexOf(this.userId) === -1) {
             throw new Meteor.Error('Access denied')
         }
 

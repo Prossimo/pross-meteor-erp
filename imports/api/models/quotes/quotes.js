@@ -1,6 +1,7 @@
 import SimpleSchema from 'simpl-schema'
 import Events from '../events/events'
 import Files from '../files/files'
+import SalesRecords from '../salesRecords/salesRecords'
 
 const Quotes = new Mongo.Collection('Quotes')
 
@@ -55,4 +56,9 @@ Quotes.after.remove((userId, doc) => {
   Files.remove({_id: {$in: filesId}})
 })
 
+Quotes.helpers({
+    salesRecord() {
+        return SalesRecords.findOne(this.projectId)
+    }
+})
 export default Quotes
