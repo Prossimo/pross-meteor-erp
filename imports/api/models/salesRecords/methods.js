@@ -1,4 +1,3 @@
-import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import {HTTP} from 'meteor/http'
 import SimpleSchema from 'simpl-schema'
@@ -14,6 +13,20 @@ import {ServerLog} from '/imports/utils/logger'
 import config from '../../config'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
+
+const validateSalesRecord = (_id) => {
+    const salesRecord = SalesRecords.findOne(_id)
+    if(!salesRecord) throw new Meteor.Error(`Not found salesRecord with _id: ${_id}`)
+
+    return salesRecord
+}
+
+const validatePermission = (userId, salesRecord) => {
+    if(!Roles.userIsInRole(userId, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER]) && salesRecord && salesRecord.members.map(({userId}) => userId).indexOf(userId) === -1) {
+        throw new Meteor.Error('Access Denied')
+    }
+}
+
 Meteor.methods({
     removeSalesRecord({_id, isRemoveSlack, isRemoveFolders}) {
         new SimpleSchema({
@@ -21,48 +34,49 @@ Meteor.methods({
             isRemoveSlack: Boolean,
             isRemoveFolders: Boolean,
         }).validate({_id, isRemoveSlack, isRemoveFolders})
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const salesRecord = SalesRecords.findOne(_id)
-            if (salesRecord) {
-                const {_id, folderId, slackChanel} = salesRecord
-                // Remove salesrecord
-                SalesRecords.remove(_id)
-                Meteor.defer(() => {
-                    // Remove folder
-                    isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
-                    // Remove slack channel
-                    isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
-                })
-            }
-        }
+
+        const salesRecord = validateSalesRecord(_id)
+
+        validatePermission(this.userId, salesRecord)
+
+        const {folderId, slackChanel} = salesRecord
+        // Remove salesrecord
+        SalesRecords.remove(_id)
+        Meteor.defer(() => {
+            // Remove folder
+            isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
+            // Remove slack channel
+            isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
+        })
     },
 
     changeStageOfSalesRecord(salesRecordId, stage) {
         check(salesRecordId, String)
         check(stage, String)
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
-        if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const subStage = getSubStages(stage, {gettingFirstStage: true})
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
 
-            const oldStage = salesRecord.stage
-            SalesRecords.update(salesRecordId, {$set: {stage, subStage}})
+        const subStage = getSubStages(stage, {gettingFirstStage: true})
 
-            ServerLog.info(JSON.stringify({salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage}))
-            Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage})
-        }
+        const oldStage = salesRecord.stage
+        SalesRecords.update(salesRecordId, {$set: {stage, subStage}})
+
+        ServerLog.info(JSON.stringify({salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage}))
+        Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'stage', oldValue:oldStage, newValue:stage})
     },
 
     changeSubStageOfSalesRecord(salesRecordId, subStage) {
         check(salesRecordId, String)
         check(subStage, String)
-        const salesRecord = SalesRecords.findOne({_id: salesRecordId, 'members': this.userId})
-        if (salesRecord || Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const oldSubStage = salesRecord.subStage
-            SalesRecords.update(salesRecordId, {$set: {subStage}})
 
-            ServerLog.info(JSON.stringify({salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage}))
-            Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage})
-        }
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
+
+        const oldSubStage = salesRecord.subStage
+        SalesRecords.update(salesRecordId, {$set: {subStage}})
+
+        ServerLog.info(JSON.stringify({salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage}))
+        Meteor.call('sendDealStatusChangeToSlack', {salesRecordId, statusName:'sub stage', oldValue:oldSubStage, newValue:subStage})
     },
 
     addStakeholderToSalesRecord({_id, peopleId, addToMain}) {
@@ -70,9 +84,9 @@ Meteor.methods({
         check(peopleId, String)
         check(addToMain, Boolean)
 
-        const salesRecord = SalesRecords.findOne(_id)
-        if(!salesRecord) throw new Meteor.Error(`Could not found SalesRecord with _id:${_id}`)
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access Denined')
+        const salesRecord = validateSalesRecord(_id)
+
+        validatePermission(this.userId, salesRecord)
 
         const stakeholder = {
             peopleId,
@@ -89,18 +103,21 @@ Meteor.methods({
         check(salesRecordId, String)
         check(peopleId, String)
 
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {peopleId}}})
-        }
+
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
+
+        return SalesRecords.update(salesRecordId, {$pull: {stakeholders: {peopleId}}})
     },
 
     removeMemberFromSalesRecord(salesRecordId, userId) {
         check(userId, String)
         check(salesRecordId, String)
 
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            return SalesRecords.update(salesRecordId, {$pull: {members: userId}})
-        }
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
+
+        return SalesRecords.update(salesRecordId, {$pull: {members: userId}})
     },
     // NOTICE: it must be saleRecord
     insertSalesRecord({data, thread}){
@@ -310,8 +327,9 @@ Meteor.methods({
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
 
-        const sr = SalesRecords.findOne(_id)
-        if(!sr) throw new Meteor.Error(`Not found SR with _id:${_id}`)
+        const sr = validateSalesRecord(_id)
+        validatePermission(this.userId, sr)
+
 
         // Update main conversation participants
         if(sr.conversationIds && sr.conversationIds.length>0 && data.stakeholders) {
@@ -358,10 +376,9 @@ Meteor.methods({
         check(salesRecordId, String)
         check(dealer, Match.Maybe(String))
 
-        const salesRecord = SalesRecords.findOne(salesRecordId)
-        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
 
         SalesRecords.update({_id:salesRecordId}, {$set:{dealer}})
     },
@@ -370,10 +387,8 @@ Meteor.methods({
         check(salesRecordId, String)
         check(members, Array)
 
-        const salesRecord = SalesRecords.findOne(salesRecordId)
-        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${salesRecordId}`)
-
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
+        const salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
 
         if(members && salesRecord.members && members.length == salesRecord.members.length && members.every(m => salesRecord.members.indexOf(m)>-1)) return
 
@@ -416,10 +431,9 @@ Meteor.methods({
         const slackChannelName = channel.name
         const slackMembers = channel.members
 
-        const salesRecord = SalesRecords.findOne(_id)
-        if(!salesRecord) throw new Meteor.Error(`Not found SalesRecord with _id: ${_id}`)
+        const salesRecord = validateSalesRecord(_id)
+        validatePermission(this.userId, salesRecord)
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]) && salesRecord.members.indexOf(this.userId) === -1) throw new Meteor.Error('Access denied')
 
         if(slackMembers.indexOf(config.slack.botId) == -1) {
             const responseInviteBot = slackClient.channels.inviteBot({
@@ -447,16 +461,10 @@ Meteor.methods({
             supplierStatus: Match.Maybe(String),
         })
 
-        // current user belongs to ADMIN LIST
-        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
 
         // current user belongs to salesRecords
-        let salesRecord = SalesRecords.findOne(salesRecordId)
-        if (!salesRecord) throw new Meteor.Error('Project does not exists')
-        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
-
-        // check permission
-        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+        let salesRecord = validateSalesRecord(salesRecordId)
+        validatePermission(this.userId, salesRecord)
 
         const statusValue = (key) => {
             if(key === 'teamLead') {
@@ -492,31 +500,21 @@ Meteor.methods({
         check(_id, String)
         check(archived, Boolean)
 
-        const salesRecord = SalesRecords.findOne(_id)
-        if (!salesRecord) throw new Meteor.Error('Deal does not exists')
-        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
-        const isMember = !!salesRecord.members.find(userId => userId === this.userId)
-
-        // check permission
-        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
-
+        const salesRecord = validateSalesRecord(_id)
+        validatePermission(this.userId, salesRecord)
         SalesRecords.update(_id, {$set:{archived}})
     }
 
 })
 
 
-
-
 export const pushConversationToSalesRecord = new ValidatedMethod({
     name: 'salesRecord.pushConversation',
     validate: new SimpleSchema({_id:SalesRecords.schema.schema('_id'), conversationId:Conversations.schema.schema('_id')}).validator({clean:true}),
     run({_id, conversationId}) {
-        if(Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const sr = SalesRecords.findOne(_id)
-            if(!sr) throw new Meteor.Error(`Could not found project with _id:${_id}`)
+        const sr = validateSalesRecord(_id)
+        validatePermission(this.userId, sr)
 
-            SalesRecords.update(_id, {$push:{conversationIds:conversationId}})
-        }
+        SalesRecords.update(_id, {$push:{conversationIds:conversationId}})
     }
 })

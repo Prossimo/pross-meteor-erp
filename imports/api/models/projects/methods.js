@@ -12,6 +12,19 @@ import {ErrorLog} from '/imports/utils/logger'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
+const validateProject = (_id) => {
+    const project = Projects.findOne(_id)
+    if(!project) throw new Meteor.Error(`Not found project with _id: ${_id}`)
+
+    return project
+}
+
+const validatePermission = (userId, project) => {
+    if(!Roles.userIsInRole(userId, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER]) && project && project.members.map(({userId}) => userId).indexOf(userId) === -1) {
+        throw new Meteor.Error('Access Denied')
+    }
+}
+
 export const createProject = new ValidatedMethod({
     name: 'project.create',
     validate: Projects.schema.pick('name', 'members', 'stakeholders', 'nylasAccountId').extend({
@@ -21,8 +34,9 @@ export const createProject = new ValidatedMethod({
     run({ name, members, stakeholders, thread, nylasAccountId, isServer }) {
         const project = { name, members, stakeholders, nylasAccountId }
         // CHECK ROLE
-        if (!isServer && !Roles.userIsInRole(this.userId, [ROLES.ADMIN, ROLES.SALES]))
-            throw new Meteor.Error('Access denied')
+        if (!isServer) {
+            validatePermission(this.userId, null)
+        }
 
         let mainConversationId
         if(!nylasAccountId) {   // if it is not inbox project
@@ -126,16 +140,11 @@ export const updateProject = new ValidatedMethod({
         conversationId:{type: String, regEx: SimpleSchema.RegEx.Id, optional:true}
     }).validator(),
     run({ _id, name, members, stakeholders, thread, conversationId }) {
-        // current user belongs to ADMIN LIST
-        const isAdmin = Roles.userIsInRole(this.userId, ROLES.ADMIN)
 
         // current user belongs to salesRecords
-        const project = Projects.findOne(_id)
-        if (!project) throw new Meteor.Error('Project does not exists')
-        const isMember = project.members && !!project.members.find(({ userId }) => userId === this.userId)
+        const project = validateProject(_id)
+        validatePermission(this.userId, project)
 
-        // check permission
-        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
 
         if(members && members.length) {
             Meteor.users.find({
@@ -194,23 +203,22 @@ export const removeProject = new ValidatedMethod({
     name: 'project.remove',
     validate: new SimpleSchema({_id:Projects.schema.schema('_id'), isRemoveFolders:{type:Boolean,optional:true}, isRemoveSlack:{type:Boolean,optional:true}}).validator({clean:true}),
     run({_id, isRemoveFolders, isRemoveSlack}) {
-        if (Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const project = Projects.findOne(_id)
-            if (project) {
-                const { _id, folderId, slackChanel } = project
+        const project = validateProject(_id)
 
-                // Remove Project
-                Projects.remove(_id)
+        validatePermission(this.userId, project)
 
-                // Run later
-                Meteor.defer(() => {
-                    // Remove slack channel
-                    isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
-                    // Remove folder
-                    isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
-                })
-            }
-        }
+        const { folderId, slackChanel } = project
+
+        // Remove Project
+        Projects.remove(_id)
+
+        // Run later
+        Meteor.defer(() => {
+            // Remove slack channel
+            isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
+            // Remove folder
+            isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
+        })
     }
 })
 
@@ -218,12 +226,10 @@ export const pushConversationToProject = new ValidatedMethod({
     name: 'project.pushConversation',
     validate: new SimpleSchema({_id:Projects.schema.schema('_id'), conversationId:Conversations.schema.schema('_id')}).validator({clean:true}),
     run({_id, conversationId}) {
-        if(Roles.userIsInRole(this.userId, ROLES.ADMIN)) {
-            const project = Projects.findOne(_id)
-            if(!project) throw new Meteor.Error(`Could not found project with _id:${_id}`)
+        const project = validateProject(_id)
 
-            Projects.update(_id, {$push:{conversationIds:conversationId}})
-        }
+        validatePermission(this.userId, project)
+        Projects.update(_id, {$push:{conversationIds:conversationId}})
     }
 })
 Meteor.methods({
@@ -235,10 +241,8 @@ Meteor.methods({
         const slackChannelName = channel.name
         const slackMembers = channel.members
 
-        //if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
-
-        const project = Projects.findOne(_id)
-        if(!project) throw new Meteor.Error(`Not found project with _id: ${_id}`)
+        const project = validateProject(_id)
+        validatePermission(this.userId, project)
 
         if(slackMembers.indexOf(config.slack.botId) == -1) {
             const responseInviteBot = slackClient.channels.inviteBot({
@@ -256,13 +260,8 @@ Meteor.methods({
         check(_id, String)
         check(archived, Boolean)
 
-        const project = Projects.findOne(_id)
-        if (!project) throw new Meteor.Error('Project does not exists')
-        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
-        const isMember = !!project.members.find(({userId}) => userId === this.userId)
-
-        // check permission
-        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+        const project = validateProject(_id)
+        validatePermission(this.userId, project)
 
         Projects.update(_id, {$set:{archived}})
     },
@@ -271,10 +270,8 @@ Meteor.methods({
         check(projectId, String)
         check(members, Array)
 
-        if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Access denied')
-
-        const project = Projects.findOne(projectId)
-        if(!project) throw new Meteor.Error(`Not found SalesRecord with _id: ${projectId}`)
+        const project = validateProject(projectId)
+        validatePermission(this.userId, project)
 
         if(members && project.members && members.length == project.members.length && members.every(m => project.members.indexOf(m)>-1)) return
 
