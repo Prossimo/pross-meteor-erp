@@ -3,7 +3,7 @@ import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
 import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts} from '/imports/api/models'
 import {createProject} from '/imports/api/models/projects/methods'
-
+import { slackClient } from '/imports/api/slack'
 
 Migrations.add({
     version: 1,
@@ -179,8 +179,49 @@ Migrations.add({
 
     }
 })
+
+Migrations.add({
+    version: 10,
+    name: 'Change slack channel field schema on salesrecord and project collections',
+    up() {
+        // 1. Update for salesrecords
+        const salesRecords = SalesRecords.find().fetch()
+        salesRecords.forEach((salesrecord) => {
+            const slackChannel = {}
+            if(salesrecord.slackChanel) {
+                const {data: {ok, channel}} = slackClient.channels.info({channel: salesrecord.slackChanel})
+                if(ok && channel) {
+                    slackChannel.id = channel.id
+                    slackChannel.name = channel.name
+                    slackChannel.isPrivate = false
+                }
+            }
+            console.log('SlackChannel for salesrecord3', slackChannel, salesrecord._id)
+            SalesRecords.update({_id:salesrecord._id}, {$set:{slackChannel}})
+        })
+
+        // 2. Update for projects
+        const projects = Projects.find().fetch()
+        projects.forEach((project) => {
+            const slackChannel = {}
+            if(project.slackChanel) {
+                const {data: {ok, channel}} = slackClient.channels.info({channel: project.slackChanel})
+                if(ok && channel) {
+                    slackChannel.id = channel.id
+                    slackChannel.name = channel.name
+                    slackChannel.isPrivate = false
+                }
+            }
+            console.log('SlackChannel for project3', slackChannel, project._id)
+            Projects.update({_id:project._id}, {$set:{slackChannel}})
+        })
+    },
+    down() {
+
+    }
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(9)
+        Migrations.migrateTo(10)
     }
 })
