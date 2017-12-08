@@ -129,7 +129,7 @@ class AddQuoteForm extends React.Component {
             quoteData.revisions[0].fileId = res.id
             Meteor.call('addNewQuote', quoteData, addQuoteCb)
 
-            if (typeof salesRecord.slackChanel === 'undefined') return
+            if (!salesRecord.slackChannel || !salesRecord.slackChannel.id) return
 
             const params = {
                 username: getSlackUsername(usersArr[Meteor.userId()]),
@@ -144,7 +144,7 @@ class AddQuoteForm extends React.Component {
 
             const slackText = `I just added new quote "${quoteData.name}"`
 
-            Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, params)
+            Meteor.call('sendBotMessage', salesRecord.slackChannel.id, slackText, params)
         }
 
         this.setState({isUploading: true})

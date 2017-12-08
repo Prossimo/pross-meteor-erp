@@ -7,30 +7,15 @@ import {prossDocDrive} from '/imports/api/drive'
 SalesRecords.before.update((userId, doc, fieldNames, modifier) => {
     if (fieldNames.includes('name')) {
         if (modifier.$set && modifier.$set.name) {
-            const {name, slackChanel, folderId} = doc
-            let newName = `d-${modifier.$set.name}`
+            const {name, slackChannel, folderId} = doc
+            const newName = `d-${modifier.$set.name}`
             const oldName = `d-${name}`
             if (newName !== oldName) {
                 // Rename slack channel name
                 Meteor.defer(() => {
-                    const updateSlackChannelName = (slackChannelName) => {
-                        SalesRecords.update(doc._id, {$set: {slackChannelName}})
-                    }
-                    const {data: {ok}} = slackClient.channels.rename({
-                        name: newName,
-                        channel: slackChanel,
-                    })
-                    if (!ok) {
-                        newName = `${newName}-${Random.id()}`
-                        const {data: {ok}} = slackClient.channels.rename({
-                            name: newName,
-                            channel: slackChanel,
-                        })
-
-                        if (ok) updateSlackChannelName(newName)
-                    } else {
-                        updateSlackChannelName(newName)
-                    }
+                    slackChannel.name = newName
+                    const newSlackChannel = Meteor.call('renameSlackChannel', slackChannel)
+                    if(newSlackChannel) SalesRecords.update(doc._id, {$set: {slackChannel: newSlackChannel}})
                 })
 
                 // Rename google drive folder name

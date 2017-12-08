@@ -57,6 +57,20 @@ const channels = {
   replies: ({ channel, thread_ts }) => slackClient.makeRequest('channels.replies', { channel, thread_ts }),
 }
 
+const groups = {
+  archive: ({ channel }) => slackClient.makeRequest('groups.archive', { channel }),
+  create: ({ name }) => slackClient.makeRequest('groups.create', { name }),
+  invite: ({ channel, user }) => slackClient.makeRequest('groups.invite', { channel, user }),
+  inviteBot: ({ channel }) => slackClient.makeRequest('groups.invite', { channel, user: SLACK_BOT_ID }),
+  info: ({ channel }) => slackClient.makeRequest('groups.info'),
+  list: () => slackClient.makeRequest('groups.list'),
+  rename: ({ channel, name }) => slackClient.makeRequest('groups.rename', { channel, name }),
+  setPurpose: ({ channel, purpose }) => slackClient.makeRequest('groups.setPurpose', { channel, purpose }),
+  setTopic: ({ channel, topic }) => slackClient.makeRequest('groups.setTopic', { channel, topic }),
+  history: ({ channel, count, inclusive, latest }) => slackClient.makeRequest('groups.history', { channel, count, inclusive, latest }),
+  replies: ({ channel, thread_ts }) => slackClient.makeRequest('groups.replies', { channel, thread_ts }),
+}
+
 const chat = {
     postMessage: ({channel, text}) => slackClient.makeBotRequest('chat.postMessage', {channel, text}),
     postAttachments: ({channel, attachments}) => slackClient.makeBotRequest('chat.postMessage', {
@@ -94,6 +108,7 @@ const attachments = {
 export {
     users,
     channels,
+    groups,
     chat,
     files,
     attachments,

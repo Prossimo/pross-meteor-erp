@@ -11,6 +11,7 @@ import sendBotMessage from './sendBotMessage'
 import parseSlackMessage from './parseSlackMessage'
 import getSlackChannels from './getSlackChannels'
 import sendDealStatusChangeToSlack from './sendDealStatusChangeToSlack'
+import removeSlackChannel from './removeSlackChannel'
 
 export {
     getSlackUsers,
@@ -25,5 +26,6 @@ export {
     getSlackChannels,
     sendMailAssignToSlack,
     sendMailUnassignToSlack,
-    sendDealStatusChangeToSlack
+    sendDealStatusChangeToSlack,
+    removeSlackChannel
 }

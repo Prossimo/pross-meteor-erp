@@ -63,12 +63,7 @@ export default new ValidatedMethod({
             willInviteUserIds = project ? willInviteUserIds.map(({userId}) => (userId)) : willInviteUserIds
 
             Meteor.users.find({_id: {$in: willInviteUserIds}, slack: {$exists: true}})
-                .forEach(user => {
-                    slackClient.channels.invite({
-                        channel: taskParent.slackChanel,
-                        user: user.slack.id,
-                    })
-                })
+                .forEach(user => Meteor.call('inviteUserToSlackChannel', {...taskParent.slackChannel, user:user.slack.id}))
         }
     },
 })

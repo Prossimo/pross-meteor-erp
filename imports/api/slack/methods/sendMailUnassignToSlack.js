@@ -20,20 +20,9 @@ Meteor.methods({
             target = Projects.findOne({nylasAccountId: nylasAccount._id})
         }
 
-        let slackChannelId = target ? target.slackChanel : null
+        let slackChannelId = target ? target.slackChannel.id : null
         if (!slackChannelId) {
-            const channelsListRes = slackClient.channels.list()
-            if (channelsListRes.statusCode != 200 || !channelsListRes.data.ok || !channelsListRes.data.channels) throw new Meteor.Error('Could not get slack channel')
-
-            const channels = channelsListRes.data.channels
-            const inboxChannel = _.findWhere(channels, {name: 'inbox'})
-            if (!inboxChannel) {
-                const channelsCreateRes = slackClient.channels.create({name: 'inbox', validate: true})
-                if (channelsCreateRes.statusCode != 200 || !channelsCreateRes.data.ok) throw new Meteor.Error('Could not create inbox slack channel')
-                slackChannelId = channelsCreateRes.data.channel.id
-            } else {
-                slackChannelId = inboxChannel.id
-            }
+            slackChannelId = Meteor.call('getInboxSlackChannelId')
         }
 
         if (!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')

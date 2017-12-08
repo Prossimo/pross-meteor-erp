@@ -31,15 +31,15 @@ Meteor.methods({
         ServerLog.info('========> Project', project)
         if(!project) return
 
-        const replies = slackClient.channels.replies({channel: project.slackChanel, thread_ts:slackmail.thread_ts})
+        const replies = slackClient.channels.replies({channel: project.slackChannel.id, thread_ts:slackmail.thread_ts})
         ServerLog.info('========> SlackReplies', replies.data)
         if(!replies.data.ok) return
         const msgs = replies.data.messages
 
         // Delete messages from general inbox channel
         msgs.forEach((msg) => {
-            console.log({channel:project.slackChanel, ts:msg.ts})
-            console.log(slackClient.chat.deleteMessage({channel:project.slackChanel, ts:msg.ts}))
+            console.log({channel:project.slackChannel.id, ts:msg.ts})
+            console.log(slackClient.chat.deleteMessage({channel:project.slackChannel.id, ts:msg.ts}))
         })
         // Delete slackmails from database
         SlackMails.remove({thread_id})

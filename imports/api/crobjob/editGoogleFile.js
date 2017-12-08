@@ -97,10 +97,10 @@ export const observeGoogleFile = function() {
       const ancestors = getAncestors(_id)
       const folderIds = ancestors.map(({ parentId }) => parentId)
       const project = SalesRecords.findOne({ folderId: { $in: folderIds } }) || Projects.findOne({ folderId: { $in: folderIds } })
-      if (project && project.slackChanel) {
+      if (project && project.slackChannel) {
         SlackFiles.insert({
           _id,
-          channel: project.slackChanel,
+          channel: project.slackChannel.id,
           file: ancestors.find(({ id }) => id == _id),
           nComments: countComments(_id),
         })

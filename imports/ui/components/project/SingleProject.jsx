@@ -225,9 +225,9 @@ class SingleProject extends Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={project.slackChanel}
+                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={project.slackChannel.id}
                                                                                     onSelectChannel={this.updateSlackChannel}/>}>
-                            {project.slackChannelName || project.slackChanel}
+                            {project.slackChannel.name || project.slackChannel.id}
                         </Panel>
                     </div>
                     <div className="sidebar-box">
