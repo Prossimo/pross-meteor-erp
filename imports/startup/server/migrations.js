@@ -224,8 +224,23 @@ Migrations.add({
 
     }
 })
+
+Migrations.add({
+    version: 11,
+    name: 'Initialize members to projects for inboxes',
+    up() {
+        const projects = Projects.find({nylasAccountId:{$ne:null}}).fetch()
+        projects.forEach(project => {
+            if(!project.members) Projects.update({_id:project._id}, {$set:{members:[]}})
+        })
+    },
+    down() {
+        Projects.remove({nylasAccountId:{$ne:null}})
+    }
+})
+
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(10)
+        Migrations.migrateTo(11)
     }
 })
