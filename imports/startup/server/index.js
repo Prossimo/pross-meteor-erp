@@ -16,7 +16,7 @@ import '../../api/slack/methods'
 import {ServerErrorLog, MeteorErrorLog, ErrorLog} from '/imports/utils/logger'
 
 process.on('uncaughtException', (err) => {
-    ServerErrorLog.error('Server Crashed!', err)
+    //ServerErrorLog.error('Server Crashed!', err)
     console.error(err.stack)
     process.exit(7)
 })
