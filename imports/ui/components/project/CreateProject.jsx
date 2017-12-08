@@ -3,7 +3,7 @@ import _ from 'underscore'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import React, {Component} from 'react'
 import Select from 'react-select'
-import {FormGroup, Radio, Modal} from 'react-bootstrap'
+import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import {info, warning} from '/imports/api/lib/alerts'
 import 'react-block-ui/style.css'
 import {Loader, Types} from 'react-loaders'
@@ -36,7 +36,9 @@ export default class CreateProject extends TrackerReact(Component) {
             blocking: false,
             people: null,
 
-            selectedConversation: project && project.conversationIds && project.conversationIds.length > 0 ? project.conversationIds[0] : null
+            selectedConversation: project && project.conversationIds && project.conversationIds.length > 0 ? project.conversationIds[0] : null,
+
+            isPrivateSlackChannel: false
         }
 
         if (props.thread) {
@@ -66,6 +68,8 @@ export default class CreateProject extends TrackerReact(Component) {
             })),
             stakeholders: this.state.stakeholders
         }
+
+        const {isPrivateSlackChannel} = this.state
         this.props.toggleLoader(true)
 
         const {thread, project} = this.props
@@ -89,7 +93,7 @@ export default class CreateProject extends TrackerReact(Component) {
             })
         } else {
 
-            Meteor.call('project.create', {...data, thread}, (err, projectId) => {
+            Meteor.call('project.create', {...data, thread, isPrivateSlackChannel}, (err, projectId) => {
                 this.props.toggleLoader(false)
                 if (err) {
                     ClientErrorLog.error(err)
@@ -265,6 +269,14 @@ export default class CreateProject extends TrackerReact(Component) {
                     {
                         this.props.thread && this.props.project && this.renderConversationSelector()
                     }
+                    {
+                        !this.props.project && (
+                            <div className="form-group">
+                                <Checkbox checked={this.state.isPrivateSlackChannel} onChange={e => this.setState({isPrivateSlackChannel: e.target.checked})}>Is Private Slack Channel</Checkbox>
+                            </div>
+                        )
+                    }
+
                     <div className='form-group text-center'>
                         <button className='btn btn-primary'
                                 onClick={this.submit}>{this.props.project ? 'Update Project' : 'Add Project'}</button>

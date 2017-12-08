@@ -152,7 +152,7 @@ class Details extends TrackerReact(React.Component) {
             console.log('salesRecord', salesRecord)
             Meteor.call('updateSalesRecord', {
                 _id: salesRecord._id,
-                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChannel', 'slackChannelName', 'conversationIds', 'taskFolderId'])}
+                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChannel', 'conversationIds', 'taskFolderId'])}
             }, (err) => {
                 if (err) {
                     ClientErrorLog.error(err)
@@ -290,6 +290,8 @@ class Details extends TrackerReact(React.Component) {
                     displayValue = status && status.name
                 }
             }
+
+            if(field === 'slackChannel') displayValue = value.name
 
             if(name !== 'others') {
                 return (

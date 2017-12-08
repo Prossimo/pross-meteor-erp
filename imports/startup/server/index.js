@@ -11,8 +11,6 @@ import '../../api/drive'
 import '../../api/settings'
 import '../../api/crobjob'
 import '../../api/slack'
-import '../../api/nylas/methods'
-import '../../api/slack/methods'
 import {ServerErrorLog, MeteorErrorLog, ErrorLog} from '/imports/utils/logger'
 
 process.on('uncaughtException', (err) => {

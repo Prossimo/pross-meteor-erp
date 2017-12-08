@@ -1,10 +1,26 @@
 import {Meteor} from 'meteor/meteor'
-import {channels} from '../restful'
+import {channels, groups} from '../restful'
 
 Meteor.methods({
     getSlackChannels(){
-        const {data} = channels.list()
-        if (!data.ok) throw new Meteor.Error('channels.list API failed')
-        return data.channels
+        let chls = []
+
+        let res = channels.list()
+        if (res.data.ok && res.data.channels) {
+            chls = chls.concat(res.data.channels.map(channel => {
+                channel.isPrivate = false
+                return channel
+            }))
+        }
+
+        res = groups.list()
+        if (res.data.ok && res.data.groups) {
+            chls = chls.concat(res.data.groups.map(channel => {
+                channel.isPrivate = true
+                return channel
+            }))
+        }
+
+        return chls
     }
 })

@@ -12,6 +12,12 @@ import parseSlackMessage from './parseSlackMessage'
 import getSlackChannels from './getSlackChannels'
 import sendDealStatusChangeToSlack from './sendDealStatusChangeToSlack'
 import removeSlackChannel from './removeSlackChannel'
+import createSlackChannel from './createSlackChannel'
+import getInboxSlackChannelId from './getInboxSlackChannelId'
+import inviteBotToSlackChannel from './inviteBotToSlackChannel'
+import inviteUserToSlackChannel from './inviteUserToSlackChannel'
+import renameSlackChannel from './renameSlackChannel'
+import setTopicToSlackChannel from './setTopicToSlackChannel'
 
 export {
     getSlackUsers,
@@ -27,5 +33,11 @@ export {
     sendMailAssignToSlack,
     sendMailUnassignToSlack,
     sendDealStatusChangeToSlack,
-    removeSlackChannel
+    removeSlackChannel,
+    createSlackChannel,
+    getInboxSlackChannelId,
+    inviteBotToSlackChannel,
+    inviteUserToSlackChannel,
+    renameSlackChannel,
+    setTopicToSlackChannel
 }
