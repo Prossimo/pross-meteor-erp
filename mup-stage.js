@@ -29,7 +29,7 @@ module.exports = {
 
         buildOptions: {
             serverOnly: true,
-            debug: false,
+            debug: true,
             cleanAfterBuild: true
         },
 
