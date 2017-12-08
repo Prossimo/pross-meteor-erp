@@ -1,22 +1,19 @@
+import _ from 'underscore'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Roles} from 'meteor/alanning:roles'
-import _ from 'underscore'
 import React from 'react'
-import {FormGroup, Radio, Modal} from 'react-bootstrap'
+import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import Select from 'react-select'
-import Textarea from 'react-textarea-autosize'
 import {info, warning} from '/imports/api/lib/alerts'
 import {
     SHIPPING_MODE_LIST,
     STAGES
 } from '/imports/api/constants/project'
 import moment from 'moment'
-import DatePicker from 'react-datepicker'
-import NumericInput from 'react-numeric-input'
 import SelectMembers from './components/SelectMembers'
 import SelectStakeholders from './components/SelectStakeholders'
-import {ROLES, People, USER_STATUS, Conversations, SalesRecords} from '/imports/api/models'
+import {People, Conversations, SalesRecords} from '/imports/api/models'
 import SelectSubStage from './components/SelectSubStage'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import ConversationForm from './conversations/ConversationForm'
@@ -64,7 +61,9 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
             stakeholders: salesRecord ? salesRecord.stakeholders : [],
             blocking: false,
 
-            selectedConversation: salesRecord && salesRecord.conversationIds && salesRecord.conversationIds.length>0 ? salesRecord.conversationIds[0] : null
+            selectedConversation: salesRecord && salesRecord.conversationIds && salesRecord.conversationIds.length > 0 ? salesRecord.conversationIds[0] : null,
+
+            isPrivateSlackChannel: false
         }
 
         this.changeState = this.changeState.bind(this)
@@ -95,7 +94,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress, shippingContactEmail, shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage,
-            selectedConversation
+            selectedConversation,
+            isPrivateSlackChannel
         } = this.state
 
         const data = {
@@ -130,7 +130,12 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         const {thread, salesRecord} = this.props
         this.props.toggleLoader(true)
         if (salesRecord) {
-            Meteor.call('updateSalesRecord', {_id:salesRecord._id, data, thread, conversationId:selectedConversation}, (err, res) => {
+            Meteor.call('updateSalesRecord', {
+                _id: salesRecord._id,
+                data,
+                thread,
+                conversationId: selectedConversation
+            }, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
@@ -140,7 +145,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                 }, 300)
             })
         } else {
-            Meteor.call('insertSalesRecord', {data, thread}, (err, res) => {
+            Meteor.call('insertSalesRecord', {data, thread, isPrivateSlackChannel}, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)
 
@@ -164,7 +169,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         this.state.members = members
     }
 
-    updateStakeholders = (stakeholders) => { console.log('updateStakeholders', stakeholders)
+    updateStakeholders = (stakeholders) => {
+        console.log('updateStakeholders', stakeholders)
         this.state.stakeholders = stakeholders
     }
 
@@ -175,7 +181,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     }
 
     onSavedConversation = () => {
-        this.setState({showConversationModal:false})
+        this.setState({showConversationModal: false})
     }
 
     render() {
@@ -260,8 +266,15 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                     {
                         this.props.thread && this.props.salesRecord && this.renderConversationSelector()
                     }
+                    {
+                        !this.props.salesRecord && (
+                            <div className="form-group">
+                                <Checkbox checked={this.state.isPrivateSlackChannel} onChange={e => this.setState({isPrivateSlackChannel: e.target.checked})}>Is Private Slack Channel</Checkbox>
+                            </div>
+                        )
+                    }
                     <div className='form-group text-center'>
-                        <button className="btnn primary-btn">{ submitBtnName }</button>
+                        <button className="btnn primary-btn">{submitBtnName}</button>
                     </div>
                 </form>
                 {this.props.salesRecord && this.renderConversationModal()}
@@ -270,14 +283,14 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     }
 
     renderConversationSelector() {
-        if(!this.props.salesRecord) return ''
+        if (!this.props.salesRecord) return ''
 
         const salesRecord = SalesRecords.findOne(this.props.salesRecord._id)
-        if(!salesRecord || !salesRecord.conversationIds) return ''
+        if (!salesRecord || !salesRecord.conversationIds) return ''
 
-        const conversations = Conversations.find({_id: {$in:salesRecord.conversationIds}}).fetch()
+        const conversations = Conversations.find({_id: {$in: salesRecord.conversationIds}}).fetch()
 
-        console.log(JSON.stringify({_id: {$in:salesRecord.conversationIds}}), conversations)
+        console.log(JSON.stringify({_id: {$in: salesRecord.conversationIds}}), conversations)
 
         if (!conversations || conversations.length == 0) return ''
 
@@ -290,13 +303,15 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                         <div className="action" onClick={this.onClickAddConversation}>+</div>
                     </div>
                 </div>
-                <div className='panel-body' style={{display:'flex'}}>
+                <div className='panel-body' style={{display: 'flex'}}>
                     <FormGroup>
-                    {
-                        conversations.map(c => (
-                            <Radio key={`conversation-radio-${c._id}`} value={c._id} checked={selectedConversation == c._id} onChange={this.selectConversation} inline> {c.name}</Radio>
-                        ))
-                    }
+                        {
+                            conversations.map(c => (
+                                <Radio key={`conversation-radio-${c._id}`} value={c._id}
+                                       checked={selectedConversation == c._id} onChange={this.selectConversation}
+                                       inline> {c.name}</Radio>
+                            ))
+                        }
                     </FormGroup>
                 </div>
             </div>
@@ -304,7 +319,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     }
 
     renderConversationModal() {
-        if(!this.props.salesRecord) return ''
+        if (!this.props.salesRecord) return ''
 
         const {showConversationModal} = this.state
 
@@ -314,7 +329,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
             }} bsSize="large">
                 <Modal.Header closeButton><Modal.Title>Add conversation</Modal.Title></Modal.Header>
                 <Modal.Body>
-                    <ConversationForm targetCollection={SalesRecords} targetId={this.props.salesRecord._id} onSaved={this.onSavedConversation}/>
+                    <ConversationForm targetCollection={SalesRecords} targetId={this.props.salesRecord._id}
+                                      onSaved={this.onSavedConversation}/>
                 </Modal.Body>
             </Modal>
         )

@@ -57,6 +57,7 @@ export default class SlackChannelSelector extends React.Component {
                         <tr key={i} onClick={() => this.onSelectMenu(c)}>
                             <td>{channel==c.id ? <i className="fa fa-check"/> : <span style={{width:12,height:12}}>&nbsp;</span> }</td>
                             <td>{c.name}</td>
+                            <td>{c.isPrivate ? <i className="fa fa-lock"/> : ''}</td>
                         </tr>
                     ))
                 }

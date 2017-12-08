@@ -39,7 +39,7 @@ Meteor.methods({
         // Delete messages from general inbox channel
         msgs.forEach((msg) => {
             console.log({channel:project.slackChannel.id, ts:msg.ts})
-            console.log(slackClient.chat.deleteMessage({channel:project.slackChannel.id, ts:msg.ts}))
+            slackClient.chat.deleteMessage({channel:project.slackChannel.id, ts:msg.ts})
         })
         // Delete slackmails from database
         SlackMails.remove({thread_id})
