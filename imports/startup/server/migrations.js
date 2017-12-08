@@ -184,37 +184,41 @@ Migrations.add({
     version: 10,
     name: 'Change slack channel field schema on salesrecord and project collections',
     up() {
-        // 1. Update for salesrecords
-        const salesRecords = SalesRecords.find().fetch()
-        salesRecords.forEach((salesrecord) => {
-            const slackChannel = {}
-            if(salesrecord.slackChanel) {
-                const {data: {ok, channel}} = slackClient.channels.info({channel: salesrecord.slackChanel})
-                if(ok && channel) {
-                    slackChannel.id = channel.id
-                    slackChannel.name = channel.name
-                    slackChannel.isPrivate = false
-                }
-            }
-            console.log('SlackChannel for salesrecord3', slackChannel, salesrecord._id)
-            SalesRecords.update({_id:salesrecord._id}, {$set:{slackChannel}})
-        })
+        const {data:{ok, channels}} = slackClient.channels.list()
+        if(ok && channels) {
 
-        // 2. Update for projects
-        const projects = Projects.find().fetch()
-        projects.forEach((project) => {
-            const slackChannel = {}
-            if(project.slackChanel) {
-                const {data: {ok, channel}} = slackClient.channels.info({channel: project.slackChanel})
-                if(ok && channel) {
-                    slackChannel.id = channel.id
-                    slackChannel.name = channel.name
-                    slackChannel.isPrivate = false
+            // 1. Update for salesrecords
+            const salesRecords = SalesRecords.find().fetch()
+            salesRecords.forEach((salesrecord) => {
+                const slackChannel = {}
+                if(salesrecord.slackChanel) {
+                    const channel = channels.find(({id}) => id===salesrecord.slackChanel)
+                    if(channel) {
+                        slackChannel.id = channel.id
+                        slackChannel.name = channel.name
+                        slackChannel.isPrivate = false
+                    }
                 }
-            }
-            console.log('SlackChannel for project3', slackChannel, project._id)
-            Projects.update({_id:project._id}, {$set:{slackChannel}})
-        })
+                console.log('SlackChannel for salesrecord5', slackChannel, salesrecord._id)
+                SalesRecords.update({_id:salesrecord._id}, {$set:{slackChannel}})
+            })
+
+            // 2. Update for projects
+            const projects = Projects.find().fetch()
+            projects.forEach((project) => {
+                const slackChannel = {}
+                if(project.slackChanel) {
+                    const channel = channels.find(({id}) => id===project.slackChanel)
+                    if(channel) {
+                        slackChannel.id = channel.id
+                        slackChannel.name = channel.name
+                        slackChannel.isPrivate = false
+                    }
+                }
+                console.log('SlackChannel for project5', slackChannel, project._id)
+                Projects.update({_id:project._id}, {$set:{slackChannel}})
+            })
+        }
     },
     down() {
 
