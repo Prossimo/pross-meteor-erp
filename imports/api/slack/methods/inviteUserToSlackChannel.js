@@ -9,9 +9,13 @@ Meteor.methods({
 
         const inviteUser = isPrivate ? slackClient.groups.invite : slackClient.channels.invite
 
-        return inviteUser({
+        console.log('========> inviteUserToSlackChannel', {id, isPrivate, user})
+        const res = inviteUser({
             channel: id,
             user
         })
+
+        console.log(res.data)
+        return res
     }
 })
