@@ -19,9 +19,9 @@ Meteor.publishComposite('salesrecords.one', function (_id) {
                 return Events.find({projectId:_id})
             }
         },{
-            find({slackChanel}) {
-                if(slackChanel) {
-                    return SlackMessages.find({channel: slackChanel})
+            find({slackChannel}) {
+                if(slackChannel && slackChannel.id) {
+                    return SlackMessages.find({channel: slackChannel.id})
                 }
             }
         },{

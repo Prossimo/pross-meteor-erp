@@ -119,7 +119,9 @@ class AddQuoteForm extends React.Component{
             info(`${needUpdate?'Update':'Add'} revision success!`)
             if(err) return warning(err.reason)
             //// step # 3 - notify slack/email
-            Meteor.call('sendBotMessage', salesRecord.slackChanel, slackText, slackMsgParans)
+            if (!salesRecord.slackChannel || !salesRecord.slackChannel.id) return
+
+            Meteor.call('sendBotMessage', salesRecord.slackChannel.id, slackText, slackMsgParans)
 
             if(alertsActive && draftClientId && selectedMailTemplate) {
                 const draftInterval = setInterval(() => {

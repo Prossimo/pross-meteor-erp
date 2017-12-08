@@ -27,6 +27,7 @@ const validatePermission = (userId, salesRecord) => {
     }
 }
 
+
 Meteor.methods({
     removeSalesRecord({_id, isRemoveSlack, isRemoveFolders}) {
         new SimpleSchema({
@@ -39,14 +40,14 @@ Meteor.methods({
 
         validatePermission(this.userId, salesRecord)
 
-        const {folderId, slackChanel} = salesRecord
+        const {folderId, slackChannel} = salesRecord
         // Remove salesrecord
         SalesRecords.remove(_id)
         Meteor.defer(() => {
             // Remove folder
             isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
             // Remove slack channel
-            isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
+            isRemoveSlack && slackChannel && slackChannel.id && Meteor.call('removeSlackChannel', slackChannel)
         })
     },
 
@@ -120,7 +121,7 @@ Meteor.methods({
         return SalesRecords.update(salesRecordId, {$pull: {members: userId}})
     },
     // NOTICE: it must be saleRecord
-    insertSalesRecord({data, thread}){
+    insertSalesRecord({data, thread, isPrivateSlackChannel}){
         if (!this.userId) {
             throw new Meteor.Error('No authorized')
         }
@@ -154,38 +155,22 @@ Meteor.methods({
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
             stage: Match.Maybe(String),
-            subStage: Match.Maybe(String),
+            subStage: Match.Maybe(String)
         })
-
         check(thread, Match.Maybe(Object))
+        check(isPrivateSlackChannel, Match.Maybe(Boolean))
 
-        let newName = `d-${data.name}`
-        let responseCreateChannel = slackClient.channels.create({ name: newName })
-        //console.log("Create slack channel response", responseCreateChannel)
-        if (!responseCreateChannel.data.ok) {
-            // RETRY WITH UNIQUE NAME
-            newName = `${newName}-${Random.id()}`
-            responseCreateChannel = slackClient.channels.create({ name: newName })
-            if (!responseCreateChannel.data.ok) {
-                throw new Meteor.Error('Some problems with created slack channel! Sorry try later')
-            }
-        }
+        const slackChannel = Meteor.call('createSlackChannel', {name: `d-${data.name}`, isPrivate:isPrivateSlackChannel})
 
+        if(!slackChannel) throw new Meteor.Error('Can not create slack channel')
 
-        data.slackChanel = responseCreateChannel.data.channel.id
-        data.slackChannelName = responseCreateChannel.data.channel.name
+        data.slackChannel = slackChannel
 
-        const responseInviteBot = slackClient.channels.inviteBot({
-          channel: responseCreateChannel.data.channel.id,
-        })
-
+        const responseInviteBot = Meteor.call('inviteBotToSlackChannel', slackChannel)
         if (!responseInviteBot.data.ok) throw new Meteor.Error('Bot cannot add to channel')
 
         Meteor.users.find({_id: {$in: data.members}, slack: {$exists: true}})
-            .forEach(user => slackClient.channels.invite({
-              channel: responseCreateChannel.data.channel.id,
-              user: user.slack.id,
-            }))
+            .forEach(user => Meteor.call('inviteUserToSlackChannel', {...slackChannel, user:user.slack.id}))
 
 
         const mainConversationId = Conversations.insert({name:'Main', participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
@@ -198,11 +183,7 @@ Meteor.methods({
             const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
 
             // set topic on slack channel
-            slackClient.channels.setTopic({
-                channel: data.slackChanel,
-                topic: `${Meteor.absoluteUrl(`deal/${salesRecordId}`)}\n${webViewLink || webContentLink}`,
-            })
-
+            Meteor.call('setTopicToSlackChannel', {...slackChannel, topic:`${Meteor.absoluteUrl(`deal/${salesRecordId}`)}\n${webViewLink || webContentLink}`})
         })
 
         // Insert conversations attached
@@ -231,7 +212,7 @@ Meteor.methods({
                 }
             })
 
-            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:data.slackChanel})
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:slackChannel.id})
         }
 
         HTTP.post('http://78.47.83.46:8000/api/login_check', {
@@ -367,7 +348,7 @@ Meteor.methods({
                 }
             })
 
-            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:sr.slackChanel})
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel:sr.slackChannel.id})
         }
 
     },
@@ -398,8 +379,7 @@ Meteor.methods({
                 slack: { $exists: true },
             }).forEach(
                 ({ slack: { id } }) => {
-                    const {data} = slackClient.channels.invite({ channel:salesRecord.slackChanel, user:id })
-                    console.log(data)
+                    Meteor.call('inviteUserToSlackChannel', {...salesRecord.slackChannel, user:id})
                 }
             )
         }
@@ -427,25 +407,24 @@ Meteor.methods({
         check(_id, String)
         check(channel, Object) // slack channel object
 
-        const slackChanel = channel.id
-        const slackChannelName = channel.name
-        const slackMembers = channel.members
-
         const salesRecord = validateSalesRecord(_id)
         validatePermission(this.userId, salesRecord)
 
+        const slackChannel = {
+            id: channel.id,
+            name: channel.name,
+            isPrivate: channel.isPrivate
+        }
 
-        if(slackMembers.indexOf(config.slack.botId) == -1) {
-            const responseInviteBot = slackClient.channels.inviteBot({
-                channel: slackChanel,
-            })
+        if(channel.members.indexOf(config.slack.botId) == -1) {
+            const responseInviteBot = Meteor.call('inviteBotToSlackChannel', slackChannel)
 
             if (!responseInviteBot.data.ok) {
-                ServerLog.error(slackChanel, responseInviteBot.data)
+                ServerLog.error(JSON.stringify(slackChannel), responseInviteBot.data)
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }
-        SalesRecords.update(_id, {$set:{slackChanel, slackChannelName}})
+        SalesRecords.update(_id, {$set:{slackChannel}})
     },
 
     updateSalesRecordStatus(salesRecordId, status) {

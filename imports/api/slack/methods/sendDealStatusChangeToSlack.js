@@ -19,7 +19,7 @@ Meteor.methods({
 
         if(!salesRecordId) throw new Meteor.Error(`[sendDealStatusChangeToSlack]: Could not find deal with _id:${salesRecordId}`)
 
-        const slackChannelId = salesRecord.slackChanel
+        const slackChannelId = salesRecord.slackChannel.id
         if (!slackChannelId) throw new Meteor.Error(`[sendDealStatusChangeToSlack]: Could not find slackChannel on deal:${salesRecordId}`)
 
         const slackUser = user.slack

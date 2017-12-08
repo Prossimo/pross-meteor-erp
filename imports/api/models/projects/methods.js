@@ -29,9 +29,10 @@ export const createProject = new ValidatedMethod({
     name: 'project.create',
     validate: Projects.schema.pick('name', 'members', 'stakeholders', 'nylasAccountId').extend({
         thread:{type:Threads.schema, optional:true},
-        isServer: {type:Boolean, optional:true}
+        isServer: {type:Boolean, optional:true},
+        isPrivateSlackChannel: {type:Boolean, optional:true}
     }).validator(),
-    run({ name, members, stakeholders, thread, nylasAccountId, isServer }) {
+    run({ name, members, stakeholders, thread, nylasAccountId, isServer, isPrivateSlackChannel }) {
         const project = { name, members, stakeholders, nylasAccountId }
         // CHECK ROLE
         if (!isServer) {
@@ -55,49 +56,35 @@ export const createProject = new ValidatedMethod({
         const projectId = Projects.insert(project)
 
         // CREATE NEW CHANNEL
-        let newName = `p-${project.name}`
-        let { data } = slackClient.channels.create({ name: newName })
-        // RETRY WITH UNIQUE NAME
-        if (!data.ok) {
-            newName = `${newName}-${Random.id()}`
-            data = slackClient.channels.create({ name: newName }).data
+        const slackChannel = Meteor.call('createSlackChannel', {name:`p-${project.name}`, isPrivate:isPrivateSlackChannel})
+        if(!slackChannel) throw new Meteor.Error('Can not create slack channel')
+
+        // INVITE MEMBERS to CHANNEL
+        if(members) {
+            Meteor.users.find({
+                _id: { $in: members.map(({ userId }) => userId) },
+                slack: { $exists: true },
+            }).forEach(
+                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...slackChannel, user:id})
+            )
         }
 
-        let slackChanel
-        if (data.ok) {
-            slackChanel = data.channel.id
-            const slackChannelName = data.channel.name
-            // INVITE MEMBERS to CHANNEL
-            if(members) {
+        // UPDATE slackChannel
+        Projects.update(projectId, {
+            $set: { slackChannel },
+        })
 
-                Meteor.users.find({
-                    _id: { $in: members.map(({ userId }) => userId) },
-                    slack: { $exists: true },
-                }).forEach(
-                    ({ slack: { id } }) => slackClient.channels.invite({ channel: slackChanel, user: id })
-                )
-            }
+        // INVITE SLACKBOT to CHANNEL
+        Meteor.call('inviteBotToSlackChannel', slackChannel)
 
-            // UPDATE slackChanel
-            Projects.update(projectId, {
-                $set: { slackChanel, slackChannelName },
-            })
+        Meteor.defer(() => {
+            // CREATE DRIVE
+            const folderId = prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+            const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
 
-            // INVITE SLACKBOT to CHANNEL
-            slackClient.channels.inviteBot({ channel: slackChanel })
-
-            Meteor.defer(() => {
-                // CREATE DRIVE
-                const folderId = prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
-                const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
-
-                // set topic on slack channel
-                slackClient.channels.setTopic({
-                    channel: slackChanel,
-                    topic: `${Meteor.absoluteUrl(`project/${projectId}`)}\n${webViewLink || webContentLink}`,
-                })
-            })
-        }
+            // set topic on slack channel
+            Meteor.call('setTopicToSlackChannel', {...slackChannel, topic:`${Meteor.absoluteUrl(`project/${projectId}`)}\n${webViewLink || webContentLink}`})
+        })
 
         // Insert conversations attached
         if (thread) {
@@ -125,9 +112,7 @@ export const createProject = new ValidatedMethod({
                 }
             })
 
-            if(slackChanel) {
-                Meteor.call('moveSlackMails', {thread_id: thread.id, channel: slackChanel})
-            }
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: slackChannel.id})
         }
 
         return projectId
@@ -151,9 +136,7 @@ export const updateProject = new ValidatedMethod({
                 _id: { $in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1) },
                 slack: { $exists: true },
             }).forEach(
-                ({ slack: { id } }) => {
-                    const {data} = slackClient.channels.invite({ channel:project.slackChanel, user:id })
-                }
+                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user:id})
             )
         }
         const data = {
@@ -194,7 +177,7 @@ export const updateProject = new ValidatedMethod({
                 }
             })
 
-            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: project.slackChanel})
+            Meteor.call('moveSlackMails', {thread_id: thread.id, channel: project.slackChannel.id})
         }
     }
 })
@@ -207,7 +190,7 @@ export const removeProject = new ValidatedMethod({
 
         validatePermission(this.userId, project)
 
-        const { folderId, slackChanel } = project
+        const { folderId, slackChannel } = project
 
         // Remove Project
         Projects.remove(_id)
@@ -215,7 +198,7 @@ export const removeProject = new ValidatedMethod({
         // Run later
         Meteor.defer(() => {
             // Remove slack channel
-            isRemoveSlack && slackClient.channels.archive({ channel: slackChanel })
+            isRemoveSlack && Meteor.call('removeSlackChannel', slackChannel)
             // Remove folder
             isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
         })
@@ -237,24 +220,25 @@ Meteor.methods({
         check(_id, String)
         check(channel, Object) // slack channel object
 
-        const slackChanel = channel.id
-        const slackChannelName = channel.name
-        const slackMembers = channel.members
-
         const project = validateProject(_id)
         validatePermission(this.userId, project)
 
-        if(slackMembers.indexOf(config.slack.botId) == -1) {
-            const responseInviteBot = slackClient.channels.inviteBot({
-                channel: slackChanel,
-            })
+        const slackChannel = {
+            id: channel.id,
+            name: channel.name,
+            isPrivate: channel.isPrivate
+        }
+
+
+        if(channel.members.indexOf(config.slack.botId) == -1) {
+            const responseInviteBot = Meteor.call('inviteBotToSlackChannel', slackChannel)
 
             if (!responseInviteBot.data.ok) {
-                ErrorLog.error(slackChanel, responseInviteBot.data)
+                ErrorLog.error(JSON.stringify(slackChannel), responseInviteBot.data)
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }
-        Projects.update(_id, {$set:{slackChanel, slackChannelName}})
+        Projects.update(_id, {$set:{slackChannel}})
     },
     archiveProject(_id, archived) {
         check(_id, String)
@@ -280,10 +264,7 @@ Meteor.methods({
                 _id: { $in: members.filter(({userId}) => project.members.map(({userId}) => userId).indexOf(userId)==-1) },
                 slack: { $exists: true },
             }).forEach(
-                ({ slack: { id } }) => {
-                    const {data} = slackClient.channels.invite({ channel:project.slackChanel, user:id })
-                    console.log(data)
-                }
+                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user:id})
             )
         }
 

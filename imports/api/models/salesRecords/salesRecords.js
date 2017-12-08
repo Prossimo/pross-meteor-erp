@@ -55,8 +55,6 @@ SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
     modifiedAt: { type: Date, denyInsert: true, optional: true },
-    slackChanel: { type: String, optional: true },
-    slackChannelName: { type: String, optional: true },
 
     name: { type: String },
     members: { type: Array },
@@ -104,6 +102,11 @@ SalesRecords.schema = new SimpleSchema({
     folderId: { type: String, optional: true },
     taskFolderId: { type: String, optional: true },
 
+    slackChannel: { type: Object, defaultValue: {}},
+    'slackChannel.$.id': { type: String },
+    'slackChannel.$.name': { type: String },
+    'slackChannel.$.isPrivate': { type: Boolean },
+
     conversationIds: {type: Array, optional:true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 
@@ -115,7 +118,7 @@ SalesRecords.attachSchema(SalesRecords.schema)
 SalesRecords.publicFields = {
     name: 1,
     members: 1,
-    slackChanel: 1,
+    slackChannel: 1,
     actualDeliveryDate: 1,
     productionStartDate: 1,
     estDeliveryRange: 1,
@@ -196,8 +199,8 @@ SalesRecords.helpers({
     },
 
     slackActivities() {
-
-        const msg = SlackMessages.find({channel: this.slackChanel}, {sort: {createAt: -1}}).map( item => {
+        if(!this.slackChannel) return []
+        const msg = SlackMessages.find({channel: this.slackChannel.id}, {sort: {createAt: -1}}).map( item => {
             if(item.userId) item.author = Users.findOne(item.userId)
             return item
         })

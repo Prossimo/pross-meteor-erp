@@ -39,10 +39,13 @@ Projects.schema = new SimpleSchema({
     'stakeholders.$.peopleId': {type: String},
     'stakeholders.$.isMainStakeholder': {type: Boolean, optional: true},
     'stakeholders.$.addToMain': {type: Boolean, optional: true},    // to main conversation
-    slackChanel: {type: String, optional: true},
-    slackChannelName: {type: String, optional: true},
     folderId: {type: String, optional: true},
     taskFolderId: {type: String, optional: true},
+
+    slackChannel: { type: Object, defaultValue: {}},
+    'slackChannel.$.id': { type: String },
+    'slackChannel.$.name': { type: String },
+    'slackChannel.$.isPrivate': { type: Boolean },
 
     conversationIds: {type: Array, optional: true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},

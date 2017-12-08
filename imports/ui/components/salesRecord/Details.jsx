@@ -152,7 +152,7 @@ class Details extends TrackerReact(React.Component) {
             console.log('salesRecord', salesRecord)
             Meteor.call('updateSalesRecord', {
                 _id: salesRecord._id,
-                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChanel', 'slackChannelName', 'conversationIds', 'taskFolderId'])}
+                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChannel', 'slackChannelName', 'conversationIds', 'taskFolderId'])}
             }, (err) => {
                 if (err) {
                     ClientErrorLog.error(err)
@@ -395,7 +395,7 @@ class Details extends TrackerReact(React.Component) {
             {label: 'ID', field: '_id', type: 'text'},
             {label: 'Created At', field: 'createdAt', type: 'date'},
             {label: 'Modified At', field: 'modifiedAt', type: 'date'},
-            {label: 'Slack Chanel', field: 'slackChanel', type: 'text'},
+            {label: 'Slack Chanel', field: 'slackChannel', type: 'text'},
             {label: 'Folder Id', field: 'folderId', type: 'text'},
         ]
 

@@ -36,7 +36,7 @@ class Files extends Component {
         this.slack = {
             username: getSlackUsername(props.usersArr[Meteor.userId()]),
             icon_url: getAvatarUrl(props.usersArr[Meteor.userId()]),
-            chanel: p.slackChanel,
+            chanel: p.slackChannel.id,
         }
         this.selectFile = this.selectFile.bind(this)
         this.listFiles = this.listFiles.bind(this)

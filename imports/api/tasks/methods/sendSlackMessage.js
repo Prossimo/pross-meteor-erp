@@ -30,12 +30,13 @@ export default new ValidatedMethod({
 
 
         if (parent) {
-            const {slackChanel: channel} = parent
-            const {name, description: text, status, comments, assignee} = Tasks.findOne(taskId)
-            const title_link = Meteor.absoluteUrl(`${parentType}/${parentId}`)
-            const adminChanel = Settings.findOne({key: 'SLACK_NOTIFICATION_CHANNEL'})
-            const title = `Task: ${name}`
+            const {slackChannel} = parent
+            const channel = slackChannel.id
             if (channel) {
+                const {name, description: text, status, comments, assignee} = Tasks.findOne(taskId)
+                const title_link = Meteor.absoluteUrl(`${parentType}/${parentId}`)
+                const adminChanel = Settings.findOne({key: 'SLACK_NOTIFICATION_CHANNEL'})
+                const title = `Task: ${name}`
                 switch (type) {
                     case 'ADD_COMMENT': {
                         const comment = _.last(comments)

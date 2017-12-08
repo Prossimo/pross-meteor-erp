@@ -513,9 +513,9 @@ class SingleSalesRecord extends React.Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={salesRecord.slackChanel}
+                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
                                                                                     onSelectChannel={this.updateSlackChannel}/>}>
-                            {salesRecord.slackChannelName || salesRecord.slackChanel}
+                            {salesRecord.slackChannel.name || salesRecord.slackChannel.id}
                         </Panel>
                     </div>
                     <div className="sidebar-box">
