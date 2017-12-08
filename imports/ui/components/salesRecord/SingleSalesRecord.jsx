@@ -515,7 +515,7 @@ class SingleSalesRecord extends React.Component {
                     <div className="sidebar-box">
                         <Panel title="Slack Channel" actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
                                                                                     onSelectChannel={this.updateSlackChannel}/>}>
-                            {salesRecord.slackChannel.name || salesRecord.slackChannel.id}
+                            {salesRecord.slackChannel.name || salesRecord.slackChannel.id}&nbsp;{salesRecord.slackChannel.isPrivate && <i className="fa fa-lock"/>}
                         </Panel>
                     </div>
                     <div className="sidebar-box">
