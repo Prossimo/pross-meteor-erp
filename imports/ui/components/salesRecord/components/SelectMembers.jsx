@@ -70,7 +70,7 @@ export default class SelectMembers extends Component{
     }
 
     render() {
-        const members = Users.find().fetch().filter(({_id, status, slack}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES]) && status === USER_STATUS.ACTIVE && slack)
+        const members = Users.find().fetch().filter(({_id, status, slack}) => Roles.userIsInRole(_id, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER]) && status === USER_STATUS.ACTIVE && slack)
         const memberOptions = members.map(member => ({ label: member.name(), value: member._id, username: member.username, roles:member.roles.join(',') }))
         return (
             <div className='panel panel-default'>
