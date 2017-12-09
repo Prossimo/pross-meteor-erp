@@ -1,12 +1,12 @@
 import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import SimpleSchema from 'simpl-schema'
-import { ValidatedMethod } from 'meteor/mdg:validated-method'
+import {ValidatedMethod} from 'meteor/mdg:validated-method'
 import queryString from 'query-string'
 import NylasAPI from '../../nylas/nylas-api'
-import { Projects, ROLES, Conversations, Threads, Messages } from '/imports/api/models'
-import { prossDocDrive } from '/imports/api/drive'
-import { slackClient } from '/imports/api/slack'
+import {Projects, ROLES, Conversations, Threads, Messages} from '/imports/api/models'
+import {prossDocDrive} from '/imports/api/drive'
+import {slackClient} from '/imports/api/slack'
 import config from '../../config'
 import {ErrorLog} from '/imports/utils/logger'
 
@@ -14,13 +14,13 @@ const bound = Meteor.bindEnvironment((callback) => callback())
 
 const validateProject = (_id) => {
     const project = Projects.findOne(_id)
-    if(!project) throw new Meteor.Error(`Not found project with _id: ${_id}`)
+    if (!project) throw new Meteor.Error(`Not found project with _id: ${_id}`)
 
     return project
 }
 
 const validatePermission = (userId, project) => {
-    if(!Roles.userIsInRole(userId, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER]) && project && project.members.map(({userId}) => userId).indexOf(userId) === -1) {
+    if (!Roles.userIsInRole(userId, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER]) && project && project.members.map(({userId}) => userId).indexOf(userId) === -1) {
         throw new Meteor.Error('Access Denied')
     }
 }
@@ -28,19 +28,19 @@ const validatePermission = (userId, project) => {
 export const createProject = new ValidatedMethod({
     name: 'project.create',
     validate: Projects.schema.pick('name', 'members', 'stakeholders', 'nylasAccountId').extend({
-        thread:{type:Threads.schema, optional:true},
-        isServer: {type:Boolean, optional:true},
-        isPrivateSlackChannel: {type:Boolean, optional:true}
+        thread: {type: Threads.schema, optional: true},
+        isServer: {type: Boolean, optional: true},
+        isPrivateSlackChannel: {type: Boolean, optional: true}
     }).validator(),
-    run({ name, members, stakeholders, thread, nylasAccountId, isServer, isPrivateSlackChannel }) {
-        const project = { name, members, stakeholders, nylasAccountId }
+    run({name, members, stakeholders, thread, nylasAccountId, isServer, isPrivateSlackChannel}) {
+        const project = {name, members, stakeholders, nylasAccountId}
         // CHECK ROLE
         if (!isServer) {
             validatePermission(this.userId, null)
         }
 
         let mainConversationId
-        if(!nylasAccountId) {   // if it is not inbox project
+        if (!nylasAccountId) {   // if it is not inbox project
             stakeholders = stakeholders || []
             mainConversationId = Conversations.insert({
                 name: 'Main',
@@ -56,22 +56,25 @@ export const createProject = new ValidatedMethod({
         const projectId = Projects.insert(project)
 
         // CREATE NEW CHANNEL
-        const slackChannel = Meteor.call('createSlackChannel', {name:`p-${project.name}`, isPrivate:isPrivateSlackChannel})
-        if(!slackChannel) throw new Meteor.Error('Can not create slack channel')
+        const slackChannel = Meteor.call('createSlackChannel', {
+            name: `p-${project.name}`,
+            isPrivate: isPrivateSlackChannel
+        })
+        if (!slackChannel) throw new Meteor.Error('Can not create slack channel')
 
         // INVITE MEMBERS to CHANNEL
-        if(members) {
+        if (members) {
             Meteor.users.find({
-                _id: { $in: members.map(({ userId }) => userId) },
-                slack: { $exists: true },
+                _id: {$in: members.map(({userId}) => userId)},
+                slack: {$exists: true},
             }).forEach(
-                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...slackChannel, user:id})
+                ({slack: {id}}) => Meteor.call('inviteUserToSlackChannel', {...slackChannel, user: id})
             )
         }
 
         // UPDATE slackChannel
         Projects.update(projectId, {
-            $set: { slackChannel },
+            $set: {slackChannel},
         })
 
         // INVITE SLACKBOT to CHANNEL
@@ -79,17 +82,20 @@ export const createProject = new ValidatedMethod({
 
         Meteor.defer(() => {
             // CREATE DRIVE
-            const folderId = prossDocDrive.createProjectFolder.call({ name: project.name, projectId })
+            const folderId = prossDocDrive.createProjectFolder.call({name: project.name, projectId})
             const {webViewLink, webContentLink} = prossDocDrive.getFiles.call({fileId: folderId})
 
             // set topic on slack channel
-            Meteor.call('setTopicToSlackChannel', {...slackChannel, topic:`${Meteor.absoluteUrl(`project/${projectId}`)}\n${webViewLink || webContentLink}`})
+            Meteor.call('setTopicToSlackChannel', {
+                ...slackChannel,
+                topic: `${Meteor.absoluteUrl(`project/${projectId}`)}\n${webViewLink || webContentLink}`
+            })
         })
 
         // Insert conversations attached
         if (thread) {
             //console.log('thread to be attached', thread)
-            Threads.update({_id:thread._id},{$set:{conversationId:mainConversationId}})
+            Threads.update({_id: thread._id}, {$set: {conversationId: mainConversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
@@ -121,22 +127,22 @@ export const createProject = new ValidatedMethod({
 export const updateProject = new ValidatedMethod({
     name: 'project.update',
     validate: Projects.schema.extend({
-        thread:{type:Threads.schema, optional:true},
-        conversationId:{type: String, regEx: SimpleSchema.RegEx.Id, optional:true}
+        thread: {type: Threads.schema, optional: true},
+        conversationId: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}
     }).validator(),
-    run({ _id, name, members, stakeholders, thread, conversationId }) {
+    run({_id, name, members, stakeholders, thread, conversationId}) {
 
         // current user belongs to salesRecords
         const project = validateProject(_id)
         validatePermission(this.userId, project)
 
 
-        if(members && members.length) {
+        if (members && members.length) {
             Meteor.users.find({
-                _id: { $in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid)==-1) },
-                slack: { $exists: true },
+                _id: {$in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid) == -1)},
+                slack: {$exists: true},
             }).forEach(
-                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user:id})
+                ({slack: {id}}) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user: id})
             )
         }
         const data = {
@@ -152,9 +158,9 @@ export const updateProject = new ValidatedMethod({
 
         // Insert conversations attached
         if (thread) {
-            if(!conversationId) throw new Meteor.Error('ConversationID required')
+            if (!conversationId) throw new Meteor.Error('ConversationID required')
 
-            Threads.update({_id:thread._id}, {$set:{conversationId}})
+            Threads.update({_id: thread._id}, {$set: {conversationId}})
 
             const query = queryString.stringify({thread_id: thread.id})
             NylasAPI.makeRequest({
@@ -184,13 +190,17 @@ export const updateProject = new ValidatedMethod({
 
 export const removeProject = new ValidatedMethod({
     name: 'project.remove',
-    validate: new SimpleSchema({_id:Projects.schema.schema('_id'), isRemoveFolders:{type:Boolean,optional:true}, isRemoveSlack:{type:Boolean,optional:true}}).validator({clean:true}),
+    validate: new SimpleSchema({
+        _id: Projects.schema.schema('_id'),
+        isRemoveFolders: {type: Boolean, optional: true},
+        isRemoveSlack: {type: Boolean, optional: true}
+    }).validator({clean: true}),
     run({_id, isRemoveFolders, isRemoveSlack}) {
         const project = validateProject(_id)
 
         validatePermission(this.userId, project)
 
-        const { folderId, slackChannel } = project
+        const {folderId, slackChannel} = project
 
         // Remove Project
         Projects.remove(_id)
@@ -200,19 +210,22 @@ export const removeProject = new ValidatedMethod({
             // Remove slack channel
             isRemoveSlack && Meteor.call('removeSlackChannel', slackChannel)
             // Remove folder
-            isRemoveFolders && prossDocDrive.removeFiles.call({ fileId: folderId })
+            isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
         })
     }
 })
 
 export const pushConversationToProject = new ValidatedMethod({
     name: 'project.pushConversation',
-    validate: new SimpleSchema({_id:Projects.schema.schema('_id'), conversationId:Conversations.schema.schema('_id')}).validator({clean:true}),
+    validate: new SimpleSchema({
+        _id: Projects.schema.schema('_id'),
+        conversationId: Conversations.schema.schema('_id')
+    }).validator({clean: true}),
     run({_id, conversationId}) {
         const project = validateProject(_id)
 
         validatePermission(this.userId, project)
-        Projects.update(_id, {$push:{conversationIds:conversationId}})
+        Projects.update(_id, {$push: {conversationIds: conversationId}})
     }
 })
 Meteor.methods({
@@ -230,7 +243,7 @@ Meteor.methods({
         }
 
 
-        if(channel.members.indexOf(config.slack.botId) == -1) {
+        if (channel.members.indexOf(config.slack.botId) == -1) {
             const responseInviteBot = Meteor.call('inviteBotToSlackChannel', slackChannel)
 
             if (!responseInviteBot.data.ok) {
@@ -238,7 +251,7 @@ Meteor.methods({
                 throw new Meteor.Error('Bot cannot add to channel')
             }
         }
-        Projects.update(_id, {$set:{slackChannel}})
+        Projects.update(_id, {$set: {slackChannel}})
     },
     archiveProject(_id, archived) {
         check(_id, String)
@@ -247,24 +260,24 @@ Meteor.methods({
         const project = validateProject(_id)
         validatePermission(this.userId, project)
 
-        Projects.update(_id, {$set:{archived}})
+        Projects.update(_id, {$set: {archived}})
     },
 
-    updateProjectMembers(projectId, members){
+    updateProjectMembers(projectId, members) {
         check(projectId, String)
         check(members, Array)
 
         const project = validateProject(projectId)
         validatePermission(this.userId, project)
 
-        if(members && project.members && members.length == project.members.length && members.every(m => project.members.indexOf(m)>-1)) return
+        if (members && project.members && members.length == project.members.length && members.every(m => project.members.indexOf(m) > -1)) return
 
-        if(members && members.length) {
+        if (members && members.length) {
             Meteor.users.find({
-                _id: { $in: members.filter(({userId}) => project.members.map(({userId}) => userId).indexOf(userId)==-1) },
-                slack: { $exists: true },
+                _id: {$in: members.map(({userId}) => userId).filter(userId => project.members.map(({userId}) => userId).indexOf(userId) === -1)},
+                slack: {$exists: true},
             }).forEach(
-                ({ slack: { id } }) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user:id})
+                ({slack: {id}}) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user: id})
             )
         }
 
@@ -272,17 +285,20 @@ Meteor.methods({
 
         // allow edit folder
         Meteor.defer(() => {
-            members.filter(({userId}) => project.members.map(({userId}) => userId).indexOf(userId) === -1).forEach((userId) => {
-                const user = Meteor.users.findOne(userId)
-                if (user && user.emails && user.emails.length > 0) {
-                    const email = user.emails[0].address
-                    if (email) {
-                        if (project && project.folderId) {
-                            prossDocDrive.shareWith.call({fileId: project.folderId, email})
+            members
+                .map(({userId}) => userId)
+                .filter(userId => project.members.map(({userId}) => userId).indexOf(userId) === -1)
+                .forEach((userId) => {
+                    const user = Meteor.users.findOne(userId)
+                    if (user && user.emails && user.emails.length > 0) {
+                        const email = user.emails[0].address
+                        if (email) {
+                            if (project && project.folderId) {
+                                prossDocDrive.shareWith.call({fileId: project.folderId, email})
+                            }
                         }
                     }
-                }
-            })
+                })
         })
     }
 })
