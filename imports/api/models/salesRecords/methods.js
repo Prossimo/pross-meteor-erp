@@ -47,7 +47,7 @@ Meteor.methods({
             // Remove folder
             isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
             // Remove slack channel
-            isRemoveSlack && slackChannel && slackChannel.id && Meteor.call('removeSlackChannel', slackChannel)
+            isRemoveSlack && slackChannel && slackChannel.id && Meteor.call('archiveSlackChannel', slackChannel)
         })
     },
 
@@ -481,6 +481,12 @@ Meteor.methods({
 
         const salesRecord = validateSalesRecord(_id)
         validatePermission(this.userId, salesRecord)
+
+        if(archived) {
+            Meteor.call('archiveSlackChannel', salesRecord.slackChannel)
+        } else {
+            Meteor.call('unarchiveSlackChannel', salesRecord.slackChannel)
+        }
         SalesRecords.update(_id, {$set:{archived}})
     }
 

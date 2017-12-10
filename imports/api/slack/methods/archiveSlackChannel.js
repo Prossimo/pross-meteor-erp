@@ -2,7 +2,7 @@ import {Meteor} from 'meteor/meteor'
 import slackClient from '../restful'
 
 Meteor.methods({
-    removeSlackChannel({id, isPrivate}) {
+    archiveSlackChannel({id, isPrivate}) {
         check(id, String)
         check(isPrivate, Match.Maybe(Boolean))
 

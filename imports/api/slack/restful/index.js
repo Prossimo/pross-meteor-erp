@@ -45,6 +45,7 @@ const users = {
 
 const channels = {
   archive: ({ channel }) => slackClient.makeRequest('channels.archive', { channel }),
+  unarchive: ({ channel }) => slackClient.makeRequest('channels.unarchive', { channel }),
   create: ({ name }) => slackClient.makeRequest('channels.create', { name }),
   invite: ({ channel, user }) => slackClient.makeRequest('channels.invite', { channel, user }),
   inviteBot: ({ channel }) => slackClient.makeRequest('channels.invite', { channel, user: SLACK_BOT_ID }),
@@ -59,6 +60,7 @@ const channels = {
 
 const groups = {
   archive: ({ channel }) => slackClient.makeRequest('groups.archive', { channel }),
+  unarchive: ({ channel }) => slackClient.makeRequest('groups.unarchive', { channel }),
   create: ({ name }) => slackClient.makeRequest('groups.create', { name }),
   invite: ({ channel, user }) => slackClient.makeRequest('groups.invite', { channel, user }),
   inviteBot: ({ channel }) => slackClient.makeRequest('groups.invite', { channel, user: SLACK_BOT_ID }),

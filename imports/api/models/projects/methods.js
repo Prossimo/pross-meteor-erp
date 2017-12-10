@@ -208,7 +208,7 @@ export const removeProject = new ValidatedMethod({
         // Run later
         Meteor.defer(() => {
             // Remove slack channel
-            isRemoveSlack && Meteor.call('removeSlackChannel', slackChannel)
+            isRemoveSlack && Meteor.call('archiveSlackChannel', slackChannel)
             // Remove folder
             isRemoveFolders && prossDocDrive.removeFiles.call({fileId: folderId})
         })
@@ -259,6 +259,12 @@ Meteor.methods({
 
         const project = validateProject(_id)
         validatePermission(this.userId, project)
+
+        if(archived) {
+            Meteor.call('archiveSlackChannel', project.slackChannel)
+        } else {
+            Meteor.call('unarchiveSlackChannel', project.slackChannel)
+        }
 
         Projects.update(_id, {$set: {archived}})
     },
