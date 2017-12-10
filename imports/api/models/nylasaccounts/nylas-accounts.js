@@ -1,6 +1,7 @@
 import { Mongo } from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import Contacts from '../contacts/contacts'
+import Projects from '../projects/projects'
 
 class NylasAccountsCollection extends Mongo.Collection {
     insert(doc, callback) {
@@ -16,6 +17,7 @@ class NylasAccountsCollection extends Mongo.Collection {
             const ids = _.pluck(accounts, 'accountId')
 
             Contacts.remove({account_id:{$in:ids}, edited:{$ne:true}})
+            Projects.remove({nylasAccountId:{$in:ids}})
         }
         const result = super.remove(selector)
         return result
