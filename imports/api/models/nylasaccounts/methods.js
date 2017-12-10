@@ -10,8 +10,7 @@ import {ErrorLog} from '/imports/utils/logger'
 const bound = Meteor.bindEnvironment((callback) => callback())
 
 Meteor.methods({
-    addNylasAccount(data)
-    {
+    addNylasAccount(data) {
         check(data, {
             name: String,
             email: String,
@@ -65,71 +64,80 @@ Meteor.methods({
                 pass: '',
                 sendImmediately: true
             }
-        }).then((result) =>
+        })
+            .then((result) =>
 
-            // Call API for getting token
-             NylasAPI.makeRequest({
-                path: '/connect/token',
-                method: 'POST',
-                timeout: 60000,
-                body: {
-                    client_id: NylasAPI.AppID,
-                    client_secret: NylasAPI.AppSecret,
-                    code: result.code
-                },
-                auth: {
-                    user: '',
-                    pass: '',
-                    sendImmediately: true
-                },
-                error: (error) => {
-                    ErrorLog.error('NylasAPI makeRequest(\'/connect/token\') error', error)
-                }
-            }).then((account) =>
-
-                // Folders or labels list
-
-                 NylasAPI.makeRequest({
-                    path: `/${account.organization_unit}s`,
-                    method: 'GET',
+                // Call API for getting token
+                NylasAPI.makeRequest({
+                    path: '/connect/token',
+                    method: 'POST',
+                    timeout: 60000,
+                    body: {
+                        client_id: NylasAPI.AppID,
+                        client_secret: NylasAPI.AppSecret,
+                        code: result.code
+                    },
                     auth: {
-                        user: account.access_token,
+                        user: '',
                         pass: '',
                         sendImmediately: true
+                    },
+                    error: (error) => {
+                        ErrorLog.error('NylasAPI makeRequest(\'/connect/token\') error', error)
                     }
-                }).then((categories) => {
+                })
+                    .then((account) => {
 
-                     bound(() => {
-                         const nylasAccountId = NylasAccounts.insert({
-                             accessToken: account.access_token,
-                             accountId: account.account_id,
-                             emailAddress: account.email_address,
-                             provider: account.provider,
-                             organizationUnit: account.organization_unit,
-                             name: account.name,
-                             isTeamAccount,
-                             userId: !isTeamAccount ? currentUserId : null,
-                             categories
-                         })
+                        // Folders or labels list
 
-                         if(isTeamAccount) {
-                             try {
-                                 createProject.call({name: account.name, nylasAccountId, isServer: true})
-                             } catch (err) {
-                                 ErrorLog.error(err)
-                             }
-                         }
-                     })
+                        const getCategories = NylasAPI.makeRequest({
+                            path: `/${account.organization_unit}s`,
+                            method: 'GET',
+                            auth: {
+                                user: account.access_token,
+                                pass: '',
+                                sendImmediately: true
+                            }
+                        })
+                            .then((categories) => {
+                                if(categories.length === 0) { console.log('categories repeating')
+                                    return getCategories()
+                                } else {
+                                    bound(() => {
+                                        const nylasAccountId = NylasAccounts.insert({
+                                            accessToken: account.access_token,
+                                            accountId: account.account_id,
+                                            emailAddress: account.email_address,
+                                            provider: account.provider,
+                                            organizationUnit: account.organization_unit,
+                                            name: account.name,
+                                            isTeamAccount,
+                                            userId: !isTeamAccount ? currentUserId : null,
+                                            categories
+                                        })
 
-                    return true
-                }))).catch((error) => {
-            ErrorLog.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
-            throw error
-        })
+                                        if (isTeamAccount) {
+                                            try {
+                                                createProject.call({name: account.name, nylasAccountId, isServer: true, members:[]})
+                                            } catch (err) {
+                                                ErrorLog.error(err)
+                                            }
+                                        }
+                                    })
+
+                                    return true
+                                }
+                            })
+                        return true
+                    })
+            )
+            .catch((error) => {
+                ErrorLog.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
+                throw error
+            })
     },
 
-    removeNylasAccount(account)
-    {
+    removeNylasAccount(account) {
         check(account, Object)
         if (!account.userId && !Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN))
             throw new Meteor.Error('You can not remove team account without admin role')
@@ -144,17 +152,17 @@ Meteor.methods({
         check(data, Object)
         const account = NylasAccounts.findOne({_id})
 
-        if(!account)
+        if (!account)
             throw new Meteor.Error('Could not find nylas account')
 
-        NylasAccounts.update({_id}, {$set:data})
+        NylasAccounts.update({_id}, {$set: data})
     },
 
     nylasAccountForAccountId(accountId) {
         check(accountId, String)
         const accounts = Meteor.user().nylasAccounts()
 
-        if(!accounts || accounts.length == 0) return null
+        if (!accounts || accounts.length == 0) return null
 
         return _.find(accounts, {accountId})
     },
@@ -163,10 +171,10 @@ Meteor.methods({
         check(_id, String)
 
         const account = NylasAccounts.findOne({_id})
-        if(!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
+        if (!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
 
         account.categories.forEach((category, index) => {
-            if(category && category.id) {
+            if (category && category.id) {
                 setTimeout(() => {
                     NylasAPI.makeRequest({
                         path: `/threads?in=${category.id}&unread=true&view=count`,
@@ -178,7 +186,10 @@ Meteor.methods({
                         }
                     }).then((result) => {
                         bound(() => {
-                            NylasAccounts.update({_id,'categories.id':category.id}, {$set:{'categories.$.unreads':result.count}})
+                            NylasAccounts.update({
+                                _id,
+                                'categories.id': category.id
+                            }, {$set: {'categories.$.unreads': result.count}})
                         })
                     }).catch((err) => {
                         ErrorLog.error(err)
@@ -193,9 +204,9 @@ Meteor.methods({
         check(teamMembers, Array)
 
         const account = NylasAccounts.findOne({_id})
-        if(!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
+        if (!account) throw new Meteor.Error(`Not found account with _id:${_id}`)
 
-        ServerLog.info('updateNylasAccountTeamMembers', {$set:{teamMembers}})
-        NylasAccounts.update({_id}, {$set:{teamMembers}})
+        ServerLog.info('updateNylasAccountTeamMembers', {$set: {teamMembers}})
+        NylasAccounts.update({_id}, {$set: {teamMembers}})
     }
 })
