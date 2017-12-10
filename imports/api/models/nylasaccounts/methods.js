@@ -17,10 +17,11 @@ Meteor.methods({
             password: String,
             provider: String,
             isTeamAccount: Boolean,
-            googleRefreshToken: Match.Maybe(String)
+            googleRefreshToken: Match.Maybe(String),
+            isPrivateSlackChannel: Match.Maybe(Boolean)
         })
 
-        const {name, email, password, provider, isTeamAccount, googleRefreshToken} = data
+        const {name, email, password, provider, isTeamAccount, googleRefreshToken, isPrivateSlackChannel} = data
 
         const currentUserId = Meteor.userId()
         if (!currentUserId)
@@ -118,7 +119,7 @@ Meteor.methods({
 
                                         if (isTeamAccount) {
                                             try {
-                                                createProject.call({name: account.name, nylasAccountId, isServer: true, members:[]})
+                                                createProject.call({name: account.name, nylasAccountId, isServer: true, members:[], isPrivateSlackChannel})
                                             } catch (err) {
                                                 ErrorLog.error(err)
                                             }

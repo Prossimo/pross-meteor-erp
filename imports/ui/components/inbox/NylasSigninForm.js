@@ -1,5 +1,5 @@
 import React from 'react'
-import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
+import {Button, Form, FormGroup, FormControl, Col, ControlLabel, Checkbox} from 'react-bootstrap'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import config from '../../../api/config'
 import {warning} from '/imports/api/lib/alerts'
@@ -19,6 +19,8 @@ export default class NylasSigninForm extends React.Component {
             email: '',
             password: '',
             provider: '',
+            isPrivateSlackChannel: false,
+
             validation: {
                 name: '',
                 email: '',
@@ -43,7 +45,7 @@ export default class NylasSigninForm extends React.Component {
             <div style={{maxWidth: 500,minWidth: 400}}>
                 <h3 style={{textAlign:'center'}}>Add {this.props.isAddingTeamInbox ? 'a Team' : 'an Individual'} Inbox</h3><br/>
                 <Form horizontal onSubmit={this.onSubmitSignIn}>
-                    <FormGroup controlId="formHorizontalEmail">
+                    <FormGroup controlId="formHorizontalName">
                         <Col componentClass={ControlLabel} sm={3}>
                             Full Name
                         </Col>
@@ -85,6 +87,19 @@ export default class NylasSigninForm extends React.Component {
                         </Col><span style={validationStyle}>{validation.provider}</span>
                     </FormGroup>
 
+                    {
+                        this.props.isAddingTeamInbox && (
+                            <FormGroup>
+                                <Col componentClass={ControlLabel} sm={3}>
+                                    &nbsp;
+                                </Col>
+                                <Col sm={9}>
+                                    <Checkbox checked={this.state.isPrivateSlackChannel} onChange={e => this.setState({isPrivateSlackChannel: e.target.checked})}>Is Private Slack Channel</Checkbox>
+                                </Col><span style={validationStyle}>{validation.provider}</span>
+                            </FormGroup>
+                        )
+                    }
+
                     <FormGroup>
                         <Col smOffset={3} sm={10}>
                             <Button bsStyle="default" onClick={this.props.onCancel} disabled={isProcessing}>Cancel</Button>&nbsp;
@@ -98,7 +113,7 @@ export default class NylasSigninForm extends React.Component {
 
     onSubmitSignIn = (evt) => {
         evt.preventDefault()
-        const {name, email, password, provider, validation} = this.state
+        const {name, email, password, provider, isPrivateSlackChannel, validation} = this.state
 
         if (name == '') {
             validation.name = 'Name is required'
@@ -124,7 +139,8 @@ export default class NylasSigninForm extends React.Component {
             email,
             password,
             provider,
-            isTeamAccount: this.props.isAddingTeamInbox
+            isTeamAccount: this.props.isAddingTeamInbox,
+            isPrivateSlackChannel
         }
 
         if(provider == 'gmail') {//console.log('gmail inbox redirectUri', config.google.redirectUri)
