@@ -11,7 +11,8 @@ import sendBotMessage from './sendBotMessage'
 import parseSlackMessage from './parseSlackMessage'
 import getSlackChannels from './getSlackChannels'
 import sendDealStatusChangeToSlack from './sendDealStatusChangeToSlack'
-import removeSlackChannel from './removeSlackChannel'
+import archiveSlackChannel from './archiveSlackChannel'
+import unarchiveSlackChannel from './unarchiveSlackChannel'
 import createSlackChannel from './createSlackChannel'
 import getInboxSlackChannelId from './getInboxSlackChannelId'
 import inviteBotToSlackChannel from './inviteBotToSlackChannel'
@@ -33,7 +34,8 @@ export {
     sendMailAssignToSlack,
     sendMailUnassignToSlack,
     sendDealStatusChangeToSlack,
-    removeSlackChannel,
+    archiveSlackChannel,
+    unarchiveSlackChannel,
     createSlackChannel,
     getInboxSlackChannelId,
     inviteBotToSlackChannel,
