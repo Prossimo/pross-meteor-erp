@@ -8,37 +8,19 @@ import {
 } from '../../../../api/constants/project'
 
 class SelectSubStage extends Component {
-    constructor() {
-        super()
+    constructor(props) {
+        super(props)
         this.getSubStages = this.getSubStages.bind(this)
         this.changeSelectionValue = this.changeSelectionValue.bind(this)
         this.state = {
-            subStage: ''
-        }
-    }
-
-    componentWillMount() {
-        const {update, subStage} = this.props
-        if (update) {
-            this.setState({subStage})
-        } else {
-            const stages = this.getSubStages()
-            if (!_.isEmpty(stages)) {
-                this.setState({subStage: stages[0]})
-                this.props.onSelectSubStage(stages[0])
-            }
+            subStage: props.subStage
         }
     }
 
     componentWillReceiveProps(props) {
         if (this.props.stage !== props.stage) {
-            let subStage
-            if (props.update) {
-                subStage = props.subStage
-            } else {
-                const stages = this.getSubStages(props.stage)
-                subStage = stages[0]
-            }
+            const stages = this.getSubStages(props.stage)
+            const subStage = stages[0]
             this.setState({subStage})
             if (this.props.onSelectSubStage) this.props.onSelectSubStage(subStage)
         }
