@@ -33,6 +33,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         const {salesRecord} = props
         this.state = {
             projectName: salesRecord ? salesRecord.name : '',
+            subStage: salesRecord ? salesRecord.subStage : null,
             actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
             productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) : moment(),
             startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) : moment().subtract(29, 'days'),
@@ -90,7 +91,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     submitForm(event) {
         event.preventDefault()
         const {
-            projectName, shipper, supplier, stakeholders, members,
+            projectName, subStage, shipper, supplier, stakeholders, members,
             selectedShippingMode, actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingContactPhone, shippingAddress, shippingContactEmail, shippingNotes,
             billingContactName, billingContactPhone, billingAddress, billingContactEmail, billingNotes, selectedStage,
@@ -120,7 +121,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
 
             shippingMode: selectedShippingMode.value,
             stage: this.props.stage ? this.props.stage : selectedStage.value,
-            subStage: this.subStage,
+            subStage,
             supplier,
             shipper,
             estProductionTime,
@@ -186,7 +187,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
 
     render() {
         const {
-            projectName, selectedShippingMode, supplier, shipper,
+            projectName, subStage, selectedShippingMode, supplier, shipper,
             actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
             shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
             billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
@@ -248,9 +249,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                         <div className="col-md-4">
                             <SelectSubStage
                                 stage={this.props.stage || selectedStage.value}
-                                onSelectSubStage={(subStage) => {
-                                    this.subStage = subStage.value
-                                }}
+                                subStage={subStage}
+                                onSelectSubStage={(subStage) => this.setState({subStage: subStage.value})}
                             />
                         </div>
                     </div>
