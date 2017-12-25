@@ -1,7 +1,7 @@
 import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import { Migrations } from 'meteor/percolate:migrations'
-import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts} from '/imports/api/models'
+import {ROLES, CompanyTypes, PeopleDesignations, Conversations, ClientStatus, SupplierStatus, SalesRecords, Projects, Tasks, NylasAccounts, Threads} from '/imports/api/models'
 import {createProject} from '/imports/api/models/projects/methods'
 import { slackClient } from '/imports/api/slack'
 
@@ -239,8 +239,22 @@ Migrations.add({
     }
 })
 
+Migrations.add({
+    version: 12,
+    name: 'Change conversationId to conversationIds on thread collection',
+    up() {
+        const threads = Threads.find({}, {fields:{conversationId:1}}).fetch()
+        threads.forEach(thread => {
+            thread.conversationId && Threads.update({_id:thread._id}, {$set:{conversationIds:[thread.conversationId]}})
+        })
+    },
+    down() {
+
+    }
+})
+
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(11)
+        Migrations.migrateTo(12)
     }
 })

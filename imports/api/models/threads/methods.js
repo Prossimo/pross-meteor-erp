@@ -59,7 +59,7 @@ export const upsertThread = new ValidatedMethod({
                 Threads.insert(thread)
             } else if (existingThread && (thread.version != existingThread.version || thread.unread!=existingThread.unread)) { // It should be uncommented after deployment
                 //console.log('updateThread')
-                thread.conversationId = existingThread.conversationId
+                thread.conversationIds = existingThread.conversationIds
                 Threads.update({_id: existingThread._id}, {$set: {...thread}})
             }
         }
@@ -149,6 +149,6 @@ export const unbindThreadFromConversation = new ValidatedMethod({
         const thread = Threads.findOne({id})
         if (!thread) throw new Meteor.Error(`Could not found thread with id:${id}`)
 
-        Threads.update({id}, {$set: {conversationId: null}})
+        Threads.update({id}, {$set: {conversationIds: null}})
     }
 })

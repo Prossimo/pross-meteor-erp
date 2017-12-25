@@ -15,7 +15,7 @@ export default class ComposeButton extends React.Component {
 
     _onNewCompose = () => {
         const {conversationId} = this.props
-        Actions.composeNew({conversationId})
+        Actions.composeNew({conversationIds:conversationId ? [conversationId] : null})
     }
 
     render() {

@@ -185,7 +185,7 @@ class Quotes extends React.Component {
 
     const to = salesRecord.contactsForMainParticipants().map((c) => ({name: c.name, email: c.email}))
     if (to && to.length) {
-      DraftStore.createDraftForQuoteEmail({to, conversationId:salesRecord.conversationIds&&salesRecord.conversationIds[0]}).then((draft) => {
+      DraftStore.createDraftForQuoteEmail({to, conversationIds:salesRecord.conversationIds ? [salesRecord.conversationIds[0]] : []}).then((draft) => {
         this.setState({
           showPopup: true,
           popupTitle: 'Add new quote',
@@ -238,7 +238,7 @@ class Quotes extends React.Component {
 
     const to = salesRecord.contactsForMainParticipants().map((c) => ({name: c.name, email: c.email}))
     if (to && to.length) {
-      DraftStore.createDraftForQuoteEmail({to, conversationId:salesRecord.conversationIds&&salesRecord.conversationIds[0]}).then((draft) => {
+      DraftStore.createDraftForQuoteEmail({to, conversationIds:salesRecord.conversationIds ? [salesRecord.conversationIds[0]] : []}).then((draft) => {
         this.setState({
           showPopup: true,
           popupTitle: `Add revision to ${quote.name}`,

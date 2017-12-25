@@ -13,8 +13,8 @@ Meteor.methods({
 
 
         let target
-        if (thread && thread.conversationId) {
-            const conversation = Conversations.findOne({_id: thread.conversationId})
+        if (thread && thread.conversationIds && thread.conversationIds.length > 0) {
+            const conversation = Conversations.findOne({_id: thread.conversationIds[0]})
             target = conversation ? conversation.parent() : null
         } else {
             const nylasAccount = NylasAccounts.findOne({accountId: thread.account_id})

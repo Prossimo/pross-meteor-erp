@@ -100,7 +100,10 @@ Threads.schema = new SimpleSchema({
         optional:true
     },
 
-    conversationId: {type: String, optional: true},
+    conversationIds: {type: Array, optional: true},
+    'conversationIds.$': {
+        type: String
+    },
 
     assignee: {type:String, optional:true},
     followers: {type:Array, optional:true},
@@ -130,7 +133,7 @@ Threads.publicFields = {
     folders: 1,
     labels: 1,
 
-    conversationId: 1,
+    conversationIds: 1,
 
     created_at: 1,
     modified_at: 1

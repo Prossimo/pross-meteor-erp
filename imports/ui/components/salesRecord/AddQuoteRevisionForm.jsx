@@ -2,6 +2,7 @@ import React from 'react'
 import moment from 'moment'
 import _ from 'underscore'
 import { FlowRouter } from 'meteor/kadira:flow-router'
+import Select from 'react-select'
 import { getAvatarUrl, getSlackUsername } from '../../../api/lib/filters'
 import { warning, info } from '/imports/api/lib/alerts'
 import TemplateSelect from '../mailtemplates/TemplateSelect'
@@ -9,7 +10,7 @@ import TemplateOverview from '../mailtemplates/TemplateOverview'
 import {NylasUtils, RegExpUtils, Actions, DraftStore} from '/imports/api/nylas'
 import ComposeModal from '../inbox/composer/ComposeModal'
 import MediaUploader from '../libs/MediaUploader'
-import {MailTemplates} from '/imports/api/models'
+import {MailTemplates, Conversations} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component{
     static propTypes = {
@@ -35,6 +36,10 @@ class AddQuoteForm extends React.Component{
             isUploading: false,
             selectedMailTemplate: MailTemplates.findOne({isDefault:true}),
             shouldCompileMailTemplate: true
+        }
+
+        if(props.draftClientId) {
+            this.state.conversationIds = DraftStore.draftForClientId(props.draftClientId).conversationIds
         }
     }
 
@@ -188,11 +193,32 @@ class AddQuoteForm extends React.Component{
     noteChange = (evt) => {
         this.setState({note: evt.target.value})
     }
-    toggleCheck(){
+
+    toggleCheck = () => {
         const { alertsActive } = this.state
         this.setState({alertsActive: !alertsActive})
     }
 
+
+    handleChangeConversations = (items) => {
+        const conversationIds = items.map(item => item.value)
+        this.setState({conversationIds}, () => {
+            DraftStore.changeDraftForClientId(this.props.draftClientId, {conversationIds})
+        })
+    }
+
+    renderConversationSelector() {
+        const conversations = Conversations.find({_id:{$in:this.props.salesRecord.conversationIds}}).fetch()
+        return (
+            <Select
+                multi
+                clearable={false}
+                options={conversations.map((c) => ({value:c._id, label:c.name}))}
+                value={this.state.conversationIds}
+                onChange={this.handleChangeConversations}
+            />
+        )
+    }
 
     render() {
         const { totalCost, alertsActive, revisionNumber, showComposeModal, selectedMailTemplate, shouldCompileMailTemplate, note } = this.state
@@ -255,13 +281,21 @@ class AddQuoteForm extends React.Component{
                     {
                         draftClientId && (
                             <div>
-                                <input type="checkbox"
-                                       id="alert-checkbox"
-                                       onChange={this.toggleCheck.bind(this)}
-                                       checked={alertsActive}
-                                       className="hidden-checkbox"/>
-                                <label htmlFor="alert-checkbox"
-                                       className="check-label">Alert stakeholders</label>
+                                <div className="flex mb-5">
+                                    <div className="flex-1">
+                                        <input type="checkbox"
+                                               id="alert-checkbox"
+                                               onChange={this.toggleCheck}
+                                               checked={alertsActive}
+                                               className="hidden-checkbox"/>
+                                        <label htmlFor="alert-checkbox"
+                                               className="check-label">Alert stakeholders</label>
+                                    </div>
+                                    <div className="flex-1">
+                                        {alertsActive && this.renderConversationSelector()}
+                                    </div>
+                                </div>
+                                <div>
                                 {alertsActive && (NylasUtils.hasNylasAccounts() ? <TemplateSelect onChange={this.onSelectMailTemplate} selectedTemplate={selectedMailTemplate}/> : <Alert bsStyle="warning">You need to set inbox to email!</Alert>)}
                                 {alertsActive && selectedMailTemplate && (
                                     <div style={{position:'relative'}}>
@@ -274,6 +308,7 @@ class AddQuoteForm extends React.Component{
                                         />
                                     </div>
                                 )}
+                                </div>
                             </div>
                         )
                     }

@@ -91,9 +91,11 @@ export default class ComposeView extends React.Component {
         const {from, to, cc, bcc, subject} = draft
 
         let contactOptions = [], onlyselect = false
-        if (draft.conversationId) {
-            const conversation = Conversations.findOne({_id: draft.conversationId})
-            contactOptions = conversation.contacts()
+        if (draft.conversationIds && draft.conversationIds.length > 0) {
+            const conversations = Conversations.find({_id: {$in:draft.conversationIds}}).fetch()
+            conversations.forEach(c => {
+                contactOptions = contactOptions.concat(c.contacts())
+            })
             onlyselect = true
         }
 

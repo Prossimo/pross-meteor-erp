@@ -59,11 +59,12 @@ export const saveMessage = new ValidatedMethod({
     name: 'message.saveMessage',
     validate: new SimpleSchema({
         message: Messages.schema.omit('_id','created_at','modified_at'),
-        conversationId: {type:String, optional:true},
+        conversationIds: {type:Array, optional:true},
+        'conversationIds.$': {type:String},
         isNew: {type:Boolean, optional:true},
         isReply: {type:Boolean, optional:true}
     }).validator({clean:true}),
-    run({conversationId, isNew, isReply, message}) {
+    run({conversationIds, isNew, isReply, message}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         NylasAPI.makeRequest({
@@ -72,13 +73,12 @@ export const saveMessage = new ValidatedMethod({
             accountId: message.account_id
         }).then((thread) => {
             if (thread) {
-                console.log(thread)
                 bound(() => {
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})
 
                         const data = {}
-                        if(conversationId) data.conversationId = conversationId
+                        if(conversationIds) data.conversationIds = conversationIds
                         if(isNew) data.assignee = this.userId
                         if(isReply && existingThread && existingThread.assignee!==this.userId) {
                             const followers = existingThread.followers || []

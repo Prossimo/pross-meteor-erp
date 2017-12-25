@@ -60,7 +60,7 @@ Projects.attachSchema(Projects.schema)
 Projects.helpers({
     threads() {
         if(!this.conversationIds) return []
-        return Threads.find({conversationId: {$in:this.conversationIds}}).fetch()
+        return Threads.find({conversationIds: this.conversationIds}).fetch()
     },
     messages() {
         const threads = this.threads()

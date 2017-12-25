@@ -181,14 +181,14 @@ Messages.helpers({
     conversationId() {
         const thread = Threads.findOne({id:this.thread_id})
         if(!thread) return null
-        return thread.conversationId
+        return thread.conversationIds && thread.conversationIds.length ? thread.conversationIds[0] : null
     },
     conversation() {
         const thread = Threads.findOne({id:this.thread_id})
         if(!thread) return null
-        if(!thread.conversationId) return null
+        if(!thread.conversationIds || thread.conversationIds.length == 0) return null
 
-        return Conversations.findOne(thread.conversationId)
+        return Conversations.findOne(thread.conversationIds[0])
     },
     thread() {
         if(!this.thread_id) return null

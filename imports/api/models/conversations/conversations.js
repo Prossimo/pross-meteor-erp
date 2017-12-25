@@ -62,7 +62,7 @@ Conversations.publicFields = {
 
 Conversations.helpers({
     threads() {
-        return Threads.find({conversationId: this._id}).fetch()
+        return Threads.find({conversationIds: this._id}).fetch()
     },
     messages() {
         const threads = this.threads()
@@ -100,14 +100,14 @@ Conversations.helpers({
 
     },
     getAssignees() {
-        const threads = Threads.find({conversationId:this._id}).fetch()
+        const threads = Threads.find({conversationIds:this._id}).fetch()
 
         if(!threads || threads.length==0) return []
 
         return threads.map(t => t.getAssignee()).filter(a => a!=null)
     },
     getFollowers() {
-        const threads = Threads.find({conversationId:this._id}).fetch()
+        const threads = Threads.find({conversationIds:this._id}).fetch()
 
         if(!threads || threads.length==0) return []
 

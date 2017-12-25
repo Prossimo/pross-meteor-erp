@@ -63,7 +63,7 @@ export default class Conversation extends TrackerReact(React.Component) {
         if (!composeState) return ''
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
-        if (this.props.conversationId && draft.conversationId != this.props.conversationId) return ''
+        if (this.props.conversationId && (!draft.conversationIds || draft.conversationIds.indexOf(this.props.conversationId) === -1)) return ''
 
         return <ComposeModal isOpen={composeState.show}
                              clientId={composeState.clientId}

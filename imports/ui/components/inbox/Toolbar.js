@@ -65,8 +65,8 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
         const existingThread = Threads.findOne({id: thread.id})
         let salesRecord, project
-        if(existingThread && existingThread.conversationId) {
-            const conversation = Conversations.findOne(existingThread.conversationId)
+        if(existingThread && existingThread.conversationIds && existingThread.conversationIds.length > 0) {
+            const conversation = Conversations.findOne(existingThread.conversationIds[0])
             if(conversation) {
                 const parent = conversation.parent()
                 if(parent) {

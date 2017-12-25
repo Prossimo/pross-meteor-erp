@@ -100,7 +100,7 @@ class EmailViewPage extends React.Component {
                         className={classNames}
                         message={message}
                         viewonly
-                        conversationId={message.conversationId()}
+                        conversationId={this.props.conversationId}
                     />
                     {this.renderComposeModal()}
                 </div>
@@ -112,6 +112,7 @@ class EmailViewPage extends React.Component {
 export default createContainer(() => {
     const messageId = FlowRouter.getQueryParam('message_id')
     const threadId = FlowRouter.getQueryParam('thread_id')
+    const conversationId = FlowRouter.getQueryParam('conversation_id')
 
     const subscribers = [subsCache.subscribe('nylasaccounts.mine'), subsCache.subscribe('messages.one', {messageId, threadId})]
 
@@ -127,6 +128,7 @@ export default createContainer(() => {
     }
     return {
         loading: subscribers.reduce((result, subscriber) => result && !subscriber.ready(), true),
-        message
+        message,
+        conversationId
     }
 }, EmailViewPage)

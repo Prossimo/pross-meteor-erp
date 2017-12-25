@@ -32,18 +32,21 @@ class DraftStoreClass extends Reflux.Store {
         this._draftsViewState = {}
     }
 
-    _onComposeNew = ({conversationId, modal = true, show = true} = {}) => {
+    _onComposeNew = ({conversationIds, modal = true, show = true} = {}) => {
         DraftFactory.createDraft().then((draft) => {
-            if(conversationId) {
-                draft.conversationId = conversationId
-                const contacts = Conversations.findOne(conversationId).contacts()
+            if(conversationIds) {
+                draft.conversationIds = conversationIds
+                const conversations = Conversations.find({_id:{$in:conversationIds}}).fetch()
+                let contacts = []
+                conversations.forEach(c => {
+                    contacts = contacts.concat(c.contacts())
+                })
                 draft.to = contacts.filter(p => p.isMain)
                 draft.cc = contacts.filter(p => !p.isMain)
             }
             draft.isNew = true
 
             this._drafts.push(draft)
-
             if(modal) this.hideModals()
             this._draftsViewState[draft.clientId] = {
                 clientId: draft.clientId,
@@ -55,7 +58,7 @@ class DraftStoreClass extends Reflux.Store {
         })
     }
 
-    _onComposeReply = ({message, type, modal, conversationId}) => {
+    _onComposeReply = ({message, type, modal, conversationIds}) => {
         if (!message) return
 
 
@@ -75,8 +78,8 @@ class DraftStoreClass extends Reflux.Store {
             }
             this.trigger()
         } else {
-            DraftFactory.createDraftForReply({message, type}).then((draft) => {console.log('created draft', draft)
-                draft.conversationId = conversationId
+            DraftFactory.createDraftForReply({message, type}).then((draft) => {
+                draft.conversationIds = conversationIds
                 draft.isReply = true
 
                 this._drafts.push(draft)
@@ -94,9 +97,9 @@ class DraftStoreClass extends Reflux.Store {
     }
 
 
-    _onComposeForward = ({message, modal, conversationId}) => {
+    _onComposeForward = ({message, modal, conversationIds}) => {
         DraftFactory.createDraftForForward({message}).then((draft) => {
-            draft.conversationId = conversationId
+            draft.conversationIds = conversationIds
             this._drafts.push(draft)
 
             if(modal) this.hideModals()
@@ -118,7 +121,7 @@ class DraftStoreClass extends Reflux.Store {
     createDraftForQuoteEmail = (data = {}) => new Promise((resolve, reject) => {
             DraftFactory.createDraft(data).then((draft) => {
                 draft.hideSignature = true
-                draft.conversationId = data.conversationId
+                draft.conversationIds = data.conversationIds
                 this._drafts.push(draft)
 
                 this._draftsViewState[draft.clientId] = {
@@ -151,10 +154,10 @@ class DraftStoreClass extends Reflux.Store {
         const draft = this.draftForClientId(clientId)
         console.log('_onSendDraftSuccess', message, clientId, draft)
 
-        const {conversationId, isNew, isReply} = draft
+        const {conversationIds, isNew, isReply} = draft
 
         try {
-            saveMessage.call({conversationId, isNew, isReply, message})
+            saveMessage.call({conversationIds, isNew, isReply, message})
             setTimeout(Actions.changedMessages, 500)
         } catch(err) {
             ErrorLog.error(err)

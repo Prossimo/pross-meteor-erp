@@ -2,6 +2,7 @@ import _ from 'underscore'
 import React from 'react'
 import {Button} from 'react-bootstrap'
 import classNames from 'classnames'
+import { Conversations } from '/imports/api/models'
 import Actions from '../../../api/nylas/actions'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import ItemMessageBody from './ItemMessageBody'
@@ -311,11 +312,11 @@ class ItemMessage extends React.Component {
     }
 
     _onClickTask = () => {
-        const {message} = this.props
+        const {message, conversationId} = this.props
         if(!message) return
 
         let parent
-        const conversation = message.conversation()
+        const conversation = Conversations.findOne(conversationId)
         if(conversation) {
             parent = conversation.parent()
         } else {
@@ -328,7 +329,7 @@ class ItemMessage extends React.Component {
             task: {
                 parentId: parent._id,
                 parentType: parent.type,
-                description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview/${message.id}`)}`,
+                description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview?message_id=${message.id}${conversationId ? `&conversation_id=${conversationId}` : ''}`)}`,
                 name: `Task #${parent.tasks().length + 1}`
             },
             taskFolderId: parent.taskFolderId
