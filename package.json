@@ -1,5 +1,5 @@
 {
-  "name": "ProssimoCRM",
+  "name": "MavrikBuild",
   "private": true,
   "scripts": {
     "start": "meteor run --settings settings.json",
