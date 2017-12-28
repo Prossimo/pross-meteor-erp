@@ -36,7 +36,9 @@ class DraftStoreClass extends Reflux.Store {
         DraftFactory.createDraft().then((draft) => {
             if(conversationId) {
                 draft.conversationId = conversationId
-                const contacts = Conversations.findOne(conversationId).contacts()
+                const conversation = Conversations.findOne(conversationId)
+                console.log('DraftStore -> _onComposeNew -> conversation', conversationId, conversation)
+                const contacts = conversation ? conversation.contacts() : []
                 draft.to = contacts.filter(p => p.isMain)
                 draft.cc = contacts.filter(p => !p.isMain)
             }
