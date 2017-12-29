@@ -131,10 +131,15 @@ Meteor.users.helpers({
         return null
     },
 
-    nylasAccounts() {
+    nylasAccounts(onlyTeamMembers = false) {
         const $or = [{userId:this._id}]
-        if(Roles.userIsInRole(this._id, [ROLES.ADMIN, ROLES.SALES])) $or.push({isTeamAccount:true})
-        else $or.push({isTeamAccount:true, teamMembers:this._id})
+
+        if(onlyTeamMembers) {
+            if (Roles.userIsInRole(this._id, [ROLES.ADMIN])) $or.push({isTeamAccount: true})
+            else $or.push({isTeamAccount: true, teamMembers: this._id})
+        } else {
+            $or.push({isTeamAccount: true})
+        }
 
         return NylasAccounts.find({$or}).fetch()
     },
