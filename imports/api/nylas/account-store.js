@@ -33,9 +33,9 @@ class AccountStoreClass extends Reflux.Store {
 
         Actions.loadContacts()
     }
-    accounts = () => {
+    accounts = (onlyTeamMembers = false) => {
         if(!Meteor.user()) return null
-        this._accounts = Meteor.user().nylasAccounts()
+        this._accounts = Meteor.user().nylasAccounts(onlyTeamMembers)
 
         return this._accounts
     }

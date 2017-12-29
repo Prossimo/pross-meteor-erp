@@ -323,7 +323,7 @@ class InboxPage extends (React.Component) {
                     ))
                 }
                 {
-                    AccountStore.accounts().map((account) => {
+                    AccountStore.accounts(true).map((account) => {
                         const categoriesForAccount = CategoryStore.getCategories(account.accountId)
 
                         const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
