@@ -4,22 +4,29 @@ import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import Conversations from './conversations'
+import {ROLES} from '../index'
+
+const validatePermission = (userId) => {
+    if(!userId || !Roles.userIsInRole(userId, [ROLES.ADMIN, ROLES.SALES, ROLES.MANAGER])) {
+        throw new Meteor.Error('Access Denied')
+    }
+}
 
 export const insertConversation = new ValidatedMethod({
     name: 'conversation.insert',
     validate: Conversations.schema.pick('name', 'participants').validator({clean:true}),
     run({name, participants}) {
-        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        validatePermission(this.userId)
 
         if(participants && participants.length > 0 &&_.findIndex(participants, {isMain:true}) == -1) participants[0]['isMain'] = true
 
         const data = {
             name,
             participants,
-            user_id: this.userId
+            owner: this.userId
         }
 
-        return  Conversations.insert(data)
+        return Conversations.insert(data)
     }
 })
 
@@ -27,7 +34,7 @@ export const updateConversation = new ValidatedMethod({
     name: 'conversation.update',
     validate: Conversations.schema.pick('_id', 'name', 'participants').validator({clean:true}),
     run({_id, name, participants}) {
-        if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        validatePermission(this.userId)
 
         const conversation = Conversations.findOne({_id})
         if(!conversation) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
@@ -72,7 +79,10 @@ export const removeConversation = new ValidatedMethod({
     run({_id}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
-        if(!Conversations.findOne({_id})) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
+        const conversation = Conversations.findOne({_id})
+        if(!conversation) throw new Meteor.Error(`Not found conversation with _id ${_id}`)
+
+        if(!Roles.userIsInRole(this.userId, ROLES.ADMIN) && this.userId !== conversation.owner) throw new Meteor.Error(403, 'Permission denied')
 
         //if(!Roles.userIsInRole(this.userId, [ROLES.ADMIN])) throw new Meteor.Error('Permission denied')
 

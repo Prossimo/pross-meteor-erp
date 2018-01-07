@@ -13,11 +13,11 @@ import '../../api/crobjob'
 import '../../api/slack'
 import {ServerErrorLog, MeteorErrorLog, ErrorLog} from '/imports/utils/logger'
 
-process.on('uncaughtException', (err) => {
+/*process.on('uncaughtException', (err) => {
     //ServerErrorLog.error('Server Crashed!', err)
     console.error(err.stack)
     process.exit(7)
-})
+})*/
 
 // store original Meteor error
 /*const originalMeteorDebug = Meteor._debug

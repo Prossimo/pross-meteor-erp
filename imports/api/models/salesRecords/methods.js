@@ -499,7 +499,6 @@ export const pushConversationToSalesRecord = new ValidatedMethod({
     run({_id, conversationId}) {
         const sr = validateSalesRecord(_id)
         validatePermission(this.userId, sr)
-
-        SalesRecords.update(_id, {$push:{conversationIds:conversationId}})
+        SalesRecords.update({_id}, {$push:{conversationIds:conversationId}})
     }
 })
