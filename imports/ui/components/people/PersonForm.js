@@ -9,6 +9,7 @@ import {insertPerson, updatePerson, removeRole} from '/imports/api/models/people
 import PhoneNumbersInput from './PhoneNumbersInput'
 import EmailsInput from './EmailsInput'
 import RoleForm from './RoleForm'
+import CompanyForm from '../companies/CompanyForm'
 import {ClientErrorLog} from '/imports/utils/logger'
 
 const URL_PATTERN = '^(https?:\/\/)?([\da-z1-9\.-]+)\.([a-z1-9\.]{2,6})([\/\w \.-]*)*\/?$'
@@ -42,16 +43,18 @@ export default class PersonForm extends React.Component {
 
             contact_id: props.contactId,
 
-            designations: PeopleDesignations.find().fetch(),
-            companies: Companies.find().fetch(),
-            showRoleModal: false
+            showRoleModal: false,
+            showCompanyModal: false
         }
 
         this.person = person
     }
 
     render() {
-        const {name, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position, designations, companies} = this.state
+        const {name, twitter, facebook, linkedin, designation_id, role, emails, phone_numbers, company_id, position} = this.state
+
+        const designations = PeopleDesignations.find().fetch()
+        const companies = Companies.find().fetch()
 
         const designationOptions = designations.map(d => ({value: d._id, label: d.name}))
         let designation, designationValue, roleOptions = [], roleValue, roleAddable = false
@@ -73,6 +76,14 @@ export default class PersonForm extends React.Component {
             const company = Companies.findOne({_id: company_id})
             if (company) companyValue = {value: company._id, label: company.name}
         }
+
+        const companyNoResultsEl = (
+            <div className="select-no-result">
+                <div>No results</div>
+                <div className="action" onClick={this.onClickAddCompany}>+ Add <strong><italic>{this.state.currentCompanyInputValue}</italic></strong></div>
+            </div>
+        )
+
         return (
             <div>
                 <Form style={{padding: 10}} horizontal onSubmit={this.onSubmit}>
@@ -164,6 +175,8 @@ export default class PersonForm extends React.Component {
                                 options={companyOptions}
                                 value={companyValue}
                                 onChange={this.onChangeCompany}
+                                noResultsText={companyNoResultsEl}
+                                onInputChange={this.onCompanyInputChange}
                             />
                         </Col>
                     </FormGroup>
@@ -183,6 +196,7 @@ export default class PersonForm extends React.Component {
                     </FormGroup>
                 </Form>
                 {this.renderRoleModal(designation)}
+                {this.renderCompanyModal()}
             </div>
 
         )
@@ -201,6 +215,21 @@ export default class PersonForm extends React.Component {
                 <Modal.Header closeButton><Modal.Title>{title}</Modal.Title></Modal.Header>
                 <Modal.Body>
                     <RoleForm designation={designation} onSaved={this.onSavedRole}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    renderCompanyModal() {
+        const {showCompanyModal} = this.state
+
+        return (
+            <Modal show={showCompanyModal} bsSize="large" onHide={() => {
+                this.setState({showCompanyModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-building-o"/>&nbsp;Create company</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <CompanyForm onSaved={this.onSavedCompany} name={this.state.currentCompanyInputValue}/>
                 </Modal.Body>
             </Modal>
         )
@@ -231,6 +260,21 @@ export default class PersonForm extends React.Component {
     onChangeCompany = (item) => {
         this.setState({
             company_id: item ? item.value : null
+        })
+    }
+    onCompanyInputChange = (value) => {
+        this.setState({
+            currentCompanyInputValue: value
+        })
+    }
+    onClickAddCompany = () => {
+        this.setState({
+            showCompanyModal: true
+        })
+    }
+    onSavedCompany = () => {
+        this.setState({
+            showCompanyModal: false
         })
     }
     onSubmit = (evt) => {
