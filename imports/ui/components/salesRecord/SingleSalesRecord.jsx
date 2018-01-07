@@ -24,6 +24,8 @@ import SelectSubStage from './components/SelectSubStage'
 import {Panel, SlackChannelSelector, Selector} from '../common'
 import Spinner from '../utils/spinner'
 import {ClientErrorLog} from '/imports/utils/logger'
+import ClientStatusForm from './components/ClientStatusForm'
+import SupplierStatusForm from './components/SupplierStatusForm'
 
 class SingleSalesRecord extends React.Component {
     constructor(props) {
@@ -56,7 +58,10 @@ class SingleSalesRecord extends React.Component {
                 addToMain: false,
             },
             memberType: this.memberTypeOptions[0],
-            selectedMembers: []
+            selectedMembers: [],
+
+            showClientStatusModal: false,
+            showSupplierStatusModal: false
         }
 
         this.renderPeople = this.renderPeople.bind(this)
@@ -394,6 +399,11 @@ class SingleSalesRecord extends React.Component {
     onChangeClientStatus = (option) => {
         const {salesRecord} = this.props
 
+        if(option.value === 'add_new') {
+            this.setState({showClientStatusModal: true})
+            return
+        }
+
         if(salesRecord.clientStatus != option.value) {
             this.updateSalesRecordStatus({clientStatus:option.value})
         }
@@ -402,9 +412,23 @@ class SingleSalesRecord extends React.Component {
     onChangeSupplierStatus = (option) => {
         const {salesRecord} = this.props
 
+        if(option.value === 'add_new') {
+            this.setState({showSupplierStatusModal: true})
+            return
+        }
+
         if(salesRecord.supplierStatus != option.value) {
             this.updateSalesRecordStatus({supplierStatus:option.value})
         }
+    }
+
+
+    onSavedClientStatus = () => {
+        this.setState({showClientStatusModal: false})
+    }
+
+    onSavedSupplierStatus = () => {
+        this.setState({showSupplierStatusModal: false})
     }
 
     updateSalesRecordStatus(data={}) {
@@ -428,6 +452,37 @@ class SingleSalesRecord extends React.Component {
                       content={popupData}/>
     }
 
+
+    renderClientStatusModal() {
+        const {showClientStatusModal} = this.state
+
+        return (
+            <Modal show={showClientStatusModal} bsSize="small" onHide={() => {
+                this.setState({showClientStatusModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>Add new client status</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <ClientStatusForm onSaved={this.onSavedClientStatus}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    renderSupplierStatusModal() {
+        const {showSupplierStatusModal} = this.state
+
+        return (
+            <Modal show={showSupplierStatusModal} bsSize="small" onHide={() => {
+                this.setState({showSupplierStatusModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title>Add new supplier status</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <SupplierStatusForm onSaved={this.onSavedSupplierStatus}/>
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
     render() {
         if(this.props.loading) return <Spinner/>
 
@@ -441,9 +496,14 @@ class SingleSalesRecord extends React.Component {
             return designation&&designation.name==='Dealer'
         })
 
+        const clientStatusOptions = ClientStatus.find().map(s => ({value:s._id,label:s.name})).concat([{value:'add_new', label:'+ New Status'}])
+        const supplierStatusOptions = SupplierStatus.find().map(s => ({value:s._id,label:s.name})).concat([{value:'add_new', label:'+ New Status'}])
+
         return (
             <div className="page-container single-project">
                 {this.renderPopup()}
+                {this.renderClientStatusModal()}
+                {this.renderSupplierStatusModal()}
                 <div className="main-content">
                     <div className="tab-container">
                         <div className='page-title'>
@@ -486,7 +546,7 @@ class SingleSalesRecord extends React.Component {
                                     <div className="value">
                                         <Select
                                             value={salesRecord.clientStatus}
-                                            options={ClientStatus.find().map(s => ({value:s._id,label:s.name}))}
+                                            options={clientStatusOptions}
                                             clearable={false}
                                             onChange={this.onChangeClientStatus}/>
                                     </div>
@@ -496,7 +556,7 @@ class SingleSalesRecord extends React.Component {
                                     <div className="value">
                                         <Select
                                             value={salesRecord.supplierStatus}
-                                            options={SupplierStatus.find().map(s => ({value:s._id,label:s.name}))}
+                                            options={supplierStatusOptions}
                                             clearable={false}
                                             onChange={this.onChangeSupplierStatus}/>
                                     </div>
