@@ -239,8 +239,23 @@ Migrations.add({
     }
 })
 
+Migrations.add({
+    version: 12,
+    name: 'Remove slackChanel and slackChannelName fields from salesRecord and project',
+    up() {
+        SalesRecords.find({$or:[{slackChanel:{$ne:null}}, {slackChannelName:{$ne:null}}]}).map(({_id}) => {
+            SalesRecords.update({_id}, {$unset:{slackChanel:1, slackChannelName:1}})
+        })
+        Projects.find({$or:[{slackChanel:{$ne:null}}, {slackChannelName:{$ne:null}}]}).map(({_id}) => {
+            Projects.update({_id}, {$unset:{slackChanel:1, slackChannelName:1}})
+        })
+    },
+    down() {
+
+    }
+})
 Meteor.startup(() => {
     if(!Meteor.isTest && !Meteor.isAppTest) {
-        Migrations.migrateTo(11)
+        Migrations.migrateTo(12)
     }
 })
