@@ -14,7 +14,7 @@ import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
 
-import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
+import {DEAL_PRIORITY, DEAL_PROBABILITY, DEAL_STATE} from '/imports/api/models/salesRecords/salesRecords'
 
 import {
     SUB_STAGES_LEAD,
@@ -282,6 +282,14 @@ class AllSalesRecords extends React.Component {
                         const status = _.findWhere(supplierStatuses, {_id: record.supplierStatus})
                         return status ? status.name : null
                     }
+                },
+                {
+                    key: 'dealState',
+                    label: 'Deal State',
+                    selected: false,
+                    options: Object.values(DEAL_STATE).map(v => ({value: v, label: v})),
+                    type: 'select',
+                    editable: true
                 }
             ],
             showKanbanView: false

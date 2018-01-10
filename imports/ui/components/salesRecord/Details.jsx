@@ -7,7 +7,7 @@ import {info, warning} from '/imports/api/lib/alerts'
 import {SHIPPING_MODE_LIST} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
-import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
+import {DEAL_PRIORITY, DEAL_PROBABILITY, DEAL_STATE} from '/imports/api/models/salesRecords/salesRecords'
 import {ClientStatus, SupplierStatus, ROLES} from '/imports/api/models'
 import ClientStatusForm from './components/ClientStatusForm'
 import SupplierStatusForm from './components/SupplierStatusForm'
@@ -288,6 +288,8 @@ class Details extends TrackerReact(React.Component) {
                     selectOptions = statuses.map(s => ({label: s.name, value: s._id, editable: s.editable}))
                     const status = _.findWhere(statuses, {_id: value})
                     displayValue = status && status.name
+                } else if (field === 'dealState') {
+                    selectOptions = Object.values(DEAL_STATE).map(value => ({label: value, value}))
                 }
             }
 
@@ -360,6 +362,7 @@ class Details extends TrackerReact(React.Component) {
         const {salesRecord} = this.state
         const statusRows = [
             {label: 'Active/Archived', field: 'archived', type: 'checkbox'},
+            {label: 'Deal State', field: 'dealState', type: 'select'},
             {label: 'Team Lead', field: 'teamLead', type: 'select'},
             {label: 'Bid Due Date', field: 'bidDueDate', type: 'date'},
             {label: 'Priority', field: 'priority', type: 'select'},
