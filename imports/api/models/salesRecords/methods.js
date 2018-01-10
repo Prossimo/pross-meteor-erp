@@ -11,6 +11,7 @@ import {getSubStages} from '../../lib/filters.js'
 import {ServerLog} from '/imports/utils/logger'
 
 import config from '../../config'
+import {Match} from "meteor/check";
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -263,16 +264,12 @@ Meteor.methods({
         check(_id, String)
         check(data, {
             name: Match.Maybe(String),
-            shippingMode: Match.Maybe(String),
             members: Match.Maybe([String]),
             stakeholders: Match.Maybe([{
                 isMainStakeholder: Boolean,
                 addToMain: Match.Maybe(Boolean),
                 peopleId: String,
             }]),
-            actualDeliveryDate: Match.Maybe(Date),
-            productionStartDate: Match.Maybe(Date),
-            estDeliveryRange: Match.Maybe([Date]),
 
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
@@ -286,10 +283,22 @@ Meteor.methods({
             billingAddress: Match.Maybe(String),
             billingNotes: Match.Maybe(String),
 
-            estProductionTime: Match.Maybe(Number),
-            actProductionTime: Match.Maybe(Number),
+
+
+            shippingMode: Match.Maybe(String),
+            productionStartDate: Match.Maybe(Date),
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
+            estProductionTime: Match.Maybe(Number),
+            estLeadTime: Match.Maybe(Number),
+            estProductionCompletion: Match.Maybe(Date),
+            estDeliveryRange: Match.Maybe([Date]),
+            actClientPaymentReceived: Match.Maybe(Date),
+            actProductionCompletion: Match.Maybe(Date),
+            actShippingDate: Match.Maybe(Date),
+            actualDeliveryDate: Match.Maybe(Date),
+            actProductionTime: Match.Maybe(Number), // To remove
+
             stage: Match.Maybe(String),
             subStage: Match.Maybe(String),
 

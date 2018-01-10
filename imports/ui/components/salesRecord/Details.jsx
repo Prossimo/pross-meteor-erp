@@ -99,13 +99,17 @@ class Details extends TrackerReact(React.Component) {
         const attributes = _.pick(
             this.state.salesRecord,
             'shippingMode',
-            'actualDeliveryDate',
             'productionStartDate',
             'supplier',
             'shipper',
             'estProductionTime',
-            'actProductionTime',
+            'estLeadTime',
+            'estProductionCompletion',
             'estDeliveryRange',
+            'actClientPaymentReceived',
+            'actProductionCompletion',
+            'actShippingDate',
+            'actualDeliveryDate',
         )
         Meteor.call('updateProjectAttributes', salesRecordId, attributes, (error, result) => {
             if (error) return warning(`Problems with updating project. ${error.error}`)
@@ -180,7 +184,7 @@ class Details extends TrackerReact(React.Component) {
             case 'date':
                 return (
                     <DatePicker
-                        selected={moment(value)}
+                        selected={value ? moment(value) : null}
                         onChange={((date) => this.changeState(field, date.toDate()))}
                         onBlur={this.saveSalesRecord}
                     />
@@ -374,13 +378,17 @@ class Details extends TrackerReact(React.Component) {
         ]
         const attrRows = [
             {label: 'Shipping mode', field: 'shippingMode', type: 'select'},
-            {label: 'Actual delivery date', field: 'actualDeliveryDate', type: 'date'},
             {label: 'Production start date', field: 'productionStartDate', type: 'date'},
             {label: 'Supplier', field: 'supplier', type: 'text'},
-            {label: 'Shipper', field: 'shipper', type: 'text'},
-            {label: 'EST Production Time', field: 'estProductionTime', type: 'number'},
-            {label: 'ACT Production Time', field: 'actProductionTime', type: 'number'},
-            {label: 'EST Delivery Range', field: 'estDeliveryRange', type: 'daterange'},
+            {label: 'Forwarder', field: 'shipper', type: 'text'},
+            {label: 'Est. Production time', field: 'estProductionTime', type: 'number'},
+            {label: 'Est. Lead time', field: 'estLeadTime', type: 'number'},
+            {label: 'Est. Production completion', field: 'estProductionCompletion', type: 'date'},
+            {label: 'Est. Delivery Window', field: 'estDeliveryRange', type: 'daterange'},
+            {label: 'Act. Client Payment Received', field: 'actClientPaymentReceived', type: 'date'},
+            {label: 'Act. Production Completion', field: 'actProductionCompletion', type: 'date'},
+            {label: 'Act. Shipping Date', field: 'actShippingDate', type: 'date'},
+            {label: 'Act. Delivery Date', field: 'actualDeliveryDate', type: 'date'},
         ]
         const shippingRows = [
             {label: 'Contact name', field: 'shippingContactName', type: 'text'},
@@ -427,7 +435,7 @@ class Details extends TrackerReact(React.Component) {
                     <div className="col-md-6">
                         <div className="panel panel-default">
                             <div className='panel-heading'>
-                                Project Attributes
+                                Production/Delivery Info
                             </div>
                             <div className='panel-body'>
                                 <table className="table table-condensed">

@@ -363,13 +363,17 @@ Meteor.methods({
         check(salesRecordId, String)
         check(attributes, {
             shippingMode: String,
-            actualDeliveryDate: Date,
-            productionStartDate: Date,
-            estDeliveryRange: [Date],
+            productionStartDate: Match.Maybe(Date),
             supplier: Match.Maybe(String),
             shipper: Match.Maybe(String),
             estProductionTime: Match.Maybe(Number),
-            actProductionTime: Match.Maybe(Number),
+            estLeadTime: Match.Maybe(Number),
+            estProductionCompletion: Match.Maybe(Date),
+            estDeliveryRange: Match.Maybe([Date]),
+            actClientPaymentReceived: Match.Maybe(Date),
+            actProductionCompletion: Match.Maybe(Date),
+            actShippingDate: Match.Maybe(Date),
+            actualDeliveryDate: Match.Maybe(Date),
         })
 
         // current user belongs to ADMIN LIST
