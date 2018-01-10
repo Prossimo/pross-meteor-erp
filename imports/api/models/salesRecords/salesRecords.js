@@ -51,6 +51,11 @@ export const DEAL_PROBABILITY = {
     Medium: 'Medium'
 }
 
+export const DEAL_STATE = {
+    us: 'US',
+    canada: 'Canada States'
+}
+
 SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
@@ -110,7 +115,8 @@ SalesRecords.schema = new SimpleSchema({
     conversationIds: {type: Array, optional:true},
     'conversationIds.$': {type: String, regEx: SimpleSchema.RegEx.Id},
 
-    archived: {type: Boolean, optional: true}
+    archived: {type: Boolean, optional: true},
+    dealState: {type: String, optional: true}
 })
 
 SalesRecords.attachSchema(SalesRecords.schema)

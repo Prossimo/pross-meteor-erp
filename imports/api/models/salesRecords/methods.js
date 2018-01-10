@@ -303,7 +303,8 @@ Meteor.methods({
             clientStatus: Match.Maybe(String),
             supplierStatus: Match.Maybe(String),
 
-            archived: Match.Maybe(Boolean)
+            archived: Match.Maybe(Boolean),
+            dealState: Match.Maybe(String),
         })
         check(thread, Match.Maybe(Object))
         check(conversationId, Match.Maybe(String))
