@@ -72,11 +72,6 @@ SalesRecords.schema = new SimpleSchema({
     'stakeholders.$.peopleId': { type: String },
     'stakeholders.$.isMainStakeholder': { type: Boolean },
 
-    actualDeliveryDate: { type: Date },
-    productionStartDate: { type: Date },
-    estDeliveryRange: { type: Array },
-    'estDeliveryRange.$': { type: Date },
-
     bidDueDate: { type: Date, optional:true },
     priority: {type: String, allowedValues: Object.values(DEAL_PRIORITY), defaultValue: DEAL_PRIORITY.Low},
     expectedRevenue: {type: Number, optional:true},
@@ -85,7 +80,6 @@ SalesRecords.schema = new SimpleSchema({
     clientStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}, // client status id
     supplierStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},   // supplier status id
 
-    shippingMode: { type: String, optional: true },
     shippingContactPhone: { type: String, optional: true },
     shippingContactName: { type: String, optional: true },
     shippingContactEmail: { type: String, optional: true },
@@ -98,10 +92,21 @@ SalesRecords.schema = new SimpleSchema({
     billingAddress: { type: String, optional: true },
     billingNotes: { type: String, optional: true },
 
+    shippingMode: { type: String, optional: true },
+    productionStartDate: { type: Date, optional: true },
     supplier: { type: String, optional: true },
     shipper: { type: String, optional: true },
-    estProductionTime: { type: Number, optional: true },
+    estProductionTime: { type: Number, optional: true },    // weeks
+    estLeadTime: { type: Number, optional: true },    // weeks
+    estProductionCompletion: { type: Date, optional: true },    // date
+    estDeliveryRange: { type: Array },
+    'estDeliveryRange.$': { type: Date },
+    actClientPaymentReceived: { type: Date, optional: true },
+    actProductionCompletion: { type: Date, optional: true },
+    actShippingDate: { type: Date, optional: true },
+    actualDeliveryDate: { type: Date },
     actProductionTime: { type: Number, optional: true },
+
     stage: { type: String, allowedValues: STAGES },
     subStage: {type: String, allowedValues: SUB_STAGES},
     folderId: { type: String, optional: true },
