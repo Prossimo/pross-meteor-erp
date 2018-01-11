@@ -8,7 +8,7 @@ import {SHIPPING_MODE_LIST} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import {DEAL_PRIORITY, DEAL_PROBABILITY, DEAL_STATE} from '/imports/api/models/salesRecords/salesRecords'
-import {ClientStatus, SupplierStatus, ROLES} from '/imports/api/models'
+import {ClientStatus, SupplierStatus, ROLES, Companies, CompanyTypes} from '/imports/api/models'
 import ClientStatusForm from './components/ClientStatusForm'
 import SupplierStatusForm from './components/SupplierStatusForm'
 import {removeClientStatus, removeSupplierStatus} from '/imports/api/models/salesRecords/verified-methods'
@@ -294,6 +294,22 @@ class Details extends TrackerReact(React.Component) {
                     displayValue = status && status.name
                 } else if (field === 'dealState') {
                     selectOptions = Object.values(DEAL_STATE).map(value => ({label: value, value}))
+                } else if (field === 'supplier') {
+                    const companyType = CompanyTypes.findOne({name:'Window Producer'})
+                    const companyFilters = {}
+                    if(companyType) companyFilters.type_ids = companyType._id
+                    const componies = Companies.find(companyFilters).fetch()
+                    selectOptions = componies.map((c) => ({value: c._id, label: c.name}))
+                    const company = _.findWhere(componies, {_id: value})
+                    displayValue = company && company.name
+                } else if (field === 'shipper') {
+                    const companyType = CompanyTypes.findOne({name:'Freight Forwarder'})
+                    const companyFilters = {}
+                    if(companyType) companyFilters.type_ids = companyType._id
+                    const componies = Companies.find(companyFilters).fetch()
+                    selectOptions = componies.map((c) => ({value: c._id, label: c.name}))
+                    const company = _.findWhere(componies, {_id: value})
+                    displayValue = company && company.name
                 }
             }
 
@@ -379,8 +395,8 @@ class Details extends TrackerReact(React.Component) {
         const attrRows = [
             {label: 'Shipping mode', field: 'shippingMode', type: 'select'},
             {label: 'Production start date', field: 'productionStartDate', type: 'date'},
-            {label: 'Supplier', field: 'supplier', type: 'text'},
-            {label: 'Forwarder', field: 'shipper', type: 'text'},
+            {label: 'Supplier', field: 'supplier', type: 'select'},
+            {label: 'Forwarder', field: 'shipper', type: 'select'},
             {label: 'Est. Production time', field: 'estProductionTime', type: 'number'},
             {label: 'Est. Lead time', field: 'estLeadTime', type: 'number'},
             {label: 'Est. Production completion', field: 'estProductionCompletion', type: 'date'},

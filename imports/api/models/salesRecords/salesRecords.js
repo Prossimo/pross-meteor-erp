@@ -94,8 +94,8 @@ SalesRecords.schema = new SimpleSchema({
 
     shippingMode: { type: String, optional: true },
     productionStartDate: { type: Date, optional: true },
-    supplier: { type: String, optional: true },
-    shipper: { type: String, optional: true },
+    supplier: { type: String, optional: true },         // company id with type: `Window Producer`
+    shipper: { type: String, optional: true },          // company id with type: `Freight Forwarder`
     estProductionTime: { type: Number, optional: true },    // weeks
     estLeadTime: { type: Number, optional: true },    // weeks
     estProductionCompletion: { type: Date, optional: true },    // date
