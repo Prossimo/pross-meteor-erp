@@ -51,11 +51,6 @@ export const DEAL_PROBABILITY = {
     Medium: 'Medium'
 }
 
-export const DEAL_STATE = {
-    us: 'US',
-    canada: 'Canada States'
-}
-
 SalesRecords.schema = new SimpleSchema({
     _id: { type: String, regEx: SimpleSchema.RegEx.Id },
     createdAt: { type: Date, denyUpdate: true, optional: true },
