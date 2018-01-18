@@ -4,10 +4,10 @@ import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
 import {info, warning} from '/imports/api/lib/alerts'
-import {SHIPPING_MODE_LIST} from '/imports/api/constants/project'
+import {SHIPPING_MODE_LIST, STATES} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
-import {DEAL_PRIORITY, DEAL_PROBABILITY, DEAL_STATE} from '/imports/api/models/salesRecords/salesRecords'
+import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
 import {ClientStatus, SupplierStatus, ROLES, Companies, CompanyTypes} from '/imports/api/models'
 import ClientStatusForm from './components/ClientStatusForm'
 import SupplierStatusForm from './components/SupplierStatusForm'
@@ -293,7 +293,9 @@ class Details extends TrackerReact(React.Component) {
                     const status = _.findWhere(statuses, {_id: value})
                     displayValue = status && status.name
                 } else if (field === 'dealState') {
-                    selectOptions = Object.values(DEAL_STATE).map(value => ({label: value, value}))
+                    selectOptions = Object.values(STATES).map(state => ({label:`${state.countryCode}/${state.state}`, value:state.stateCode}))
+                    const state = _.findWhere(STATES, {stateCode:value})
+                    displayValue = state ? `${state.countryCode}/${state.state}` : ''
                 } else if (field === 'supplier') {
                     const companyType = CompanyTypes.findOne({name:'Window Producer'})
                     const companyFilters = {}
