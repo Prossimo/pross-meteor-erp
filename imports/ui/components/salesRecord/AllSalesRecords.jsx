@@ -5,7 +5,6 @@ import {Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'
 import {ROLES, Users, ClientStatus, SupplierStatus, People} from '/imports/api/models'
-import {SHIPPING_MODE_LIST} from '/imports/api/constants/project'
 import {info, warning} from '/imports/api/lib/alerts'
 import Select from 'react-select'
 import swal from 'sweetalert2'
@@ -14,14 +13,16 @@ import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
 
-import {DEAL_PRIORITY, DEAL_PROBABILITY, DEAL_STATE} from '/imports/api/models/salesRecords/salesRecords'
+import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
 
 import {
+    SHIPPING_MODE_LIST,
     SUB_STAGES_LEAD,
     SUB_STAGES_OPP,
     SUB_STAGES_ORDER,
     SUB_STAGE_TICKET,
-    STAGES_MAP
+    STAGES_MAP,
+    STATES
 } from '../../../api/constants/project'
 
 class AllSalesRecords extends React.Component {
@@ -287,9 +288,13 @@ class AllSalesRecords extends React.Component {
                     key: 'dealState',
                     label: 'Deal State',
                     selected: false,
-                    options: Object.values(DEAL_STATE).map(v => ({value: v, label: v})),
+                    options: Object.values(STATES).map(state => ({label:`${state.countryCode}/${state.state}`, value:state.stateCode})),
                     type: 'select',
-                    editable: true
+                    editable: true,
+                    renderer: record => {
+                        const state = _.findWhere(STATES, {stateCode: record.dealState})
+                        return state ? `${state.countryCode}/${state.state}` : null
+                    }
                 }
             ],
             showKanbanView: false
