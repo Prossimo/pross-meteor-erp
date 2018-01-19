@@ -94,12 +94,12 @@ SalesRecords.schema = new SimpleSchema({
     estProductionTime: { type: Number, optional: true },    // weeks
     estLeadTime: { type: Number, optional: true },    // weeks
     estProductionCompletion: { type: Date, optional: true },    // date
-    estDeliveryRange: { type: Array },
+    estDeliveryRange: { type: Array, optional: true },
     'estDeliveryRange.$': { type: Date },
     actClientPaymentReceived: { type: Date, optional: true },
     actProductionCompletion: { type: Date, optional: true },
     actShippingDate: { type: Date, optional: true },
-    actualDeliveryDate: { type: Date },
+    actualDeliveryDate: { type: Date, optional: true },
     actProductionTime: { type: Number, optional: true },
 
     stage: { type: String, allowedValues: STAGES },

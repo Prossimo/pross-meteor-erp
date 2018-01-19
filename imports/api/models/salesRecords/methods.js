@@ -135,9 +135,9 @@ Meteor.methods({
                 addToMain: Match.Maybe(Boolean),
                 peopleId: String,
             }],
-            actualDeliveryDate: Date,
-            productionStartDate: Date,
-            estDeliveryRange: [Date],
+            actualDeliveryDate: Match.Maybe(Date),
+            productionStartDate: Match.Maybe(Date),
+            estDeliveryRange: Match.Maybe([Date]),
 
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),

@@ -34,10 +34,10 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         this.state = {
             projectName: salesRecord ? salesRecord.name : '',
             subStage: salesRecord ? salesRecord.subStage : null,
-            actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : moment(),
-            productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) : moment(),
-            startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) : moment().subtract(29, 'days'),
-            endDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[1]) : moment(),
+            actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : null/*moment()*/,
+            productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) : null/*moment()*/,
+            startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) : null/*moment().subtract(29, 'days')*/,
+            endDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[1]) : null/*moment()*/,
 
             shippingContactPhone: salesRecord ? salesRecord.shippingContactPhone : '',
             shippingContactName: salesRecord ? salesRecord.shippingContactName : '',
@@ -103,9 +103,9 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
             name: projectName,
             members,
             stakeholders,
-            actualDeliveryDate: actualDeliveryDate.toDate(),
-            productionStartDate: productionStartDate.toDate(),
-            estDeliveryRange: [startDate.toDate(), endDate.toDate()],
+            actualDeliveryDate: actualDeliveryDate ? actualDeliveryDate.toDate() : undefined,
+            productionStartDate: productionStartDate ? productionStartDate.toDate() : undefined,
+            estDeliveryRange: startDate && endDate ? [startDate.toDate(), endDate.toDate()] : undefined,
 
             shippingContactName,
             shippingContactEmail,
@@ -145,7 +145,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                     FlowRouter.go(FlowRouter.path('Deal', {id: salesRecord._id}))
                 }, 300)
             })
-        } else {
+        } else {console.log(data)
             Meteor.call('insertSalesRecord', {data, thread, isPrivateSlackChannel}, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)

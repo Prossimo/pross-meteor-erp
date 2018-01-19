@@ -30,7 +30,11 @@ class Details extends TrackerReact(React.Component) {
     }
 
     changeStateElem(field, value, index) {
-        this.state.salesRecord[field][index] = value
+        const values = this.state.salesRecord[field] || []
+
+        values[index] = value
+
+        this.state.salesRecord[field] = values
         this.setState({
             salesRecord: this.state.salesRecord,
         })
@@ -233,22 +237,22 @@ class Details extends TrackerReact(React.Component) {
                     <div>
                         <DatePicker
                             className='form-control'
-                            selected={moment(value[0])}
+                            selected={value && value.length > 0 && moment(value[0])}
                             selectsStart
-                            startDate={moment(value[0])}
-                            endDate={moment(value[1])}
-                            onChange={(date) => this.changeStateElem(field, date.toDate(), 0)}
+                            startDate={value && value.length > 0 && moment(value[0])}
+                            endDate={value && value.length > 0 && moment(value[1])}
+                            onChange={(date) => this.changeStateElem(field, date ? date.toDate() : null, 0)}
                             onBlur={this.saveSalesRecord}/>
                         &nbsp;
                         to
                         &nbsp;
                         <DatePicker
                             className='form-control'
-                            selected={moment(value[1])}
+                            selected={value && value.length > 0 && moment(value[1])}
                             selectsStart
-                            startDate={moment(value[0])}
-                            endDate={moment(value[1])}
-                            onChange={(date) => this.changeStateElem(field, date.toDate(), 1)}
+                            startDate={value && value.length > 0 && moment(value[0])}
+                            endDate={value && value.length > 0 && moment(value[1])}
+                            onChange={(date) => this.changeStateElem(field, date ? date.toDate() : null, 1)}
                             onBlur={this.saveSalesRecord}/>
                     </div>
                 )
