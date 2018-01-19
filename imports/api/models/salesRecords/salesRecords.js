@@ -87,6 +87,7 @@ SalesRecords.schema = new SimpleSchema({
     billingAddress: { type: String, optional: true },
     billingNotes: { type: String, optional: true },
 
+    productionNotes: {type: String, optional:true},
     shippingMode: { type: String, optional: true },
     productionStartDate: { type: Date, optional: true },
     supplier: { type: String, optional: true },         // company id with type: `Window Producer`
