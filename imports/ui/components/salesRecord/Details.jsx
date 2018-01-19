@@ -396,7 +396,7 @@ class Details extends TrackerReact(React.Component) {
         ]
         const attrRows = [
             {label: 'Shipping mode', field: 'shippingMode', type: 'select'},
-            {label: 'Production start date', field: 'productionStartDate', type: 'date'},
+            {label: 'Act. Production Start Date', field: 'productionStartDate', type: 'date'},
             {label: 'Supplier', field: 'supplier', type: 'select'},
             {label: 'Forwarder', field: 'shipper', type: 'select'},
             {label: 'Est. Production time', field: 'estProductionTime', type: 'number'},
