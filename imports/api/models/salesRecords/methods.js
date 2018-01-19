@@ -284,7 +284,7 @@ Meteor.methods({
             billingNotes: Match.Maybe(String),
 
 
-
+            productionNotes: Match.Maybe(String),
             shippingMode: Match.Maybe(String),
             productionStartDate: Match.Maybe(Date),
             supplier: Match.Maybe(String),
