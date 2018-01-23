@@ -3,6 +3,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import {Modal} from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
+import Select from 'react-select'
 import SelectUser from './SelectUser.jsx'
 import TextEditor from './TextEditor.jsx'
 import TaskName from './TaskName.jsx'
@@ -11,6 +12,7 @@ import TaskComment from './TaskComment.jsx'
 import UploadFrom from './upload/UploadFrom.jsx'
 import UploadOverlay from './upload/UploadOverlay.jsx'
 import Attachments from './upload/Attachments.jsx'
+import {TaskStatus} from '/imports/api/models/tasks/tasks'
 
 class TaskModal extends Component {
     constructor(props) {
@@ -31,7 +33,7 @@ class TaskModal extends Component {
             approver: task ? task.approver : null,
             dueDate: task ? task.dueDate : new Date(),
             description: task ? task.description : '',
-            status: task ? task.status : null,
+            status: task ? task.status : TaskStatus[0],
             parentId: task ? task.parentId : null,
             parentType: task ? task.parentType : null
         }
@@ -55,6 +57,7 @@ class TaskModal extends Component {
             parentType
         }
 
+        console.log(task)
         if (!this.props.task || !this.props.task._id) {
             Meteor.call('task.create', task, error => {
                 if (error) {
@@ -115,13 +118,24 @@ class TaskModal extends Component {
                     <div className='row'>
 
                         <div className='col-md-9'>
-                            <TaskName
-                                name={this.state.task.name}
-                                isNew={!this.props.task || !this.props.task._id}
-                                onChange={name => {
-                                    this.state.task.name = name
-                                }}
-                            />
+                            <div className="flex">
+                                <div>
+                                    <TaskName
+                                        name={this.state.task.name}
+                                        isNew={!this.props.task || !this.props.task._id}
+                                        onChange={name => {
+                                            this.state.task.name = name
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex-1">
+                                    <Select
+                                        options={TaskStatus.map(status => ({value:status, label:status}))}
+                                        value={this.state.task.status}
+                                        onChange={item => this.changeState(this.state.task, 'status', item.value)}
+                                    />
+                                </div>
+                            </div>
                             <TextEditor
                                 content={this.state.task.description}
                                 onChange={description => {
