@@ -3,12 +3,13 @@ import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
+import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete'
 import {info, warning} from '/imports/api/lib/alerts'
 import {SHIPPING_MODE_LIST, STATES} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
-import {ClientStatus, SupplierStatus, ROLES, Companies, CompanyTypes} from '/imports/api/models'
+import {ClientStatus, SupplierStatus, ROLES, Companies, CompanyTypes, People, PeopleDesignations} from '/imports/api/models'
 import ClientStatusForm from './components/ClientStatusForm'
 import SupplierStatusForm from './components/SupplierStatusForm'
 import {removeClientStatus, removeSupplierStatus} from '/imports/api/models/salesRecords/verified-methods'
@@ -176,7 +177,7 @@ class Details extends TrackerReact(React.Component) {
             this.saveSalesRecord()
         }
     }
-    renderRowType(field, type, value, selectOptions) {
+    renderRowType(field, type, value, selectOptions, onChange) {
         switch (type) {
             case 'checkbox':
                 return (
@@ -197,7 +198,7 @@ class Details extends TrackerReact(React.Component) {
                 return (
                     <Select
                         value={value}
-                        onChange={({value}) => this.changeState(field, value, true)}
+                        onChange={onChange ? onChange : ({value}) => this.changeState(field, value, true)}
                         onBlur={this.saveSalesRecord}
                         options={selectOptions}
                         optionRenderer={Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) ? (option) => <div style={{display: 'flex'}}><span style={{flex: 1}}>{option.label}</span>{option.editable &&
@@ -207,7 +208,7 @@ class Details extends TrackerReact(React.Component) {
                             this.onRemoveOption(field, option.value)
                         }}>×</span>}</div> : null}
                         className={'select-role'}
-                        clearable={false}
+                        clearable={true}
                     />
                 )
             case 'textarea':
@@ -256,6 +257,14 @@ class Details extends TrackerReact(React.Component) {
                             onBlur={this.saveSalesRecord}/>
                     </div>
                 )
+            case 'display':
+                return (<div>{value}</div>)
+            case 'address':
+                return (
+                    <div>
+                        <PlacesAutocomplete inputProps={{value:value || '', onChange, onBlur:this.saveSalesRecord}} />
+                    </div>
+                )
             default:
                 return (
                     <input
@@ -275,6 +284,7 @@ class Details extends TrackerReact(React.Component) {
             const value = data[field]
             let displayValue = value
             let selectOptions
+            let onChange
             if (type === 'select') {
                 if (field === 'shippingMode') {
                     selectOptions = SHIPPING_MODE_LIST.map((value) => ({label: value, value}))
@@ -316,6 +326,34 @@ class Details extends TrackerReact(React.Component) {
                     selectOptions = componies.map((c) => ({value: c._id, label: c.name}))
                     const company = _.findWhere(componies, {_id: value})
                     displayValue = company && company.name
+                } else if (field === 'shippingContactPersonId') {
+                    const stakeholderDesignation = PeopleDesignations.findOne({name: 'Stakeholder'})
+                    const stakeholders = People.find({designation_id:stakeholderDesignation._id}).fetch()
+                    selectOptions = stakeholders.map((p) => ({value:p._id, label:p.name, email:p.defaultEmail(), phone:p.defaultPhoneNumber()}))
+                    onChange = ({value, email, phone}) => {
+                        this.changeState(field, value)
+                        this.changeState('shippingContactEmail', email)
+                        this.changeState('shippingContactPhone', phone)
+                    }
+                    const contactPerson = _.findWhere(stakeholders, {_id: value})
+                    displayValue = contactPerson && contactPerson.name
+                } else if (field === 'billingContactPersonId') {
+                    const stakeholderDesignation = PeopleDesignations.findOne({name: 'Stakeholder'})
+                    const stakeholders = People.find({designation_id:stakeholderDesignation._id}).fetch()
+                    selectOptions = stakeholders.map((p) => ({value:p._id, label:p.name, email:p.defaultEmail(), phone:p.defaultPhoneNumber()}))
+                    onChange = ({value, email, phone}) => {
+                        this.changeState(field, value)
+                        this.changeState('billingContactEmail', email)
+                        this.changeState('billingContactPhone', phone)
+                    }
+                    const contactPerson = _.findWhere(stakeholders, {_id: value})
+                    displayValue = contactPerson && contactPerson.name
+                }
+            } else if (type === 'address') {
+                if (field === 'shippingAddress') {
+                    onChange = (address) => this.changeState('shippingAddress', address)
+                } else if (field === 'billingAddress') {
+                    onChange = (address) => this.changeState('billingAddress', address)
                 }
             }
 
@@ -327,7 +365,7 @@ class Details extends TrackerReact(React.Component) {
                         <td>{label}</td>
                         <td style={{display: 'flex'}}>
                             <div
-                                style={{flex: 1}}>{this.renderRowType(field, type, value, type === 'select' && selectOptions)}</div>
+                                style={{flex: 1}}>{this.renderRowType(field, type, value, type === 'select' && selectOptions, onChange)}</div>
                             <div>
                                 {field === 'clientStatus' && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) &&
                                 <button className="btn btn-default" onClick={this.handleAddClientStatus}>+</button>}
@@ -414,17 +452,17 @@ class Details extends TrackerReact(React.Component) {
             {label: 'Act. Delivery Date', field: 'actualDeliveryDate', type: 'date'},
         ]
         const shippingRows = [
-            {label: 'Contact name', field: 'shippingContactName', type: 'text'},
-            {label: 'Contact email', field: 'shippingContactEmail', type: 'email'},
-            {label: 'Contact phone', field: 'shippingContactPhone', type: 'text'},
-            {label: 'Address', field: 'shippingAddress', type: 'text'},
+            {label: 'Contact name', field: 'shippingContactPersonId', type: 'select'},
+            {label: 'Contact email', field: 'shippingContactEmail', type: 'display'},
+            {label: 'Contact phone', field: 'shippingContactPhone', type: 'display'},
+            {label: 'Address', field: 'shippingAddress', type: 'address'},
             {label: 'Notes', field: 'shippingNotes', type: 'textarea'},
         ]
         const billingRows = [
-            {label: 'Contact name', field: 'billingContactName', type: 'text'},
-            {label: 'Contact email', field: 'billingContactEmail', type: 'email'},
-            {label: 'Contact phone', field: 'billingContactPhone', type: 'text'},
-            {label: 'Address', field: 'billingAddress', type: 'text'},
+            {label: 'Contact name', field: 'billingContactPersonId', type: 'select'},
+            {label: 'Contact email', field: 'billingContactEmail', type: 'display'},
+            {label: 'Contact phone', field: 'billingContactPhone', type: 'display'},
+            {label: 'Address', field: 'billingAddress', type: 'address'},
             {label: 'Notes', field: 'billingNotes', type: 'textarea'},
         ]
         const otherRows = [

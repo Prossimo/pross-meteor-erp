@@ -130,6 +130,16 @@ People.helpers({
         })
 
         return email
+    },
+    defaultPhoneNumber() {
+        if(!this.phone_numbers || this.phone_numbers.length==0) return null
+
+        let phone = this.phone_numbers[0].email
+        this.phone_numbers.forEach((ph) => {
+          if(ph.is_default) phone = ph.number
+        })
+
+        return phone
     }
 })
 

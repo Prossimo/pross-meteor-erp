@@ -271,12 +271,14 @@ Meteor.methods({
                 peopleId: String,
             }]),
 
+            shippingContactPersonId: Match.Maybe(String),
             shippingContactPhone: Match.Maybe(Match.phone),
             shippingContactName: Match.Maybe(String),
             shippingContactEmail: Match.Maybe(String),
             shippingAddress: Match.Maybe(String),
             shippingNotes: Match.Maybe(String),
 
+            billingContactPersonId: Match.Maybe(String),
             billingContactPhone: Match.Maybe(Match.phone),
             billingContactName: Match.Maybe(String),
             billingContactEmail: Match.Maybe(String),
