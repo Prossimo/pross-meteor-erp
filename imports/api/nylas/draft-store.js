@@ -9,6 +9,7 @@ import NylasAPI from './nylas-api'
 import {saveMessage} from '/imports/api/models/messages/methods'
 import { SalesRecords, Conversations } from '/imports/api/models'
 import {ErrorLog} from '/imports/utils/logger'
+import {ClientErrorLog} from "../../utils/logger";
 
 const ComposeType = {
     Creating: 'creating',
@@ -160,6 +161,30 @@ class DraftStoreClass extends Reflux.Store {
         try {
             saveMessage.call({conversationId, isNew, isReply, message})
             setTimeout(Actions.changedMessages, 500)
+
+            // Add user as member to deal or project
+            if(conversationId) {
+                const conversation = Conversations.findOne(conversationId)
+                const parent = conversation.parent()
+
+                const members = parent.members
+                console.log(members)
+                if(parent.type === 'deal') {
+                    if(members.indexOf(Meteor.userId()) === -1) {
+                        members.push(Meteor.userId())
+                        Meteor.call('updateSalesRecordMembers', parent._id, members, (err) => {
+                            if (err) return ClientErrorLog.error(err)
+                        })
+                    }
+                } else if(parent.type === 'project') {
+                    if(!members.find(m => m.userId === Meteor.userId())) {
+                        members.push({userId:Meteor.userId()})
+                        Meteor.call('updateProjectMembers', parent._id, members, (err) => {
+                            if (err) return ClientErrorLog.error(err)
+                        })
+                    }
+                }
+            }
         } catch(err) {
             ErrorLog.error(err)
         }
