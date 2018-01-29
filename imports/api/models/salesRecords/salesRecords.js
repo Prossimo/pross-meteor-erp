@@ -75,12 +75,14 @@ SalesRecords.schema = new SimpleSchema({
     clientStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true}, // client status id
     supplierStatus: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},   // supplier status id
 
+    shippingContactPersonId: {type:String, regEx: SimpleSchema.RegEx.Id, optional: true},
     shippingContactPhone: { type: String, optional: true },
     shippingContactName: { type: String, optional: true },
     shippingContactEmail: { type: String, optional: true },
     shippingAddress: { type: String, optional: true },
     shippingNotes: { type: String, optional: true },
 
+    billingContactPersonId: {type:String, regEx: SimpleSchema.RegEx.Id, optional: true},
     billingContactPhone: { type: String, optional: true },
     billingContactName: { type: String, optional: true },
     billingContactEmail: { type: String, optional: true },

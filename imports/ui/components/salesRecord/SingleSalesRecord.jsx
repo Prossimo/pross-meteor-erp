@@ -638,6 +638,18 @@ export default createContainer(props => {
             return member
         })
 
+        const shippingContactPerson = People.findOne(salesRecord.shippingContactPersonId)
+        if(shippingContactPerson) {
+            salesRecord.shippingContactEmail = shippingContactPerson.defaultEmail()
+            salesRecord.shippingContactPhone = shippingContactPerson.defaultPhoneNumber()
+        }
+
+        const billingContactPerson = People.findOne(salesRecord.billingContactPersonId)
+        if(billingContactPerson) {
+            salesRecord.billingContactEmail = billingContactPerson.defaultEmail()
+            salesRecord.billingContactPhone = billingContactPerson.defaultPhoneNumber()
+        }
+
         const peopleIds = salesRecord.stakeholders.map(({peopleId}) => peopleId)
         const stakeholders = People
             .find({_id: {$in: peopleIds}})
