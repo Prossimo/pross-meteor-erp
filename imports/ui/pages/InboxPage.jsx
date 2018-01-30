@@ -71,7 +71,7 @@ class InboxPage extends (React.Component) {
             unsubscribe()
         })
 
-        clearInterval(this.fetchNewThreadsInterval)
+        if(this.fetchNewThreadsInterval) clearInterval(this.fetchNewThreadsInterval)
     }
 
     onAccountStoreChanged = () => {
@@ -138,7 +138,7 @@ class InboxPage extends (React.Component) {
 
         const draft = DraftStore.draftForClientId(composeState.clientId)
 
-        if (!NylasUtils.isEmptyDraft(draft)) {
+        if (!NylasUtils.isEmptyDraft(draft) && !draft.id) {
             if (confirm('Are you sure to discard?'))
                 DraftStore.removeDraftForClientId(draft.clientId)
         } else {

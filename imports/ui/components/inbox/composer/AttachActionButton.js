@@ -63,7 +63,7 @@ export default class AttachActionButton extends React.Component {
         const items = this._items()
 
         return (
-            <div style={{order: 50}}>
+            <div>
                 <input type="file" id="file" ref="fileUploader" style={{display: 'none'}} multiple={true}
                        onChange={this._onChangeFiles}/>
                 <DropdownButton bsStyle="default" bsSize="small" id="dropdown-attach-file"
