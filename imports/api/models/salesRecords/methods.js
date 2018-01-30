@@ -176,6 +176,8 @@ Meteor.methods({
 
         const mainConversationId = Conversations.insert({name:'Main', participants:data.stakeholders.filter(s => s.addToMain).map(({peopleId,isMainStakeholder}) => ({peopleId, isMain:isMainStakeholder}))})
         data.conversationIds = [mainConversationId]
+
+        data.productionStartDate = new Date()
         const salesRecordId = SalesRecords.insert(data)
 
         // create folder in google drive
