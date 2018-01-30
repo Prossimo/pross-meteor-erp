@@ -57,7 +57,7 @@ export default class SendActionButton extends React.Component {
     _actionConfigs(props) {
         const actionConfigs = [this._defaultActionConfig()]
 
-        actionConfigs.push({
+        /*actionConfigs.push({
             title: 'Send and archive',
             iconUrl: null,
             onSend: (clientId) => {
@@ -72,11 +72,12 @@ export default class SendActionButton extends React.Component {
         actionConfigs.push({
             title: 'Send later',
             iconUrl: null,
-            onSend: ({draft}) => {
+            onSend: (clientId) => {
                 // TO DO: implement send later logic here
+                Actions.saveDraft(clientId)
             },
             configKey: 'sendLater'
-        })
+        })*/
         return actionConfigs
     }
 

@@ -35,6 +35,9 @@ const Actions = Reflux.createActions([
     'sendDraftSuccess',
     'sendDraftFailed',
 
+    'saveDraft',
+    'saveDraftSuccess',
+
     'queueTask',
     'queueTasks',
 

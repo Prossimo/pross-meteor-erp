@@ -22,10 +22,6 @@ export default class SendDraftTask extends Task {
     performRemote() {
         return this.assertDraftValidity()
             .then(this.sendMessage)
-            .then((responseJSON) => {
-
-                this.message = responseJSON
-            })
             .then(this.onSuccess)
             .catch(this.onError)
     }
@@ -44,7 +40,8 @@ export default class SendDraftTask extends Task {
         if (this.draft.account_id !== account.accountId) {
             return Promise.reject(new Error('The from address has changed since you started sending this draft. Double-check the draft and click \'Send\' again.'))
         }
-        if (this.draft.uploads && (this.draft.uploads.length > 0)) { console.log('Files have been added since you started sending this draft. Double-check the draft and click \'Send\' again..')
+        if (this.draft.uploads && (this.draft.uploads.length > 0)) {
+            console.log('Files have been added since you started sending this draft. Double-check the draft and click \'Send\' again..')
             return Promise.reject(new Error('Files have been added since you started sending this draft. Double-check the draft and click \'Send\' again..'))
         }
         return Promise.resolve()
@@ -53,15 +50,15 @@ export default class SendDraftTask extends Task {
     sendMessage = () => {
         const draft = _.clone(this.draft)
         draft.body = `<style>.nylas-signature p {font-size:11px;line-height:1.42;} p {font-size:13px;line-height:1.42;margin:0}</style>${draft.body}`
-        if(!draft.hideSignature){
+        if (!draft.hideSignature) {
             const signature = Meteor.user().profile.signature//AccountStore.signatureForAccountId(draft.account_id)
-            if(signature) draft.body += `<br/><br/><div class="nylas-signature">${signature}</div>`
+            if (signature) draft.body += `<br/><br/><div class="nylas-signature">${signature}</div>`
         }
-        if(draft.quotedBody) {
+        if (draft.quotedBody) {
             draft.body += draft.quotedBody
         }
 
-        if(draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
+        if (draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
 
 
         return NylasAPI.makeRequest({
@@ -92,9 +89,9 @@ export default class SendDraftTask extends Task {
 
     }
 
-    onSuccess = () => {
+    onSuccess = (response) => {
         Actions.sendDraftSuccess({
-            message: this.message,
+            message: response,
             clientId: this.clientId
         })
         NylasAPI.makeDraftDeletionRequest(this.draft)
@@ -103,7 +100,7 @@ export default class SendDraftTask extends Task {
     }
 
     onError = (err) => {
-        if(err instanceof Error) {
+        if (err instanceof Error) {
             return Promise.resolve(Task.Status.Continue)
         }
 
