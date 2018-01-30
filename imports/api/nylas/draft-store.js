@@ -236,6 +236,11 @@ class DraftStoreClass extends Reflux.Store {
 
    _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) => {
       alert(`Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`)
+
+      this._draftsViewState[clientId] = {
+         modal: true,
+         show: true
+      }
       this.trigger()
    }
 
