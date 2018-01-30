@@ -4,11 +4,15 @@ const Actions = Reflux.createActions([
     'changedAccounts',
     'changedThreads',
     'changedMessages',
+    'changedDrafts',
     'loadContacts',         // accountId
     'loadThreads',          // folder, {page, search}
     'fetchNewThreads',
     'loadMessages',         // thread
     'searchThreads',         // thread
+    'loadDrafts',          // folder, {page, search}
+    'fetchNewDrafts',
+    'searchDrafts',         // thread
 
     'resetContacts',
 
@@ -30,6 +34,7 @@ const Actions = Reflux.createActions([
     'composeNew',
     'composeReply',
     'composeForward',
+    'composeDraft',
 
     'sendDraft',
     'sendDraftSuccess',
