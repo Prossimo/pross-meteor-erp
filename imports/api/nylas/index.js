@@ -9,6 +9,7 @@ import MessageStore from './message-store'
 import DraftFactory from './draft-factory'
 import AccountStore from './account-store'
 import CategoryStore from './category-store'
+import DraftsStore from './drafts-store'
 
 export {
     Actions,
@@ -21,5 +22,6 @@ export {
     ThreadStore,
     MessageStore,
     CategoryStore,
-    AccountStore
+    AccountStore,
+   DraftsStore
 }

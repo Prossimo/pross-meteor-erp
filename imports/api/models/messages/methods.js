@@ -43,12 +43,26 @@ export const upsertMessage = new ValidatedMethod({
         if(Meteor.isServer) {
             const existingMessage = Messages.findOne({id: message.id})
             if (!existingMessage) {
-                //console.log('insertMessage')
+                console.log('insertMessage')
                 Messages.insert(message)
             } else if (existingMessage && message.unread!=existingMessage.unread) { // It should be uncommented after deployment
-                //console.log('updateMessage')
+                console.log('updateMessage')
                 Messages.update({_id: existingMessage._id}, {$set: {...message}})
             }
+        }
+
+        return true
+    }
+})
+
+export const removeMessage = new ValidatedMethod({
+    name: 'message.remove',
+    validate: Messages.schema.pick('id').validator({clean: true}),
+    run({id}) {console.log('removeMessage', id)
+        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+
+        if(Meteor.isServer) {
+            Messages.remove({id})
         }
 
         return true

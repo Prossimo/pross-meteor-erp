@@ -25,6 +25,7 @@ class DraftStoreClass extends Reflux.Store {
       this.listenTo(Actions.composeNew, this._onComposeNew)
       this.listenTo(Actions.composeReply, this._onComposeReply)
       this.listenTo(Actions.composeForward, this._onComposeForward)
+      this.listenTo(Actions.composeDraft, this._onComposeDraft)
       this.listenTo(Actions.sendDraft, this._onSendDraft)
       this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess)
       this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
@@ -106,6 +107,22 @@ class DraftStoreClass extends Reflux.Store {
 
    _onComposeForward = ({message, modal, conversationId}) => {
       DraftFactory.createDraftForForward({message}).then((draft) => {
+         draft.conversationId = conversationId
+         this._drafts.push(draft)
+
+         if (modal) this.hideModals()
+         this._draftsViewState[draft.clientId] = {
+            clientId: draft.clientId,
+            modal,
+            show: true
+         }
+
+         this.trigger()
+      })
+   }
+
+   _onComposeDraft = ({message, modal=true, conversationId}) => {
+      DraftFactory.createDraft(message).then((draft) => {
          draft.conversationId = conversationId
          this._drafts.push(draft)
 
@@ -313,6 +330,12 @@ class DraftStoreClass extends Reflux.Store {
       const stateForModal = _.findWhere(states, {modal: true})
 
       return stateForModal
+   }
+
+   draftViewStateForDraft() {
+      const states = _.values(this._draftsViewState)
+
+      return _.findWhere(states, {draft: true})
    }
 
    isUploadingDraftFiles(clientId) {

@@ -21,7 +21,12 @@ class CategoryStoreClass extends Reflux.Store {
     selectCategory(category) {
         this.currentCategory = category
         this.trigger()
-        Actions.loadThreads(category)
+
+       if(category.name === 'drafts') {
+            Actions.loadDrafts(category)
+       } else {
+          Actions.loadThreads(category)
+       }
     }
 
     getInboxCategory(accountId) {
