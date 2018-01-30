@@ -22,7 +22,7 @@ export default class TemplateForm extends React.Component {
 
     render() {
         return (
-            <div horizontal onSubmit={this.onSubmit}>
+            <Form horizontal onSubmit={this.onSubmit}>
                 <FormGroup controlId="formHorizontalName">
                     <Col sm={2}>
                         Subject
@@ -56,7 +56,7 @@ export default class TemplateForm extends React.Component {
                 </FormGroup>
                 <div>{'* You can use <%template_variable_name%> for templating'}</div>
                 <div>{'** Quote template variables -> <%project%>:deal name, <%quote%>:quote name, <%cost%>:quote cost'}</div>
-            </div>
+            </Form>
         )
     }
 
