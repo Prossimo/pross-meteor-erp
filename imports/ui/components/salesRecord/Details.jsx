@@ -177,7 +177,7 @@ class Details extends TrackerReact(React.Component) {
             this.saveSalesRecord()
         }
     }
-    renderRowType(field, type, value, selectOptions, onChange) {
+    renderRowType({field, type, value, selectOptions, onChange}) {
         switch (type) {
             case 'checkbox':
                 return (
@@ -280,7 +280,7 @@ class Details extends TrackerReact(React.Component) {
     }
 
     renderTableRows(rows, data, name) {
-        return _.map(rows, ({type, field, label}) => {
+        return _.map(rows, ({type, field, label, readonly}) => {
             const value = data[field]
             let displayValue = value
             let selectOptions
@@ -359,13 +359,13 @@ class Details extends TrackerReact(React.Component) {
 
             if(field === 'slackChannel') displayValue = value.name
 
-            if(name !== 'others') {
+            if(!readonly) {
                 return (
                     <tr key={field}>
                         <td>{label}</td>
                         <td style={{display: 'flex'}}>
                             <div
-                                style={{flex: 1}}>{this.renderRowType(field, type, value, type === 'select' && selectOptions, onChange)}</div>
+                                style={{flex: 1}}>{this.renderRowType({field, type, value, selectOptions, onChange})}</div>
                             <div>
                                 {field === 'clientStatus' && Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) &&
                                 <button className="btn btn-default" onClick={this.handleAddClientStatus}>+</button>}
@@ -376,6 +376,7 @@ class Details extends TrackerReact(React.Component) {
                     </tr>
                 )
             }
+
             if (_.isNull(value) || _.isUndefined(value)) return null
             if (type === 'date') displayValue = moment(value).format('MM/DD/YYYY')
             if (type === 'daterange') displayValue = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`
@@ -439,7 +440,7 @@ class Details extends TrackerReact(React.Component) {
         const attrRows = [
             {label: 'Notes', field: 'productionNotes', type: 'textarea'},
             {label: 'Shipping mode', field: 'shippingMode', type: 'select'},
-            {label: 'Act. Production Start Date', field: 'productionStartDate', type: 'date'},
+            {label: 'Act. Production Start Date', field: 'productionStartDate', type: 'date', readonly:true},
             {label: 'Supplier', field: 'supplier', type: 'select'},
             {label: 'Forwarder', field: 'shipper', type: 'select'},
             {label: 'Est. Production time', field: 'estProductionTime', type: 'number'},
@@ -453,24 +454,24 @@ class Details extends TrackerReact(React.Component) {
         ]
         const shippingRows = [
             {label: 'Contact name', field: 'shippingContactPersonId', type: 'select'},
-            {label: 'Contact email', field: 'shippingContactEmail', type: 'display'},
-            {label: 'Contact phone', field: 'shippingContactPhone', type: 'display'},
+            {label: 'Contact email', field: 'shippingContactEmail', type: 'display', readonly:true},
+            {label: 'Contact phone', field: 'shippingContactPhone', type: 'display', readonly:true},
             {label: 'Address', field: 'shippingAddress', type: 'address'},
             {label: 'Notes', field: 'shippingNotes', type: 'textarea'},
         ]
         const billingRows = [
             {label: 'Contact name', field: 'billingContactPersonId', type: 'select'},
-            {label: 'Contact email', field: 'billingContactEmail', type: 'display'},
-            {label: 'Contact phone', field: 'billingContactPhone', type: 'display'},
+            {label: 'Contact email', field: 'billingContactEmail', type: 'display', readonly:true},
+            {label: 'Contact phone', field: 'billingContactPhone', type: 'display', readonly:true},
             {label: 'Address', field: 'billingAddress', type: 'address'},
             {label: 'Notes', field: 'billingNotes', type: 'textarea'},
         ]
         const otherRows = [
-            {label: 'ID', field: '_id', type: 'text'},
-            {label: 'Created At', field: 'createdAt', type: 'date'},
-            {label: 'Modified At', field: 'modifiedAt', type: 'date'},
-            {label: 'Slack Chanel', field: 'slackChannel', type: 'text'},
-            {label: 'Folder Id', field: 'folderId', type: 'text'},
+            {label: 'ID', field: '_id', type: 'text', readonly:true},
+            {label: 'Created At', field: 'createdAt', type: 'date', readonly:true},
+            {label: 'Modified At', field: 'modifiedAt', type: 'date', readonly:true},
+            {label: 'Slack Chanel', field: 'slackChannel', type: 'text', readonly:true},
+            {label: 'Folder Id', field: 'folderId', type: 'text', readonly:true},
         ]
 
         return (
