@@ -14,8 +14,9 @@ export default class TemplateForm extends React.Component {
         super(props)
 
         this.state = {
-            subject: props.template ? props.template.subject : '',
-            body: props.template ? props.template.body : '',
+            name: props.template ? props.template.name || '' : '',
+            subject: props.template ? props.template.subject || '' : '',
+            body: props.template ? props.template.body || '' : '',
             isDefault: props.template ? props.template.isDefault : false
         }
     }
@@ -25,13 +26,20 @@ export default class TemplateForm extends React.Component {
             <Form horizontal onSubmit={this.onSubmit}>
                 <FormGroup controlId="formHorizontalName">
                     <Col sm={2}>
+                        Name
+                    </Col>
+                    <Col sm={10}>
+                        <FormControl type="text" placeholder="Template name" value={this.state.name} onChange={(evt) => this.setState({name:evt.target.value})}/>
+                    </Col>
+                </FormGroup>
+                <FormGroup controlId="formHorizontalName">
+                    <Col sm={2}>
                         Subject
                     </Col>
                     <Col sm={10}>
-                        <FormControl type="text" placeholder="Name" value={this.state.subject} onChange={(evt) => this.setState({subject:evt.target.value})}/>
+                        <FormControl type="text" placeholder="Email subject" value={this.state.subject} onChange={(evt) => this.setState({subject:evt.target.value})}/>
                     </Col>
                 </FormGroup>
-
                 <FormGroup controlId="formHorizontalSignature">
                     <Col sm={2}>
                         Body
@@ -93,7 +101,7 @@ export default class TemplateForm extends React.Component {
     onSubmit = (evt) => {
         evt.preventDefault()
 
-        const data = {subject, body, isDefault} = this.state
+        const data = {name, subject, body, isDefault} = this.state
 
         if(this.props.template) {
             Meteor.call('updateTemplate', this.props.template._id, data, (err,res) => {

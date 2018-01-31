@@ -67,7 +67,7 @@ export default class TemplatesList extends TrackerReact(React.Component) {
                     <thead>
                     <tr>
                         <th>#</th>
-                        <th>Subject</th>
+                        <th>Name</th>
                         <th>Default</th>
                     </tr>
                     </thead>
@@ -89,7 +89,7 @@ export default class TemplatesList extends TrackerReact(React.Component) {
             <tr className={selectedTemplate && selectedTemplate._id === template._id ? 'focused' : ''} key={template._id}
                 onClick={() => this.onSelectTemplate(template)}>
                 <td>{index + 1}</td>
-                <td>{template.subject}</td>
+                <td>{template.name}</td>
                 <td><input type="radio" checked={template.isDefault} onChange={() => this.setTemplateAsDefault(template)}/> </td>
             </tr>
         ))

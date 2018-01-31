@@ -32,6 +32,7 @@ MailTemplates.deny({
 
 MailTemplates.schema = new SimpleSchema({
     _id: {type: String, regEx: SimpleSchema.RegEx.Id},
+    name: {type: String},
     subject: {type: String},
     body: {type: String},
     isDefault: {type: Boolean, defaultValue:false},
@@ -42,6 +43,7 @@ MailTemplates.schema = new SimpleSchema({
 MailTemplates.attachSchema(MailTemplates.schema)
 
 MailTemplates.publicFields = {
+    name: 1,
     subject: 1,
     body: 1,
     isDefault: 1,
