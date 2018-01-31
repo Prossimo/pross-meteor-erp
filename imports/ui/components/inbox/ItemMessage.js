@@ -328,7 +328,7 @@ class ItemMessage extends React.Component {
             task: {
                 parentId: parent._id,
                 parentType: parent.type,
-                description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview/${message.id}`)}`,
+                description: `${message.subject}\n\n${Meteor.absoluteUrl(`emailview?message_id=${message.id}`)}`,
                 name: `Task #${parent.tasks().length + 1}`
             },
             taskFolderId: parent.taskFolderId
