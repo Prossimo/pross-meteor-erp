@@ -6,6 +6,7 @@ Meteor.methods({
     insertTemplate(data)
     {
         check(data, {
+            name: String,
             subject: String,
             body: String,
             isDefault: Match.Maybe(Boolean)
@@ -29,6 +30,7 @@ Meteor.methods({
     {
         check(_id, String)
         check(data, {
+            name: Match.Maybe(String),
             subject: Match.Maybe(String),
             body: Match.Maybe(String),
             isDefault: Match.Maybe(Boolean)
