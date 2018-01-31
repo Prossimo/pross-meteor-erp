@@ -461,7 +461,7 @@ export default class ComposeView extends React.Component {
    }
 
    _onSaveDraft = () => {
-      if (DraftStore.isEqualToLastSavedDraft(this.props.clientId)) return
+      if (NylasUtils.isEmptyDraft(this.state.draft) || DraftStore.isEqualToLastSavedDraft(this.props.clientId)) return
 
       Actions.saveDraft(this.props.clientId)
    }
