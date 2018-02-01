@@ -242,14 +242,11 @@ class AllSalesRecords extends React.Component {
                     label: 'Total Square Footage',
                     selected: false,
                     options: [],
-                    type: 'currency',
+                    type: 'number',
                     editable: true,
                     renderer: record => {
                         if (!record.totalSquareFootage) return ''
-                        return `$ ${parseFloat(record.totalSquareFootage).toLocaleString('en-US', {
-                            minimunFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        })}`
+                        return `${parseFloat(record.totalSquareFootage)}`
                     }
                 },
                 {
@@ -594,7 +591,7 @@ class AllSalesRecords extends React.Component {
                                 </th>
                             ))
                         }
-                        <th></th>
+                        <th className="th-action"></th>
                     </tr>
                     </thead>
                     <tbody>
