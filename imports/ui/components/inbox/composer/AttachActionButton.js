@@ -38,6 +38,7 @@ export default class AttachActionButton extends React.Component {
 
         for(let i=0; i<files.length; i++) {
             const file = files[i]
+            console.log('Call addAttachment', this.props.clientId, file)
             Actions.addAttachment({clientId: this.props.clientId, file})
         }
     }
@@ -64,14 +65,13 @@ export default class AttachActionButton extends React.Component {
 
         return (
             <div>
-                <input type="file" id="file" ref="fileUploader" style={{display: 'none'}} multiple={true}
-                       onChange={this._onChangeFiles}/>
+                <input type="file" id="file" ref="fileUploader" style={{display: 'none'}} multiple={true} onChange={this._onChangeFiles}/>
                 <DropdownButton bsStyle="default" bsSize="small" id="dropdown-attach-file"
                                 title={<img src="/icons/inbox/icon-composer-attachment.png" width={16}/> }>
                     {
                         items.map((item, index) => (
-                            <MenuItem key={`attach-file-${index}`} onSelect={item.select}><img src={item.image}
-                                                                                               width={16}/>&nbsp;{item.name}
+                            <MenuItem key={`attach-file-${index}`} onSelect={item.select}>
+                                <img src={item.image} width={16}/>&nbsp;{item.name}
                             </MenuItem>))
                     }
                 </DropdownButton>
