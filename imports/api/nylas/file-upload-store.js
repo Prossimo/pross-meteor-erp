@@ -83,7 +83,7 @@ class FileUploadStoreClass extends Reflux.Store {
         this.listenTo(Actions.removeAttachment, this._onRemoveAttachment)
     }
 
-    _onAddAttachment = ({clientId, file}) => {
+    _onAddAttachment = ({clientId, file}) => {console.log('_onAddAttachment', clientId, file)
         if(!clientId) throw new Error('You need to pass the ID of the message (draft) this Action refers to')
 
         this._verifyFile(file)
