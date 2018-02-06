@@ -45,7 +45,7 @@ export const upsertMessage = new ValidatedMethod({
             if (!existingMessage) {
                 console.log('insertMessage')
                 Messages.insert(message)
-            } else if (existingMessage && message.unread!=existingMessage.unread) { // It should be uncommented after deployment
+            } else if (existingMessage && message.version!=existingMessage.version) {
                 console.log('updateMessage')
                 Messages.update({_id: existingMessage._id}, {$set: {...message}})
             }

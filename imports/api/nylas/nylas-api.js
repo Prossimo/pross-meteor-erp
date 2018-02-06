@@ -20,7 +20,7 @@ class NylasAPIRequest {
       options.url = options.path ? `${api.APIRoot}${options.path}` : options.url
       options.json = options.json || true
       options.timeout = options.timeout || 15000
-      options.returnsModel = options.returnsModel || true
+      options.returnsModel = options.returnsModel===undefined ? true : options.returnsModel
 
       if (!(options.method === 'GET' || options.formData)) {
          options.body = options.body || {}
@@ -205,6 +205,7 @@ class NylasAPIClass {
       if (!draft.id) return
 
       //this.incrementRemoteChangeLock(Message, draft.serverId)
+       //console.log('makeDraftDeletionRequest', draft, draft.version || 0)
       this.makeRequest({
          path: `/drafts/${draft.id}`,
          accountId: draft.account_id,
@@ -213,7 +214,7 @@ class NylasAPIClass {
          returnsModel: false
       })
          .then(() => {
-            try {console.log('call removeMessage', draft)
+            try {//console.log('call removeMessage', draft)
                removeMessage.call({id: draft.id})
             } catch (err) {
                ErrorLog.error(err)

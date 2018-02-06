@@ -144,6 +144,8 @@ Messages.schema = new SimpleSchema({
    'labels.$': {
       type: Object
    },
+
+    version: {type: Number, optional:true},
    created_at: {type: Date, denyUpdate: true, optional: true},
    modified_at: {type: Date, denyInsert: true, optional: true},
    isAttachmentBackup: {type: Boolean, optional: true},
@@ -170,6 +172,7 @@ Messages.publicFields = {
    events: 1,
    folder: 1,
    labels: 1,
+    version: 1,
 
    created_at: 1,
    modified_at: 1
