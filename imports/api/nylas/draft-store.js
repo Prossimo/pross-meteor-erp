@@ -10,7 +10,6 @@ import NylasAPI from './nylas-api'
 import {saveMessage, upsertMessage} from '/imports/api/models/messages/methods'
 import {SalesRecords, Conversations} from '/imports/api/models'
 import {ErrorLog, ClientErrorLog} from '/imports/utils/logger'
-import {upsertThread} from "../models/threads/methods";
 
 const ComposeType = {
    Creating: 'creating',
