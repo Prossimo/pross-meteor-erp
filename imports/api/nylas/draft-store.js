@@ -7,9 +7,10 @@ import SyncbackDraftTask from './tasks/syncback-draft-task'
 import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
 import NylasUtils from './nylas-utils'
 import NylasAPI from './nylas-api'
-import {saveMessage} from '/imports/api/models/messages/methods'
+import {saveMessage, upsertMessage} from '/imports/api/models/messages/methods'
 import {SalesRecords, Conversations} from '/imports/api/models'
 import {ErrorLog, ClientErrorLog} from '/imports/utils/logger'
+import {upsertThread} from "../models/threads/methods";
 
 const ComposeType = {
    Creating: 'creating',
@@ -171,7 +172,11 @@ class DraftStoreClass extends Reflux.Store {
       const savedDraft = {...draft, ...message}
       this.changeDraftForClientId(clientId, savedDraft)
 
-
+       try {
+           upsertMessage.call(savedDraft)
+       } catch (err) {
+           ErrorLog.error(err)
+       }
       this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft)
    }
 
