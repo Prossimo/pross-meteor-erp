@@ -52,7 +52,7 @@ Messages.schema = new SimpleSchema({
    },
    'from.$.email': {
       type: String,
-      regEx: SimpleSchema.RegEx.Email
+      //regEx: SimpleSchema.RegEx.Email
    },
    to: {type: Array, optional: true},
    'to.$': {
@@ -64,7 +64,7 @@ Messages.schema = new SimpleSchema({
    },
    'to.$.email': {
       type: String,
-      regEx: SimpleSchema.RegEx.Email
+      //regEx: SimpleSchema.RegEx.Email
    },
    cc: {type: Array, optional: true},
    'cc.$': {
@@ -76,7 +76,7 @@ Messages.schema = new SimpleSchema({
    },
    'cc.$.email': {
       type: String,
-      regEx: SimpleSchema.RegEx.Email
+      //regEx: SimpleSchema.RegEx.Email
    },
    bcc: {type: Array, optional: true},
    'bcc.$': {
@@ -88,7 +88,7 @@ Messages.schema = new SimpleSchema({
    },
    'bcc.$.email': {
       type: String,
-      regEx: SimpleSchema.RegEx.Email
+      //regEx: SimpleSchema.RegEx.Email
    },
    reply_to: {type: Array, optional: true},
    'reply_to.$': {
@@ -100,7 +100,7 @@ Messages.schema = new SimpleSchema({
    },
    'reply_to.$.email': {
       type: String,
-      regEx: SimpleSchema.RegEx.Email
+      //regEx: SimpleSchema.RegEx.Email
    },
    date: {type: Number},
    unread: {type: Boolean, optional: true},
