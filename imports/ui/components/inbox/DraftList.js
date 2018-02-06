@@ -138,12 +138,11 @@ export default class DraftList extends TrackerReact(React.Component) {
     onScrollDraftList = (evt) => {
         const el = evt.target
 
-        if (el.scrollTop + el.clientHeight == el.scrollHeight) {
+        if (el.scrollTop + el.clientHeight == el.scrollHeight && !DraftsStore.fullyLoaded) {
             this.page ++
             //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
             //this.subscriptions.push(subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort())))
 
-            console.log('loadOldDrafts')
             Actions.loadDrafts(null, {page: DraftsStore.currentPage + 1})
         }
     }
