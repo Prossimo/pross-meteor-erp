@@ -20,6 +20,7 @@ class NylasAPIRequest {
       options.url = options.path ? `${api.APIRoot}${options.path}` : options.url
       options.json = options.json || true
       options.timeout = options.timeout || 15000
+      options.returnsModel = options.returnsModel || true
 
       if (!(options.method === 'GET' || options.formData)) {
          options.body = options.body || {}
@@ -105,8 +106,7 @@ class NylasAPIClass {
    }
 
    makeRequest(options = {}) {
-      //console.log("makeRequest", options);
-      const success = (body) => { //console.log("========NyalsAPIRequest result", body);
+      const success = (body) => {
          if (options.beforeProcessing) {
             body = options.beforeProcessing(body)
          }
@@ -175,12 +175,13 @@ class NylasAPIClass {
       }
       if (objName !== 'thread' && objName !== 'message' && objName !== 'draft') return Promise.resolve(uniquedJSONs)
 
+
       // Update server database
       unlockedJSONs.forEach((obj) => {
          try {
             if (obj.object === 'thread') {
                upsertThread.call(obj)
-            } else if (obj.object === 'message' || obj.object === 'draft') {
+            } else if (obj.object === 'message' || obj.object === 'draft') {if(obj.object === 'draft')
                upsertMessage.call(obj)
             }
          } catch (err) {

@@ -33,39 +33,31 @@ class DraftsStoreClass extends Reflux.Store {
         category = category ? category : CategoryStore.currentCategory
         if(!category || category.name!=='drafts') return
 
-        const loadDrafts = (folder) => {
-            if(!folder || !folder.account_id) return Promise.resolve([])
+        const query = {offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE}
 
-            const query = {offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE}
+        if(page == 1) this.fullyLoaded = false
 
-            return new Promise((resolve, reject) => {
-                let path
-                if(this.keyword) {
-                    path = `/drafts/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
-                } else {
-                    path = `/drafts?${QueryString.stringify(query)}`
-                }//console.log('Nylas Path', path)
+        this.currentPage = page
 
-                return NylasAPI.makeRequest({
-                    path,
-                    method: 'GET',
-                    accountId: folder.account_id
-                }).then(drafts => resolve(drafts)).catch(err => reject(err))
-            })
-        }
-
-        const promises = [loadDrafts(category)]
+        let path
+        if(this.keyword) {
+            path = `/drafts/search?${QueryString.stringify(Object.assign(query, {q:this.keyword}))}`
+        } else {
+            path = `/drafts?${QueryString.stringify(query)}`
+        }//console.log('Nylas Path', path)
 
         this.loading = true
         this.trigger()
 
-        Promise.all(promises).then((drafts) => {
-            //console.log('Load Threads result', threads)
+        NylasAPI.makeRequest({
+            path,
+            method: 'GET',
+            accountId: category.account_id
+        }).then(results => {
+            if(results.length < PAGE_SIZE) this.fullyLoaded = true
         }).finally(() => {
             this.loading = false
             this.trigger()
-
-            this.currentPage = page ? page : 1
         })
     }
 

@@ -58,7 +58,6 @@ class InboxPage extends (React.Component) {
 
 
       this.fetchNewThreadsInterval = setInterval(() => {
-         console.log('fetch threads')
          if (Meteor.userId()) {
             Meteor.call('thread.fetchNewThreads', {accounts: Meteor.user().nylasAccounts()}, (err) => {
                if (err) ClientErrorLog.error(err)
