@@ -190,10 +190,7 @@ class DraftStoreClass extends Reflux.Store {
       }
       Actions.queueTask(new SendDraftTask(clientId))
 
-      this._draftsViewState[clientId] = {
-         modal: false,
-         show: false
-      }
+
       this.trigger()
    }
 
