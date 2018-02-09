@@ -314,7 +314,9 @@ export default class ComposeView extends React.Component {
                <div style={{order: 0, flex: 1}}/>
                <Button bsStyle="default" disabled={DraftStore.isEqualToLastSavedDraft(this.props.clientId)}
                        onClick={this._onSaveDraft}>Save</Button>&nbsp;
-               <Button bsStyle="primary" disabled={this._isUnableToSend()} onClick={this._onSendDraft}>Send</Button>
+               <Button bsStyle="primary" disabled={this._isUnableToSend()} onClick={this._onSendDraft}>
+                   {DraftStore.isSendingDraft(clientId) && <i className="fa fa-spinner fa-spin fa-fw"/> }Send
+               </Button>
             </div>
          </div>
       )
