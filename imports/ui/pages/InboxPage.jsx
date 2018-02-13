@@ -138,6 +138,7 @@ class InboxPage extends (React.Component) {
       if (!composeStateForModal) return
 
       const draft = DraftStore.draftForClientId(composeStateForModal.clientId)
+      console.log('asdfasdfasdf',draft)
 
       if (!NylasUtils.isEmptyDraft(draft) && !draft.id) {
          if (confirm('Are you sure to discard?'))

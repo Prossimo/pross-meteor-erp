@@ -58,7 +58,7 @@ export const upsertMessage = new ValidatedMethod({
 export const removeMessage = new ValidatedMethod({
     name: 'message.remove',
     validate: Messages.schema.pick('id').validator({clean: true}),
-    run({id}) {console.log('removeMessage', id)
+    run({id}) {
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         if(Meteor.isServer) {
@@ -86,7 +86,7 @@ export const saveMessage = new ValidatedMethod({
             accountId: message.account_id
         }).then((thread) => {
             if (thread) {
-                console.log(thread)
+                //console.log(thread)
                 bound(() => {
                     if(Meteor.isServer) {
                         const existingThread = Threads.findOne({id:thread.id})
@@ -108,6 +108,8 @@ export const saveMessage = new ValidatedMethod({
                         const existingMessage = Messages.findOne({id:message.id})
                         if(!existingMessage) {
                             Messages.insert(message)
+                        } else if(existingMessage.version !== message.version) {
+                            Messages.update({_id: existingMessage._id}, {$set: {...message}})
                         }
                     }
                 })

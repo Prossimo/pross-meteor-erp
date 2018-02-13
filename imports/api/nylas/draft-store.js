@@ -31,6 +31,7 @@ class DraftStoreClass extends Reflux.Store {
       this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
       this.listenTo(Actions.saveDraft, this._onSaveDraft)
       this.listenTo(Actions.saveDraftSuccess, this._onSaveDraftSuccess)
+      this.listenTo(Actions.removeDraft, this._onRemoveDraft)
       this.listenTo(Actions.removeFile, this._onRemoveFile)
 
       this._drafts = []
@@ -165,18 +166,26 @@ class DraftStoreClass extends Reflux.Store {
    }
 
    _onSaveDraftSuccess = ({message, clientId}) => {
-      const draft = this.draftForClientId(clientId)
-      //console.log('_onSaveDraftSuccess', clientId, message, draft)
+       const draft = this.draftForClientId(clientId)
+       console.log('_onSendDraftSuccess results', message, clientId, draft)
 
-      const savedDraft = {...draft, ...message}
-      this.changeDraftForClientId(clientId, savedDraft)
+       const savedDraft = {...draft, ...message}
+       this.changeDraftForClientId(clientId, savedDraft)
+
+       const {conversationId, isNew, isReply} = draft
 
        try {
-           upsertMessage.call(savedDraft)
+           saveMessage.call({conversationId, isNew, isReply, message})
+           setTimeout(Actions.changedMessages, 500)
        } catch (err) {
            ErrorLog.error(err)
        }
+
       this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft)
+   }
+
+   _onRemoveDraft = (draft) => {
+      NylasAPI.makeDraftDeletionRequest(draft)
    }
 
    _onSendDraft(clientId) {
@@ -196,7 +205,7 @@ class DraftStoreClass extends Reflux.Store {
 
    _onSendDraftSuccess = ({message, clientId} = {}) => {
       const draft = this.draftForClientId(clientId)
-      //console.log('_onSendDraftSuccess', message, clientId, draft)
+      //console.log('_onSendDraftSuccess results', message, clientId, draft)
 
       const {conversationId, isNew, isReply} = draft
 

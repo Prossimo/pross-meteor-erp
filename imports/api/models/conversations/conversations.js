@@ -69,7 +69,16 @@ Conversations.helpers({
     messages() {
         const threads = this.threads()
 
-        return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+        const messages = []
+
+        threads.forEach((t) => {
+            // Non draft messages
+            Messages.find({id: {$in:t.message_ids}}).fetch().forEach((m) => messages.push(m))
+
+            // Draft messages
+            Messages.find({id: {$in:t.draft_ids}}).fetch().forEach((m) => messages.push(m))
+        })
+        return messages
     },
     parent() {
         const sr = SalesRecords.findOne({conversationIds:this._id})
