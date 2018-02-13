@@ -41,14 +41,7 @@ export default class MessageItemContainer extends React.Component {
     }
 
     render() {
-        if (this.props.message.draft) {
-            if (this.state.isSending)
-                return this._renderMessage({pending: true})
-            else
-                return this._renderComposer()
-        } else {
-            return this._renderMessage({pending: false})
-        }
+       return this._renderMessage({pending: false})
     }
 
 
@@ -65,25 +58,9 @@ export default class MessageItemContainer extends React.Component {
         />
     }
 
-    _renderComposer() {return <div>This should show composer</div>
-        /*Composer = ComponentRegistry.findComponentsMatching({role: 'Composer'})[0]
-         if (!Composer)
-         return <span></span>
-
-         return <Composer
-         ref="message"
-         draftClientId={@props.message.clientId}
-         className={@_classNames()}
-         mode={"inline"}
-         threadId={@props.thread.id}
-         scrollTo={@props.scrollTo}
-         />*/
-    }
-
-
     _classNames() {
         return classnames({
-            'draft': this.props.message.draft,
+            'draft': this.props.message.object === 'draft',
             'unread': this.props.message.unread,
             'collapsed': this.props.collapsed,
             'message-item-wrap': true,

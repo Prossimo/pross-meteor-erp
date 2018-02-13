@@ -6,116 +6,138 @@ import Actions from '../../../api/nylas/actions'
 
 
 class MessageControls extends React.Component {
-    static propTypes = {
-        message: React.PropTypes.object.isRequired
-    }
+   static propTypes = {
+      message: React.PropTypes.object.isRequired
+   }
 
-    constructor(props) {
-        super(props)
-    }
+   constructor(props) {
+      super(props)
+   }
 
 
-    render() {
-        const items = this._items()
+   render() {
+      const items = this._items()
 
-        return (
-            <div className="message-actions-wrap">
-                <ButtonDropdown
-                    primaryItem={<img src={items[0].image} width="16px"/>}
-                    primaryTitle={items[0].name}
-                    primaryClick={items[0].select}
-                    closeOnMenuClick={true}
-                    menu={this._dropdownMenu(items.slice(1))}/>
-                {/*<div className="message-actions-ellipsis" onClick={this._onShowActionsMenu}>
+      return (
+         <div className="message-actions-wrap">
+            <ButtonDropdown
+               primaryItem={<img src={items[0].image} width="16px"/>}
+               primaryTitle={items[0].name}
+               primaryClick={items[0].select}
+               closeOnMenuClick={true}
+               menu={this._dropdownMenu(items.slice(1))}/>
+            {/*<div className="message-actions-ellipsis" onClick={this._onShowActionsMenu}>
                     <img src="/icons/inbox/message-actions-ellipsis.png" width="22px"/>
                 </div>*/}
-            </div>
-        )
-    }
+         </div>
+      )
+   }
 
-    _items() {
-        const reply = {
-            name: 'Reply',
-            image: '/icons/inbox/ic-dropdown-reply.png',
-            select: this._onReply
-        }
+   _items() {
+      const reply = {
+         name: 'Reply',
+         image: '/icons/inbox/ic-dropdown-reply.png',
+         select: this._onReply
+      }
 
-        const replyAll = {
-            name: 'Reply All',
-            image: '/icons/inbox/ic-dropdown-replyall.png',
-            select: this._onReplyAll
-        }
-        const forward = {
-            name: 'Forward',
-            image: '/icons/inbox/ic-dropdown-forward.png',
-            select: this._onForward
-        }
+      const replyAll = {
+         name: 'Reply All',
+         image: '/icons/inbox/ic-dropdown-replyall.png',
+         select: this._onReplyAll
+      }
+      const forward = {
+         name: 'Forward',
+         image: '/icons/inbox/ic-dropdown-forward.png',
+         select: this._onForward
+      }
+      const edit = {
+         name: 'Edit',
+         image: '/icons/inbox/icon-pencil.png',
+         select: this._onEdit
+      }
+      const remove = {
+         name: 'Delete',
+         image: '/icons/inbox/ic-category-trash.png',
+         select: this._onRemove
+      }
 
-        if (NylasUtils.canReplyAll(this.props.message)) {
-            const defaultReplyType = 'reply-all'//PlanckEnv.config.get('core.sending.defaultReplyType')
-            if (defaultReplyType == 'reply-all')
-                return [replyAll, reply, forward]
-            else
-                return [reply, replyAll, forward]
-        }
+      if(this.props.message.object === 'draft') {
+         return [edit, remove]
+      }
 
-        else
-            return [reply, forward]
-    }
+      if (NylasUtils.canReplyAll(this.props.message)) {
+         const defaultReplyType = 'reply-all'//PlanckEnv.config.get('core.sending.defaultReplyType')
+         if (defaultReplyType == 'reply-all')
+            return [replyAll, reply, forward]
+         else
+            return [reply, replyAll, forward]
+      }
 
-    _account() {
+      else
+         return [reply, forward]
+   }
 
-    }
+   _account() {
 
-    _dropdownMenu(items) {
-        const itemContent = (item) => (
-                <span>
+   }
+
+   _dropdownMenu(items) {
+      const itemContent = (item) => (
+         <span>
                     <img src={item.image} width="16px"/>
-                    &nbsp;&nbsp;{item.name}
+            &nbsp;&nbsp;{item.name}
                 </span>
-            )
+      )
 
-        return (
-            <Menu items={items}
-                  itemKey={ (item) => item.name }
-                  itemContent={itemContent}
-                  onSelect={ (item) => item.select() }
-            />
-        )
-    }
-
-
-    _onReply = () => {
-        const {message, conversationId} = this.props
-        Actions.composeReply({message, type: 'reply', modal: true, conversationId})
-    }
-
-    _onReplyAll = () => {
-        const {message, conversationId} = this.props
-        Actions.composeReply({message, type: 'reply-all', modal: true, conversationId})
-    }
-
-    _onForward = () => {
-        const {message, conversationId} = this.props
-        Actions.composeForward({message, modal: true, conversationId})
-    }
+      return (
+         <Menu items={items}
+               itemKey={(item) => item.name}
+               itemContent={itemContent}
+               onSelect={(item) => item.select()}
+         />
+      )
+   }
 
 
-    _onReport(issueType) {
+   _onReply = () => {
+      const {message, conversationId} = this.props
+      Actions.composeReply({message, type: 'reply', modal: true, conversationId})
+   }
 
-    }
+   _onReplyAll = () => {
+      const {message, conversationId} = this.props
+      Actions.composeReply({message, type: 'reply-all', modal: true, conversationId})
+   }
 
-    _onShowOriginal() {
+   _onForward = () => {
+      const {message, conversationId} = this.props
+      Actions.composeForward({message, modal: true, conversationId})
+   }
 
-    }
+   _onEdit = () => {
+      const {message, conversationId} = this.props
+      Actions.composeDraft({message, conversationId})
+   }
 
-    _onLogData() {
+   _onRemove = () => {
+      Actions.removeDraft(this.props.message)
+   }
 
-    }
+   _onReport(issueType) {
 
-    _onCopyToClipboard() {
+   }
 
-    }
+   _onShowOriginal() {
+
+   }
+
+   _onLogData() {
+
+   }
+
+   _onCopyToClipboard() {
+
+   }
 }
 
 module.exports = MessageControls
