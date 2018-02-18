@@ -72,6 +72,7 @@ class ItemMessage extends React.Component {
                         <div className="collapsed-snippet">
                             {this.props.message.snippet}
                         </div>
+                        {this.props.message.object === 'draft' && <div className="collapsed-edit"></div>}
                         <div className="collapsed-timestamp">
                             <MessageTimestamp date={this.props.message.date}/>
                         </div>
