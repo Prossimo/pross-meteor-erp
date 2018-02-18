@@ -78,7 +78,7 @@ Conversations.helpers({
             // Draft messages
             Messages.find({id: {$in:t.draft_ids}}).fetch().forEach((m) => messages.push(m))
         })
-        return messages
+        return _.uniq(messages.sort((m1, m2) => m1.date - m2.date), false, (m) => m.id)
     },
     parent() {
         const sr = SalesRecords.findOne({conversationIds:this._id})
