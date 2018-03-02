@@ -58,7 +58,7 @@ class ThreadStoreClass extends Reflux.Store {
         }
 
         let promises
-        if(category.id==='unassigned' || category.id==='not_filed') {
+        if(category.id==='unassigned' || category.id==='not_filed' || category.id==='unreads') {
             promises = Meteor.user().nylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
         } else if(category.type === 'teammember') {
             promises = category.privateNylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
