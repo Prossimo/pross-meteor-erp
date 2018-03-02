@@ -28,467 +28,472 @@ import ComposeView from '../components/inbox/composer/ComposeView'
 
 
 class InboxPage extends (React.Component) {
-   constructor(props) {
-      super(props)
+    constructor(props) {
+        super(props)
 
-      const currentCategory = CategoryStore.currentCategory
-      this.state = {
-         addingInbox: false,
-         addingTeamInbox: false,
-         showTargetForm: false,
-         binding: false,
-         loadingThreads: false,
-         hasNylasAccounts: NylasUtils.hasNylasAccounts(),
-         currentCategory,
-         currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
-      }
+        const currentCategory = CategoryStore.currentCategory
+        this.state = {
+            addingInbox: false,
+            addingTeamInbox: false,
+            showTargetForm: false,
+            binding: false,
+            loadingThreads: false,
+            hasNylasAccounts: NylasUtils.hasNylasAccounts(),
+            currentCategory,
+            currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
+        }
 
-      if (this.state.hasNylasAccounts) {
-         Actions.loadContacts()
-      }
+        if (this.state.hasNylasAccounts) {
+            Actions.loadContacts()
+        }
 
-   }
+    }
 
-   componentDidMount() {
-      this.unsubscribes = []
-      this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
-      this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
-      this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
-      this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
+    componentDidMount() {
+        this.unsubscribes = []
+        this.unsubscribes.push(AccountStore.listen(this.onAccountStoreChanged))
+        this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
+        this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
+        this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
 
 
-      this.fetchNewThreadsInterval = setInterval(() => {
-         if (Meteor.userId()) {
-            Meteor.call('thread.fetchNewThreads', {accounts: Meteor.user().nylasAccounts()}, (err) => {
-               if (err) ClientErrorLog.error(err)
-            })
-         }
-      }, 1 * 1000 * 120)   // every 5 minutes
-
-   }
-
-   componentWillUnmount() {
-      this.unsubscribes.forEach((unsubscribe) => {
-         unsubscribe()
-      })
-
-      if (this.fetchNewThreadsInterval) clearInterval(this.fetchNewThreadsInterval)
-   }
-
-   onAccountStoreChanged = () => {
-      this.setState({
-         addingInbox: false,
-         addingTeamInbox: false,
-         hasNylasAccounts: NylasUtils.hasNylasAccounts()
-      })
-   }
-
-   onCategoryStoreChanged = () => {
-      const currentCategory = CategoryStore.currentCategory
-      this.setState({
-         currentCategory
-      })
-   }
-   onDraftStoreChanged = () => {
-      this.setState({
-         composeStateForModal: DraftStore.draftViewStateForModal()
-      })
-   }
-   onThreadStoreChanged = () => {
-      this.setState({
-         fetching: ThreadStore.fetching
-      })
-   }
-
-   render() {
-      if (this.props.loading) return <Spinner visible={true}/>
-
-      return (
-         <div className="inbox-page">
-            {this.renderContents()}
-         </div>
-      )
-   }
-
-   renderContents() {
-      const {hasNylasAccounts, composeStateForModal, addingInbox, addingTeamInbox} = this.state
-
-      if (addingInbox) {
-         return <NylasSigninForm isAddingTeamInbox={addingTeamInbox}
-                                 onCancel={() => this.setState({addingInbox: false})}/>
-      } else {
-         if (hasNylasAccounts) {
-            return (
-               <div style={{height: '100%'}}>
-                  {this.renderInbox()}
-                  {this.renderPeopleModal()}
-                  <ComposeModal isOpen={composeStateForModal && composeStateForModal.show}
-                                clientId={composeStateForModal && composeStateForModal.clientId}
-                                onClose={this.onCloseComposeModal}/>
-               </div>
-            )
-         } else {
-            return this.renderAddInboxButtons()
-         }
-      }
-   }
-
-   onCloseComposeModal = () => {
-      const {composeStateForModal} = this.state
-      if (!composeStateForModal) return
-
-      const draft = DraftStore.draftForClientId(composeStateForModal.clientId)
-      console.log('asdfasdfasdf',draft)
-
-      if (!NylasUtils.isEmptyDraft(draft) && !draft.id) {
-         if (confirm('Are you sure to discard?'))
-            DraftStore.removeDraftForClientId(draft.clientId)
-      } else {
-         DraftStore.removeDraftForClientId(draft.clientId)
-      }
-   }
-
-   renderInbox() {
-      return (
-         <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-            <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
-                     onSelectExtraMenu={this.onSelectExtraMenu}/>
-
-            <div className="content-panel">
-               <div className="column-panel" style={{
-                  order: 1,
-                  minWidth: 250,
-                  maxWidth: 250,
-                  borderRight: '1px solid rgba(221,221,221,0.6)',
-                  paddingRight: 5,
-                  overflowY: 'auto',
-                  height: '100%'
-               }}>
-                  {this.renderCategories()}
-               </div>
-               <div className="column-panel" style={{
-                  order: 2,
-                  minWidth: 250,
-                  maxWidth: 450,
-                  borderRight: '1px solid rgba(221,221,221,0.6)'
-               }}>
-                  {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
-               </div>
-               <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
-                  {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
-               </div>
-               {this.renderTargetForm()}
-            </div>
-         </div>
-      )
-   }
-
-   onSelectExtraMenu = (menu, {type, doc, _id} = {}) => {
-      if (menu === 'create' || menu === 'bind') {
-
-         this.setState({
-            binding: menu === 'bind',
-            targetType: type,
-            selectedTarget: doc
-         })
-
-         const temp = () => {
-            const {participants} = this.state.currentThread
-            const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
-            if (noStoredParticipants && noStoredParticipants.length) {
-               this.setState({
-                  noStoredParticipants,
-                  showPeopleModal: true
-               })
-
-               return
+        this.fetchNewThreadsInterval = setInterval(() => {
+            if (Meteor.userId()) {
+                Meteor.call('thread.fetchNewThreads', {accounts: Meteor.user().nylasAccounts()}, (err) => {
+                    if (err) ClientErrorLog.error(err)
+                })
             }
+        }, 1 * 1000 * 120)   // every 5 minutes
+
+    }
+
+    componentWillUnmount() {
+        this.unsubscribes.forEach((unsubscribe) => {
+            unsubscribe()
+        })
+
+        if (this.fetchNewThreadsInterval) clearInterval(this.fetchNewThreadsInterval)
+    }
+
+    onAccountStoreChanged = () => {
+        this.setState({
+            addingInbox: false,
+            addingTeamInbox: false,
+            hasNylasAccounts: NylasUtils.hasNylasAccounts()
+        })
+    }
+
+    onCategoryStoreChanged = () => {
+        const currentCategory = CategoryStore.currentCategory
+        this.setState({
+            currentCategory
+        })
+    }
+    onDraftStoreChanged = () => {
+        this.setState({
+            composeStateForModal: DraftStore.draftViewStateForModal()
+        })
+    }
+    onThreadStoreChanged = () => {
+        this.setState({
+            fetching: ThreadStore.fetching
+        })
+    }
+
+    render() {
+        if (this.props.loading) return <Spinner visible={true}/>
+
+        return (
+            <div className="inbox-page">
+                {this.renderContents()}
+            </div>
+        )
+    }
+
+    renderContents() {
+        const {hasNylasAccounts, composeStateForModal, addingInbox, addingTeamInbox} = this.state
+
+        if (addingInbox) {
+            return <NylasSigninForm isAddingTeamInbox={addingTeamInbox}
+                                    onCancel={() => this.setState({addingInbox: false})}/>
+        } else {
+            if (hasNylasAccounts) {
+                return (
+                    <div style={{height: '100%'}}>
+                        {this.renderInbox()}
+                        {this.renderPeopleModal()}
+                        <ComposeModal isOpen={composeStateForModal && composeStateForModal.show}
+                                      clientId={composeStateForModal && composeStateForModal.clientId}
+                                      onClose={this.onCloseComposeModal}/>
+                    </div>
+                )
+            } else {
+                return this.renderAddInboxButtons()
+            }
+        }
+    }
+
+    onCloseComposeModal = () => {
+        const {composeStateForModal} = this.state
+        if (!composeStateForModal) return
+
+        const draft = DraftStore.draftForClientId(composeStateForModal.clientId)
+        console.log('asdfasdfasdf', draft)
+
+        if (!NylasUtils.isEmptyDraft(draft) && !draft.id) {
+            if (confirm('Are you sure to discard?'))
+                DraftStore.removeDraftForClientId(draft.clientId)
+        } else {
+            DraftStore.removeDraftForClientId(draft.clientId)
+        }
+    }
+
+    renderInbox() {
+        return (
+            <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+                <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
+                         onSelectExtraMenu={this.onSelectExtraMenu}/>
+
+                <div className="content-panel">
+                    <div className="column-panel" style={{
+                        order: 1,
+                        minWidth: 250,
+                        maxWidth: 250,
+                        borderRight: '1px solid rgba(221,221,221,0.6)',
+                        paddingRight: 5,
+                        overflowY: 'auto',
+                        height: '100%'
+                    }}>
+                        {this.renderCategories()}
+                    </div>
+                    <div className="column-panel" style={{
+                        order: 2,
+                        minWidth: 250,
+                        maxWidth: 450,
+                        borderRight: '1px solid rgba(221,221,221,0.6)'
+                    }}>
+                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
+                    </div>
+                    <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
+                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
+                    </div>
+                    {this.renderTargetForm()}
+                </div>
+            </div>
+        )
+    }
+
+    onSelectExtraMenu = (menu, {type, doc, _id} = {}) => {
+        if (menu === 'create' || menu === 'bind') {
 
             this.setState({
-               showTargetForm: true
+                binding: menu === 'bind',
+                targetType: type,
+                selectedTarget: doc
             })
-         }
-         if (menu === 'bind') {
-            subsCache.subscribe(type === 'deal' ? 'salesrecords.one' : 'projects.one', doc._id).onReady(() => {
-               temp()
-            })
-         } else {
-            temp()
-         }
-      } else if (menu === 'goto') {
-         FlowRouter.go(Utils.jsUcfirst(type), {id: _id})
-      } else if (menu === 'unbind') {
-         try {
-            unbindThreadFromConversation.call({id: this.state.currentThread.id})
-         } catch (err) {
-            ClientErrorLog.error(err)
-         }
-      }
-   }
 
-   renderTargetForm() {
-      const {showTargetForm, binding, currentThread, selectedTarget, targetType} = this.state
+            const temp = () => {
+                const {participants} = this.state.currentThread
+                const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
+                if (noStoredParticipants && noStoredParticipants.length) {
+                    this.setState({
+                        noStoredParticipants,
+                        showPeopleModal: true
+                    })
 
-      if (!currentThread || !showTargetForm) return ''
+                    return
+                }
 
-      const title = binding ? `Bind this thread to existing ${targetType}` : `Create new ${targetType} from this thread`
-      return (
-         <div className="column-panel" style={{order: 4, overflowY: 'auto', height: '100%', padding: 10}}>
-            <Panel title={title} actions={<i className="fa fa-arrow-right" onClick={this.hideTargetForm}/>}>
-               {
-                  targetType === 'deal' &&
-                  <CreateSalesRecord
-                     {...this.props}
-                     thread={currentThread}
-                     salesRecord={selectedTarget}/>
-               }
-               {
-                  targetType === 'project' &&
-                  <CreateProject
-                     {...this.props}
-                     thread={currentThread}
-                     project={selectedTarget}/>
-               }
-            </Panel>
-         </div>
-      )
-   }
-
-   renderPeopleModal() {
-      const {showPeopleModal, noStoredParticipants} = this.state
-
-      if (!noStoredParticipants || noStoredParticipants.length == 0) return ''
-
-      return (
-         <Modal bsSize="large" show={showPeopleModal} onHide={() => {
-            this.setState({showPeopleModal: false})
-         }}>
-            <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to
-               people</Modal.Title></Modal.Header>
-            <Modal.Body>
-               <PeopleForm
-                  people={noStoredParticipants}
-                  onSaved={this.onSavedPeople}
-               />
-            </Modal.Body>
-         </Modal>
-      )
-   }
-
-   onSavedPeople = () => {
-      this.setState({
-         showPeopleModal: false
-      }, () => {
-         this.setState({showTargetForm: true})
-      })
-   }
-
-   hideTargetForm = () => {
-      this.setState({
-         showTargetForm: false,
-         binding: false
-      })
-   }
-
-   renderCategories() {
-      const {currentCategory, fetching} = this.state
-
-      const appCategories = [{
-         id: 'assigned_to_me',
-         name: 'assigned',
-         display_name: 'Assigned to me'
-      }, {
-         id: 'following',
-         name: 'following',
-         display_name: 'Following'
-      }, {
-         id: 'not_filed',
-         name: 'not_filed',
-         display_name: 'Not Filed'
-      }, {
-         id: 'unassigned',
-         name: 'unassigned',
-         display_name: 'Unassigned'
-      }]
-      return (
-         <div className="list-category">
-            {this.renderAddInboxButtons(true)}
-            {
-               appCategories.map((category, index) => (
-                  <ItemCategory
-                     key={`app-folder-${index}`}
-                     category={category}
-                     onClick={(evt) => {
-                        this.onSelectCategory(category)
-                     }}
-                     selected={currentCategory && category.id == currentCategory.id}/>
-               ))
+                this.setState({
+                    showTargetForm: true
+                })
             }
-            {
-               AccountStore.accounts(true).map((account) => {
-                  const categoriesForAccount = CategoryStore.getCategories(account.accountId)
-
-                  const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
-                     <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
-                  return (
-                     <div key={`account-${account.accountId}`}>
-                        <div className="account-wrapper">
-                                    <span><img
-                                       src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
-                                       width="16px"/></span>&nbsp;
-                           <span>{account.emailAddress}</span>
-                           <span style={{flex: 1}}></span>
-                           <span className="action">{actionEl}</span>
-                        </div>
-                        {
-                           categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category, index) =>
-                              <div key={`category-${index}`}>
-                                 {category && <ItemCategory
-                                    category={category}
-                                    onClick={(evt) => {
-                                       this.onSelectCategory(category)
-                                    }}
-                                    selected={currentCategory && category.id == currentCategory.id}/>}
-                                 {!category && ''}
-                              </div>
-                           )
-                        }
-                     </div>
-                  )
-
-               })
+            if (menu === 'bind') {
+                subsCache.subscribe(type === 'deal' ? 'salesrecords.one' : 'projects.one', doc._id).onReady(() => {
+                    temp()
+                })
+            } else {
+                temp()
             }
-            {
-               Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
-                  <div>
-                     <div className="account-wrapper">
-                        <span><img src="/icons/inbox/ic-team.png" width="16px"/></span>&nbsp;
-                        <span>Team members</span>
-                        <span style={{flex: 1}}></span>
-                        <span className="action"></span>
-                     </div>
-                     {
-                        Users.find({_id: {$ne: Meteor.userId()}}).map((user, index) => {
-                           const category = Object.assign(user, {
-                              type: 'teammember',
-                              id: user._id,
-                              name: 'teammember',
-                              display_name: user.name(),
-                              unreads: 0
-                           })
-                           return (
-                              <div key={`teammember-${index}`}>
-                                 <ItemCategory
-                                    category={category}
-                                    onClick={(evt) => {
-                                       this.onSelectCategory(category)
-                                    }}
-                                    selected={currentCategory && category.id == currentCategory.id}/>
-                              </div>
-                           )
-                        })
-                     }
-                  </div>
-               )
+        } else if (menu === 'goto') {
+            FlowRouter.go(Utils.jsUcfirst(type), {id: _id})
+        } else if (menu === 'unbind') {
+            try {
+                unbindThreadFromConversation.call({id: this.state.currentThread.id})
+            } catch (err) {
+                ClientErrorLog.error(err)
             }
-            {fetching && <div className="status-wrapper">Fetching new messages ...</div>}
-         </div>
-      )
-   }
+        }
+    }
 
-   renderAddInboxButtons(isSmall) {
-      if (isSmall) {
-         if (Meteor.user().isAdmin()) {
-            return (
-               <div>
-                  <DropdownButton bsStyle="primary" bsSize="small" title="Add inbox" id="dropdown-add-inbox">
-                     <MenuItem onSelect={() => this.setState({
-                        addingInbox: true,
-                        addingTeamInbox: false
-                     })}>Individual</MenuItem>
-                     <MenuItem onSelect={() => this.setState({
-                        addingInbox: true,
-                        addingTeamInbox: true
-                     })}>Team</MenuItem>
-                  </DropdownButton>
-               </div>
-            )
-         } else {
-            return (
-               <div>
-                  <Button bsStyle="primary" bsSize="small"
-                          onClick={() => this.setState({addingInbox: true, addingTeamInbox: false})}>Add
-                     inbox</Button>
-               </div>
-            )
-         }
-      } else {
-         return (
-            <div style={{textAlign: 'center'}}>
-               <Button bsStyle="primary" onClick={() => this.setState({addingInbox: true})}>Add an individual
-                  inbox</Button>
-               {Meteor.user().isAdmin() &&
-               <Button bsStyle="default" style={{marginLeft: 10}}
-                       onClick={() => this.setState({addingInbox: true, addingTeamInbox: true})}>Add a team
-                  inbox</Button>}
+    renderTargetForm() {
+        const {showTargetForm, binding, currentThread, selectedTarget, targetType} = this.state
+
+        if (!currentThread || !showTargetForm) return ''
+
+        const title = binding ? `Bind this thread to existing ${targetType}` : `Create new ${targetType} from this thread`
+        return (
+            <div className="column-panel" style={{order: 4, overflowY: 'auto', height: '100%', padding: 10}}>
+                <Panel title={title} actions={<i className="fa fa-arrow-right" onClick={this.hideTargetForm}/>}>
+                    {
+                        targetType === 'deal' &&
+                        <CreateSalesRecord
+                            {...this.props}
+                            thread={currentThread}
+                            salesRecord={selectedTarget}
+                            onSaved={this.hideTargetForm}
+                        />
+                    }
+                    {
+                        targetType === 'project' &&
+                        <CreateProject
+                            {...this.props}
+                            thread={currentThread}
+                            project={selectedTarget}
+                            onSaved={this.hideTargetForm}
+                        />
+                    }
+                </Panel>
             </div>
-         )
-      }
-   }
+        )
+    }
 
-   onClickRemoveAccount = (account) => {
-      if (confirm(`Are you sure to remove ${account.emailAddress}?`)) {
-         Meteor.call('removeNylasAccount', account, (err, res) => {
-            if (err) {
-               console.log(err)
-               return warning(err.message)
+    renderPeopleModal() {
+        const {showPeopleModal, noStoredParticipants} = this.state
+
+        if (!noStoredParticipants || noStoredParticipants.length == 0) return ''
+
+        return (
+            <Modal bsSize="large" show={showPeopleModal} onHide={() => {
+                this.setState({showPeopleModal: false})
+            }}>
+                <Modal.Header closeButton><Modal.Title><i className="fa fa-vcard-o"/> Add to
+                    people</Modal.Title></Modal.Header>
+                <Modal.Body>
+                    <PeopleForm
+                        people={noStoredParticipants}
+                        onSaved={this.onSavedPeople}
+                    />
+                </Modal.Body>
+            </Modal>
+        )
+    }
+
+    onSavedPeople = () => {
+        this.setState({
+            showPeopleModal: false
+        }, () => {
+            this.setState({showTargetForm: true})
+        })
+    }
+
+    hideTargetForm = () => {
+        this.setState({
+            showTargetForm: false,
+            binding: false
+        })
+    }
+
+    renderCategories() {
+        const {currentCategory, fetching} = this.state
+
+        const appCategories = [{
+            id: 'assigned_to_me',
+            name: 'assigned',
+            display_name: 'Assigned to me'
+        }, {
+            id: 'following',
+            name: 'following',
+            display_name: 'Following'
+        }, {
+            id: 'not_filed',
+            name: 'not_filed',
+            display_name: 'Not Filed'
+        }, {
+            id: 'unassigned',
+            name: 'unassigned',
+            display_name: 'Unassigned'
+        }]
+        return (
+            <div className="list-category">
+                {this.renderAddInboxButtons(true)}
+                {
+                    appCategories.map((category, index) => (
+                        <ItemCategory
+                            key={`app-folder-${index}`}
+                            category={category}
+                            onClick={(evt) => {
+                                this.onSelectCategory(category)
+                            }}
+                            selected={currentCategory && category.id == currentCategory.id}/>
+                    ))
+                }
+                {
+                    AccountStore.accounts(true).map((account) => {
+                        const categoriesForAccount = CategoryStore.getCategories(account.accountId)
+
+                        const actionEl = !account.isTeamAccount || account.isTeamAccount && Meteor.user().isAdmin() ?
+                            <i className="fa fa-minus" onClick={() => this.onClickRemoveAccount(account)}></i> : ''
+                        return (
+                            <div key={`account-${account.accountId}`}>
+                                <div className="account-wrapper">
+                                    <span><img
+                                        src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
+                                        width="16px"/></span>&nbsp;
+                                    <span>{account.emailAddress}</span>
+                                    <span style={{flex: 1}}></span>
+                                    <span className="action">{actionEl}</span>
+                                </div>
+                                {
+                                    categoriesForAccount && categoriesForAccount.length > 0 && categoriesForAccount.map((category, index) =>
+                                        <div key={`category-${index}`}>
+                                            {category && <ItemCategory
+                                                category={category}
+                                                onClick={(evt) => {
+                                                    this.onSelectCategory(category)
+                                                }}
+                                                selected={currentCategory && category.id == currentCategory.id}/>}
+                                            {!category && ''}
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        )
+
+                    })
+                }
+                {
+                    Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
+                        <div>
+                            <div className="account-wrapper">
+                                <span><img src="/icons/inbox/ic-team.png" width="16px"/></span>&nbsp;
+                                <span>Team members</span>
+                                <span style={{flex: 1}}></span>
+                                <span className="action"></span>
+                            </div>
+                            {
+                                Users.find({_id: {$ne: Meteor.userId()}}).map((user, index) => {
+                                    const category = Object.assign(user, {
+                                        type: 'teammember',
+                                        id: user._id,
+                                        name: 'teammember',
+                                        display_name: user.name(),
+                                        unreads: 0
+                                    })
+                                    return (
+                                        <div key={`teammember-${index}`}>
+                                            <ItemCategory
+                                                category={category}
+                                                onClick={(evt) => {
+                                                    this.onSelectCategory(category)
+                                                }}
+                                                selected={currentCategory && category.id == currentCategory.id}/>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    )
+                }
+                {fetching && <div className="status-wrapper">Fetching new messages ...</div>}
+            </div>
+        )
+    }
+
+    renderAddInboxButtons(isSmall) {
+        if (isSmall) {
+            if (Meteor.user().isAdmin()) {
+                return (
+                    <div>
+                        <DropdownButton bsStyle="primary" bsSize="small" title="Add inbox" id="dropdown-add-inbox">
+                            <MenuItem onSelect={() => this.setState({
+                                addingInbox: true,
+                                addingTeamInbox: false
+                            })}>Individual</MenuItem>
+                            <MenuItem onSelect={() => this.setState({
+                                addingInbox: true,
+                                addingTeamInbox: true
+                            })}>Team</MenuItem>
+                        </DropdownButton>
+                    </div>
+                )
+            } else {
+                return (
+                    <div>
+                        <Button bsStyle="primary" bsSize="small"
+                                onClick={() => this.setState({addingInbox: true, addingTeamInbox: false})}>Add
+                            inbox</Button>
+                    </div>
+                )
             }
+        } else {
+            return (
+                <div style={{textAlign: 'center'}}>
+                    <Button bsStyle="primary" onClick={() => this.setState({addingInbox: true})}>Add an individual
+                        inbox</Button>
+                    {Meteor.user().isAdmin() &&
+                    <Button bsStyle="default" style={{marginLeft: 10}}
+                            onClick={() => this.setState({addingInbox: true, addingTeamInbox: true})}>Add a team
+                        inbox</Button>}
+                </div>
+            )
+        }
+    }
 
-            Actions.changedAccounts()
-         })
-      }
-   }
+    onClickRemoveAccount = (account) => {
+        if (confirm(`Are you sure to remove ${account.emailAddress}?`)) {
+            Meteor.call('removeNylasAccount', account, (err, res) => {
+                if (err) {
+                    console.log(err)
+                    return warning(err.message)
+                }
 
-   renderThreads() {
-      const {currentCategory} = this.state
-      return (
-         <ThreadList category={currentCategory} onSelectThread={(thread) => {
-            this.setState({currentThread: thread})
-         }}/>
-      )
-   }
+                Actions.changedAccounts()
+            })
+        }
+    }
 
-   renderMessages() {
-      return <MessageList/>
-   }
+    renderThreads() {
+        const {currentCategory} = this.state
+        return (
+            <ThreadList category={currentCategory} onSelectThread={(thread) => {
+                this.setState({currentThread: thread})
+            }}/>
+        )
+    }
 
-   renderDrafts() {
-      return (
-         <DraftList category={this.state.currentCategory} onSelectDraft={(draft) => Actions.composeDraft({message:{...draft}})}/>
-      )
-   }
+    renderMessages() {
+        return <MessageList/>
+    }
 
-   renderDraftComposeView() {
+    renderDrafts() {
+        return (
+            <DraftList category={this.state.currentCategory}
+                       onSelectDraft={(draft) => Actions.composeDraft({message: {...draft}})}/>
+        )
+    }
 
-      return (
-         <div>
+    renderDraftComposeView() {
 
-         </div>
-      )
-   }
+        return (
+            <div>
 
-   onSelectCategory(category) {
-      CategoryStore.selectCategory(category)
-      this.setState({currentThread: ThreadStore.currentThread(category)})
-   }
+            </div>
+        )
+    }
+
+    onSelectCategory(category) {
+        CategoryStore.selectCategory(category)
+        this.setState({currentThread: ThreadStore.currentThread(category)})
+    }
 }
 
-export default createContainer(() => 
-   /*const subscribers = []
-   subscribers.push(subsManager.subscribe('threads.all'))
-   subscribers.push(subsManager.subscribe('messages.all'))
+export default createContainer(() =>
+    /*const subscribers = []
+    subscribers.push(subsManager.subscribe('threads.all'))
+    subscribers.push(subsManager.subscribe('messages.all'))
 
-   return {
-       loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
-   }*/
+    return {
+        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
+    }*/
     ({loading: false}), InboxPage)

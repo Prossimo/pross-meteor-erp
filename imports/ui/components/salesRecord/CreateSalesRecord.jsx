@@ -22,7 +22,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     static propTypes = {
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
-        thread: React.PropTypes.object         // thread to be attached from email
+        thread: React.PropTypes.object,         // thread to be attached from email
+       onSaved: React.PropTypes.func
     }
 
     constructor(props) {
@@ -141,19 +142,29 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
                 info('Success update Deal')
-                setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('Deal', {id: salesRecord._id}))
-                }, 300)
+
+                if(this.props.onSaved) {
+                    this.props.onSaved()
+                } else {
+                    setTimeout(() => {
+                        FlowRouter.go(FlowRouter.path('Deal', {id: salesRecord._id}))
+                    }, 300)
+                }
             })
-        } else {console.log(data)
+        } else {
             Meteor.call('insertSalesRecord', {data, thread, isPrivateSlackChannel}, (err, res) => {
                 this.props.toggleLoader(false)
                 if (err) return warning(`Problems with creating new SalesRecord. ${err.error}`)
 
                 info('Success add new Deal & integration with Slack')
-                setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('Deal', {id: res}))
-                }, 300)
+
+                if(this.props.onSaved) {
+                    this.props.onSaved()
+                } else {
+                    setTimeout(() => {
+                        FlowRouter.go(FlowRouter.path('Deal', {id: res}))
+                    }, 300)
+                }
             })
         }
     }
