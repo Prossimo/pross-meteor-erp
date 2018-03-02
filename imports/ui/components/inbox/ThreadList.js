@@ -78,6 +78,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['assignee'] = Meteor.userId()
         } else if(category.id === 'following') {
             filters['followers'] = Meteor.userId()
+        } else if(category.id === 'unreads') {
+            filters['unread'] = true
         } else if(category.type === 'teammember') {
             filters['assignee'] = category.id
         } else {
