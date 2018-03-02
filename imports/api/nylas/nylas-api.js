@@ -181,7 +181,7 @@ class NylasAPIClass {
          try {
             if (obj.object === 'thread') {
                upsertThread.call(obj)
-            } else if (obj.object === 'message' || obj.object === 'draft') {if(obj.object === 'draft')
+            } else if (obj.object === 'message' || obj.object === 'draft') {
                upsertMessage.call(obj)
             }
          } catch (err) {

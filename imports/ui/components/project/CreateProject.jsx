@@ -87,9 +87,11 @@ export default class CreateProject extends TrackerReact(Component) {
                 if (err) return warning(`Problems with updating new SalesRecord. ${err.error}`)
 
                 info('Success update Deal')
-                setTimeout(() => {
-                    FlowRouter.go(FlowRouter.path('Project', {id: project._id}))
-                }, 300)
+                if(this.props.onSaved) {
+                    this.props.onSaved()
+                } else {
+                    setTimeout(() => FlowRouter.go(FlowRouter.path('Project', {id: project._id})), 300)
+                }
             })
         } else {
 
@@ -101,7 +103,12 @@ export default class CreateProject extends TrackerReact(Component) {
                     return
                 }
                 info('Success add new project')
-                FlowRouter.go('Project', {id: projectId})
+                if(this.props.onSaved) {
+                    this.props.onSaved()
+                } else {
+                    setTimeout(() => FlowRouter.go('Project', {id: projectId}), 300)
+                }
+
             })
         }
     }
