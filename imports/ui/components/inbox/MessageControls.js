@@ -7,6 +7,7 @@ import Menu from '../utils/Menu'
 import Actions from '../../../api/nylas/actions'
 import PeopleForm from '../../components/people/PeopleForm'
 import {People} from '../../../api/models'
+import AccountStore from '/imports/api/nylas/account-store'
 
 
 class MessageControls extends React.Component {
@@ -136,7 +137,7 @@ class MessageControls extends React.Component {
         this.props.message.cc.forEach((p) => participants.push(p))
         this.props.message.bcc.forEach((p) => participants.push(p))
 
-        const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
+        const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null && _.findWhere(AccountStore.accounts(), {emailAddress:p.email}) == null))), (p) => p.email)
         if (noStoredParticipants && noStoredParticipants.length) {
             this.setState({
                 noStoredParticipants,
