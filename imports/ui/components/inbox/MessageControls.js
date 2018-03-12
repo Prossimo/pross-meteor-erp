@@ -129,7 +129,7 @@ class MessageControls extends React.Component {
         )
     }
 
-    _checkNoStoredParticipants() {
+    _checkNoStoredParticipants(cb) {
         const participants = []
 
         this.props.message.from.forEach((p) => participants.push(p))
@@ -141,33 +141,27 @@ class MessageControls extends React.Component {
         if (noStoredParticipants && noStoredParticipants.length) {
             this.setState({
                 noStoredParticipants,
-                showPeopleModal: true
+                showPeopleModal: true,
+                callback: cb
             })
-
-            return false
+            return
         }
-        return true
+        cb && cb()
     }
     _onReply = () => {
         const {message, conversationId} = this.props
 
-        if(this._checkNoStoredParticipants()) {
-            Actions.composeReply({message, type: 'reply', modal: true, conversationId})
-        }
+        this._checkNoStoredParticipants(() => Actions.composeReply({message, type: 'reply', modal: true, conversationId}))
     }
 
     _onReplyAll = () => {
         const {message, conversationId} = this.props
-        if(this._checkNoStoredParticipants()) {
-            Actions.composeReply({message, type: 'reply-all', modal: true, conversationId})
-        }
+        this._checkNoStoredParticipants(() => Actions.composeReply({message, type: 'reply-all', modal: true, conversationId}))
     }
 
     _onForward = () => {
         const {message, conversationId} = this.props
-        if(this._checkNoStoredParticipants()) {
-            Actions.composeForward({message, modal: true, conversationId})
-        }
+        this._checkNoStoredParticipants(() => Actions.composeForward({message, modal: true, conversationId}))
     }
 
     _onEdit = () => {
@@ -199,7 +193,10 @@ class MessageControls extends React.Component {
         this.setState({
             showPeopleModal: false
         }, () => {
-            this.setState({showTargetForm: true})
+            if(this.state.callback) {
+                this.state.callback()
+                this.setState({callback:null})
+            }
         })
     }
 }
