@@ -53,6 +53,7 @@ Meteor.methods({
             }
         }
 
+        console.log('authdata =======>', authData)
         // Call Nylas authorization API
         return NylasAPI.makeRequest({
             path: '/connect/authorize',

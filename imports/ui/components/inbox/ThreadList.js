@@ -84,7 +84,9 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['assignee'] = category.id
         } else {
             let inboxes
-            if(category.id === 'not_filed') {
+            if(category.name === 'inbox') {
+                inboxes = Meteor.user().nylasAccounts().find(({accountId}) => accountId === category.account_id).categories.filter(c => c.name==='inbox' || c.name==='archive')
+            } else if(category.id === 'not_filed') {
                 const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
                 //filters['conversationId'] = null
                 filters['id'] = {$nin:conversationThreadIds}
