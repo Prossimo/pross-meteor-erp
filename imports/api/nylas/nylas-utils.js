@@ -238,6 +238,19 @@ const NylasUtils = {
             return `file-${ext}.png`
         else
             return 'file-fallback.png'
+    },
+
+    categoryOrder: (name) => {
+        const orderedCategoryNames = [
+            'inbox', 'drafts', 'sent', 'spam', 'trash', 'archive', 'all', 'important'
+        ]
+
+        if(!name) return 101
+        const index = orderedCategoryNames.indexOf(name)
+
+        if(index === -1) return 100
+
+        return index
     }
 
 

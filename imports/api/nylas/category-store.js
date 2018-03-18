@@ -15,7 +15,16 @@ class CategoryStoreClass extends Reflux.Store {
     getCategories(accountId) {
         const account = AccountStore.accountForAccountId(accountId)
 
-        return account? account.categories : []
+        return account? this.sort(account.categories) : []
+    }
+
+    sort(categories) {
+        return categories.sort((c1, c2) => {
+            const i1 = NylasUtils.categoryOrder(c1.name)
+            const i2 = NylasUtils.categoryOrder(c2.name)
+
+            return i1 - i2
+        })
     }
 
     selectCategory(category) {

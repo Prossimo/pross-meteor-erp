@@ -178,12 +178,13 @@ export default class NylasSigninForm extends React.Component {
         Meteor.call('addNylasAccount', signinData, (err, res) => {console.log('Signin to Inbox', err, res)
             if(err) {
                 console.log(err)
-                this.setState({isProcessing: true})
+                this.setState({isProcessing: false})
                 return warning(err.message)
             }
 
             setTimeout(() => {
                 Actions.changedAccounts()
+                this.setState({isProcessing: false})
                 if(this.props.onCompleted) this.props.onCompleted()
             }, 6000)
         })
