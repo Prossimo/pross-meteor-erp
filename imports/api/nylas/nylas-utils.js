@@ -242,7 +242,7 @@ const NylasUtils = {
 
     categoryOrder: (name) => {
         const orderedCategoryNames = [
-            'inbox', 'drafts', 'sent', 'spam', 'trash', 'archive', 'all', 'important'
+            'inbox', 'drafts', 'sent', 'spam', 'trash', 'archive', 'all', 'important', 'unread', 'open'
         ]
 
         if(!name) return 101

@@ -78,14 +78,26 @@ export default class ThreadList extends TrackerReact(React.Component) {
             filters['assignee'] = Meteor.userId()
         } else if(category.id === 'following') {
             filters['followers'] = Meteor.userId()
-        } else if(category.id === 'unreads') {
-            filters['unread'] = true
         } else if(category.type === 'teammember') {
             filters['assignee'] = category.id
+        } else if(category.name === 'unread') {
+            filters['account_id'] = category.account_id
+            filters['unread'] = true
+        } else if(category.name === 'open') {
+            filters['account_id'] = category.account_id
+
+            if(NylasUtils.usesLabels(category.account_id)) {
+                filters['labels.name'] = {$ne: 'important'}   // `all` is label for archiving on gmail
+            } else {
+                filters['folders.name'] = {$ne: 'archive'}
+            }
         } else {
             let inboxes
             if(category.name === 'inbox') {
-                inboxes = Meteor.user().nylasAccounts().find(({accountId}) => accountId === category.account_id).categories.filter(c => c.name==='inbox' || c.name==='archive')
+                inboxes = Meteor.user().nylasAccounts()
+                    .find(({accountId}) => accountId === category.account_id)
+                    .categories
+                    .filter(c => c.name==='inbox' || c.name==='archive')
             } else if(category.id === 'not_filed') {
                 const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
                 //filters['conversationId'] = null
