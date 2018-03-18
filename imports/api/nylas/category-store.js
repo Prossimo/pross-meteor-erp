@@ -15,7 +15,20 @@ class CategoryStoreClass extends Reflux.Store {
     getCategories(accountId) {
         const account = AccountStore.accountForAccountId(accountId)
 
-        return account? this.sort(account.categories) : []
+        const categories = account ?
+            account.categories.concat([{
+                id: `unread-${accountId}`,
+                name: 'unread',
+                display_name:'Unread',
+                account_id: accountId
+            }, {
+                id: `open-${accountId}`,
+                name: 'open',
+                display_name:'Open',
+                account_id: accountId
+            }]) : []
+
+        return this.sort(categories)
     }
 
     sort(categories) {
@@ -43,7 +56,7 @@ class CategoryStoreClass extends Reflux.Store {
     }
 
     getArchiveCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'all'})
+        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'important'})
     }
 
     getTrashCategory(accountId) {

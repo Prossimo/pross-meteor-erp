@@ -310,10 +310,6 @@ class InboxPage extends (React.Component) {
             name: 'not_filed',
             display_name: 'Not Filed'
         }, {
-            id: 'unreads',
-            name: 'unreads',
-            display_name: 'Unreads'
-        }, {
             id: 'unassigned',
             name: 'unassigned',
             display_name: 'Unassigned'
