@@ -183,7 +183,7 @@ const NylasUtils = {
         return accounts.length > 0
     },
 
-    subjectWithPrefix: (subject, prefix) => {
+    subjectWithPrefix: (subject='', prefix) => {
         if (subject.search(/fwd:/i) == 0)
             return subject.replace(/fwd:/i, prefix)
         else if (subject.search(/re:/i) == 0)

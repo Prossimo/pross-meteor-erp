@@ -37,7 +37,7 @@ Contacts.schema = new SimpleSchema({
     id: {type: String, optional: true},
     account_id: {type: String, optional: true},
     email: {type: String},
-    name: {type: String, max: 100, optional: true},
+    name: {type: String, optional: true},
     phone_numbers: {type: Array, optional: true},
     "phone_numbers.$": {
         type: Object
