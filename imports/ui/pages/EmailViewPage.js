@@ -113,7 +113,12 @@ export default createContainer(() => {
     const messageId = FlowRouter.getQueryParam('message_id')
     const threadId = FlowRouter.getQueryParam('thread_id')
 
-    const subscribers = [subsCache.subscribe('nylasaccounts.mine'), subsCache.subscribe('messages.one', {messageId, threadId})]
+    const subscribers = [
+        subsCache.subscribe('nylasaccounts.mine'),
+        subsCache.subscribe('messages.one', {messageId, threadId}),
+        subsCache.subscribe('people.all'),
+        subsCache.subscribe('peopledesignations.all')
+    ]
 
     let message
 

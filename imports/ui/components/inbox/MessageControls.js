@@ -137,7 +137,7 @@ class MessageControls extends React.Component {
         this.props.message.cc.forEach((p) => participants.push(p))
         this.props.message.bcc.forEach((p) => participants.push(p))
 
-        const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null && _.findWhere(AccountStore.accounts(), {emailAddress:p.email}) == null))), (p) => p.email)
+        const noStoredParticipants = _.uniq(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null && _.findWhere(AccountStore.accounts(), {emailAddress:p.email}) == null), (p) => p.email)
         if (noStoredParticipants && noStoredParticipants.length) {
             this.setState({
                 noStoredParticipants,
