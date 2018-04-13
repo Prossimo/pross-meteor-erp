@@ -34,7 +34,7 @@ Meteor.methods({
 
         let thread_ts = null
         const slackMail = SlackMails.findOne({thread_id: message.thread_id})
-        console.log('=====> slackmails', slackMail)
+        // console.log('=====> slackmails', slackMail._id)
         if (slackMail) thread_ts = slackMail.thread_ts
 
         const to = []
@@ -56,17 +56,17 @@ Meteor.methods({
             includeInline: true,
             includeSignature: true,
         })
-        console.log(mailtext)
+        // console.log(mailtext)
 
-        console.log('============')
+        // console.log('============')
         mailtext = slackify(mailtext)
 
         const mailtextBuf = new Buffer(mailtext, 'utf-8')
         if(mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
             mailtext = mailtextBuf.slice(0, SLACK_MESSAGE_MAX_SIZE).toString()
         }
-        console.log(mailtext)
-        console.log('==========> End')
+        // console.log(mailtext)
+        // console.log('==========> End')
 
         if (target && conversation) {
             mailtext += `\n\n<${Meteor.absoluteUrl(`${target.type}/${target._id}`)}|Go to ${target.type} ${target.name}/${conversation.name}>`
