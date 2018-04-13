@@ -10,6 +10,7 @@ const SLACK_MESSAGE_MAX_SIZE = 4000
 
 Meteor.methods({
     sendMailToSlack(message, {files, mentions}={}) {
+        console.log('>>>>>>>>>>-> sendMailToSlack', message.id)
         check(message, Object)
         check(files, Match.Maybe(Array))
         check(mentions, Match.Maybe(Array))
