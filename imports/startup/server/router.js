@@ -167,5 +167,5 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
             }
         }
     }
-    res.end(query.challenge)
+    res.end(query.challenge)   // For Nylas Web Hook verification https://docs.nylas.com/reference#creating-a-webhook
 })
