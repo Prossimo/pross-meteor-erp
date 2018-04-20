@@ -73,10 +73,14 @@ Conversations.helpers({
 
         threads.forEach((t) => {
             // Non draft messages
-            Messages.find({id: {$in:t.message_ids}}).fetch().forEach((m) => messages.push(m))
+            if(t.message_ids && t.message_ids.length) {
+                Messages.find({id: {$in: t.message_ids}}).fetch().forEach((m) => messages.push(m))
+            }
 
             // Draft messages
-            Messages.find({id: {$in:t.draft_ids}}).fetch().forEach((m) => messages.push(m))
+            if(t.draft_ids && t.draft_ids.length) {
+                Messages.find({id: {$in: t.draft_ids}}).fetch().forEach((m) => messages.push(m))
+            }
         })
         return _.uniq(messages.sort((m1, m2) => m1.date - m2.date), false, (m) => m.id)
     },
