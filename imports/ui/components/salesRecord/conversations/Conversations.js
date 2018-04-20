@@ -69,11 +69,18 @@ export default class Conversations extends TrackerReact(React.Component) {
                     {
                         conversations.map((c, i) => (
                             <Tab key={`tab-${c._id}`} eventKey={i} title={tabTitleNode(c)} style={{height: '100%'}}>
-                                <Conversation
-                                    targetCollection={targetCollection}
-                                    targetId={targetId}
-                                    conversationId={c._id}
-                                    onlyStakeholders={targetCollection == SalesRecords && i == 0}/>
+                                {
+                                    this.state.key === i ? (
+                                        <Conversation
+                                            targetCollection={targetCollection}
+                                            targetId={targetId}
+                                            conversationId={c._id}
+                                            onlyStakeholders={targetCollection == SalesRecords && i == 0}
+                                        />
+                                    ) : (
+                                        <div>&nbsp;</div>
+                                    )
+                                }
                             </Tab>
                             )
                         )
