@@ -24,7 +24,7 @@ module.exports = {
 
         env: {
             ROOT_URL: 'https://crm-test.mavrik.build',
-            MONGO_URL: 'mongodb://localhost:27017/prossimo-stage'
+            MONGO_URL: 'mongodb://prossimo-user:prossimo2018@ds113700.mlab.com:13700/prossimo'
         },
 
         buildOptions: {
@@ -40,13 +40,5 @@ module.exports = {
         deployCheckWaitTime: 60,
 
         enableUploadProgressBar: true
-    },
-
-    mongo: {
-        port: 27017,
-        version: '3.4.1',
-        servers: {
-            one: {}
-        }
     }
 }
