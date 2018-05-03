@@ -24,7 +24,7 @@ module.exports = {
 
         env: {
             ROOT_URL: 'https://crm.mavrik.build',
-            MONGO_URL: 'mongodb://prossimo-user:prossimo2018@ds113700.mlab.com:13700'
+            MONGO_URL: 'mongodb://prossimo-user:prossimo2018@ds113700.mlab.com:13700/prossimo'
         },
 
         buildOptions: {
