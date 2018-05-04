@@ -24,7 +24,7 @@ module.exports = {
 
         env: {
             ROOT_URL: 'https://crm.mavrik.build',
-            MONGO_URL: 'mongodb://prossimo-user:prossimo2018@ds113700.mlab.com:13700/prossimo'
+            MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580'
         },
 
         buildOptions: {
