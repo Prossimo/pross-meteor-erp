@@ -72,3 +72,6 @@ dynamic-import
 abernix:standard-minifier-js@2.1.0-beta.0
 ostrio:logger
 ostrio:loggerfile
+omega:meteor-desktop-watcher@=0.17.2
+omega:meteor-desktop-bundler@=0.17.2
+omega:meteor-desktop-localstorage@=0.0.11

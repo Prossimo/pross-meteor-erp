@@ -75,6 +75,7 @@ export default createContainer(() => {
     subscribers.push(Meteor.subscribe('supplierstatuses.all'))
 
     const currentUser = Meteor.users.findOne(Meteor.userId())
+    console.log(Meteor.userId(), currentUser)
     const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch()
     const users = Meteor.users.find({}, {
         sort: [
@@ -87,7 +88,7 @@ export default createContainer(() => {
     })
 
     return {
-        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
+        //loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         currentUser, users, usersArr, salesRecords
     }
 }, App)
