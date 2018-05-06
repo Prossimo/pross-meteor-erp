@@ -44,7 +44,7 @@ class SignIn extends React.Component{
         //}
         //else{
       Meteor.loginWithPassword({email}, password, (err) => {
-          console.log(err)
+          alert(err)
           if (err) {
             switch (err.error) {
               case '202': return this.setState({authError: 'User is in pending status'})
