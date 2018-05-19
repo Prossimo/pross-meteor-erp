@@ -52,6 +52,7 @@ class MessageStoreClass extends Reflux.Store {
 
             if(result && result.length) {
                 if(thread.id === currentThread.id) {
+                    Meteor.call('threadMarkAsReadByUser', currentThread.id, true)
 
                     if(currentThread.unread) {
                         const markAsReadId = currentThread.id

@@ -33,6 +33,8 @@ export default class ThreadToggleUnreadButton extends React.Component {
          })
          Actions.queueTask(task)
 
+        Meteor.call('threadMarkAsReadByUser', this.props.thread.id, !!this.props.thread.unread)
+
          e.stopPropagation()
     }
 

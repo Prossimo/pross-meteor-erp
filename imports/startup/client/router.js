@@ -105,10 +105,10 @@ FlowRouter.route('/deal/:id', {
 FlowRouter.route('/deals', {
     name: 'Deals',
     action(){
-      checkAuth()
-      mount(App, {
+        checkAuth()
+        mount(App, {
             content: <SalesRecordPage />
-      })
+        })
     }
 })
 FlowRouter.route('/leads', {
@@ -212,13 +212,13 @@ FlowRouter.route('/drive_settings', {
 })
 
 FlowRouter.route('/slack', {
-  name: 'SlackChannelSettings',
-  action() {
-    checkAuth()
-    mount(App, {
-      content: <SlackSettingsPage/>
-    })
-  }
+    name: 'SlackChannelSettings',
+    action() {
+        checkAuth()
+        mount(App, {
+            content: <SlackSettingsPage/>
+        })
+    }
 })
 
 FlowRouter.notFound = {

@@ -152,3 +152,26 @@ export const unbindThreadFromConversation = new ValidatedMethod({
         Threads.update({id}, {$set: {conversationId: null}})
     }
 })
+
+Meteor.methods({
+  threadMarkAsReadByUser(threadId, read) {
+      check(threadId, String)
+      check(read, Boolean)
+
+      const userId = Meteor.userId()
+      if (!userId) throw new Meteor.Error(403, 'Not authorized')
+
+      const thread = Threads.findOne({id: threadId})
+      if (!thread) throw new Meteor.Error(404, 'Not found entity')
+
+      const readByUsers = thread.readByUsers || []
+      const index = _.findIndex(readByUsers, {userId})
+      if (index > -1) readByUsers[index]['read'] = read
+      else readByUsers.push({
+          userId,
+          read
+      })
+
+      Threads.update({id: threadId}, {$set: {readByUsers}})
+  }
+})

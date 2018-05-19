@@ -9,7 +9,7 @@ import {ServerSideQuotedHTMLTransformer as QuotedHTMLTransformer} from '/imports
 const SLACK_MESSAGE_MAX_SIZE = 4000
 
 Meteor.methods({
-    sendMailToSlack(message, {files, mentions}={}) {
+    sendMailToSlack(message, {files, mentions} = {}) {
         console.log('>>>>>>>>>>-> sendMailToSlack', message.id)
         check(message, Object)
         check(files, Match.Maybe(Array))
@@ -48,7 +48,7 @@ Meteor.methods({
         message.bcc.forEach((c) => {
             to.push(c.email)
         })
-        const slackText = `${mentions&&mentions.length ? `${mentions.map(m => `<@${m.id}|${m.name}>`).join(', ')}. `:''}An email was sent from ${message.from[0].email} to ${to.join(', ')}`
+        const slackText = `${mentions && mentions.length ? `${mentions.map(m => `<@${m.id}|${m.name}>`).join(', ')}. ` : ''}An email was sent from ${message.from[0].email} to ${to.join(', ')}`
 
         console.log(`=========> Sending mail(${message.id}) to slack`)
         let mailtext = message.body.replace('\"', '"')//.replace('\n','')
@@ -63,7 +63,7 @@ Meteor.methods({
         mailtext = slackify(mailtext)
 
         const mailtextBuf = new Buffer(mailtext, 'utf-8')
-        if(mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
+        if (mailtextBuf.length >= SLACK_MESSAGE_MAX_SIZE) {
             mailtext = mailtextBuf.slice(0, SLACK_MESSAGE_MAX_SIZE).toString()
         }
         // console.log(mailtext)
@@ -100,7 +100,7 @@ Meteor.methods({
         console.log('===> sendBotMessage', params)
         const ts = Meteor.call('sendBotMessage', slackChannelId, slackText, params)
 
-        if(!slackMail) SlackMails.insert({ thread_id: message.thread_id, thread_ts: ts })
+        if (!slackMail) SlackMails.insert({thread_id: message.thread_id, thread_ts: ts})
 
         /*if(files && files.length) {
             files.forEach(file => {console.log(file)
@@ -115,4 +115,5 @@ Meteor.methods({
 
         }*/
     },
+
 })
