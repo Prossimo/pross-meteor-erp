@@ -3,11 +3,10 @@ import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import classNames from 'classnames'
 import swal from 'sweetalert2'
-import {getUserName, getUserEmail} from '/imports/api/lib/filters'
 import {info, warning} from '/imports/api/lib/alerts'
 import ContactStore from '../../../api/nylas/contact-store'
 import Select from 'react-select'
-import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus, SlackMessages, Events, Quotes, Files} from '/imports/api/models'
+import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus} from '/imports/api/models'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
 import QuotesComponent from './Quotes'
@@ -15,8 +14,6 @@ import Details from './Details'
 import Activity from './Activity'
 import Tasks from '../tasks/TaskBoard.jsx'
 import FilesComponent from '../files/Files'
-import Invoices from './Invoices'
-import Documents from './Documents'
 import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
@@ -106,10 +103,6 @@ class SingleSalesRecord extends React.Component {
             {
                 label: 'Conversations',
                 component: <Conversations targetCollection={SalesRecords} targetId={this.props.salesRecord._id}/>
-            },
-            {
-                label: 'Invoices',
-                component: <Invoices/>
             },
             {
                 label: 'Files',
