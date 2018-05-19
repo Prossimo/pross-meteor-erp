@@ -50,14 +50,14 @@ function createBaseData() {
             fileLink: '',
             createAt: new Date()
         },
-            {
-                name: 'Quote 2',
-                status: 'delivered',
-                active: false,
-                fileLink: '',
-                createAt: new Date()
-            }
-        ]
+        {
+            name: 'Quote 2',
+            status: 'delivered',
+            active: false,
+            fileLink: '',
+            createAt: new Date()
+        }
+    ]
     quoteList.forEach(item => {
         Quotes.insert(item)
     })

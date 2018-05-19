@@ -171,10 +171,13 @@ export default class ThreadList extends TrackerReact(React.Component) {
             }} onScroll={this.onScrollThreadList}>
                 <div className="list-thread">
                 {
-                    threads.map((thread, index) => <ItemThread key={`thread-${index}`} thread={thread}
-                                                        onClick={(evt) => this.onSelectThread(thread)}
-                                                        selected={currentThread && thread.id == currentThread.id}/>)
-
+                    threads.map((thread, index) =>
+                        <ItemThread
+                            key={`thread-${index}`}
+                            thread={thread}
+                            onClick={(evt) => this.onSelectThread(thread)}
+                            selected={currentThread && thread.id == currentThread.id}
+                        />)
                 }
                 {loading && <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
                 </div>

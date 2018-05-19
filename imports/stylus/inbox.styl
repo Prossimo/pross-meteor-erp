@@ -93,7 +93,16 @@
           margin-left: 0;
         }
         &.thread-icon-unread {
-          background-image: url(icons/inbox/icon-unread.png);
+          background-image: url(icons/inbox/thread-unread.png);
+        }
+        &.thread-icon-unread1 {
+          background-image: url(icons/inbox/thread-unread1.png);
+        }
+        &.thread-icon-unread2 {
+          background-image: url(icons/inbox/thread-unread2.png);
+        }
+        &.thread-icon-read {
+          background-image: url(icons/inbox/thread-read.png);
         }
         &.thread-icon-replied {
           background-image: url(icons/inbox/icon-replied.png);
@@ -140,6 +149,12 @@
             display: flex;
             align-items: center;
             min-height: 24px;
+
+            .read-status {
+              width: 16px;
+              height: 16px;
+              border: 1px solid black;
+            }
 
             .participants {
               overflow: hidden;

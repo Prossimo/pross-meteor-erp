@@ -16,10 +16,9 @@ class App extends React.Component{
         super(props)
         this.toggleLoader =  this.toggleLoader.bind(this)
         this.state = {
-          blocking: false
+            blocking: false
         }
     }
-
     renderAside(){
         const { currentUser } = this.props
         if(!currentUser) return null
@@ -31,13 +30,13 @@ class App extends React.Component{
     }
 
     toggleLoader(blocking) {
-      //disable scroller
-      if(blocking === true) {
-        $('.app').attr('style', 'overflow: hidden')
-      } else {
-          $('.app').attr('style', 'overflow: scroll')
-      }
-      this.setState({blocking})
+        //disable scroller
+        if(blocking === true) {
+            $('.app').attr('style', 'overflow: hidden')
+        } else {
+            $('.app').attr('style', 'overflow: scroll')
+        }
+        this.setState({blocking})
     }
 
     render() {
@@ -47,10 +46,10 @@ class App extends React.Component{
         return (
             <BlockUi className="app" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
                 <Header user={currentUser} />
-                  {this.renderAside()}
-                  <div className="page-content active-aside">
-                      {React.cloneElement(this.props.content, {...this.props, toggleLoader: this.toggleLoader})}
-                  </div>
+                {this.renderAside()}
+                <div className="page-content active-aside">
+                    {React.cloneElement(this.props.content, {...this.props, toggleLoader: this.toggleLoader})}
+                </div>
                 <Alert stack={{limit: 3}}/>
             </BlockUi>
 
@@ -75,7 +74,7 @@ export default createContainer(() => {
     subscribers.push(Meteor.subscribe('supplierstatuses.all'))
 
     const currentUser = Meteor.users.findOne(Meteor.userId())
-    console.log(Meteor.userId(), currentUser)
+
     const salesRecords = SalesRecords.find({}, {sort: {createAt: -1}}).fetch()
     const users = Meteor.users.find({}, {
         sort: [
@@ -88,7 +87,7 @@ export default createContainer(() => {
     })
 
     return {
-        //loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
+        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         currentUser, users, usersArr, salesRecords
     }
 }, App)
