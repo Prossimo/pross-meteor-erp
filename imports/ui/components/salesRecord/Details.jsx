@@ -426,6 +426,8 @@ class Details extends TrackerReact(React.Component) {
     render() {
         const {salesRecord} = this.state
         const statusRows = [
+            {label: 'Stage', field: 'stage', type: 'select'},
+            {label: 'Sub Stage', field: 'subStage', type: 'select'},
             {label: 'Active/Archived', field: 'archived', type: 'checkbox'},
             {label: 'Deal State', field: 'dealState', type: 'select'},
             {label: 'Team Lead', field: 'teamLead', type: 'select'},
