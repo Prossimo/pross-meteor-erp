@@ -110,7 +110,7 @@ NylasAccounts.helpers({
         if(!this.isTeamAccount) return []
         if(!this.teamMembers) return []
 
-        return this.teamMembers.map(userId => Meteor.users.findOne(userId))
+        return this.teamMembers.map(userId => Meteor.users.findOne(userId)).filter(user => user)
     }
 })
 
