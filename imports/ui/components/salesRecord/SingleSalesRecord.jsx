@@ -17,7 +17,6 @@ import FilesComponent from '../files/Files'
 import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
-import SelectSubStage from './components/SelectSubStage'
 import {Panel, SlackChannelSelector, Selector} from '../common'
 import Spinner from '../utils/spinner'
 import {ClientErrorLog} from '/imports/utils/logger'
@@ -501,60 +500,6 @@ class SingleSalesRecord extends React.Component {
                     <div className="tab-container">
                         <div className='page-title'>
                             <div><h2>{salesRecord.name}</h2></div>
-                            <div style={{display:'flex'}}>
-                                <div className="header-field-container" style={{flex:0.8}}>
-                                    <div className="label">Stage:</div>
-                                    <div className="value">
-                                        <Select
-                                            value={defaultStage}
-                                            options={this.stageOptions}
-                                            clearable={false}
-                                            onChange={(item) => this.changeStage(salesRecord._id, item)}/>
-                                    </div>
-                                </div>
-                                <div className="header-field-container" style={{flex:1}}>
-                                    <div className="label">Sub Stage:</div>
-                                    <div className="value">
-                                        <SelectSubStage
-                                            update
-                                            stage={defaultStage.value}
-                                            subStage={salesRecord.subStage}
-                                            onSelectSubStage={(item) => {
-                                                this.changeSubStage(salesRecord._id, item)
-                                            }}/>
-                                    </div>
-                                </div>
-                                <div className="header-field-container" style={{flex:1}}>
-                                    <div className="label">Team Lead:</div>
-                                    <div className="value">
-                                        <Select
-                                            value={salesRecord.teamLead}
-                                            options={salesRecord.getMembers().map(m => ({value:m._id,label:m.name()}))}
-                                            clearable={false}
-                                            onChange={this.onChangeTeamLead}/>
-                                    </div>
-                                </div>
-                                <div className="header-field-container" style={{flex:1.2}}>
-                                    <div className="label">Client Status:</div>
-                                    <div className="value">
-                                        <Select
-                                            value={salesRecord.clientStatus}
-                                            options={clientStatusOptions}
-                                            clearable={false}
-                                            onChange={this.onChangeClientStatus}/>
-                                    </div>
-                                </div>
-                                <div className="header-field-container" style={{flex:1.2}}>
-                                    <div className="label">Supplier Status:</div>
-                                    <div className="value">
-                                        <Select
-                                            value={salesRecord.supplierStatus}
-                                            options={supplierStatusOptions}
-                                            clearable={false}
-                                            onChange={this.onChangeSupplierStatus}/>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <div className="tab-controls">
                             {this.getTabs()}
