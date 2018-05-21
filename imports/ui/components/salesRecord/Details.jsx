@@ -5,7 +5,7 @@ import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
 import PlacesAutocomplete from 'react-places-autocomplete'
 import {info, warning} from '/imports/api/lib/alerts'
-import {SHIPPING_MODE_LIST, STATES} from '/imports/api/constants/project'
+import {SHIPPING_MODE_LIST, STATES, STAGES_MAP, SUB_STAGES_LEAD, SUB_STAGES_OPP, SUB_STAGES_ORDER, SUB_STAGE_TICKET} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
 import Select from 'react-select'
 import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
@@ -279,6 +279,20 @@ class Details extends TrackerReact(React.Component) {
         }
     }
 
+    getSubStageOptions(stage) {
+        switch (stage) {
+            case 'lead':
+                return SUB_STAGES_LEAD
+            case 'opportunity':
+                return SUB_STAGES_OPP
+            case 'order':
+                return SUB_STAGES_ORDER
+            case 'ticket':
+                return SUB_STAGE_TICKET
+            default:
+                return []
+        }
+    }
     renderTableRows(rows, data, name) {
         return _.map(rows, ({type, field, label, readonly}) => {
             const value = data[field]
@@ -286,7 +300,12 @@ class Details extends TrackerReact(React.Component) {
             let selectOptions
             let onChange
             if (type === 'select') {
-                if (field === 'shippingMode') {
+                if (field === 'stage') {
+                    selectOptions = STAGES_MAP
+                } else if (field === 'subStage') {
+                    const stage = data['stage']
+                    selectOptions = this.getSubStageOptions(stage)
+                } else if (field === 'shippingMode') {
                     selectOptions = SHIPPING_MODE_LIST.map((value) => ({label: value, value}))
                 } else if (field === 'teamLead') {
                     const members = this.props.salesRecord.getMembers()
