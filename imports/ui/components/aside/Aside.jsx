@@ -36,7 +36,7 @@ class NavigationItem extends React.Component{
         return (
             <li className="top-nav-item">
                 <div
-                  onClick={this.toggleTopMenu.bind(this)}
+                  onMouseOver={this.toggleTopMenu.bind(this)}
                   className={classNames('nav-item-label',{'active': routesList.indexOf(FlowRouter.getRouteName())>-1})}>{item.label}</div>
                 <ul className="sub-nav-items" ref="subMenu">{subItemList}</ul>
             </li>
