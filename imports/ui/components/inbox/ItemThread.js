@@ -32,7 +32,6 @@ class ItemThread extends React.Component{
                         {message_ids && message_ids.length>1 && <div>&nbsp;({message_ids.length})</div>}
                         {draft_ids && draft_ids.length>0 && <div className="thread-icon thread-icon-pencil"></div>}
                         {has_attachments && <div className="thread-icon thread-icon-attachment"></div>}
-                        <span style={{flexGrow:1, flexShrink:1, flexBasis:'0%'}}></span>
                         <span className="timestamp">{NylasUtils.shortTimeString(last_message_received_timestamp)}</span>
                     </div>
                     <div className="subject">
@@ -41,9 +40,6 @@ class ItemThread extends React.Component{
                     <div className="snippet-and-labels">
                         <div className="snippet">
                             {snippet}
-                        </div>
-                        <div style={{flexGrow:1, flexShrink:1, flexBasis:'0%'}}>
-
                         </div>
                     </div>
                 </div>
