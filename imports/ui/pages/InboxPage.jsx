@@ -10,7 +10,7 @@ import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStor
 import '../../api/nylas/tasks/task-queue'
 import ItemCategory from '../components/inbox/ItemCategory'
 import MessageList from '../components/inbox/MessageList'
-import Toolbar from '../components/inbox/Toolbar'
+import Toolbar, {VIEW_TYPE_THREAD, VIEW_TYPE_MESSAGE} from '../components/inbox/Toolbar'
 import ComposeModal from '../components/inbox/composer/ComposeModal'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
@@ -25,6 +25,8 @@ import {ClientErrorLog} from '/imports/utils/logger'
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
 import ComposeView from '../components/inbox/composer/ComposeView'
+import {Threads} from "../../api/models";
+import {PAGESIZE} from "../../utils/constants";
 
 
 class InboxPage extends (React.Component) {
@@ -40,7 +42,13 @@ class InboxPage extends (React.Component) {
             loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
-            currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null
+            currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
+            viewType: VIEW_TYPE_THREAD,
+            keyword: null,
+
+            threadStartIndexForThreadView: 1,
+            threadStartIndexForMessageView: 1,
+            threadTotalCount: 0,
         }
 
         if (this.state.hasNylasAccounts) {
@@ -85,20 +93,114 @@ class InboxPage extends (React.Component) {
 
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
-        this.setState({
-            currentCategory
-        })
+        // subsCache.subscribe('threads.params', this.threadFilter(currentCategory))
+
+        setTimeout(() => {
+            this.setState({
+                currentCategory
+            })
+        }, 100)
     }
+
     onDraftStoreChanged = () => {
         this.setState({
             composeStateForModal: DraftStore.draftViewStateForModal()
         })
     }
+
     onThreadStoreChanged = () => {
         this.setState({
             fetching: ThreadStore.fetching
         })
+
+        const {keyword} = this.state
+        if(keyword != ThreadStore.keyword) {
+            this.setState({
+                keyword: ThreadStore.keyword
+            })
+        }
     }
+
+    threadFilter = (category) => {
+        if(!category) return {}
+
+        const {keyword} = this.state
+
+        const filters = {}
+        let keywordQuery, inboxQuery
+
+        if(keyword && keyword.length) {
+            const regx = {$regex: keyword, $options: 'i'}
+            keywordQuery = [{
+                'participants.email': regx
+            },{
+                'participants.name': regx
+            },{
+                subject: regx
+            },{
+                snippet: regx
+            }]
+        }
+
+        if(category.id === 'assigned_to_me') {
+            filters['assignee'] = Meteor.userId()
+        } else if(category.id === 'following') {
+            filters['followers'] = Meteor.userId()
+        } else if(category.type === 'teammember') {
+            filters['assignee'] = category.id
+        } else if(category.name === 'unread') {
+            filters['account_id'] = category.account_id
+            filters['unread'] = true
+        } else if(category.name === 'open') {
+            filters['account_id'] = category.account_id
+
+            if(NylasUtils.usesLabels(category.account_id)) {
+                filters['labels.name'] = {$ne: 'important'}   // `all` is label for archiving on gmail
+            } else {
+                filters['folders.name'] = {$ne: 'archive'}
+            }
+        } else {
+            let inboxes
+            if(category.name === 'inbox') {
+                inboxes = Meteor.user().nylasAccounts()
+                    .find(({accountId}) => accountId === category.account_id)
+                    .categories
+                    .filter(c => c.name==='inbox' || c.name==='archive')
+            } else if(category.id === 'not_filed') {
+                const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
+                //filters['conversationId'] = null
+                filters['id'] = {$nin:conversationThreadIds}
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+            } else if(category.id === 'unassigned') {
+                filters['assignee'] = {$ne:Meteor.userId()}
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+            }/* else if(currentCategory.type === 'teammember') {
+                inboxes = currentCategory.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+            }*/ else {
+                inboxes = [category]
+            }
+
+            inboxQuery = inboxes.map((inbox) => {
+                if(NylasUtils.usesLabels(inbox.account_id)) {
+                    return {'labels.id': inbox.id}
+                } else {
+                    return {'folders.id': inbox.id}
+                }
+            })
+        }
+
+        if(keywordQuery && inboxQuery) {
+            filters['$and'] = [{'$or':keywordQuery}, {'$or':inboxQuery}]
+        } else if(keywordQuery && !inboxQuery) {
+            filters['$or'] = keywordQuery
+        } else if(!keywordQuery && inboxQuery) {
+            filters['$or'] = inboxQuery
+        }
+
+        return filters
+    }
+
+    threadOptions = (skip) => ({sort:{last_message_received_timestamp:-1}, skip, limit:PAGESIZE})
 
     render() {
         if (this.props.loading) return <Spinner visible={true}/>
@@ -138,8 +240,6 @@ class InboxPage extends (React.Component) {
         if (!composeStateForModal) return
 
         const draft = DraftStore.draftForClientId(composeStateForModal.clientId)
-        console.log('asdfasdfasdf', draft)
-
         if (!NylasUtils.isEmptyDraft(draft) && !draft.id) {
             if (confirm('Are you sure to discard?'))
                 DraftStore.removeDraftForClientId(draft.clientId)
@@ -148,37 +248,77 @@ class InboxPage extends (React.Component) {
         }
     }
 
+    onPrevPage = () => {
+        if (this.state.viewType === VIEW_TYPE_THREAD) {
+            this.setState(({threadStartIndexForThreadView}) => {
+                threadStartIndexForThreadView -= PAGESIZE
+
+                return {threadStartIndexForThreadView}
+            })
+        } else if (this.state.viewType === VIEW_TYPE_MESSAGE) {
+            this.setState(({threadStartIndexForMessageView}) => {
+                threadStartIndexForMessageView -= 1
+
+                return {threadStartIndexForMessageView}
+            }, () => {
+                ThreadStore.selectThread(Threads.findOne(this.threadFilter(this.state.currentCategory), this.threadOptions(this.state.threadStartIndexForMessageView)))
+            })
+        }
+    }
+    onNextPage = () => {
+        if (this.state.viewType === VIEW_TYPE_THREAD) {
+            this.setState(({threadStartIndexForThreadView}) => {
+                threadStartIndexForThreadView += PAGESIZE
+
+                return {threadStartIndexForThreadView}
+            })
+        } else if (this.state.viewType === VIEW_TYPE_MESSAGE) {
+            this.setState(({threadStartIndexForMessageView}) => {
+                threadStartIndexForMessageView += 1
+
+                return {threadStartIndexForMessageView}
+            }, () => {
+                ThreadStore.selectThread(Threads.findOne(this.threadFilter(this.state.currentCategory), this.threadOptions(this.state.threadStartIndexForMessageView)))
+            })
+        }
+    }
     renderInbox() {
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-                <Toolbar currentUser={this.props.currentUser} thread={this.state.currentThread}
-                         onSelectExtraMenu={this.onSelectExtraMenu}/>
-
-                <div className="content-panel">
-                    <div className="column-panel" style={{
-                        order: 1,
-                        minWidth: 250,
-                        maxWidth: 250,
-                        borderRight: '1px solid rgba(221,221,221,0.6)',
-                        paddingRight: 5,
-                        overflowY: 'auto',
-                        height: '100%'
-                    }}>
-                        {this.renderCategories()}
-                    </div>
-                    <div className="column-panel" style={{
-                        order: 2,
-                        minWidth: 250,
-                        maxWidth: 450,
-                        borderRight: '1px solid rgba(221,221,221,0.6)'
-                    }}>
-                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
-                    </div>
-                    <div className="column-panel" style={{order: 3, flex: 1, overflowY: 'auto', height: '100%'}}>
-                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
-                    </div>
-                    {this.renderTargetForm()}
-                </div>
+                <Toolbar
+                    currentUser={this.props.currentUser}
+                    thread={this.state.currentThread}
+                    onSelectExtraMenu={this.onSelectExtraMenu}
+                    onBack={() => this.setState({viewType: VIEW_TYPE_THREAD})}
+                    viewType={this.state.viewType}
+                    threadStartIndex={this.state.viewType === VIEW_TYPE_THREAD ? this.state.threadStartIndexForThreadView : this.state.threadStartIndexForMessageView}
+                    threadTotalCount={Threads.find(this.threadFilter(this.state.currentCategory)).count()}
+                    onPrevPage={this.onPrevPage}
+                    onNextPage={this.onNextPage}
+                />
+                {
+                    this.state.viewType === VIEW_TYPE_THREAD && (
+                        <div className="content-panel">
+                            <div className="column-panel column-category">
+                                {this.renderCategories()}
+                            </div>
+                            <div className="column-panel column-thread">
+                                {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
+                            </div>
+                            {this.renderTargetForm()}
+                        </div>
+                    )
+                }
+                {
+                    this.state.viewType === VIEW_TYPE_MESSAGE && (
+                        <div className="content-panel">
+                            <div className="column-panel column-message">
+                                {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
+                            </div>
+                            {this.renderTargetForm()}
+                        </div>
+                    )
+                }
             </div>
         )
     }
@@ -420,9 +560,9 @@ class InboxPage extends (React.Component) {
             } else {
                 return (
                     <div>
-                        <Button bsStyle="primary" bsSize="small"
-                                onClick={() => this.setState({addingInbox: true, addingTeamInbox: false})}>Add
-                            inbox</Button>
+                        <Button bsStyle="primary" bsSize="small" onClick={() => this.setState({addingInbox: true, addingTeamInbox: false})}>
+                            Add inbox
+                        </Button>
                     </div>
                 )
             }
@@ -453,12 +593,27 @@ class InboxPage extends (React.Component) {
         }
     }
 
+    onSelectThread = (thread, index) => {
+        ThreadStore.selectThread(thread)
+        this.setState({
+            currentThread: thread,
+            viewType: VIEW_TYPE_MESSAGE,
+            threadStartIndexForMessageView: this.state.threadStartIndexForThreadView + index
+        })
+    }
+
     renderThreads() {
-        const {currentCategory} = this.state
+        const {currentCategory, currentThread} = this.state
+
+        let threads = Threads.find(this.threadFilter(currentCategory), this.threadOptions(this.state.threadStartIndexForThreadView)).fetch()
+        threads = _.uniq(threads, false, ({id}) => id)
+
         return (
-            <ThreadList category={currentCategory} onSelectThread={(thread) => {
-                this.setState({currentThread: thread})
-            }}/>
+            <ThreadList
+                threads={threads}
+                currentThread={currentThread}
+                onSelectThread={(thread) => this.onSelectThread(thread, threads.indexOf(thread))}
+            />
         )
     }
 
@@ -468,8 +623,10 @@ class InboxPage extends (React.Component) {
 
     renderDrafts() {
         return (
-            <DraftList category={this.state.currentCategory}
-                       onSelectDraft={(draft) => Actions.composeDraft({message: {...draft}})}/>
+            <DraftList
+                category={this.state.currentCategory}
+                onSelectDraft={(draft) => Actions.composeDraft({message: {...draft}})}
+            />
         )
     }
 
@@ -488,12 +645,12 @@ class InboxPage extends (React.Component) {
     }
 }
 
-export default createContainer(() =>
-    /*const subscribers = []
-    subscribers.push(subsManager.subscribe('threads.all'))
-    subscribers.push(subsManager.subscribe('messages.all'))
+export default createContainer(() => {
+    const subscribers = []
+    subscribers.push(subsCache.subscribe('threads.all'))
+    // subscribers.push(subsCache.subscribe('messages.all'))
 
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
-    }*/
-    ({loading: false}), InboxPage)
+    }
+}, InboxPage)

@@ -1,7 +1,8 @@
 /* global FlowRouter */
+import _ from 'underscore'
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {DropdownButton, MenuItem, FormGroup, FormControl, InputGroup, Button} from 'react-bootstrap'
+import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
 import ComposeButton from './composer/ComposeButton'
 import ThreadArchiveButton from './ThreadArchiveButton'
 import ThreadTrashButton from './ThreadTrashButton'
@@ -12,6 +13,10 @@ import {SalesRecords, Projects, Threads, Conversations, Users} from '/imports/ap
 import {updateThread} from '/imports/api/models/threads/methods'
 import {Selector} from '../common'
 import {ClientErrorLog} from '/imports/utils/logger'
+import {PAGESIZE} from '/imports/utils/constants'
+
+export const VIEW_TYPE_THREAD = 'thread'
+export const VIEW_TYPE_MESSAGE = 'message'
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
@@ -40,25 +45,56 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
         return (
             <div className="toolbar-panel">
-                <div style={{order: 0, minWidth: 250, maxWidth: 250, flex: 1}}>
+                <div style={{minWidth: 250, maxWidth: 250, flex: 1}}>
+                    {this.props.viewType===VIEW_TYPE_MESSAGE && <Button onClick={this.props.onBack}><i className="fa fa-arrow-left"/></Button>}
                     <ComposeButton/>
                 </div>
-                <div style={{order: 1, minWidth: 250, maxWidth: 450, flex: 1, paddingRight:20}}>
-                    <MailSearchBox />
+                <div style={{maxWidth: 300}}>
+                    {this.props.viewType===VIEW_TYPE_THREAD && <MailSearchBox />}
                 </div>
-                <div style={{order: 2, flex: 1}}>
+                <div style={{flex: 1}}>
+                    &nbsp;&nbsp;&nbsp;
                     <ThreadArchiveButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadTrashButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadToggleUnreadButton thread={thread}/>&nbsp;&nbsp;&nbsp;
                     <ThreadStarButton thread={thread}/>
-                    &nbsp;&nbsp;&nbsp;<Selector disabled={!thread} value={assigneeValue} options={Users.find().map(u => ({value:u._id, label:u.name()}))} onSelect={this.onSelectAssignee} triggerEl={<Button disabled={!thread}>{assignee ? <div><span style={{fontSize:11}}>Assigned to </span><span>{assignee.name()}</span></div> : 'Assign'}</Button>}/>
-                    &nbsp;&nbsp;&nbsp;<Button disabled={!thread} onClick={this.onToggleFollow}>{thread && thread.followers && thread.followers.indexOf(Meteor.userId())>-1 ? 'Unfollow' : 'Follow'}</Button>
+                    &nbsp;&nbsp;&nbsp;
+                    <Selector
+                        disabled={!thread}
+                        value={assigneeValue}
+                        options={Users.find().map(u => ({value:u._id, label:u.name()}))}
+                        onSelect={this.onSelectAssignee}
+                        triggerEl={<Button disabled={!thread}>{assignee ? <div><span style={{fontSize:11}}>Assigned to </span><span>{assignee.name()}</span></div> : 'Assign'}</Button>}
+                    />
+                    &nbsp;&nbsp;&nbsp;
+                    <Button
+                        disabled={!thread}
+                        onClick={this.onToggleFollow}
+                    >
+                        {thread && thread.followers && thread.followers.indexOf(Meteor.userId())>-1 ? 'Unfollow' : 'Follow'}
+                    </Button>
+                </div>
+                <div>
+                    {this.renderPagingButtons()}
+                </div>
+                <div>
                     {this.renderExtraMenu()}
                 </div>
             </div>
         )
     }
 
+    renderPagingButtons() {
+        const { viewType, threadStartIndex, threadTotalCount } = this.props
+        return (
+            <div style={{marginLeft: 'auto', marginRight: 10}}>
+                {viewType === VIEW_TYPE_THREAD && <span>{threadStartIndex}-{_.min([threadStartIndex + PAGESIZE, threadTotalCount])} of {threadTotalCount}</span>}
+                {viewType === VIEW_TYPE_MESSAGE && <span>{threadStartIndex} of {threadTotalCount}</span>}
+                <Button disabled={viewType === VIEW_TYPE_THREAD ? threadStartIndex - PAGESIZE < 1 : threadStartIndex == 1} onClick={this.props.onPrevPage}><i className="fa fa-chevron-left" /></Button>
+                <Button disabled={viewType === VIEW_TYPE_THREAD ? threadStartIndex + PAGESIZE >= threadTotalCount : threadStartIndex == threadTotalCount} onClick={this.props.onNextPage}><i className="fa fa-chevron-right" /></Button>
+            </div>
+        )
+    }
     renderExtraMenu() {
         const {thread} = this.props
         if(!thread) return ''
@@ -78,7 +114,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
 
         if(salesRecord) {
             return (
-                <div style={{float:'right'}}>
+                <div>
                     <DropdownButton bsStyle="default" bsSize="small" title={salesRecord.name} pullRight id="dropdown-deal">
                         <MenuItem onSelect={() => this.props.onSelectExtraMenu('goto', {type:'deal', _id:salesRecord._id})}>Go to this deal</MenuItem>
                         <MenuItem divider/>

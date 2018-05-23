@@ -1,182 +1,44 @@
-import _ from 'underscore'
 import React, {PropTypes} from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {Threads} from '/imports/api/models'
-import {NylasUtils, ThreadStore, Actions} from '/imports/api/nylas'
+import {ThreadStore, Actions} from '/imports/api/nylas'
 import ItemThread from './ItemThread'
 
-const LIMIT = 100
 export default class ThreadList extends TrackerReact(React.Component) {
     static propTypes = {
-        category: PropTypes.object,
+        currentThread: PropTypes.object,
+        threads: PropTypes.array,
         onSelectThread: PropTypes.func
     }
 
     constructor(props) {
         super(props)
 
-        const {category} = props
         this.state = {
-            category,
             loading: false,
-            currentThread: ThreadStore.currentThread(category),
-            keyword: null
+            page: 1
         }
-
-        this.page = 1
-    }
-
-    componentDidMount() {
-        this.unsubscribe = ThreadStore.listen(this.onThreadStoreChanged)
-
-        //const options = {skip:(this.page-1)*LIMIT, limit:LIMIT}
-        //this.subscriptions = [subsManager.subscribe('threads.params', this.filter(), _.extend(options,this.sort()))]
-        subsCache.subscribe('threads.params', this.filter())
-
-    }
-
-    componentWillUnmount() {
-        if(this.unsubscribe) this.unsubscribe()
-        //this.subscriptions.forEach(subscription => subscription.stop())
-    }
-
-    componentWillReceiveProps(newProps) {
-        if(newProps.category && (!this.props.category || newProps.category.id != this.props.category.id)) {
-            this.setState({
-                category:newProps.category,
-                currentThread: ThreadStore.currentThread(newProps.category)
-            }, () => {
-                subsCache.subscribe('threads.params', this.filter())
-            })
-        }
-    }
-
-    sort = () => ({sort:{last_message_received_timestamp:-1}})
-
-    filter = () => {
-        const {category, keyword} = this.state
-
-        if(!category) return {}
-
-        const filters = {}
-        let keywordQuery, inboxQuery
-
-        if(keyword && keyword.length) {
-            const regx = {$regex: keyword, $options: 'i'}
-            keywordQuery = [{
-                'participants.email': regx
-            },{
-                'participants.name': regx
-            },{
-                subject: regx
-            },{
-                snippet: regx
-            }]
-        }
-
-        if(category.id === 'assigned_to_me') {
-            filters['assignee'] = Meteor.userId()
-        } else if(category.id === 'following') {
-            filters['followers'] = Meteor.userId()
-        } else if(category.type === 'teammember') {
-            filters['assignee'] = category.id
-        } else if(category.name === 'unread') {
-            filters['account_id'] = category.account_id
-            filters['unread'] = true
-        } else if(category.name === 'open') {
-            filters['account_id'] = category.account_id
-
-            if(NylasUtils.usesLabels(category.account_id)) {
-                filters['labels.name'] = {$ne: 'important'}   // `all` is label for archiving on gmail
-            } else {
-                filters['folders.name'] = {$ne: 'archive'}
-            }
-        } else {
-            let inboxes
-            if(category.name === 'inbox') {
-                inboxes = Meteor.user().nylasAccounts()
-                    .find(({accountId}) => accountId === category.account_id)
-                    .categories
-                    .filter(c => c.name==='inbox' || c.name==='archive')
-            } else if(category.id === 'not_filed') {
-                const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
-                //filters['conversationId'] = null
-                filters['id'] = {$nin:conversationThreadIds}
-                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            } else if(category.id === 'unassigned') {
-                filters['assignee'] = {$ne:Meteor.userId()}
-                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            }/* else if(category.type === 'teammember') {
-                inboxes = category.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            }*/ else {
-                inboxes = [category]
-            }
-
-            inboxQuery = inboxes.map((inbox) => {
-                if(NylasUtils.usesLabels(inbox.account_id)) {
-                    return {'labels.id': inbox.id}
-                } else {
-                    return {'folders.id': inbox.id}
-                }
-            })
-        }
-
-        if(keywordQuery && inboxQuery) {
-            filters['$and'] = [{'$or':keywordQuery}, {'$or':inboxQuery}]
-        } else if(keywordQuery && !inboxQuery) {
-            filters['$or'] = keywordQuery
-        } else if(!keywordQuery && inboxQuery) {
-            filters['$or'] = inboxQuery
-        }
-
-        return filters
-    }
-    onThreadStoreChanged = () => {
-        const {category, currentThread} = this.state
-        const newCurrentThread = ThreadStore.currentThread(category)
-        if(!_.isEqual(currentThread, newCurrentThread)) {
-            this.setState({
-                currentThread: newCurrentThread
-            })
-        }
-
-        const {keyword} = this.state
-        if(keyword != ThreadStore.keyword) {
-            this.setState({
-                keyword: ThreadStore.keyword
-            })
-        }
-
     }
 
     onSelectThread = (thread) => {
         if(this.props.onSelectThread) this.props.onSelectThread(thread)
-
-        ThreadStore.selectThread(thread)
     }
 
     render() {
-        const {category, currentThread, loading} = this.state
-        if(!category) return <div>Please select any folder</div>
+        const {loading} = this.state
 
-        //console.log('render ThreadList', keyword)
-
-
-        let threads = Threads.find(this.filter(), this.sort()).fetch()
-        threads = _.uniq(threads, false, ({id}) => id)
         return (
             <div className="column-panel" style={{
                 overflowY: 'auto',
                 height: '100%'
-            }} onScroll={this.onScrollThreadList}>
+            }}>
                 <div className="list-thread">
                 {
-                    threads.map((thread, index) =>
+                    this.props.threads.map((thread, index) =>
                         <ItemThread
                             key={`thread-${index}`}
                             thread={thread}
                             onClick={(evt) => this.onSelectThread(thread)}
-                            selected={currentThread && thread.id == currentThread.id}
+                            selected={this.props.currentThread && thread.id == this.props.currentThread.id}
                         />)
                 }
                 {loading && <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
