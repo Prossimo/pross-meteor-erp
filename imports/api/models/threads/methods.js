@@ -173,5 +173,18 @@ Meteor.methods({
       })
 
       Threads.update({id: threadId}, {$set: {readByUsers}})
-  }
+  },
+    threadSetStatus(_id, status) {
+      check(_id, String)
+        check(status, String)
+
+
+        const userId = Meteor.userId()
+        if (!userId) throw new Meteor.Error(403, 'Not authorized')
+
+        const thread = Threads.findOne({_id})
+        if (!thread) throw new Meteor.Error(404, 'Not found entity')
+
+        Threads.update({_id}, {$set: {status}})
+    }
 })

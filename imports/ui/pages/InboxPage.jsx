@@ -10,7 +10,7 @@ import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStor
 import '../../api/nylas/tasks/task-queue'
 import ItemCategory from '../components/inbox/ItemCategory'
 import MessageList from '../components/inbox/MessageList'
-import Toolbar, {VIEW_TYPE_THREAD, VIEW_TYPE_MESSAGE} from '../components/inbox/Toolbar'
+import Toolbar from '../components/inbox/Toolbar'
 import ComposeModal from '../components/inbox/composer/ComposeModal'
 import NylasSigninForm from '../components/inbox/NylasSigninForm'
 import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
@@ -25,8 +25,8 @@ import {ClientErrorLog} from '/imports/utils/logger'
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
 import ComposeView from '../components/inbox/composer/ComposeView'
-import {Threads} from "../../api/models";
-import {PAGESIZE} from "../../utils/constants";
+import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '../../api/models/threads/threads'
+import {PAGESIZE} from '../../utils/constants'
 
 
 class InboxPage extends (React.Component) {
@@ -43,11 +43,9 @@ class InboxPage extends (React.Component) {
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
-            viewType: VIEW_TYPE_THREAD,
             keyword: null,
 
-            threadStartIndexForThreadView: 1,
-            threadStartIndexForMessageView: 1,
+            threadStartIndex: 1,
             threadTotalCount: 0,
         }
 
@@ -249,38 +247,18 @@ class InboxPage extends (React.Component) {
     }
 
     onPrevPage = () => {
-        if (this.state.viewType === VIEW_TYPE_THREAD) {
-            this.setState(({threadStartIndexForThreadView}) => {
-                threadStartIndexForThreadView -= PAGESIZE
+        this.setState(({threadStartIndex}) => {
+            threadStartIndex -= PAGESIZE
 
-                return {threadStartIndexForThreadView}
-            })
-        } else if (this.state.viewType === VIEW_TYPE_MESSAGE) {
-            this.setState(({threadStartIndexForMessageView}) => {
-                threadStartIndexForMessageView -= 1
-
-                return {threadStartIndexForMessageView}
-            }, () => {
-                ThreadStore.selectThread(Threads.findOne(this.threadFilter(this.state.currentCategory), this.threadOptions(this.state.threadStartIndexForMessageView)))
-            })
-        }
+            return {threadStartIndex}
+        })
     }
     onNextPage = () => {
-        if (this.state.viewType === VIEW_TYPE_THREAD) {
-            this.setState(({threadStartIndexForThreadView}) => {
-                threadStartIndexForThreadView += PAGESIZE
+        this.setState(({threadStartIndex}) => {
+            threadStartIndex += PAGESIZE
 
-                return {threadStartIndexForThreadView}
-            })
-        } else if (this.state.viewType === VIEW_TYPE_MESSAGE) {
-            this.setState(({threadStartIndexForMessageView}) => {
-                threadStartIndexForMessageView += 1
-
-                return {threadStartIndexForMessageView}
-            }, () => {
-                ThreadStore.selectThread(Threads.findOne(this.threadFilter(this.state.currentCategory), this.threadOptions(this.state.threadStartIndexForMessageView)))
-            })
-        }
+            return {threadStartIndex}
+        })
     }
     renderInbox() {
         return (
@@ -289,36 +267,23 @@ class InboxPage extends (React.Component) {
                     currentUser={this.props.currentUser}
                     thread={this.state.currentThread}
                     onSelectExtraMenu={this.onSelectExtraMenu}
-                    onBack={() => this.setState({viewType: VIEW_TYPE_THREAD})}
-                    viewType={this.state.viewType}
-                    threadStartIndex={this.state.viewType === VIEW_TYPE_THREAD ? this.state.threadStartIndexForThreadView : this.state.threadStartIndexForMessageView}
+                    threadStartIndex={this.state.threadStartIndex}
                     threadTotalCount={Threads.find(this.threadFilter(this.state.currentCategory)).count()}
                     onPrevPage={this.onPrevPage}
                     onNextPage={this.onNextPage}
                 />
-                {
-                    this.state.viewType === VIEW_TYPE_THREAD && (
-                        <div className="content-panel">
-                            <div className="column-panel column-category">
-                                {this.renderCategories()}
-                            </div>
-                            <div className="column-panel column-thread">
-                                {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
-                            </div>
-                            {this.renderTargetForm()}
-                        </div>
-                    )
-                }
-                {
-                    this.state.viewType === VIEW_TYPE_MESSAGE && (
-                        <div className="content-panel">
-                            <div className="column-panel column-message">
-                                {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
-                            </div>
-                            {this.renderTargetForm()}
-                        </div>
-                    )
-                }
+                <div className="content-panel">
+                    <div className="column-panel column-category">
+                        {this.renderCategories()}
+                    </div>
+                    <div className="column-panel column-thread">
+                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
+                    </div>
+                    <div className="column-panel column-message">
+                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
+                    </div>
+                    {this.renderTargetForm()}
+                </div>
             </div>
         )
     }
@@ -593,26 +558,28 @@ class InboxPage extends (React.Component) {
         }
     }
 
-    onSelectThread = (thread, index) => {
+    onSelectThread = (thread) => {
         ThreadStore.selectThread(thread)
         this.setState({
-            currentThread: thread,
-            viewType: VIEW_TYPE_MESSAGE,
-            threadStartIndexForMessageView: this.state.threadStartIndexForThreadView + index
+            currentThread: thread
         })
     }
 
+    onChangeThreadStatus = (thread, checked) => {
+        Meteor.call('threadSetStatus', thread._id, checked ? THREAD_STATUS_CLOSED : THREAD_STATUS_OPEN, () => {})
+    }
     renderThreads() {
         const {currentCategory, currentThread} = this.state
 
-        let threads = Threads.find(this.threadFilter(currentCategory), this.threadOptions(this.state.threadStartIndexForThreadView)).fetch()
+        let threads = Threads.find(this.threadFilter(currentCategory), this.threadOptions(this.state.threadStartIndex)).fetch()
         threads = _.uniq(threads, false, ({id}) => id)
 
         return (
             <ThreadList
                 threads={threads}
                 currentThread={currentThread}
-                onSelectThread={(thread) => this.onSelectThread(thread, threads.indexOf(thread))}
+                onSelectThread={this.onSelectThread}
+                onChangeThreadStatus={this.onChangeThreadStatus}
             />
         )
     }
@@ -650,6 +617,7 @@ export default createContainer(() => {
     subscribers.push(subsCache.subscribe('threads.all'))
     // subscribers.push(subsCache.subscribe('messages.all'))
 
+    console.log('Loading threads....')
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
     }

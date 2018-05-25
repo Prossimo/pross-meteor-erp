@@ -91,7 +91,6 @@ class Aside extends React.Component{
             {
                 label: 'Deals',
                 topLevel: true,
-                route: 'Deals',
                 subItems: [
                     {
                         label: 'Leads',
