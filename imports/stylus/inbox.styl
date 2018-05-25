@@ -46,6 +46,7 @@
     }
     &.column-thread {
       order: 2;
+      max-width: 450px;
       border-right: 1px solid rgba(221,221,221,0.6)
     }
     &.column-message {
@@ -158,6 +159,9 @@
           background: rgba(91, 139, 255, 0.1);
         }
 
+        .thread-status-checkbox {
+          padding: 10px;
+        }
         .thread-info-column {
           flex: 1;
           overflow: hidden;
@@ -217,7 +221,7 @@
             text-align: left;
             min-height: 21px;
             margin-right: 4px;
-            white-space: normal;
+            white-space: nowrap;
           }
         }
       }

@@ -1,11 +1,13 @@
 import React from 'react'
 import NylasUtils from '../../../api/nylas/nylas-utils'
+import { THREAD_STATUS_CLOSED } from '/imports/api/models/threads/threads'
 
 class ItemThread extends React.Component{
     static propTypes = {
         thread: React.PropTypes.object.isRequired,
         onClick: React.PropTypes.func,
-        selected: React.PropTypes.bool
+        selected: React.PropTypes.bool,
+        onChangeStatus: React.PropTypes.func
     }
 
     constructor(props) {
@@ -13,17 +15,19 @@ class ItemThread extends React.Component{
     }
 
     render() {
-        const {participants, subject, snippet, unread, last_message_received_timestamp, message_ids, draft_ids, has_attachments, readByUsers} = this.props.thread
+        const {participants, subject, snippet, unread, last_message_received_timestamp, message_ids, draft_ids, has_attachments, readByUsers, status} = this.props.thread
 
         const readMark = () => {
-            if (!readByUsers || readByUsers.length === 0) return <div className="thread-icon thread-icon-unread"></div>
-            else if(!_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-unread1"></div>
-            else if(_.findWhere(readByUsers, {userId: Meteor.userId()}) && readByUsers.length !== Meteor.users.find().fetch().length) return <div className="thread-icon thread-icon-unread2"></div>
-            else return <div className="thread-icon thread-icon-read"></div>
+            if (!readByUsers || readByUsers.length === 0 || !_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-unread"></div>
+            else if(_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-read"></div>
         }
+
         return (
-            <div className={`item${this.props.selected ? ' focused' :''}`} onClick={(evt) => {this.props.onClick(evt)}}>
-                <div className="thread-info-column">
+            <div className={`item${this.props.selected ? ' focused' :''}`}>
+                <div className="thread-status-checkbox">
+                    <input type="checkbox" onChange={e => this.props.onChangeStatus(e.target.checked)} checked={status === THREAD_STATUS_CLOSED} />
+                </div>
+                <div className="thread-info-column" onClick={(evt) => {this.props.onClick(evt)}}>
                     <div className="participants-wrapper">
                         {readMark()}
                         <div className="participants">

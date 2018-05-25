@@ -15,9 +15,6 @@ import {Selector} from '../common'
 import {ClientErrorLog} from '/imports/utils/logger'
 import {PAGESIZE} from '/imports/utils/constants'
 
-export const VIEW_TYPE_THREAD = 'thread'
-export const VIEW_TYPE_MESSAGE = 'message'
-
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
         thread: React.PropTypes.object,
@@ -46,11 +43,10 @@ export default class Toolbar extends TrackerReact(React.Component) {
         return (
             <div className="toolbar-panel">
                 <div style={{minWidth: 250, maxWidth: 250, flex: 1}}>
-                    {this.props.viewType===VIEW_TYPE_MESSAGE && <Button onClick={this.props.onBack}><i className="fa fa-arrow-left"/></Button>}
                     <ComposeButton/>
                 </div>
                 <div style={{maxWidth: 300}}>
-                    {this.props.viewType===VIEW_TYPE_THREAD && <MailSearchBox />}
+                    <MailSearchBox />
                 </div>
                 <div style={{flex: 1}}>
                     &nbsp;&nbsp;&nbsp;
@@ -85,13 +81,12 @@ export default class Toolbar extends TrackerReact(React.Component) {
     }
 
     renderPagingButtons() {
-        const { viewType, threadStartIndex, threadTotalCount } = this.props
+        const { threadStartIndex, threadTotalCount } = this.props
         return (
             <div style={{marginLeft: 'auto', marginRight: 10}}>
-                {viewType === VIEW_TYPE_THREAD && <span>{threadStartIndex}-{_.min([threadStartIndex + PAGESIZE, threadTotalCount])} of {threadTotalCount}</span>}
-                {viewType === VIEW_TYPE_MESSAGE && <span>{threadStartIndex} of {threadTotalCount}</span>}
-                <Button disabled={viewType === VIEW_TYPE_THREAD ? threadStartIndex - PAGESIZE < 1 : threadStartIndex == 1} onClick={this.props.onPrevPage}><i className="fa fa-chevron-left" /></Button>
-                <Button disabled={viewType === VIEW_TYPE_THREAD ? threadStartIndex + PAGESIZE >= threadTotalCount : threadStartIndex == threadTotalCount} onClick={this.props.onNextPage}><i className="fa fa-chevron-right" /></Button>
+                <span>{threadStartIndex}-{_.min([threadStartIndex + PAGESIZE, threadTotalCount])} of {threadTotalCount}</span>
+                <Button disabled={threadStartIndex - PAGESIZE < 1} onClick={this.props.onPrevPage}><i className="fa fa-chevron-left" /></Button>
+                <Button disabled={threadStartIndex + PAGESIZE >= threadTotalCount} onClick={this.props.onNextPage}><i className="fa fa-chevron-right" /></Button>
             </div>
         )
     }

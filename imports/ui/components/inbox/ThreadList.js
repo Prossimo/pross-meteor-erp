@@ -7,7 +7,8 @@ export default class ThreadList extends TrackerReact(React.Component) {
     static propTypes = {
         currentThread: PropTypes.object,
         threads: PropTypes.array,
-        onSelectThread: PropTypes.func
+        onSelectThread: PropTypes.func,
+        onChangeThreadStatus: PropTypes.func
     }
 
     constructor(props) {
@@ -39,6 +40,7 @@ export default class ThreadList extends TrackerReact(React.Component) {
                             thread={thread}
                             onClick={(evt) => this.onSelectThread(thread)}
                             selected={this.props.currentThread && thread.id == this.props.currentThread.id}
+                            onChangeStatus={checked => this.props.onChangeThreadStatus(thread, checked)}
                         />)
                 }
                 {loading && <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}

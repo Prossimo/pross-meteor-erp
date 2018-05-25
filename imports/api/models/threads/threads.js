@@ -20,6 +20,9 @@ class ThreadsCollection extends Mongo.Collection {
 
 const Threads = new ThreadsCollection('Threads')
 
+export const THREAD_STATUS_OPEN = 'open'
+export const THREAD_STATUS_CLOSED = 'closed'
+
 // Deny all client-side updates since we will be using methods to manage this collection
 Threads.deny({
     insert() {
@@ -111,6 +114,8 @@ Threads.schema = new SimpleSchema({
     'followers.$': {
         type: String
     },
+
+    status: {type:String, optional: true},
 
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
