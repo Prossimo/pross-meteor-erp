@@ -171,6 +171,12 @@ class MessageStoreClass extends Reflux.Store {
         this.trigger()
     }
 
+    removeMessage(message) {
+      const messages = this._messages.filter(m => m._id !== message._id)
+      this._messages = messages
+      this.trigger()
+    }
+
 }
 
 const MessageStore = new MessageStoreClass()

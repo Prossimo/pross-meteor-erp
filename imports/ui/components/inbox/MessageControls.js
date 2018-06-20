@@ -48,7 +48,6 @@ class MessageControls extends React.Component {
 
     render() {
         const items = this._items()
-
         return (
             <div className="message-actions-wrap">
                 <ButtonDropdown

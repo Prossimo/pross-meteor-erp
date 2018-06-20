@@ -6,6 +6,7 @@ import {APIError, TimeoutError} from './errors'
 import AccountStore from './account-store'
 import {upsertThread} from '../models/threads/methods'
 import {upsertMessage, removeMessage} from '../models/messages/methods'
+import MessageStore from './message-store'
 import {ErrorLog} from '/imports/utils/logger'
 
 
@@ -216,6 +217,7 @@ class NylasAPIClass {
          .then(() => {
             try {//console.log('call removeMessage', draft)
                removeMessage.call({id: draft.id})
+               MessageStore.removeMessage(draft)
             } catch (err) {
                ErrorLog.error(err)
             }
