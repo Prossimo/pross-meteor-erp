@@ -34,10 +34,10 @@ class NavigationItem extends React.Component{
         const routesList = item.subItems.map(item => typeof item.route === 'string' ? item.route : item.route.name )
 
         return (
-            <li className="top-nav-item">
+            <li className={classNames('top-nav-item', {'active': FlowRouter.getRouteName() === item.route})}>
                 <div
                   onClick={this.toggleTopMenu.bind(this)}
-                  className={classNames('nav-item-label',{'active': routesList.indexOf(FlowRouter.getRouteName())>-1})}>{item.label}</div>
+                  className={classNames('nav-item-label', {'active': routesList.indexOf(FlowRouter.getRouteName()) > -1 || FlowRouter.getRouteName() === item.route})}>{item.label}</div>
                 <ul className="sub-nav-items" ref="subMenu">{subItemList}</ul>
             </li>
         )
@@ -91,6 +91,7 @@ class Aside extends React.Component{
             {
                 label: 'Deals',
                 topLevel: true,
+                route: 'Deals',
                 subItems: [
                     {
                         label: 'Leads',
