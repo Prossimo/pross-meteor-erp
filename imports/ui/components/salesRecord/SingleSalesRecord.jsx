@@ -18,6 +18,7 @@ import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
 import {Panel, SlackChannelSelector, Selector} from '../common'
+import SelectSubStage from './components/SelectSubStage'
 import Spinner from '../utils/spinner'
 import {ClientErrorLog} from '/imports/utils/logger'
 import ClientStatusForm from './components/ClientStatusForm'
@@ -115,7 +116,7 @@ class SingleSalesRecord extends React.Component {
 
         let {activeTab} = this.state
 
-        if(!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
+        if (!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
         return <ul>
             {this.tabs.map(item => (
                 <li key={item.label}
@@ -128,7 +129,7 @@ class SingleSalesRecord extends React.Component {
 
     getContent() {
         let {activeTab} = this.state
-        if(!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
+        if (!activeTab) activeTab = this.tabs.find(tab => tab.label === 'Details')
         if (activeTab.component) {
             return React.cloneElement(activeTab.component, this.props)
         } else {
@@ -383,34 +384,34 @@ class SingleSalesRecord extends React.Component {
     onChangeTeamLead = (option) => {
         const {salesRecord} = this.props
 
-        if(salesRecord.teamLead != option.value) {
-            this.updateSalesRecordStatus({teamLead:option.value})
+        if (salesRecord.teamLead != option.value) {
+            this.updateSalesRecordStatus({teamLead: option.value})
         }
     }
 
     onChangeClientStatus = (option) => {
         const {salesRecord} = this.props
 
-        if(option.value === 'add_new') {
+        if (option.value === 'add_new') {
             this.setState({showClientStatusModal: true})
             return
         }
 
-        if(salesRecord.clientStatus != option.value) {
-            this.updateSalesRecordStatus({clientStatus:option.value})
+        if (salesRecord.clientStatus != option.value) {
+            this.updateSalesRecordStatus({clientStatus: option.value})
         }
     }
 
     onChangeSupplierStatus = (option) => {
         const {salesRecord} = this.props
 
-        if(option.value === 'add_new') {
+        if (option.value === 'add_new') {
             this.setState({showSupplierStatusModal: true})
             return
         }
 
-        if(salesRecord.supplierStatus != option.value) {
-            this.updateSalesRecordStatus({supplierStatus:option.value})
+        if (salesRecord.supplierStatus != option.value) {
+            this.updateSalesRecordStatus({supplierStatus: option.value})
         }
     }
 
@@ -423,15 +424,15 @@ class SingleSalesRecord extends React.Component {
         this.setState({showSupplierStatusModal: false})
     }
 
-    updateSalesRecordStatus(data={}) {
+    updateSalesRecordStatus(data = {}) {
         const {salesRecord} = this.props
 
-        if(!salesRecord) return
+        if (!salesRecord) return
 
         Meteor.call('updateSalesRecordStatus', salesRecord._id, data, (err) => {
-            if(err) {
+            if (err) {
                 ClientErrorLog.error(err)
-                swal('Update status error',  err.reason ? err.reason : err.message, 'warning')
+                swal('Update status error', err.reason ? err.reason : err.message, 'warning')
             }
         })
     }
@@ -476,7 +477,7 @@ class SingleSalesRecord extends React.Component {
     }
 
     render() {
-        if(this.props.loading) return <Spinner/>
+        if (this.props.loading) return <Spinner/>
 
         const {salesRecord} = this.props
         const defaultStage = this.stageOptions.find(({value}) => value === salesRecord.stage)
@@ -485,11 +486,17 @@ class SingleSalesRecord extends React.Component {
         const dealer = salesRecord.getDealer()
         const dealers = People.find().fetch().filter(p => {
             const designation = p.designation()
-            return designation&&designation.name==='Dealer'
+            return designation && designation.name === 'Dealer'
         })
 
-        const clientStatusOptions = ClientStatus.find().map(s => ({value:s._id,label:s.name})).concat([{value:'add_new', label:'+ New Status'}])
-        const supplierStatusOptions = SupplierStatus.find().map(s => ({value:s._id,label:s.name})).concat([{value:'add_new', label:'+ New Status'}])
+        const clientStatusOptions = ClientStatus.find().map(s => ({
+            value: s._id,
+            label: s.name
+        })).concat([{value: 'add_new', label: '+ New Status'}])
+        const supplierStatusOptions = SupplierStatus.find().map(s => ({
+            value: s._id,
+            label: s.name
+        })).concat([{value: 'add_new', label: '+ New Status'}])
 
         return (
             <div className="page-container single-project">
@@ -498,8 +505,43 @@ class SingleSalesRecord extends React.Component {
                 {this.renderSupplierStatusModal()}
                 <div className="main-content">
                     <div className="tab-container">
-                        <div className='page-title'>
-                            <div><h2>{salesRecord.name}</h2></div>
+                        <div className='page-title row'>
+                            <div className="col-md-4"><h2>{salesRecord.name}</h2></div>
+                            <div className="col-md-8 flex">
+                                <div className="header-field-container" style={{flex: 1}}>
+                                    <div className="label">Team Lead:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.teamLead}
+                                            options={salesRecord.getMembers().map(m => ({
+                                                value: m._id,
+                                                label: m.name()
+                                            }))}
+                                            clearable={false}
+                                            onChange={this.onChangeTeamLead}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex: 1.2}}>
+                                    <div className="label">Client Status:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.clientStatus}
+                                            options={clientStatusOptions}
+                                            clearable={false}
+                                            onChange={this.onChangeClientStatus}/>
+                                    </div>
+                                </div>
+                                <div className="header-field-container" style={{flex: 1.2}}>
+                                    <div className="label">Supplier Status:</div>
+                                    <div className="value">
+                                        <Select
+                                            value={salesRecord.supplierStatus}
+                                            options={supplierStatusOptions}
+                                            clearable={false}
+                                            onChange={this.onChangeSupplierStatus}/>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div className="tab-controls">
                             {this.getTabs()}
@@ -511,9 +553,11 @@ class SingleSalesRecord extends React.Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
-                                                                                    onSelectChannel={this.updateSlackChannel}/>}>
-                            {salesRecord.slackChannel.name || salesRecord.slackChannel.id}&nbsp;{salesRecord.slackChannel.isPrivate && <i className="fa fa-lock"/>}
+                        <Panel title="Slack Channel"
+                               actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
+                                                              onSelectChannel={this.updateSlackChannel}/>}>
+                            {salesRecord.slackChannel.name || salesRecord.slackChannel.id}&nbsp;{salesRecord.slackChannel.isPrivate &&
+                        <i className="fa fa-lock"/>}
                         </Panel>
                     </div>
                     <div className="sidebar-box">
@@ -527,7 +571,7 @@ class SingleSalesRecord extends React.Component {
                     </div>
                     <div className="sidebar-box">
                         <Panel title="Dealer"
-                               actions={<Selector value={dealer&&{value: dealer._id, label: dealer.name}}
+                               actions={<Selector value={dealer && {value: dealer._id, label: dealer.name}}
                                                   options={dealers.map(d => ({value: d._id, label: d.name}))}
                                                   onSelect={this.onSelectDealer}/>}>
                             {dealer ? this.renderDealer(dealer) :
@@ -567,23 +611,23 @@ export default createContainer(props => {
     const _id = FlowRouter.getParam('id')
     if (subsCache.subscribe('salesrecords.one', _id).ready() && subsCache.subscribe('slackusers.all')) {
         const salesRecord = SalesRecords.findOne(_id)
-        if(!salesRecord) return {
+        if (!salesRecord) return {
             notFound: true
         }
 
-        salesRecord.members = salesRecord.members.filter(m => m!==null).map(member => {
+        salesRecord.members = salesRecord.members.filter(m => m !== null).map(member => {
             member.user = props.usersArr[member]
             return member
         })
 
         const shippingContactPerson = People.findOne(salesRecord.shippingContactPersonId)
-        if(shippingContactPerson) {
+        if (shippingContactPerson) {
             salesRecord.shippingContactEmail = shippingContactPerson.defaultEmail()
             salesRecord.shippingContactPhone = shippingContactPerson.defaultPhoneNumber()
         }
 
         const billingContactPerson = People.findOne(salesRecord.billingContactPersonId)
-        if(billingContactPerson) {
+        if (billingContactPerson) {
             salesRecord.billingContactEmail = billingContactPerson.defaultEmail()
             salesRecord.billingContactPhone = billingContactPerson.defaultPhoneNumber()
         }

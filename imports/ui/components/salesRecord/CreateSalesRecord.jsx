@@ -198,13 +198,9 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
 
     render() {
         const {
-            projectName, subStage, selectedShippingMode, supplier, shipper,
-            actualDeliveryDate, productionStartDate, startDate, endDate, estProductionTime, actProductionTime,
-            shippingContactName, shippingAddress, shippingContactEmail, shippingContactPhone, shippingNotes,
-            billingContactName, billingAddress, billingContactEmail, billingContactPhone, billingNotes, selectedStage,
-            contacts, stakeholders, members
+            projectName, subStage, selectedStage, members
         } = this.state
-        const {shippingMode, stages} = this
+        const {stages} = this
         let submitBtnName = this.props.salesRecord ? 'Save Deal' : 'Add Deal'
         let dealTitle = ''
         switch (this.props.stage) {
