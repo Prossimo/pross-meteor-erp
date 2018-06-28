@@ -99,8 +99,10 @@ Meteor.methods({
     },
 
     initVisiableFields(userId) {
+        check(userId, String)
         const salesRecord = Settings.findOne({key: 'salesRecord', userId})
         const newProject = Settings.findOne({key: 'newProject', userId})
+        const people = Settings.findOne({key: 'people', userId})
         if (!salesRecord) {
             Settings.insert({
                 key: 'salesRecord',
@@ -120,6 +122,20 @@ Meteor.methods({
                 show: [
                     '_id',
                     'name',
+                ]
+            })
+        }
+        if (!people) {
+            Settings.insert({
+                userId,
+                key: 'people',
+                show: [
+                    'name',
+                    'emails',
+                    'designation_id',
+                    'role',
+                    'company_id',
+                    'position'
                 ]
             })
         }
