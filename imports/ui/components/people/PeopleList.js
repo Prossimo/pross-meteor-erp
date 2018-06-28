@@ -25,7 +25,64 @@ export default class PeopleList extends TrackerReact(React.Component) {
         this.state = {
             page: 1,
             keyword: null,
-            expanded: []
+            expanded: [],
+            possibleColumns: [
+              {
+                key: '_id',
+                label: 'ID',
+                selected: false,
+                renderer: person => person._id
+              },
+              {
+                key: 'name',
+                label: 'Name',
+                selected: true,
+                renderer: person => person.name
+              },
+              {
+                key: 'emails',
+                label: 'Email',
+                selected: true,
+                renderer: person => {
+                  const email = person.defaultEmail()
+                  return email ? email : null
+                }
+              },
+              {
+                key: 'designation_id',
+                label: 'Designation',
+                selected: true,
+                renderer: person => {
+                  const designation = person.designation()
+                  return designation ? designation.name : null
+                }
+              },
+              {
+                key: 'role',
+                label: 'Role',
+                selected: true,
+                renderer: person => person.role
+              },
+              {
+                key: 'company_id',
+                label: 'Company',
+                selected: true,
+                renderer: person => {
+                  const company = person.company()
+                  return company ? company.name : null
+                }
+              },
+              {
+                key: 'position',
+                label: 'Position',
+                selected: true,
+                renderer: person => person.position
+              },
+            ]
+        }
+        this.state.sort = {
+            by: 'name',
+            asc: false
         }
     }
 
@@ -65,6 +122,54 @@ export default class PeopleList extends TrackerReact(React.Component) {
         return this.people
     }
 
+    componentDidMount() {
+      const _this = this
+
+      Meteor.call('getVisibleFields', 'people', (error, selectedFields) => {
+        if (!error) {
+          const possibleColumns = _this.state.possibleColumns
+          possibleColumns.forEach((column) => {
+              if (selectedFields.includes(column.key)) {
+                  column.selected = true
+              }
+          })
+          _this.setState({possibleColumns})
+
+          $('.selectpicker').selectpicker({
+              style: 'btn-default',
+              size: 4
+          })
+
+          $('.selectpicker').selectpicker('val', selectedFields)
+        }
+      })
+
+      $('.selectpicker').selectpicker({
+          style: 'btn-default',
+          size: 4
+      })
+
+      $('.selectpicker').on('changed.bs.select', function () {
+          const selectedKeys = $(this).val()
+          const possibleColumns = _this.state.possibleColumns
+          possibleColumns.forEach((column) => {
+              if (selectedKeys.includes(column.key))
+                  return column.selected = true
+              return column.selected = false
+          })
+
+          _this.setState({
+            possibleColumns
+          })
+
+          Meteor.call('updateVisibleFields', 'people', selectedKeys, (error) => {
+            if(error) {
+              console.log('updateVisibleFields people', error)
+            }
+          })
+      })
+    }
+
     render() {
         return (
             <div className="contact-list">
@@ -83,6 +188,15 @@ export default class PeopleList extends TrackerReact(React.Component) {
                     <Button bsStyle="primary" onClick={() => this.setState({showModal:true, creating:true})}><i className="fa fa-user-plus"/></Button>
                 </div>
                 <div style={{width:250}}>
+                  <div className="list-view-toolbar">
+                      <select className='selectpicker' multiple>
+                        {
+                          this.state.possibleColumns.map(({key, label}) => <option value={key} key={key}>{label}</option>)
+                        }
+                      </select>
+                  </div>
+                </div>
+                <div style={{width:250}}>
                     <InputGroup>
                         <InputGroup.Addon><i className="fa fa-search"/></InputGroup.Addon>
                         <FormControl type="text" placeholder="Search..." onChange={this.onChangeSearch} />
@@ -93,33 +207,62 @@ export default class PeopleList extends TrackerReact(React.Component) {
     }
 
     renderContent() {
-        return (
-            <div className="content-panel">
-                <Table striped hover>
-                    <thead>
-                    <tr>
-                        <th width="5%">#</th>
-                        <th width="15%">Name</th>
-                        <th width="15%">Email</th>
-                        <th width="15%">Designation</th>
-                        <th width="15%">Role</th>
-                        <th width="15%">Company</th>
-                        <th width="15%">Position</th>
-                        <th width="5%"></th>
-                    </tr>
-                    </thead>
-                    <tbody onScroll={this.onScrollList}>
-                    {this.renderRows()}
-                    </tbody>
-                </Table>
-            </div>
-        )
+      const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
+      const {by, asc} = this.state.sort
+      return (
+        <div className="content-panel">
+          <Table striped hover>
+            <thead>
+            <tr>
+              <th width="5%">#</th>
+              {
+                  selectedColumns.map(({label, key}) => (
+                      <th width={`${90/selectedColumns.length}%`} key={key} onClick={() => this.sortBy(key)}>
+                          {label}
+                          {by == key && asc && <i style={{marginLeft: 5}} className="fa fa-caret-up"/>}
+                          {by == key && !asc && <i style={{marginLeft: 5}} className="fa fa-caret-down"/>}
+                      </th>
+                  ))
+              }
+              <th className="th-action" width="5%" />
+            </tr>
+            </thead>
+            <tbody onScroll={this.onScrollList}>
+            {this.renderRows()}
+            </tbody>
+          </Table>
+        </div>
+      )
+    }
+
+    getSortedData() {
+        const people = this.loadData()
+        // const {keyword} = this.props
+        const {by, asc} = this.state.sort
+
+        // if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
+        // if(keyword && keyword.length > 0) {
+        //     salesRecords = salesRecords.filter((s) => s.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1)
+        // }
+
+        if (asc) {
+            return _.sortBy(people, by)
+        } else {
+            return _.sortBy(people, by).reverse()
+        }
+    }
+
+    sortBy = (key) => {
+        const {by, asc} = this.state.sort
+
+        if (by == key) this.setState({sort: {by, asc: !asc}})
+        else this.setState({sort: {by: key, asc: true}})
     }
 
     renderRows() {
+        const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         const people = this.loadData()
         if (!people || people.length == 0) return
-
 
         const compare = (c1, c2) => {
             if (c1.name > c2.name) return 1
@@ -134,19 +277,32 @@ export default class PeopleList extends TrackerReact(React.Component) {
         const trs = []
 
         people.sort(compare).forEach(person => {
-            trs.push(<tr key={person._id}>
-                <td width="5%"><Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button></td>
-                <td width="15%">{person.name}</td>
-                <td width="15%">{person.defaultEmail()}</td>
-                <td width="15%">{person.designation() ? person.designation().name : ''}</td>
-                <td width="15%">{person.role}</td>
-                <td width="15%">{person.company() ? person.company().name : ''}</td>
-                <td width="15%">{person.position}</td>
+            trs.push(
+              <tr key={person._id}>
                 <td width="5%">
-                    <Button bsSize="xsmall" onClick={() => this.onEditPerson(person)}><i className="fa fa-edit"/></Button>&nbsp;
-                    <Button bsStyle="danger" bsSize="xsmall" onClick={() => this.onRemovePerson(person)}><i className="fa fa-trash"/></Button>
+                  <Button bsSize="xsmall" onClick={() => this.onToggleRow(person)}>{this.isExpanded(person)?<i className="fa fa-minus"/>:<i className="fa fa-plus"/>}</Button>
                 </td>
-            </tr>)
+                {
+                  selectedColumns.map(({key, renderer}) => (
+                    <td width={`${90/selectedColumns.length}%`} key={key}>
+                      {renderer && (typeof renderer === 'function') && renderer(person)}
+                    </td>
+                  ))
+                }
+                {
+                  // <td width="15%">{person.name}</td>
+                  // <td width="15%">{person.defaultEmail()}</td>
+                  // <td width="15%">{person.designation() ? person.designation().name : ''}</td>
+                  // <td width="15%">{person.role}</td>
+                  // <td width="15%">{person.company() ? person.company().name : ''}</td>
+                  // <td width="15%">{person.position}</td>
+                }
+                <td width="5%">
+                  <Button bsSize="xsmall" onClick={() => this.onEditPerson(person)}><i className="fa fa-edit"/></Button>&nbsp;
+                  <Button bsStyle="danger" bsSize="xsmall" onClick={() => this.onRemovePerson(person)}><i className="fa fa-trash"/></Button>
+                </td>
+              </tr>
+            )
 
             if(this.isExpanded(person)) {
                 trs.push(<tr key={`expanded-${person._id}`}>
