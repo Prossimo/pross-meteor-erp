@@ -36,13 +36,13 @@ export default class PeopleList extends TrackerReact(React.Component) {
               {
                 key: 'name',
                 label: 'Name',
-                selected: true,
+                selected: false,
                 renderer: person => person.name
               },
               {
                 key: 'emails',
                 label: 'Email',
-                selected: true,
+                selected: false,
                 renderer: person => {
                   const email = person.defaultEmail()
                   return email ? email : null
@@ -51,7 +51,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
               {
                 key: 'designation_id',
                 label: 'Designation',
-                selected: true,
+                selected: false,
                 renderer: person => {
                   const designation = person.designation()
                   return designation ? designation.name : null
@@ -60,13 +60,13 @@ export default class PeopleList extends TrackerReact(React.Component) {
               {
                 key: 'role',
                 label: 'Role',
-                selected: true,
+                selected: false,
                 renderer: person => person.role
               },
               {
                 key: 'company_id',
                 label: 'Company',
-                selected: true,
+                selected: false,
                 renderer: person => {
                   const company = person.company()
                   return company ? company.name : null
@@ -75,7 +75,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
               {
                 key: 'position',
                 label: 'Position',
-                selected: true,
+                selected: false,
                 renderer: person => person.position
               },
             ]
@@ -133,6 +133,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                   column.selected = true
               }
           })
+          console.log('tao')
           _this.setState({possibleColumns})
 
           $('.selectpicker').selectpicker({
@@ -157,7 +158,6 @@ export default class PeopleList extends TrackerReact(React.Component) {
                   return column.selected = true
               return column.selected = false
           })
-
           _this.setState({
             possibleColumns
           })
@@ -168,6 +168,10 @@ export default class PeopleList extends TrackerReact(React.Component) {
             }
           })
       })
+    }
+
+    componentWillUnmount() {
+      $('.selectpicker').off('changed.bs.select')
     }
 
     render() {
@@ -208,6 +212,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
     renderContent() {
       const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
+      console.log('this.state.possibleColumns', this.state.possibleColumns)
       const {by, asc} = this.state.sort
       return (
         <div className="content-panel">
