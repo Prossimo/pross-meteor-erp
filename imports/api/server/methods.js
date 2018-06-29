@@ -132,6 +132,7 @@ Meteor.methods({
                 show: [
                     'name',
                     'emails',
+                    'phone_numbers',
                     'designation_id',
                     'role',
                     'company_id',

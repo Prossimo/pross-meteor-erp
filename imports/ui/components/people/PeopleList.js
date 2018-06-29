@@ -49,6 +49,15 @@ export default class PeopleList extends TrackerReact(React.Component) {
                 }
               },
               {
+                key: 'phone_numbers',
+                label: 'Phone Number',
+                selected: false,
+                renderer: person => {
+                  const phoneNumber = person.defaultPhoneNumber()
+                  return phoneNumber ? phoneNumber : null
+                }
+              },
+              {
                 key: 'designation_id',
                 label: 'Designation',
                 selected: false,
@@ -133,7 +142,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                   column.selected = true
               }
           })
-          console.log('tao')
+
           _this.setState({possibleColumns})
 
           $('.selectpicker').selectpicker({
@@ -212,7 +221,6 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
     renderContent() {
       const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
-      console.log('this.state.possibleColumns', this.state.possibleColumns)
       const {by, asc} = this.state.sort
       return (
         <div className="content-panel">
@@ -266,6 +274,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
+        console.log('selectedColumns', selectedColumns)
         const people = this.loadData()
         if (!people || people.length == 0) return
 
@@ -290,7 +299,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                 {
                   selectedColumns.map(({key, renderer}) => (
                     <td width={`${90/selectedColumns.length}%`} key={key}>
-                      {renderer && (typeof renderer === 'function') && renderer(person)}
+                      { renderer && (typeof renderer === 'function') && renderer(person) }
                     </td>
                   ))
                 }
