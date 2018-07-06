@@ -17,16 +17,27 @@ import CreateSalesRecord from '../components/salesRecord/CreateSalesRecord'
 import CreateProject from '../components/project/CreateProject'
 import PeopleForm from '../components/people/PeopleForm'
 import {People, Users, ROLES} from '/imports/api/models'
-import {unbindThreadFromConversation} from '/imports/api/models/threads/methods'
+import {unbindThreadFromConversation, countThreads} from '/imports/api/models/threads/methods'
 import ThreadList from '../components/inbox/ThreadList'
 import DraftList from '../components/inbox/DraftList'
 import {ClientErrorLog} from '/imports/utils/logger'
+import { Session } from 'meteor/session'
 
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
+import ComposeView from '../components/inbox/composer/ComposeView'
 import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '../../api/models/threads/threads'
 import {PAGESIZE} from '../../utils/constants'
 
+Session.set('currentThreadFilter', null)
+Session.set('currentThreadOptions', {
+  sort: {
+    last_message_received_timestamp: -1
+  },
+  skip: 0,
+  limit: PAGESIZE,
+})
+Session.set('threadsCount', 0)
 
 class InboxPage extends (React.Component) {
     constructor(props) {
@@ -92,9 +103,9 @@ class InboxPage extends (React.Component) {
         // subsCache.subscribe('threads.params', this.threadFilter(currentCategory))
 
         setTimeout(() => {
-            this.setState({
-                currentCategory
-            })
+            this.setState({ currentCategory })
+            const currentThreadFilter = this.threadFilter(currentCategory)
+            Session.set('currentThreadFilter', currentThreadFilter)
         }, 100)
     }
 
@@ -247,18 +258,21 @@ class InboxPage extends (React.Component) {
     onPrevPage = () => {
         this.setState(({threadStartIndex}) => {
             threadStartIndex -= PAGESIZE
-
+            const newThreadOptions = this.threadOptions(threadStartIndex)
+            Session.set('currentThreadOptions', newThreadOptions)
             return {threadStartIndex}
         })
     }
     onNextPage = () => {
         this.setState(({threadStartIndex}) => {
             threadStartIndex += PAGESIZE
-
+            const newThreadOptions = this.threadOptions(threadStartIndex)
+            Session.set('currentThreadOptions', newThreadOptions)
             return {threadStartIndex}
         })
     }
     renderInbox() {
+      const { threadsCount } = this.props
         return (
             <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
                 <Toolbar
@@ -266,7 +280,7 @@ class InboxPage extends (React.Component) {
                     thread={this.state.currentThread}
                     onSelectExtraMenu={this.onSelectExtraMenu}
                     threadStartIndex={this.state.threadStartIndex}
-                    threadTotalCount={Threads.find(this.threadFilter(this.state.currentCategory)).count()}
+                    threadTotalCount={threadsCount}
                     onPrevPage={this.onPrevPage}
                     onNextPage={this.onNextPage}
                 />
@@ -424,6 +438,8 @@ class InboxPage extends (React.Component) {
           if (categoriesForAccount && categoriesForAccount.length && categoriesForAccount[0]) {
             const category = categoriesForAccount[0]
             this.setState({ currentCategory: category })
+            const currentThreadFilter = this.threadFilter(category)
+            Session.set('currentThreadFilter', currentThreadFilter)
             this.onSelectCategory(category)
           }
         }
@@ -579,10 +595,12 @@ class InboxPage extends (React.Component) {
     renderThreads() {
         const {currentCategory, currentThread} = this.state
 
+        let threads = Threads.find(this.threadFilter(currentCategory), this.threadOptions(this.state.threadStartIndex)).fetch()
+        threads = _.uniq(threads, false, ({id}) => id)
+
         return (
             <ThreadList
-                threadFilter={() => this.threadFilter(currentCategory)}
-                threadOptions={() => this.threadOptions(this.state.threadStartIndex)}
+                threads={threads}
                 currentThread={currentThread}
                 onSelectThread={this.onSelectThread}
                 onChangeThreadStatus={this.onChangeThreadStatus}
@@ -618,4 +636,21 @@ class InboxPage extends (React.Component) {
     }
 }
 
-export default InboxPage
+export default createContainer(() => {
+    const subscribers = []
+    const threadFilter = Session.get('currentThreadFilter') || { _id: null }
+    const threadOptions = Session.get('currentThreadOptions')
+    subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
+    countThreads.call({ query: threadFilter }, (err, res) => {
+      if (!err) {
+        Session.set('threadsCount', res)
+      } else {
+        console.log(err)
+      }
+    })
+    console.log('Loading threads....')
+    return {
+        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
+        threadsCount: Session.get('threadsCount'),
+    }
+}, InboxPage)
