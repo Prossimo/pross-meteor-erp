@@ -4,10 +4,11 @@ import request from 'request'
 import config from '../config'
 import {APIError, TimeoutError} from './errors'
 import AccountStore from './account-store'
-import {upsertThread} from '../models/threads/methods'
+import {upsertThread, getThread, updateThread} from '../models/threads/methods'
 import {upsertMessage, removeMessage} from '../models/messages/methods'
 import MessageStore from './message-store'
 import {ErrorLog} from '/imports/utils/logger'
+import Threads from '/imports/api/models/threads/threads'
 
 
 const TimeoutErrorCodes = [0, 'ETIMEDOUT', 'ESOCKETTIMEDOUT', 'ECONNRESET', 'ENETDOWN', 'ENETUNREACH']
@@ -176,7 +177,6 @@ class NylasAPIClass {
       }
       if (objName !== 'thread' && objName !== 'message' && objName !== 'draft') return Promise.resolve(uniquedJSONs)
 
-
       // Update server database
       unlockedJSONs.forEach((obj) => {
          try {
@@ -215,9 +215,13 @@ class NylasAPIClass {
          returnsModel: false
       })
          .then(() => {
-            try {//console.log('call removeMessage', draft)
-               removeMessage.call({id: draft.id})
-               MessageStore.removeMessage(draft)
+            try {
+              const thread = getThread.call({id: draft.thread_id})
+              const draftIds = thread.draft_ids.filter(id => id !== draft.id)
+              const newThread = {...thread, draft_ids: draftIds}
+              updateThread.call(newThread)
+              removeMessage.call({id: draft.id})
+              MessageStore.removeMessage(draft)
             } catch (err) {
                ErrorLog.error(err)
             }

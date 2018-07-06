@@ -34,7 +34,7 @@ class ItemThread extends React.Component{
                             <span className={unread&&'unread'}>{NylasUtils.getParticipantsNamesString(participants, false)}</span>
                         </div>
                         {message_ids && message_ids.length>1 && <div>&nbsp;({message_ids.length})</div>}
-                        {draft_ids && draft_ids.length>0 && <div className="thread-icon thread-icon-pencil"></div>}
+                        {draft_ids && draft_ids.length>0 && <div className="thread-icon thread-icon-pencil" />}
                         {has_attachments && <div className="thread-icon thread-icon-attachment"></div>}
                         <span className="timestamp">{NylasUtils.shortTimeString(last_message_received_timestamp)}</span>
                     </div>
