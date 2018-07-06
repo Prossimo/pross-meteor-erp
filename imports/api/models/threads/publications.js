@@ -17,6 +17,16 @@ Meteor.publish('threads.mine', function() {
     return Threads.find({account_id:{$in:_.pluck(nylasAccounts, 'accountId')}})
 })
 
+Meteor.publish('threads.accountId', function(accountId) {
+    check(accountId, String)
+    if(!this.userId) {
+        this.ready()
+        return
+    }
+
+    return Threads.find({account_id: accountId})
+})
+
 Meteor.publish('threads.all', function() {
     if(!this.userId) {
         this.ready()
@@ -25,6 +35,17 @@ Meteor.publish('threads.all', function() {
 
     return Threads.find()
 })
+
+Meteor.publish('threads.custom', function(query, options) {
+    check(query, Object)
+    check(options, Object)
+    if (!this.userId) {
+        this.ready()
+        return
+    }
+    return Threads.find(query, options)
+})
+
 Meteor.publish('threads.params', function(filters={}, options={}) {
     check(filters, Object)
     check(options, {
