@@ -452,7 +452,7 @@ class InboxPage extends (React.Component) {
                                 <div className="account-wrapper">
                                     <span><img
                                         src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
-                                        width="16px"/></span>&nbsp
+                                        width="16px"/></span>
                                     <span>{account.emailAddress}</span>
                                     <span style={{flex: 1}}></span>
                                     <span className="action">{actionEl}</span>
@@ -479,7 +479,7 @@ class InboxPage extends (React.Component) {
                     Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
                         <div>
                             <div className="account-wrapper">
-                                <span><img src="/icons/inbox/ic-team.png" width="16px"/></span>&nbsp;
+                                <span><img src="/icons/inbox/ic-team.png" width="16px"/></span>
                                 <span>Team members</span>
                                 <span style={{flex: 1}}></span>
                                 <span className="action"></span>

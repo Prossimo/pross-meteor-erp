@@ -31,7 +31,7 @@ export const insertThread = new ValidatedMethod({
 
 export const updateThread = new ValidatedMethod({
     name: 'thread.update',
-    validate: Threads.schema.validator({clean: true}),
+    validate: Threads.schema.omit('created_at', 'modified_at').validator({clean: true}),
     run({_id, ...data}) {
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
