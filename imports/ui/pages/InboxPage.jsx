@@ -69,7 +69,6 @@ class InboxPage extends (React.Component) {
                 })
             }
         }, 1 * 1000 * 120)   // every 5 minutes
-
     }
 
     componentWillUnmount() {
@@ -418,6 +417,16 @@ class InboxPage extends (React.Component) {
             name: 'unassigned',
             display_name: 'Unassigned'
         }]
+        if (!currentCategory) {
+          const accounts = AccountStore.accounts(true)
+          const account = (accounts && accounts.length) && accounts[0]
+          const categoriesForAccount = CategoryStore.getCategories(account.accountId)
+          if (categoriesForAccount && categoriesForAccount.length && categoriesForAccount[0]) {
+            const category = categoriesForAccount[0]
+            this.setState({ currentCategory: category })
+            this.onSelectCategory(category)
+          }
+        }
         return (
             <div className="list-category">
                 {this.renderAddInboxButtons(true)}
@@ -443,7 +452,7 @@ class InboxPage extends (React.Component) {
                                 <div className="account-wrapper">
                                     <span><img
                                         src={account.isTeamAccount ? '/icons/inbox/ic-team.png' : '/icons/inbox/ic-individual.png'}
-                                        width="16px"/></span>&nbsp;
+                                        width="16px"/></span>&nbsp
                                     <span>{account.emailAddress}</span>
                                     <span style={{flex: 1}}></span>
                                     <span className="action">{actionEl}</span>
