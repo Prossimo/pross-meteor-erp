@@ -4,7 +4,6 @@ import {createContainer} from 'meteor/react-meteor-data'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
-import Spinner from '../components/utils/spinner'
 import {warning} from '/imports/api/lib/alerts'
 import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStore} from '/imports/api/nylas'
 import '../../api/nylas/tasks/task-queue'
@@ -34,7 +33,7 @@ Session.set('currentThreadOptions', {
   sort: {
     last_message_received_timestamp: -1
   },
-  skip: 0,
+  skip: 1,
   limit: PAGESIZE,
 })
 Session.set('threadsCount', 0)
@@ -49,7 +48,6 @@ class InboxPage extends (React.Component) {
             addingTeamInbox: false,
             showTargetForm: false,
             binding: false,
-            loadingThreads: false,
             hasNylasAccounts: NylasUtils.hasNylasAccounts(),
             currentCategory,
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
@@ -103,9 +101,11 @@ class InboxPage extends (React.Component) {
         // subsCache.subscribe('threads.params', this.threadFilter(currentCategory))
 
         setTimeout(() => {
-            this.setState({ currentCategory })
+            this.setState({ currentCategory, threadStartIndex: 1 })
             const currentThreadFilter = this.threadFilter(currentCategory)
+            const currentThreadOptions = this.threadOptions(1)
             Session.set('currentThreadFilter', currentThreadFilter)
+            Session.set('currentThreadOptions', currentThreadOptions)
         }, 100)
     }
 
@@ -210,8 +210,6 @@ class InboxPage extends (React.Component) {
     threadOptions = (skip) => ({sort:{last_message_received_timestamp:-1}, skip, limit:PAGESIZE})
 
     render() {
-        if (this.props.loading) return <Spinner visible={true}/>
-
         return (
             <div className="inbox-page">
                 {this.renderContents()}
@@ -437,9 +435,11 @@ class InboxPage extends (React.Component) {
           const categoriesForAccount = CategoryStore.getCategories(account.accountId)
           if (categoriesForAccount && categoriesForAccount.length && categoriesForAccount[0]) {
             const category = categoriesForAccount[0]
-            this.setState({ currentCategory: category })
+            this.setState({ currentCategory: category, threadStartIndex: 1 })
             const currentThreadFilter = this.threadFilter(category)
+            const currentThreadOptions = this.threadOptions(1)
             Session.set('currentThreadFilter', currentThreadFilter)
+            Session.set('currentThreadOptions', currentThreadOptions)
             this.onSelectCategory(category)
           }
         }
@@ -602,6 +602,7 @@ class InboxPage extends (React.Component) {
                 currentThread={currentThread}
                 onSelectThread={this.onSelectThread}
                 onChangeThreadStatus={this.onChangeThreadStatus}
+                loading={this.props.loading}
             />
         )
     }
