@@ -110,7 +110,7 @@ SalesRecords.schema = new SimpleSchema({
     folderId: { type: String, optional: true },
     taskFolderId: { type: String, optional: true },
 
-    slackChannel: { type: Object, defaultValue: {}},
+    slackChannel: { type: Object, defaultValue: {}, optional: true },
     'slackChannel.id': { type: String, optional:true },
     'slackChannel.name': { type: String, optional:true },
     'slackChannel.isPrivate': { type: Boolean, optional:true },

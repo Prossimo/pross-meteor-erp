@@ -152,7 +152,7 @@ export const updateProject = new ValidatedMethod({
         }
 
 
-        Projects.update(_id, {
+        Projects.update({_id}, {
             $set: data
         })
 
