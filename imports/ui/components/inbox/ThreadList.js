@@ -1,16 +1,12 @@
 import React, {PropTypes} from 'react'
+import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {ThreadStore, Actions} from '/imports/api/nylas'
 import ItemThread from './ItemThread'
+import Threads from "../../../api/models/threads/threads";
+import _ from "underscore";
 
-export default class ThreadList extends TrackerReact(React.Component) {
-    static propTypes = {
-        currentThread: PropTypes.object,
-        threads: PropTypes.array,
-        onSelectThread: PropTypes.func,
-        onChangeThreadStatus: PropTypes.func
-    }
-
+class ThreadList extends TrackerReact(React.Component) {
     constructor(props) {
         super(props)
 
@@ -62,3 +58,23 @@ export default class ThreadList extends TrackerReact(React.Component) {
         }
     }
 }
+
+ThreadList.propTypes = {
+    currentThread: PropTypes.object,
+    threads: PropTypes.array,
+    onSelectThread: PropTypes.func,
+    onChangeThreadStatus: PropTypes.func,
+    threadFilter: PropTypes.func,
+    threadOptions: PropTypes.func
+}
+
+
+export default createContainer((props) => {
+    let threads = Threads.find(props.threadFilter(), props.threadOptions()).fetch()
+    threads = _.uniq(threads, false, ({id}) => id)
+
+    return {
+        loading: !subsCache.subscribe('threads.all'),
+        threads
+    }
+}, ThreadList)
