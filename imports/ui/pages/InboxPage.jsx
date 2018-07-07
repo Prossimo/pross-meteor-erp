@@ -5,7 +5,7 @@ import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
 import {warning} from '/imports/api/lib/alerts'
-import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStore} from '/imports/api/nylas'
+import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStore, DraftsStore} from '/imports/api/nylas'
 import '../../api/nylas/tasks/task-queue'
 import ItemCategory from '../components/inbox/ItemCategory'
 import MessageList from '../components/inbox/MessageList'
@@ -21,6 +21,7 @@ import ThreadList from '../components/inbox/ThreadList'
 import DraftList from '../components/inbox/DraftList'
 import {ClientErrorLog} from '/imports/utils/logger'
 import { Session } from 'meteor/session'
+import {Messages} from '/imports/api/models'
 
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
@@ -37,6 +38,13 @@ Session.set('currentThreadOptions', {
   limit: PAGESIZE,
 })
 Session.set('threadsCount', 0)
+Session.set('currentDraftFilter', null)
+Session.set('currentDraftOptions', {
+  sort: {
+    date: -1
+  },
+  skip: 1
+})
 
 class InboxPage extends (React.Component) {
     constructor(props) {
@@ -52,9 +60,10 @@ class InboxPage extends (React.Component) {
             currentCategory,
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
             keyword: null,
-
+            draftKeyword: null,
             threadStartIndex: 1,
             threadTotalCount: 0,
+            currentDraft: DraftsStore.currentDraft(currentCategory),
         }
 
         if (this.state.hasNylasAccounts) {
@@ -69,7 +78,7 @@ class InboxPage extends (React.Component) {
         this.unsubscribes.push(CategoryStore.listen(this.onCategoryStoreChanged))
         this.unsubscribes.push(DraftStore.listen(this.onDraftStoreChanged))
         this.unsubscribes.push(ThreadStore.listen(this.onThreadStoreChanged))
-
+        this.unsubscribes.push(DraftsStore.listen(this.onDraftsStoreChanged))
 
         this.fetchNewThreadsInterval = setInterval(() => {
             if (Meteor.userId()) {
@@ -98,21 +107,37 @@ class InboxPage extends (React.Component) {
 
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
-        // subsCache.subscribe('threads.params', this.threadFilter(currentCategory))
-
         setTimeout(() => {
             this.setState({ currentCategory, threadStartIndex: 1 })
             const currentThreadFilter = this.threadFilter(currentCategory)
             const currentThreadOptions = this.threadOptions(1)
+            const currentDraftFilter = this.draftFilter()
             Session.set('currentThreadFilter', currentThreadFilter)
             Session.set('currentThreadOptions', currentThreadOptions)
+            Session.set('currentDraftFilter', currentDraftFilter)
         }, 100)
     }
 
+    onDraftsStoreChanged = () => {
+         const {currentCategory, currentDraft} = this.state
+         const newCurrentDraft = DraftsStore.currentDraft(currentCategory)
+         if(!_.isEqual(currentDraft, newCurrentDraft)) {
+             this.setState({
+                 currentDraft: newCurrentDraft
+             })
+         }
+         const {draftKeyword} = this.state
+         if(draftKeyword != DraftsStore.keyword) {
+             this.setState({
+                 draftKeyword: DraftsStore.keyword
+             })
+         }
+     }
+
     onDraftStoreChanged = () => {
-        this.setState({
-            composeStateForModal: DraftStore.draftViewStateForModal()
-        })
+      this.setState({
+          composeStateForModal: DraftStore.draftViewStateForModal()
+      })
     }
 
     onThreadStoreChanged = () => {
@@ -126,6 +151,41 @@ class InboxPage extends (React.Component) {
                 keyword: ThreadStore.keyword
             })
         }
+    }
+
+    draftFilter = () => {
+        const {currentCategory, draftKeyword} = this.state
+
+        if(!currentCategory) return {}
+
+        let filters = {}
+        let keywordQuery
+
+       if(draftKeyword && draftKeyword.length) {
+            const regx = {$regex: draftKeyword, $options: 'i'}
+            keywordQuery = [{
+                'to.email': regx
+            },{
+                'to.name': regx
+            },{
+                subject: regx
+            },{
+                snippet: regx
+            }]
+        }
+
+        const draftQuery = {
+            object: 'draft',
+           account_id: currentCategory.account_id
+        }
+
+        if(keywordQuery) {
+            filters['$and'] = [{'$or':keywordQuery}, draftQuery]
+        } else {
+            filters = draftQuery
+        }
+
+        return filters
     }
 
     threadFilter = (category) => {
@@ -270,32 +330,35 @@ class InboxPage extends (React.Component) {
         })
     }
     renderInbox() {
-      const { threadsCount } = this.props
-        return (
-            <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-                <Toolbar
-                    currentUser={this.props.currentUser}
-                    thread={this.state.currentThread}
-                    onSelectExtraMenu={this.onSelectExtraMenu}
-                    threadStartIndex={this.state.threadStartIndex}
-                    threadTotalCount={threadsCount}
-                    onPrevPage={this.onPrevPage}
-                    onNextPage={this.onNextPage}
-                />
-                <div className="content-panel">
-                    <div className="column-panel column-category">
-                        {this.renderCategories()}
-                    </div>
-                    <div className="column-panel column-thread">
-                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDrafts() : this.renderThreads()}
-                    </div>
-                    <div className="column-panel column-message">
-                        {this.state.currentCategory && this.state.currentCategory.name === 'drafts' ? this.renderDraftComposeView() : this.renderMessages()}
-                    </div>
-                    {this.renderTargetForm()}
-                </div>
-            </div>
-        )
+      const { threadsCount, drafts } = this.props
+      const isDrafts = this.state.currentCategory && this.state.currentCategory.name === 'drafts'
+      return (
+          <div style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+              <Toolbar
+                  currentUser={this.props.currentUser}
+                  thread={this.state.currentThread}
+                  onSelectExtraMenu={this.onSelectExtraMenu}
+                  threadStartIndex={this.state.threadStartIndex}
+                  threadTotalCount={threadsCount}
+                  onPrevPage={this.onPrevPage}
+                  onNextPage={this.onNextPage}
+                  isDrafts={isDrafts}
+                  draftTotalCount={isDrafts && drafts.length}
+              />
+              <div className="content-panel">
+                  <div className="column-panel column-category">
+                      {this.renderCategories()}
+                  </div>
+                  <div className="column-panel column-thread">
+                    { isDrafts ? this.renderDrafts() : this.renderThreads() }
+                  </div>
+                  <div className="column-panel column-message">
+                    { isDrafts ? this.renderDraftComposeView() : this.renderMessages() }
+                  </div>
+                  {this.renderTargetForm()}
+              </div>
+          </div>
+      )
     }
 
     onSelectExtraMenu = (menu, {type, doc, _id} = {}) => {
@@ -438,8 +501,10 @@ class InboxPage extends (React.Component) {
             this.setState({ currentCategory: category, threadStartIndex: 1 })
             const currentThreadFilter = this.threadFilter(category)
             const currentThreadOptions = this.threadOptions(1)
+            const currentDraftFilter = this.draftFilter()
             Session.set('currentThreadFilter', currentThreadFilter)
             Session.set('currentThreadOptions', currentThreadOptions)
+            Session.set('currentDraftFilter', currentDraftFilter)
             this.onSelectCategory(category)
           }
         }
@@ -616,14 +681,15 @@ class InboxPage extends (React.Component) {
     renderDrafts() {
         return (
             <DraftList
+                drafts={this.props.drafts}
                 category={this.state.currentCategory}
                 onSelectDraft={(draft) => Actions.composeDraft({message: {...draft}})}
+                currentDraft={this.state.currentDraft}
             />
         )
     }
 
     renderDraftComposeView() {
-
         return (
             <div>
 
@@ -650,8 +716,13 @@ export default createContainer(() => {
       }
     })
     console.log('Loading threads....')
+    const draftFilter = Session.get('currentDraftFilter') || { _id: null }
+    const draftOptions = Session.get('currentDraftOptions')
+    subscribers.push(subsCache.subscribe('messages.all'))
+    const drafts = Messages.find(draftFilter, { draftOptions }).fetch()
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         threadsCount: Session.get('threadsCount'),
+        drafts,
     }
 }, InboxPage)

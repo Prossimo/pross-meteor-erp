@@ -38,6 +38,7 @@ export default class Toolbar extends TrackerReact(React.Component) {
             value: assignee._id,
             label: assignee.name()
         } : null
+        const { threadTotalCount, draftTotalCount } = this.props
 
 
         return (
@@ -71,7 +72,9 @@ export default class Toolbar extends TrackerReact(React.Component) {
                     </Button>
                 </div>
                 <div>
-                    {this.renderPagingButtons()}
+                  {
+                    (threadTotalCount > 0 || draftTotalCount > 0) && this.renderPagingButtons()
+                  }
                 </div>
                 <div>
                     {this.renderExtraMenu()}
@@ -81,12 +84,15 @@ export default class Toolbar extends TrackerReact(React.Component) {
     }
 
     renderPagingButtons() {
-        const { threadStartIndex, threadTotalCount } = this.props
+        const { threadStartIndex, threadTotalCount, draftTotalCount, isDrafts } = this.props
+
         return (
             <div style={{marginLeft: 'auto', marginRight: 10}}>
-                <span>{threadStartIndex}-{_.min([threadStartIndex + PAGESIZE, threadTotalCount])} of {threadTotalCount}</span>
-                <Button disabled={threadStartIndex - PAGESIZE < 1} onClick={this.props.onPrevPage}><i className="fa fa-chevron-left" /></Button>
-                <Button disabled={threadStartIndex + PAGESIZE >= threadTotalCount} onClick={this.props.onNextPage}><i className="fa fa-chevron-right" /></Button>
+              <span>
+                { threadStartIndex }-{ isDrafts ? draftTotalCount : _.min([threadStartIndex + PAGESIZE, threadTotalCount]) } of { isDrafts ? draftTotalCount : threadTotalCount }
+              </span>
+              <Button disabled={(threadStartIndex - PAGESIZE < 1) || isDrafts} onClick={this.props.onPrevPage}><i className="fa fa-chevron-left" /></Button>
+              <Button disabled={(threadStartIndex + PAGESIZE >= threadTotalCount) || isDrafts} onClick={this.props.onNextPage}><i className="fa fa-chevron-right" /></Button>
             </div>
         )
     }
