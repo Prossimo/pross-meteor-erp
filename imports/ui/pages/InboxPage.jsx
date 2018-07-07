@@ -571,12 +571,10 @@ class InboxPage extends (React.Component) {
     renderThreads() {
         const {currentCategory, currentThread} = this.state
 
-        let threads = Threads.find(this.threadFilter(currentCategory), this.threadOptions(this.state.threadStartIndex)).fetch()
-        threads = _.uniq(threads, false, ({id}) => id)
-
         return (
             <ThreadList
-                threads={threads}
+                threadFilter={() => this.threadFilter(currentCategory)}
+                threadOptions={() => this.threadOptions(this.state.threadStartIndex)}
                 currentThread={currentThread}
                 onSelectThread={this.onSelectThread}
                 onChangeThreadStatus={this.onChangeThreadStatus}
@@ -612,13 +610,4 @@ class InboxPage extends (React.Component) {
     }
 }
 
-export default createContainer(() => {
-    const subscribers = []
-    subscribers.push(subsCache.subscribe('threads.all'))
-    // subscribers.push(subsCache.subscribe('messages.all'))
-
-    console.log('Loading threads....')
-    return {
-        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true)
-    }
-}, InboxPage)
+export default InboxPage
