@@ -1,6 +1,5 @@
 import _ from 'underscore'
 import React from 'react'
-import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {NylasUtils, MessageStore, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
 

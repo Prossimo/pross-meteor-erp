@@ -29,9 +29,8 @@ export default class ThreadTrashButton extends React.Component {
     _onRemove = (e) => {
         if(!this.props.thread) return
 
-        const tasks = TaskFactory.tasksForMovingToTrash({threads: [this.props.thread]})
-
-        Actions.queueTasks(tasks)
+        Actions.queueTasks(TaskFactory.tasksForMovingToTrash({threads: [this.props.thread]}))
+        Meteor.call('thread.remove', {id: this.props.thread.id})
         //Actions.popSheet()
         e.stopPropagation()
     }

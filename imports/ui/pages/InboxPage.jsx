@@ -24,7 +24,6 @@ import {ClientErrorLog} from '/imports/utils/logger'
 
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
-import ComposeView from '../components/inbox/composer/ComposeView'
 import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '../../api/models/threads/threads'
 import {PAGESIZE} from '../../utils/constants'
 
