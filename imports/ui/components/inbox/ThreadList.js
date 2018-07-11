@@ -62,8 +62,8 @@ ThreadList.propTypes = {
     threads: PropTypes.array,
     onSelectThread: PropTypes.func,
     onChangeThreadStatus: PropTypes.func,
-    threadFilter: PropTypes.func,
-    threadOptions: PropTypes.func
+    threadFilter: PropTypes.object,
+    threadOptions: PropTypes.object
 }
 
 
@@ -73,7 +73,7 @@ export default createContainer((props) => {
   subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
   let threads = Threads.find(threadFilter, threadOptions).fetch()
   threads = _.uniq(threads, false, ({id}) => id)
-  
+
   return {
     loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
     threads,

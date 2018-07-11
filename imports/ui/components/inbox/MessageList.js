@@ -2,6 +2,7 @@ import _ from 'underscore'
 import React from 'react'
 import {NylasUtils, MessageStore, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
+import Spinner from '/imports/ui/components/utils/spinner'
 
 class MessageList extends (React.Component) {
 
@@ -41,14 +42,19 @@ class MessageList extends (React.Component) {
     }
 
     render() { //console.log('render MessageList')
-        if (!this.state.currentThread) return <span />
+      const { loading, currentThread } = this.state
+      if (loading) {
+        return <Spinner visible={true}/>
+      } else {
+        if (!currentThread) return <div />
+      }
 
-        return (
-            <div className="list-message">
-                {this.renderSubject()}
-                {this.renderMessages()}
-            </div>
-        )
+      return (
+          <div className="list-message">
+              {this.renderSubject()}
+              {this.renderMessages()}
+          </div>
+      )
     }
 
     renderSubject() {
