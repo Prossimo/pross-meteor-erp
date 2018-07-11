@@ -83,10 +83,12 @@ class MessageStoreClass extends Reflux.Store {
         const thread = ThreadStore.currentThread()
         if(!thread) return
 
-        this._messages = _.uniq(Messages.find({thread_id:thread.id}, {sort:{created_at:1}}).fetch(), true, ({id}) => id)
-        this._expandMessagesToDefault()
-        this._fetchExpandedAttachments(this._messages)
-        this.trigger()
+        setTimeout(() => {
+          this._messages = _.uniq(Messages.find({thread_id:thread.id}, {sort:{created_at:1}}).fetch(), true, ({id}) => id)
+          this._expandMessagesToDefault()
+          this._fetchExpandedAttachments(this._messages)
+          this.trigger()
+        }, 500)
     }
 
     _onToggleMessageExpanded(id) {
@@ -150,7 +152,7 @@ class MessageStoreClass extends Reflux.Store {
         }
     }
 
-    messages(cb) {
+    messages() {
         return this._messages
     }
 

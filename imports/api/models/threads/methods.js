@@ -28,7 +28,6 @@ export const countThreads = new ValidatedMethod({
     run({ query }) {
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
         const count = Threads.find(query).count()
-        console.log('countThreads', count)
         return count
     }
 })

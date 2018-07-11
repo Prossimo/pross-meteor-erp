@@ -74,7 +74,6 @@ export default createContainer((props) => {
   let threads = Threads.find(threadFilter, threadOptions).fetch()
   threads = _.uniq(threads, false, ({id}) => id)
   
-  console.log('Loading threads....')
   return {
     loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
     threads,
