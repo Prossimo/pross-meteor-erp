@@ -2,18 +2,17 @@ import React, {PropTypes} from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {ThreadStore, Actions} from '/imports/api/nylas'
+import Spinner from '/imports/ui/components/utils/spinner'
 import ItemThread from './ItemThread'
-import Threads from "../../../api/models/threads/threads";
-import _ from "underscore";
+import Threads from '../../../api/models/threads/threads'
+import {countThreads} from '/imports/api/models/threads/methods'
+import _ from 'underscore'
 
 class ThreadList extends TrackerReact(React.Component) {
     constructor(props) {
         super(props)
 
-        this.state = {
-            loading: false,
-            page: 1
-        }
+        this.state = { page: 1 }
     }
 
     onSelectThread = (thread) => {
@@ -21,8 +20,8 @@ class ThreadList extends TrackerReact(React.Component) {
     }
 
     render() {
-        const {loading} = this.state
-
+        const { loading } = this.props
+        if (loading) return (<Spinner visible={true}/>)
         return (
             <div className="column-panel" style={{
                 overflowY: 'auto',
@@ -39,7 +38,6 @@ class ThreadList extends TrackerReact(React.Component) {
                             onChangeStatus={checked => this.props.onChangeThreadStatus(thread, checked)}
                         />)
                 }
-                {loading && <div style={{position: 'relative', height: 44, width: '100%'}}><Spinner visible={true}/></div>}
                 </div>
             </div>
         )
@@ -64,17 +62,20 @@ ThreadList.propTypes = {
     threads: PropTypes.array,
     onSelectThread: PropTypes.func,
     onChangeThreadStatus: PropTypes.func,
-    threadFilter: PropTypes.func,
-    threadOptions: PropTypes.func
+    threadFilter: PropTypes.object,
+    threadOptions: PropTypes.object
 }
 
 
 export default createContainer((props) => {
-    let threads = Threads.find(props.threadFilter(), props.threadOptions()).fetch()
-    threads = _.uniq(threads, false, ({id}) => id)
+  const { threadFilter, threadOptions } = props
+  const subscribers = []
+  subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
+  let threads = Threads.find(threadFilter, threadOptions).fetch()
+  threads = _.uniq(threads, false, ({id}) => id)
 
-    return {
-        loading: !subsCache.subscribe('threads.all'),
-        threads
-    }
+  return {
+    loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
+    threads,
+  }
 }, ThreadList)

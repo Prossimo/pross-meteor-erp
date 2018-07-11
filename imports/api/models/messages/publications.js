@@ -38,7 +38,7 @@ Meteor.publish('messages.one', function({threadId, messageId}) {
 
 Meteor.publish('messages.all', function () {
     if(!this.userId) return this.ready()
-
+    
     return Messages.find()
 })
 
@@ -90,6 +90,7 @@ Meteor.publish('messages.params', function(filters={}, options={}) {
       skip: Match.Maybe(Number),
       limit: Match.Maybe(Number)
    })
+
    if(!this.userId) {
       this.ready()
       return
@@ -99,4 +100,15 @@ Meteor.publish('messages.params', function(filters={}, options={}) {
    //if(!options.limit) options.limit = 100
    //console.log('threads.params publication', filters, options, Threads.find(filters, options).fetch().length)
    return Messages.find(filters, options)
+})
+
+Meteor.publish('messages.custom', function(query, options) {
+    check(query, Object)
+    check(options, Object)
+    if (!this.userId) {
+        this.ready()
+        return
+    }
+
+    return Messages.find(query, options)
 })

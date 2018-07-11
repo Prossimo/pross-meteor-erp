@@ -36,6 +36,7 @@ class DraftStoreClass extends Reflux.Store {
 
       this._drafts = []
       this._draftsSending = {}
+      this._draftsSaving = {}
       this._draftsViewState = {}
       this._lastSavedDrafts = {}
    }
@@ -162,12 +163,18 @@ class DraftStoreClass extends Reflux.Store {
       const draft = this.draftForClientId(clientId)
       if (!draft) return
 
+      this._draftsSaving[clientId] = true
+
       Actions.queueTask(new SyncbackDraftTask(clientId))
+
+      this.trigger()
    }
 
    _onSaveDraftSuccess = ({message, clientId}) => {
        const draft = this.draftForClientId(clientId)
-       console.log('_onSendDraftSuccess results', message, clientId, draft)
+
+       console.log('_onSaveDraftSuccess results', message, clientId, draft)
+       this._draftsSaving[clientId] = false
 
        const savedDraft = {...draft, ...message}
        this.changeDraftForClientId(clientId, savedDraft)
@@ -182,6 +189,8 @@ class DraftStoreClass extends Reflux.Store {
        }
 
       this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft)
+
+      this.trigger()
    }
 
    _onRemoveDraft = (draft) => {
@@ -337,6 +346,10 @@ class DraftStoreClass extends Reflux.Store {
 
    isSendingDraft(clientId) {
       return this._draftsSending[clientId] ? true : false
+   }
+
+   isSavingDraft(clientId) {
+      return this._draftsSaving[clientId] ? true : false
    }
 
    draftViewStateForModal() {

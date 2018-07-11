@@ -81,4 +81,4 @@ class CategoryStoreClass extends Reflux.Store {
 }
 
 const CategoryStore = new CategoryStoreClass()
-export default CategoryStore;
+export default CategoryStore

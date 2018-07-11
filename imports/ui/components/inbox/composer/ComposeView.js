@@ -305,17 +305,22 @@ export default class ComposeView extends React.Component {
       return (
          <div className="composer-action-bar-wrap">
             <div className="composer-action-bar-content">
-               <AttachActionButton
-                  tabIndex={-1}
-                  ref="attachActionButton"
-                  clientId={clientId}
-                  draft={draft}
-               />
-               <div style={{order: 0, flex: 1}}/>
-               <Button bsStyle="default" disabled={DraftStore.isEqualToLastSavedDraft(this.props.clientId)}
-                       onClick={this._onSaveDraft}>Save</Button>&nbsp;
+              <AttachActionButton
+                tabIndex={-1}
+                ref="attachActionButton"
+                clientId={clientId}
+                draft={draft}
+              />
+              <div style={{order: 0, flex: 1}}/>
+              <Button
+                bsStyle="default"
+                disabled={DraftStore.isEqualToLastSavedDraft(this.props.clientId)}
+                onClick={this._onSaveDraft}
+              >
+                {DraftStore.isSavingDraft(clientId) && <i className="fa fa-spinner fa-spin fa-fw"/> }Save
+              </Button>&nbsp;
                <Button bsStyle="primary" disabled={this._isUnableToSend()} onClick={this._onSendDraft}>
-                   {DraftStore.isSendingDraft(clientId) && <i className="fa fa-spinner fa-spin fa-fw"/> }Send
+                  {DraftStore.isSendingDraft(clientId) && <i className="fa fa-spinner fa-spin fa-fw"/> }Send
                </Button>
             </div>
          </div>

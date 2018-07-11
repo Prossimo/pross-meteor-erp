@@ -13,11 +13,25 @@ export const getThread = new ValidatedMethod({
     validate: new SimpleSchema({id: String}).validator({clean: true}),
     run({id}) {
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
-
-        console.log({id}, Threads.findOne({id}))
         return Threads.findOne({id})
     }
 })
+
+export const countThreads = new ValidatedMethod({
+    name: 'thread.count',
+    validate: new SimpleSchema({
+      query: {
+        type: Object,
+        blackbox: true,
+      },
+   }).validator({clean: true}),
+    run({ query }) {
+        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+        const count = Threads.find(query).count()
+        return count
+    }
+})
+
 export const insertThread = new ValidatedMethod({
     name: 'thread.insert',
     validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
@@ -31,7 +45,7 @@ export const insertThread = new ValidatedMethod({
 
 export const updateThread = new ValidatedMethod({
     name: 'thread.update',
-    validate: Threads.schema.validator({clean: true}),
+    validate: Threads.schema.omit('created_at', 'modified_at').validator({clean: true}),
     run({_id, ...data}) {
         if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
