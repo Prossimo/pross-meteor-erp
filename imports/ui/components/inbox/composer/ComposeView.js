@@ -302,9 +302,6 @@ export default class ComposeView extends React.Component {
    _renderActions() {
       const {clientId} = this.props
       const {draft} = this.state
-      console.log('DraftStore.isSavingDraft(clientId)', DraftStore.isSavingDraft(clientId))
-      console.log('DraftStore.isSendingDraft(clientId)', DraftStore.isSendingDraft(clientId))
-      console.log('draft', draft)
       return (
          <div className="composer-action-bar-wrap">
             <div className="composer-action-bar-content">
