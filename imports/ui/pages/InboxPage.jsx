@@ -662,12 +662,11 @@ class InboxPage extends (React.Component) {
 
         return (
             <ThreadList
-                threadFilter={() => this.threadFilter(currentCategory)}
-                threadOptions={() => this.threadOptions(this.state.threadStartIndex)}
+                threadFilter={this.threadFilter(currentCategory)}
+                threadOptions={this.threadOptions(this.state.threadStartIndex)}
                 currentThread={currentThread}
                 onSelectThread={this.onSelectThread}
                 onChangeThreadStatus={this.onChangeThreadStatus}
-                loading={this.props.loading}
             />
         )
     }
@@ -704,8 +703,6 @@ class InboxPage extends (React.Component) {
 export default createContainer(() => {
     const subscribers = []
     const threadFilter = Session.get('currentThreadFilter') || { _id: null }
-    const threadOptions = Session.get('currentThreadOptions')
-    subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
     countThreads.call({ query: threadFilter }, (err, res) => {
       if (!err) {
         Session.set('threadsCount', res)
@@ -713,13 +710,11 @@ export default createContainer(() => {
         console.log(err)
       }
     })
-    console.log('Loading threads....')
     const draftFilter = Session.get('currentDraftFilter') || { _id: null }
     const draftOptions = Session.get('currentDraftOptions')
     subscribers.push(subsCache.subscribe('messages.custom', draftFilter, draftOptions))
     const drafts = Messages.find(draftFilter, { draftOptions }).fetch()
     return {
-        loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         threadsCount: Session.get('threadsCount'),
         drafts,
     }
