@@ -71,7 +71,9 @@ export default createContainer((props) => {
   const { threadFilter, threadOptions } = props
   const subscribers = []
   subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
+
   let threads = Threads.find(threadFilter, threadOptions).fetch()
+
   threads = _.uniq(threads, false, ({id}) => id)
 
   return {
