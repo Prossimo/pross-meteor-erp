@@ -18,7 +18,7 @@ class ItemThread extends React.Component{
         const {participants, subject, snippet, unread, last_message_received_timestamp, message_ids, draft_ids, has_attachments, readByUsers, status} = this.props.thread
 
         const readMark = () => {
-            if (!readByUsers || readByUsers.length === 0 || !_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-unread"></div>
+            if (unread || !readByUsers || readByUsers.length === 0 || !_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-unread"></div>
             else if(_.findWhere(readByUsers, {userId: Meteor.userId()})) return <div className="thread-icon thread-icon-read"></div>
         }
 

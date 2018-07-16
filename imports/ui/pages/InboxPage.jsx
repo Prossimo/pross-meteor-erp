@@ -61,7 +61,7 @@ class InboxPage extends (React.Component) {
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
             keyword: null,
             draftKeyword: null,
-            threadStartIndex: 1,
+            threadStartIndex: 0,
             threadTotalCount: 0,
             currentDraft: DraftsStore.currentDraft(currentCategory),
         }
@@ -108,7 +108,7 @@ class InboxPage extends (React.Component) {
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
         setTimeout(() => {
-            this.setState({ currentCategory, threadStartIndex: 1 })
+            this.setState({ currentCategory, threadStartIndex: 0 })
             const currentThreadFilter = this.threadFilter(currentCategory)
             const currentThreadOptions = this.threadOptions(1)
             const currentDraftFilter = this.draftFilter()

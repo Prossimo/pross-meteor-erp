@@ -68,6 +68,7 @@ export const upsertThread = new ValidatedMethod({
 
         if(Meteor.isServer) {
             const existingThread = Threads.findOne({id: thread.id})
+
             if (!existingThread) {
                 //console.log('insetThread')
                 Threads.insert(thread)
