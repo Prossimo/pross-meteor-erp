@@ -4,6 +4,7 @@ import {NylasUtils, MessageStore, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
 import Spinner from '/imports/ui/components/utils/spinner'
 
+const $ = window.jQuery
 class MessageList extends (React.Component) {
 
     constructor(props) {
@@ -30,6 +31,10 @@ class MessageList extends (React.Component) {
         if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)
             newState.minified = true
         this.setState(newState)
+
+        setTimeout(() => {
+            $('#column-message').scrollTop($('#column-message')[0].scrollHeight)
+        }, 200)
     }
 
     _getStateFromStore() {
@@ -50,7 +55,7 @@ class MessageList extends (React.Component) {
       }
 
       return (
-          <div className="list-message">
+          <div id="list-message" className="list-message">
               {this.renderSubject()}
               {this.renderMessages()}
           </div>
