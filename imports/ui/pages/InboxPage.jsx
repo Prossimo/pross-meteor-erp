@@ -43,7 +43,8 @@ Session.set('currentDraftOptions', {
   sort: {
     date: -1
   },
-  skip: 1
+  skip: 1,
+  limit: 200
 })
 
 class InboxPage extends (React.Component) {
@@ -352,7 +353,7 @@ class InboxPage extends (React.Component) {
                   <div className="column-panel column-thread">
                     { isDrafts ? this.renderDrafts() : this.renderThreads() }
                   </div>
-                  <div className="column-panel column-message">
+                  <div id="column-message" className="column-panel column-message">
                     { isDrafts ? this.renderDraftComposeView() : this.renderMessages() }
                   </div>
                   {this.renderTargetForm()}
