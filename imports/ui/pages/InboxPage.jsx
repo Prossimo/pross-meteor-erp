@@ -25,7 +25,6 @@ import {Messages} from '/imports/api/models'
 
 import Utils from '../../utils/Utils'
 import {Panel} from '../components/common'
-import ComposeView from '../components/inbox/composer/ComposeView'
 import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '../../api/models/threads/threads'
 import {PAGESIZE} from '../../utils/constants'
 
@@ -46,6 +45,7 @@ Session.set('currentDraftOptions', {
   skip: 1,
   limit: 200
 })
+
 
 class InboxPage extends (React.Component) {
     constructor(props) {
@@ -673,7 +673,12 @@ class InboxPage extends (React.Component) {
     }
 
     renderMessages() {
-        return <MessageList/>
+        return (
+            <
+                MessageList
+                thread={this.state.currentThread}
+            />
+        )
     }
 
     renderDrafts() {

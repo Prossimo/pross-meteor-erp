@@ -40,9 +40,7 @@ class ItemMessage extends React.Component {
     render() {
         return (
             <div>
-                {
-                    this.props.collapsed ? this.renderCollapsed() : this.renderFull()
-                }
+                <div id={`item-message-${this.props.message.id}`}>{this.props.collapsed ? this.renderCollapsed() : this.renderFull()}</div>
                 {this.renderTaskModal()}
             </div>
         )
@@ -303,7 +301,7 @@ class ItemMessage extends React.Component {
 
     _toggleCollapsed = () => {
         if (this.props.isLastMsg) return
-        Actions.toggleMessageExpanded(this.props.message.id)
+        this.props.onToggleCollapsed()
     }
 
 
