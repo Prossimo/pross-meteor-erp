@@ -41,7 +41,7 @@ export default class ComposeView extends React.Component {
       }
    }
 
-   componentDidMount() {
+   componentDidMount() {console.log('ComposeView componentDidMount')
       this.unsubscribes = []
 
       this.unsubscribes.push(DraftStore.listen(this._onChangeDraftStore))
@@ -53,7 +53,7 @@ export default class ComposeView extends React.Component {
 
    }
 
-   componentWillUnmount() {
+   componentWillUnmount() {console.log('ComposeView componentWillUnmount')
       this.unsubscribes.forEach((unsubscribe) => {
          unsubscribe()
       })
