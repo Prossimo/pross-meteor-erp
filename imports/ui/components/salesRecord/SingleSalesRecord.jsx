@@ -551,7 +551,7 @@ class SingleSalesRecord extends React.Component {
                         </div>
                     </div>
                 </div>
-                <aside className="right-sidebar">
+                <aside className="right-sidebar" style={{overflow: 'auto'}}>
                     <div className="sidebar-box">
                         <Panel title="Slack Channel"
                                actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}

@@ -1,56 +1,81 @@
 import _ from 'underscore'
 import React from 'react'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
+import {createContainer} from 'meteor/react-meteor-data'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import MessageItemContainer from '../../inbox/MessageItemContainer'
-import ConversationStore from '/imports/api/nylas/conversation-store'
 import Actions from '/imports/api/nylas/actions'
 import Radium from 'radium'
+import Conversations from '../../../../api/models/conversations/conversations'
 
 @Radium
 class ConversationList extends TrackerReact(React.Component) {
 
-    static propTypes = {
-        conversationId: React.PropTypes.string
-    }
     constructor(props) {
         super(props)
 
 
-
         this.MINIFY_THRESHOLD = 3
 
-        const {conversationId} = this.props
-        this.store = new ConversationStore({conversationId})
-
-        this.state = this._getStateFromStore()
+        this.state = {
+            messagesExpandedState: {}
+        }
         this.state.minified = true
     }
 
-    _getStateFromStore() {
-        return {
-            messagesExpandedState: this.store.messagesExpanded()
-        }
-    }
     componentDidMount() {
-        this.unsubscribes = []
-        this.unsubscribes.push(this.store.listen(this.onStoreChanged))
+        this.setMessagesExpandedState(this.props)
     }
 
-    componentWillUnmount() {
-        this.unsubscribes.forEach((unsubscribe) => {
-            unsubscribe()
+    componentWillReceiveProps(newProps) {
+        if (!_.isEqual(newProps.messages, this.props.messages)) {
+            this.setMessagesExpandedState(newProps)
+
+            setTimeout(() => {
+                const lastMessage = _.last(newProps.messages)
+                // console.log('Last message position', $(`#message-item-${lastMessage.id}`).position().top)
+
+                if (lastMessage) {
+                    $(`#item-message-${lastMessage.id}`)[0].scrollIntoView(true)
+                }
+            }, 100)
+        }
+
+        if (newProps.thread && !_.isEqual(newProps.thread, this.props.thread)) {
+            this.setState({
+                minified: true
+            })
+            this.setMessagesExpandedState(newProps)
+        }
+    }
+
+    setMessagesExpandedState(props) {
+        this.setState(({messagesExpandedState}) => {
+            props.messages.forEach((message, idx) => {
+                if (message.unread || message.draft || idx == props.messages.length - 1) {
+                    messagesExpandedState[message.id] = 'default'
+                }
+            })
+
+            return {messagesExpandedState}
         })
     }
 
-    onStoreChanged = () => {
-        const newState = this._getStateFromStore()
+    onToggleCollapsed = (message) => {
+        this.setState(({messagesExpandedState}) => {
+            if (messagesExpandedState[message.id]) {
+                delete messagesExpandedState[message.id]
+            } else {
+                messagesExpandedState[message.id] = 'explicit'
+            }
 
-        this.setState(newState)
+            return {messagesExpandedState}
+        })
     }
 
+
     render() {
-        const style = Object.assign({marginTop:10}, this.props.style)
+        const style = Object.assign({marginTop: 10}, this.props.style)
         return (
             <div className="list-message" style={style}>
                 {this.renderMessages()}
@@ -61,12 +86,7 @@ class ConversationList extends TrackerReact(React.Component) {
     renderMessages() {
         const elements = []
 
-        this.messages = this.store.messages(() => {
-            setTimeout(() => {
-                this.setState(this._getStateFromStore())
-            }, 100)
-        })
-        let messages = this.messages
+        let messages = this.props.messages
         const lastMessage = _.last(messages)
         const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
@@ -82,14 +102,16 @@ class ConversationList extends TrackerReact(React.Component) {
             const isBeforeReplyArea = isLastMsg && hasReplyArea
 
             elements.push(  // Should be replaced message.id to message.clientId in future
-                <MessageItemContainer key={message.id}
-                                      ref={`message-container-${message.id}`}
-                                      message={message}
-                                      collapsed={collapsed}
-                                      isLastMsg={isLastMsg}
-                                      isBeforeReplyArea={isBeforeReplyArea}
-                                      scrollTo={this._scrollTo}
-                                      conversationId={this.props.conversationId}
+                <MessageItemContainer
+                    key={message.id}
+                    ref={`message-container-${message.id}`}
+                    message={message}
+                    collapsed={collapsed}
+                    isLastMsg={isLastMsg}
+                    isBeforeReplyArea={isBeforeReplyArea}
+                    scrollTo={this._scrollTo}
+                    conversationId={this.props.conversationId}
+                    onToggleCollapsed={() => this.onToggleCollapsed(message)}
                 />
             )
         })
@@ -100,29 +122,28 @@ class ConversationList extends TrackerReact(React.Component) {
         return elements
     }
 
-    _messagesWithMinification(messages=[]) {
-        if(!this.state.minified) return messages
+    _messagesWithMinification(messages = []) {
+        if (!this.state.minified) return messages
 
         messages = _.clone(messages)
         const minifyRanges = []
         let consecutiveCollapsed = 0
 
         messages.forEach((message, idx) => {
-            if(idx == 0)return
+            if (idx == 0) return
 
             const expandState = this.state.messagesExpandedState[message.id]
 
-            if(!expandState)
+            if (!expandState)
                 consecutiveCollapsed += 1
-            else
-            {
+            else {
                 let minifyOffset
-                if(expandState == 'default')
+                if (expandState == 'default')
                     minifyOffset = 1
                 else //if expandState is "explicit"
                     minifyOffset = 0
 
-                if(consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset)
+                if (consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset)
                     minifyRanges.push({
                         start: idx - consecutiveCollapsed,
                         length: (consecutiveCollapsed - minifyOffset)
@@ -132,7 +153,7 @@ class ConversationList extends TrackerReact(React.Component) {
         })
 
         let indexOffset = 0
-        for(const range of minifyRanges) {
+        for (const range of minifyRanges) {
             const start = range.start - indexOffset
             const minified = {
                 type: 'minifiedBundle',
@@ -181,7 +202,7 @@ class ConversationList extends TrackerReact(React.Component) {
 
     _replyType() {
         const defaultReplyType = 'reply-all'
-        const lastMessage = _.last(_.filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
+        const lastMessage = _.last(_.filter(this.state.messages ? this.state.messages : [], (m) => !m.draft))
         if (!lastMessage) return 'reply'
 
         if (NylasUtils.canReplyAll(lastMessage)) {
@@ -198,6 +219,7 @@ class ConversationList extends TrackerReact(React.Component) {
         const messages = this.messages || []
         return _.last(_.filter(messages, m => !m.draft))
     }
+
     _onClickReplyArea = () => {
         const {conversationId} = this.props
         Actions.composeReply({
@@ -212,4 +234,14 @@ class ConversationList extends TrackerReact(React.Component) {
 
 }
 
-export default ConversationList
+ConversationList.propTypes = {
+    conversationId: React.PropTypes.string
+}
+
+export default createContainer((props) => {
+    const {conversationId} = props
+
+    return {
+        messages: Conversations.findOne(conversationId).messages(),
+    }
+}, ConversationList)

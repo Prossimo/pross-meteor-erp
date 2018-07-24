@@ -20,13 +20,6 @@ class MessageList extends (React.Component) {
         this.MINIFY_THRESHOLD = 3
     }
 
-    componentDidMount() {
-
-    }
-
-    componentWillUnmount() {
-    }
-
     componentWillReceiveProps(newProps) {
         if(!_.isEqual(newProps.messages, this.props.messages)) {
             this.setMessagesExpandedState(newProps)
