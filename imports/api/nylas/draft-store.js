@@ -176,8 +176,8 @@ class DraftStoreClass extends Reflux.Store {
        console.log('_onSaveDraftSuccess results', message, clientId, draft)
        this._draftsSaving[clientId] = false
 
-       const savedDraft = {...draft, ...message}
-       this.changeDraftForClientId(clientId, {id: message.id})
+       const savedDraft = {...message, ...draft}
+       this.changeDraftForClientId(clientId, savedDraft)
 
        const {conversationId, isNew, isReply} = draft
 
