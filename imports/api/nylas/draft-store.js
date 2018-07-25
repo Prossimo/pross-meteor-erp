@@ -219,7 +219,7 @@ class DraftStoreClass extends Reflux.Store {
       const {conversationId, isNew, isReply} = draft
 
       try {
-         saveMessage.call({conversationId, isNew, isReply, message})
+         saveMessage.call({conversationId, isNew, isReply, message, shouldNotifySlack: true})
          setTimeout(Actions.changedMessages, 500)
 
          // Add user as member to deal or project
@@ -228,8 +228,8 @@ class DraftStoreClass extends Reflux.Store {
             const parent = conversation.parent()
 
             const members = parent.members
-            console.log(members)
-            if (parent.type === 'deal') {
+
+             if (parent.type === 'deal') {
                if (members.indexOf(Meteor.userId()) === -1) {
                   members.push(Meteor.userId())
                   Meteor.call('updateSalesRecordMembers', parent._id, members, (err) => {
