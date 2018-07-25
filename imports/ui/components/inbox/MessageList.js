@@ -272,6 +272,6 @@ export default createContainer((props) => {
 
     return {
         loading: !thread || !subsCache.subscribe('messages.byThread', thread.id),
-        messages: thread ? Messages.find({thread_id: thread.id}).fetch() : [],
+        messages: thread ? Messages.find({thread_id: thread.id}, {sort: {date: 1}}).fetch() : [],
     }
 }, MessageList)
