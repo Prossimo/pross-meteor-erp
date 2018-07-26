@@ -10,3 +10,5 @@ package-lock.json
 logs/
 version.desktop
 .desktop-installer/
+.vscode/
+export/
