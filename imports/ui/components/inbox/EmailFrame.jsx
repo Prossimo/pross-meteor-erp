@@ -27,7 +27,7 @@ export default class EmailFrame extends React.Component {
     }
 
     /*shouldComponentUpdate(nextProps, nextState) {
-        //return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state));
+        return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state));
     }*/
 
     componentDidUpdate() {
