@@ -37,7 +37,7 @@ Meteor.methods({
                 {
                     fallback: thread.snippet,
                     color: '#f60000',
-                    pretext: `${_.pluck(thread.participants, 'email').join(', ')}`,
+                    pretext: `${map(thread.participants, 'email').join(', ')}`,
                     title: thread.subject,
                     title_link: Meteor.absoluteUrl(`emailview?thread_id=${thread.id}`),
                     text: thread.snippet,

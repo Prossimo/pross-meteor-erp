@@ -120,13 +120,13 @@ class SignIn extends React.Component{
                         <span className="validation">{validationPassword}</span>
                     </div>
                     {this.renderRepeatPass()}
-                    <button className="btnn login-btn" type="submit">Login</button>
-                    {this.state.authError ? <span className="warn-msg">{this.state.authError}</span> : ''}
+                    <button className="btn btn-lg btn-outline-primary" type="submit">Login</button>
+                    {this.state.authError ? <span className="alert alert-danger">{this.state.authError}</span> : ''}
                 </form>
                 <footer className="auth-footer">
-                    <button onClick={() => this.toggle('ForgotPassword')}>Forgot password</button>&nbsp;&nbsp;&nbsp;
+                    <button onClick={() => this.toggle('ForgotPassword')} className="btn btn-link">Forgot password</button>&nbsp;&nbsp;&nbsp;
                     <button onClick={() => this.toggle('SignUp')}
-                            className="toggle-auth">Create new account</button>
+                            className="btn btn-link">Create new account</button>
                 </footer>
             </div>
         )

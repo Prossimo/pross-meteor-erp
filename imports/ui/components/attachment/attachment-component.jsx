@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import Actions from '../../../api/nylas/actions'
 import FileDownloadStore from '../../../api/nylas/file-download-store'

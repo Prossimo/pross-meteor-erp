@@ -1,7 +1,7 @@
 /* global FlowRouter */
-import _ from 'underscore'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import React, {Component} from 'react'
+import find from 'lodash/find'
 import Select from 'react-select'
 import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -26,7 +26,7 @@ export default class CreateProject extends TrackerReact(Component) {
             selectedMembers: project ? project.members.map(m => Users.findOne(m.userId)).filter(m => m!=null).map(m => ({
                     label: m.name(),
                     value: m._id,
-                    checked: _.findWhere(project.members, {userId:m._id}).isAdmin
+                    checked: find(project.members, {userId:m._id}).isAdmin
                 })) : [
                 {
                     label: curUserName,
@@ -43,15 +43,15 @@ export default class CreateProject extends TrackerReact(Component) {
 
         if (props.thread) {
             const {participants, account_id} = props.thread
-            const people = project ? People.find({_id: {$in: _.pluck(project.stakeholders, 'peopleId')}}).fetch().map((p) => {
+            const people = project ? People.find({_id: {$in: map(project.stakeholders, 'peopleId')}}).fetch().map((p) => {
                 const stakeholder = project.stakeholders.find((s) => s.peopleId === p._id)
-                return _.extend(p, {
+                return Object.assign(p, {
                     isMainStakeholder: stakeholder.isMainStakeholder
                 })
             }) : []
-            const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
+            const threadPeople = People.find({'emails.email': {$in: map(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
             threadPeople.forEach((p) => {
-                if (!_.find(people, {_id: p._id})) {
+                if (!find(people, {_id: p._id})) {
                     people.push(p)
                 }
             })

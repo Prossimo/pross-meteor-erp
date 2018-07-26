@@ -1,7 +1,18 @@
-/* global moment*/
 import {Roles} from 'meteor/alanning:roles'
+import PropTypes from 'prop-types'
 import React from 'react'
+import moment from 'moment'
+import pick from 'lodash.pick'
+import clone from 'lodash/clone'
+import isEqual from 'lodash/isEqual'
+import map from 'lodash/map'
+import find from 'lodash/find'
+import isNull from 'lodash/isNull'
+import isUndefined from 'lodash/isUndefined'
+import first from 'lodash/first'
+import last from 'lodash/last'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
+import {omit} from '/imports/utils/Utils'
 import {Modal} from 'react-bootstrap'
 import PlacesAutocomplete from 'react-places-autocomplete'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -50,7 +61,7 @@ class Details extends TrackerReact(React.Component) {
 
     saveBilling() {
         const salesRecordId = this.state.salesRecord._id
-        const billing = _.pick(
+        const billing = pick(
             this.state.salesRecord,
             'billingContactName',
             'billingContactEmail',
@@ -66,7 +77,7 @@ class Details extends TrackerReact(React.Component) {
 
     saveShipping() {
         const salesRecordId = this.state.salesRecord._id
-        const shipping = _.pick(
+        const shipping = pick(
             this.state.salesRecord,
             'shippingContactName',
             'shippingContactName',
@@ -82,7 +93,7 @@ class Details extends TrackerReact(React.Component) {
 
     saveStatus = () => {
         const salesRecordId = this.state.salesRecord._id
-        const status = _.pick(
+        const status = pick(
             this.state.salesRecord,
             'teamLead',
             'bidDueDate',
@@ -101,7 +112,7 @@ class Details extends TrackerReact(React.Component) {
 
     saveAttributes() {
         const salesRecordId = this.state.salesRecord._id
-        const attributes = _.pick(
+        const attributes = pick(
             this.state.salesRecord,
             'shippingMode',
             'productionStartDate',
@@ -154,14 +165,14 @@ class Details extends TrackerReact(React.Component) {
     saveSalesRecord = () => {
         console.log('saveSalesRecord')
 
-        const salesRecord = _.clone(this.state.salesRecord)
+        const salesRecord = clone(this.state.salesRecord)
 
-        if(!_.isEqual(this.salesRecord, salesRecord)) {
+        if(!isEqual(this.salesRecord, salesRecord)) {
 
             console.log('salesRecord', salesRecord)
             Meteor.call('updateSalesRecord', {
                 _id: salesRecord._id,
-                data: {..._.omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChannel', 'conversationIds', 'taskFolderId'])}
+                data: {...omit(salesRecord, ['_id', 'createdAt', 'modifiedAt', 'stakeholders', 'folderId', 'slackChannel', 'conversationIds', 'taskFolderId'])}
             }, (err) => {
                 if (err) {
                     ClientErrorLog.error(err)
@@ -294,7 +305,7 @@ class Details extends TrackerReact(React.Component) {
         }
     }
     renderTableRows(rows, data, name) {
-        return _.map(rows, ({type, field, label, readonly}) => {
+        return map(rows, ({type, field, label, readonly}) => {
             const value = data[field]
             let displayValue = value
             let selectOptions
@@ -310,7 +321,7 @@ class Details extends TrackerReact(React.Component) {
                 } else if (field === 'teamLead') {
                     const members = this.props.salesRecord.getMembers()
                     selectOptions = members.map(m => ({label: m.name(), value: m._id}))
-                    displayValue = value && _.findWhere(members, {_id: value}).name()
+                    displayValue = value && findWhere(members, {_id: value}).name()
                 } else if (field === 'priority') {
                     selectOptions = Object.values(DEAL_PRIORITY).map(value => ({label: value, value}))
                 } else if (field === 'probability') {
@@ -318,16 +329,16 @@ class Details extends TrackerReact(React.Component) {
                 } else if (field === 'clientStatus') {
                     const statuses = ClientStatus.find().fetch()
                     selectOptions = statuses.map(s => ({label: s.name, value: s._id, editable: s.editable}))
-                    const status = _.findWhere(statuses, {_id: value})
+                    const status = findWhere(statuses, {_id: value})
                     displayValue = status && status.name
                 } else if (field === 'supplierStatus') {
                     const statuses = SupplierStatus.find().fetch()
                     selectOptions = statuses.map(s => ({label: s.name, value: s._id, editable: s.editable}))
-                    const status = _.findWhere(statuses, {_id: value})
+                    const status = findWhere(statuses, {_id: value})
                     displayValue = status && status.name
                 } else if (field === 'dealState') {
                     selectOptions = Object.values(STATES).map(state => ({label:`${state.countryCode}/${state.state}`, value:state.stateCode}))
-                    const state = _.findWhere(STATES, {stateCode:value})
+                    const state = findWhere(STATES, {stateCode:value})
                     displayValue = state ? `${state.countryCode}/${state.state}` : ''
                 } else if (field === 'supplier') {
                     const companyType = CompanyTypes.findOne({name:'Window Producer'})
@@ -335,7 +346,7 @@ class Details extends TrackerReact(React.Component) {
                     if(companyType) companyFilters.type_ids = companyType._id
                     const componies = Companies.find(companyFilters).fetch()
                     selectOptions = componies.map((c) => ({value: c._id, label: c.name}))
-                    const company = _.findWhere(componies, {_id: value})
+                    const company = findWhere(componies, {_id: value})
                     displayValue = company && company.name
                 } else if (field === 'shipper') {
                     const companyType = CompanyTypes.findOne({name:'Freight Forwarder'})
@@ -343,7 +354,7 @@ class Details extends TrackerReact(React.Component) {
                     if(companyType) companyFilters.type_ids = companyType._id
                     const componies = Companies.find(companyFilters).fetch()
                     selectOptions = componies.map((c) => ({value: c._id, label: c.name}))
-                    const company = _.findWhere(componies, {_id: value})
+                    const company = findWhere(componies, {_id: value})
                     displayValue = company && company.name
                 } else if (field === 'shippingContactPersonId') {
                     const stakeholderDesignation = PeopleDesignations.findOne({name: 'Stakeholder'})
@@ -354,7 +365,7 @@ class Details extends TrackerReact(React.Component) {
                         this.changeState('shippingContactEmail', email)
                         this.changeState('shippingContactPhone', phone)
                     }
-                    const contactPerson = _.findWhere(stakeholders, {_id: value})
+                    const contactPerson = findWhere(stakeholders, {_id: value})
                     displayValue = contactPerson && contactPerson.name
                 } else if (field === 'billingContactPersonId') {
                     const stakeholderDesignation = PeopleDesignations.findOne({name: 'Stakeholder'})
@@ -365,7 +376,7 @@ class Details extends TrackerReact(React.Component) {
                         this.changeState('billingContactEmail', email)
                         this.changeState('billingContactPhone', phone)
                     }
-                    const contactPerson = _.findWhere(stakeholders, {_id: value})
+                    const contactPerson = findWhere(stakeholders, {_id: value})
                     displayValue = contactPerson && contactPerson.name
                 }
             } else if (type === 'address') {
@@ -396,9 +407,9 @@ class Details extends TrackerReact(React.Component) {
                 )
             }
 
-            if (_.isNull(value) || _.isUndefined(value)) return null
+            if (isNull(value) || isUndefined(value)) return null
             if (type === 'date') displayValue = moment(value).format('MM/DD/YYYY')
-            if (type === 'daterange') displayValue = `from ${moment(_.first(value)).format('MM/DD/YYYY')} to ${moment(_.last(value)).format('MM/DD/YYYY')}`
+            if (type === 'daterange') displayValue = `from ${moment(first(value)).format('MM/DD/YYYY')} to ${moment(last(value)).format('MM/DD/YYYY')}`
             if (type === 'currency') displayValue = `$ ${parseFloat(value).toLocaleString('en-US', {
                 minimunFractionDigits: 2,
                 maximumFractionDigits: 2

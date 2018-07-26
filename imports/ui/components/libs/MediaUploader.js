@@ -79,7 +79,7 @@ const MediaUploader = function(options) {
   const noop = function() {}
   this.file = options.file
   this.contentType = options.contentType || this.file.type || 'application/octet-stream'
-  this.metadata = _.extend({
+  this.metadata = Object.assign({
     'name': this.file.name,
     'mimeType': this.contentType
   }, options.metadata)

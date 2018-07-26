@@ -58,7 +58,7 @@ export default class SendDraftTask extends Task {
             draft.body += draft.quotedBody
         }
 
-        if (draft.files && draft.files.length) draft.file_ids = _.pluck(draft.files, 'id')
+        if (draft.files && draft.files.length) draft.file_ids = map(draft.files, 'id')
 
 
         return NylasAPI.makeRequest({

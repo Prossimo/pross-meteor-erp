@@ -43,7 +43,7 @@ class AllProjects extends Component {
 
     }
 
-    saveProjectProperty(projectId, { key, value }, callback) {
+    saveProjectProperty = (projectId, { key, value }, callback) => {
         const project = Projects.findOne(projectId)
         project[key] = value
         Meteor.call('project.update', project, (err, res) => {
@@ -56,7 +56,7 @@ class AllProjects extends Component {
         })
     }
 
-    removeProject({ _id }) {
+    removeProject = ({ _id }) => {
       swal({
         title: 'Are you sure ?',
         type: 'warning',
@@ -98,7 +98,7 @@ class AllProjects extends Component {
           })
       })
     }
-    archiveProject({ _id }) {
+    archiveProject = ({ _id }) => {
       swal({
         title: 'Are you sure to archive this project?',
         type: 'warning',
@@ -120,7 +120,7 @@ class AllProjects extends Component {
           })
       })
     }
-    activeProject({ _id }) {
+    activeProject = ({ _id }) => {
         Meteor.call('archiveProject', _id, false, (err,res) => {
             if(err) {
                 const msg = err.reason ? err.reason : err.message
@@ -134,7 +134,7 @@ class AllProjects extends Component {
         })
     }
 
-    goTo(project) {
+    goTo = (project) => {
         FlowRouter.go('Project', {id: project._id})
     }
 

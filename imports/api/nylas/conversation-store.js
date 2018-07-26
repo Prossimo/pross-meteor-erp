@@ -1,5 +1,7 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
+import find from 'lodash/find'
+import size from 'lodash/size'
+import clone from 'lodash/clone'
 import Actions from './actions'
 import NylasUtils from './nylas-utils'
 import {SalesRecords, Conversations} from '../models'
@@ -29,7 +31,7 @@ export default class ConversationStore extends Reflux.Store {
         }
     }
     _onToggleMessageExpanded(id) {
-        const message = _.findWhere(this._messages, {id})
+        const message = find(this._messages, {id})
 
         if (!message) return
 
@@ -73,7 +75,7 @@ export default class ConversationStore extends Reflux.Store {
     }
 
     hasCollapsedMessages() {
-        return _.size(this._messagesExpanded) < this._messages.length
+        return size(this._messagesExpanded) < this._messages.length
     }
     _fetchExpandedAttachments(messages) {
 
@@ -81,7 +83,7 @@ export default class ConversationStore extends Reflux.Store {
             if (!this._messagesExpanded[message.id]) continue
             for (const file of message.files) {
                 if(NylasUtils.shouldDisplayAsImage(file)) {
-                    Actions.fetchImage(_.extend(_.clone(file), {account_id: message.account_id}))
+                    Actions.fetchImage(Object.assign(clone(file), {account_id: message.account_id}))
                 }
             }
         }
@@ -105,7 +107,7 @@ export default class ConversationStore extends Reflux.Store {
     }
 
     messagesExpanded() {
-        return _.clone(this._messagesExpanded)
+        return clone(this._messagesExpanded)
     }
 
     addMessage(message) {

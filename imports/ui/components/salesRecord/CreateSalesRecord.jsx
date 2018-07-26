@@ -1,7 +1,7 @@
-import _ from 'underscore'
+import PropTypes from 'prop-types'
 import {FlowRouter} from 'meteor/kadira:flow-router'
+import find from 'lodash/find'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import Select from 'react-select'
@@ -20,10 +20,10 @@ import ConversationForm from './conversations/ConversationForm'
 
 class CreateSalesRecord extends TrackerReact(React.Component) {
     static propTypes = {
-        stage: React.PropTypes.string,
-        salesRecord: React.PropTypes.object,
-        thread: React.PropTypes.object,         // thread to be attached from email
-       onSaved: React.PropTypes.func
+        stage: PropTypes.string,
+        salesRecord: PropTypes.object,
+        thread: PropTypes.object,         // thread to be attached from email
+       onSaved: PropTypes.func
     }
 
     constructor(props) {
@@ -52,8 +52,8 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
             billingAddress: salesRecord ? salesRecord.billingAddress : '',
             billingNotes: salesRecord ? salesRecord.billingNotes : '',
 
-            selectedShippingMode: salesRecord ? _.find(this.shippingMode, {value: salesRecord.shippingMode}) : this.shippingMode[0],
-            selectedStage: salesRecord ? _.find(this.stages, {value: salesRecord.stage}) : this.stages[0],
+            selectedShippingMode: salesRecord ? find(this.shippingMode, {value: salesRecord.shippingMode}) : this.shippingMode[0],
+            selectedStage: salesRecord ? find(this.stages, {value: salesRecord.stage}) : this.stages[0],
             supplier: salesRecord ? salesRecord.supplier : '',
             shipper: salesRecord ? salesRecord.shipper : '',
             estProductionTime: salesRecord ? salesRecord.estProductionTime : 0,
@@ -73,15 +73,15 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
 
         if (props.thread) {
             const {participants, account_id} = props.thread
-            const people = salesRecord ? People.find({_id: {$in: _.pluck(salesRecord.stakeholders, 'peopleId')}}).fetch().map((p) => {
+            const people = salesRecord ? People.find({_id: {$in: map(salesRecord.stakeholders, 'peopleId')}}).fetch().map((p) => {
                 const stakeholder = salesRecord.stakeholders.find((s) => s.peopleId === p._id)
-                return _.extend(p, {
+                return Object.assign(p, {
                     isMainStakeholder: stakeholder.isMainStakeholder
                 })
             }) : []
-            const threadPeople = People.find({'emails.email': {$in: _.pluck(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
+            const threadPeople = People.find({'emails.email': {$in: map(participants, 'email').filter((email) => !NylasUtils.isOwner(account_id, email))}}).fetch()
             threadPeople.forEach((p) => {
-                if (!_.find(people, {_id: p._id})) {
+                if (!find(people, {_id: p._id})) {
                     people.push(p)
                 }
             })

@@ -1,5 +1,5 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
+import find from 'lodash/find'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import NylasUtils from './nylas-utils'
@@ -52,19 +52,19 @@ class CategoryStoreClass extends Reflux.Store {
     }
 
     getInboxCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:'inbox'})
+        return find(this.getCategories(accountId), {name:'inbox'})
     }
 
     getArchiveCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'important'})
+        return find(this.getCategories(accountId), {name:NylasUtils.usesFolders(accountId) ? 'archive' : 'important'})
     }
 
     getTrashCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:'trash'})
+        return find(this.getCategories(accountId), {name:'trash'})
     }
 
     getSpamCategory(accountId) {
-        return _.findWhere(this.getCategories(accountId), {name:'spam'})
+        return find(this.getCategories(accountId), {name:'spam'})
     }
 
 
@@ -75,7 +75,7 @@ class CategoryStoreClass extends Reflux.Store {
         if(!account) return null
         if(!NylasUtils.usesLabels(account)) return null
 
-        const category = _.findWhere(account.categories, {name: 'all'})
+        const category = find(account.categories, {name: 'all'})
         return category
     }
 }

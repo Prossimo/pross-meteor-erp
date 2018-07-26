@@ -1,6 +1,7 @@
-import _ from 'underscore'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
+import find from 'lodash/find'
+import findIndex from 'lodash/findIndex'
 import {ValidatedMethod} from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
 import Threads from './threads'
@@ -96,7 +97,7 @@ export const fetchNewThreads = new ValidatedMethod({
                 sendImmediately: true
             }
 
-            const inbox = _.findWhere(categories, {name: 'inbox'})
+            const inbox = find(categories, {name: 'inbox'})
             if (!inbox) return Promise.resolve([])
 
             return new Promise((resolve, reject) => NylasAPI.makeRequest({
@@ -180,7 +181,7 @@ Meteor.methods({
       if (!thread) throw new Meteor.Error(404, 'Not found entity')
 
       const readByUsers = thread.readByUsers || []
-      const index = _.findIndex(readByUsers, {userId})
+      const index = findIndex(readByUsers, {userId})
       if (index > -1) readByUsers[index]['read'] = read
       else readByUsers.push({
           userId,

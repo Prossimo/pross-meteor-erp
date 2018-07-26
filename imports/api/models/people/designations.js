@@ -1,7 +1,7 @@
 import { Mongo } from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import {Factory} from 'meteor/dburles:factory'
-import {_} from 'meteor/underscore'
+import sample from 'lodash/sample'
 import faker from 'faker'
 
 class DesignationsCollection extends Mongo.Collection {
@@ -57,7 +57,7 @@ Designations.publicFields = {
 
 Factory.define('designation', Designations, {
     name: faker.name.jobType(),
-    role_addable: _.sample([true,false]),
+    role_addable: sample([true,false]),
     roles: []
 })
 

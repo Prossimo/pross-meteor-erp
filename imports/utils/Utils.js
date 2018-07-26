@@ -3,7 +3,7 @@ import fs from 'fs-plus'
 import path from 'path'
 import {SlackUsers} from '/imports/api/models'
 
-module.exports = Utils = {
+const Utils = {
 
     waitFor: (latch, options = {}) => {
         const timeout = options.timeout || 400
@@ -172,3 +172,17 @@ module.exports = Utils = {
 
     jsUcfirst: (string) => string.charAt(0).toUpperCase() + string.slice(1)
 }
+
+const omit = (obj, ...fields) => {
+    return Object.keys(obj)
+        .filter((key) => fields.indexOf(key) < 0)
+        .reduce((newObj, key) => Object.assign(newObj, {
+            [key]: obj[key]
+        }), {})
+}
+
+export {
+    omit
+}
+
+export default Utils

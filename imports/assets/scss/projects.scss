@@ -1,0 +1,410 @@
+.opportunities-page,
+.leads-page,
+.orders-page,
+.tickets-page,
+.projects-page {
+  margin: 0 auto;
+  padding: 10px;
+  background: #fff;
+  height: 100%;
+}
+
+.opportunities-page td,
+.leads-page td,
+.orders-page td,
+.tickets-page td,
+.projects-page td {
+  position: relative;
+}
+
+.opportunities-page td button,
+.leads-page td button,
+.orders-page td button,
+.tickets-page td button,
+.projects-page td button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  border-radius: 0;
+}
+
+.opportunities-page .controls-panel,
+.leads-page .controls-panel,
+.orders-page .controls-panel,
+.tickets-page .controls-panel,
+.projects-page .controls-panel {
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  padding: 10px 0;
+  margin-bottom: 20px;
+}
+
+.opportunities-page .controls-panel ul,
+.leads-page .controls-panel ul,
+.orders-page .controls-panel ul,
+.tickets-page .controls-panel ul,
+.projects-page .controls-panel ul {
+  display: flex;
+}
+
+.opportunities-page .controls-panel .control-item,
+.leads-page .controls-panel .control-item,
+.orders-page .controls-panel .control-item,
+.tickets-page .controls-panel .control-item,
+.projects-page .controls-panel .control-item {
+  height: 35px;
+  padding: 0 20px;
+  line-height: 33px;
+  border-top: 1px solid #5b8bff;
+  border-bottom: 1px solid #5b8bff;
+  border-right: 1px solid #5b8bff;
+  font-size: 14px;
+  color: #5b8bff;
+}
+
+.opportunities-page .controls-panel .control-item:hover,
+.leads-page .controls-panel .control-item:hover,
+.orders-page .controls-panel .control-item:hover,
+.tickets-page .controls-panel .control-item:hover,
+.projects-page .controls-panel .control-item:hover {
+  cursor: pointer;
+  background: rgba(204, 204, 204, 0.2);
+}
+
+.opportunities-page .controls-panel .control-item:first-of-type,
+.leads-page .controls-panel .control-item:first-of-type,
+.orders-page .controls-panel .control-item:first-of-type,
+.tickets-page .controls-panel .control-item:first-of-type,
+.projects-page .controls-panel .control-item:first-of-type {
+  border-left: 1px solid #5b8bff;
+  border-radius: 3px 0 0 3px;
+  padding-left: 21px;
+}
+
+.opportunities-page .controls-panel .control-item:last-of-type,
+.leads-page .controls-panel .control-item:last-of-type,
+.orders-page .controls-panel .control-item:last-of-type,
+.tickets-page .controls-panel .control-item:last-of-type,
+.projects-page .controls-panel .control-item:last-of-type {
+  border-radius: 0 3px 3px 0;
+}
+
+.opportunities-page .controls-panel .control-item.non-active,
+.leads-page .controls-panel .control-item.non-active,
+.orders-page .controls-panel .control-item.non-active,
+.tickets-page .controls-panel .control-item.non-active,
+.projects-page .controls-panel .control-item.non-active {
+  border-color: #ccc;
+  color: #ccc;
+}
+
+.opportunities-page .bootstrap-select,
+.leads-page .bootstrap-select,
+.orders-page .bootstrap-select,
+.tickets-page .bootstrap-select,
+.projects-page .bootstrap-select {
+  margin-bottom: 10px;
+}
+
+.opportunities-page .project-list,
+.leads-page .project-list,
+.orders-page .project-list,
+.tickets-page .project-list,
+.projects-page .project-list {
+  padding: 0 0 30px;
+}
+
+.opportunities-page .project-item,
+.leads-page .project-item,
+.orders-page .project-item,
+.tickets-page .project-item,
+.projects-page .project-item {
+  padding: 20px 30px;
+  border: 1px solid #5b8bff;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  border-radius: 3px;
+  margin-bottom: 15px;
+  transition: 0.3s;
+  min-height: 100px;
+}
+
+.opportunities-page .project-item .title,
+.leads-page .project-item .title,
+.orders-page .project-item .title,
+.tickets-page .project-item .title,
+.projects-page .project-item .title {
+  text-transform: uppercase;
+  font-size: 18px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.opportunities-page .project-item .status,
+.leads-page .project-item .status,
+.orders-page .project-item .status,
+.tickets-page .project-item .status,
+.projects-page .project-item .status {
+  color: #fff;
+  padding: 5px 10px;
+  display: inline-block;
+  border-radius: 5px;
+}
+
+.opportunities-page .project-item .status.active,
+.leads-page .project-item .status.active,
+.orders-page .project-item .status.active,
+.tickets-page .project-item .status.active,
+.projects-page .project-item .status.active {
+  background: #4dab08;
+}
+
+.opportunities-page .project-item .status.delivered,
+.leads-page .project-item .status.delivered,
+.orders-page .project-item .status.delivered,
+.tickets-page .project-item .status.delivered,
+.projects-page .project-item .status.delivered {
+  background: #ffaf2d;
+}
+
+.opportunities-page .project-item.slack-integrate:after,
+.leads-page .project-item.slack-integrate:after,
+.orders-page .project-item.slack-integrate:after,
+.tickets-page .project-item.slack-integrate:after,
+.projects-page .project-item.slack-integrate:after {
+  content: '\f198';
+  font-family: FontAwesome;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  color: rgba(91, 139, 255, 0.1);
+  font-size: 100px;
+}
+
+.opportunities-page .project-item:hover,
+.leads-page .project-item:hover,
+.orders-page .project-item:hover,
+.tickets-page .project-item:hover,
+.projects-page .project-item:hover {
+  cursor: pointer;
+  box-shadow: 0 3px 5px 0 rgba(91, 139, 255, 0.5);
+}
+
+.opportunities-page .project-item .left-part,
+.leads-page .project-item .left-part,
+.orders-page .project-item .left-part,
+.tickets-page .project-item .left-part,
+.projects-page .project-item .left-part {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.opportunities-page .project-item .right-part,
+.leads-page .project-item .right-part,
+.orders-page .project-item .right-part,
+.tickets-page .project-item .right-part,
+.projects-page .project-item .right-part {
+  flex-grow: 1;
+}
+
+.opportunities-page .tab-container,
+.leads-page .tab-container,
+.orders-page .tab-container,
+.tickets-page .tab-container,
+.projects-page .tab-container {
+  background: #fff;
+  min-height: 500px;
+  height: 100%;
+}
+
+.opportunities-page .tab-controls,
+.leads-page .tab-controls,
+.orders-page .tab-controls,
+.tickets-page .tab-controls,
+.projects-page .tab-controls {
+  height: 45px;
+}
+
+.opportunities-page .tab-controls ul,
+.leads-page .tab-controls ul,
+.orders-page .tab-controls ul,
+.tickets-page .tab-controls ul,
+.projects-page .tab-controls ul {
+  display: flex;
+  overflow: hidden;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+}
+
+.opportunities-page .tab-controls li,
+.leads-page .tab-controls li,
+.orders-page .tab-controls li,
+.tickets-page .tab-controls li,
+.projects-page .tab-controls li {
+  height: 40px;
+  line-height: 40px;
+  font-size: 18px;
+  padding: 0 12px;
+  margin: 0 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.opportunities-page .tab-controls li.active:after,
+.leads-page .tab-controls li.active:after,
+.orders-page .tab-controls li.active:after,
+.tickets-page .tab-controls li.active:after,
+.projects-page .tab-controls li.active:after {
+  bottom: 0;
+}
+
+.opportunities-page .tab-controls li:after,
+.leads-page .tab-controls li:after,
+.orders-page .tab-controls li:after,
+.tickets-page .tab-controls li:after,
+.projects-page .tab-controls li:after {
+  content: '';
+  display: block;
+  position: absolute;
+  background: #5b8bff;
+  height: 4px;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  transition: 0.3s;
+}
+
+.opportunities-page .tab-controls li:hover,
+.leads-page .tab-controls li:hover,
+.orders-page .tab-controls li:hover,
+.tickets-page .tab-controls li:hover,
+.projects-page .tab-controls li:hover {
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.opportunities-page .tab-controls li:hover:after,
+.leads-page .tab-controls li:hover:after,
+.orders-page .tab-controls li:hover:after,
+.tickets-page .tab-controls li:hover:after,
+.projects-page .tab-controls li:hover:after {
+  bottom: 0;
+}
+
+.opportunities-page .tab-content,
+.leads-page .tab-content,
+.orders-page .tab-content,
+.tickets-page .tab-content,
+.projects-page .tab-content {
+  height: calc(100% - 45px);
+}
+
+.opportunities-page .tab-content .content-container,
+.leads-page .tab-content .content-container,
+.orders-page .tab-content .content-container,
+.tickets-page .tab-content .content-container,
+.projects-page .tab-content .content-container {
+  height: 100%;
+}
+
+.opportunities-page .tab-content .content-container .toolbar-wrapper,
+.leads-page .tab-content .content-container .toolbar-wrapper,
+.orders-page .tab-content .content-container .toolbar-wrapper,
+.tickets-page .tab-content .content-container .toolbar-wrapper,
+.projects-page .tab-content .content-container .toolbar-wrapper {
+  height: 44px;
+  padding: 5px;
+}
+
+.opportunities-page .tab-content .content-container .list-view-container,
+.leads-page .tab-content .content-container .list-view-container,
+.orders-page .tab-content .content-container .list-view-container,
+.tickets-page .tab-content .content-container .list-view-container,
+.projects-page .tab-content .content-container .list-view-container {
+  height: calc(100% - 44px);
+}
+
+.opportunities-page .tab-content .content-container .list-view-container .list-view-toolbar,
+.leads-page .tab-content .content-container .list-view-container .list-view-toolbar,
+.orders-page .tab-content .content-container .list-view-container .list-view-toolbar,
+.tickets-page .tab-content .content-container .list-view-container .list-view-toolbar,
+.projects-page .tab-content .content-container .list-view-container .list-view-toolbar {
+  height: 44px;
+  display: flex;
+}
+
+.opportunities-page .tab-content .content-container .list-view-container .list-view-content,
+.leads-page .tab-content .content-container .list-view-container .list-view-content,
+.orders-page .tab-content .content-container .list-view-container .list-view-content,
+.tickets-page .tab-content .content-container .list-view-container .list-view-content,
+.projects-page .tab-content .content-container .list-view-container .list-view-content {
+  height: calc(100% - 44px);
+  overflow-y: auto;
+}
+
+.opportunities-page .tab-content .content-container .list-view-container .list-view-content .th-action,
+.leads-page .tab-content .content-container .list-view-container .list-view-content .th-action,
+.orders-page .tab-content .content-container .list-view-container .list-view-content .th-action,
+.tickets-page .tab-content .content-container .list-view-container .list-view-content .th-action,
+.projects-page .tab-content .content-container .list-view-container .list-view-content .th-action {
+  min-width: 135px;
+}
+
+.opportunities-page .tab-content .content-container .kanban-view-container,
+.leads-page .tab-content .content-container .kanban-view-container,
+.orders-page .tab-content .content-container .kanban-view-container,
+.tickets-page .tab-content .content-container .kanban-view-container,
+.projects-page .tab-content .content-container .kanban-view-container {
+  height: calc(100% - 44px);
+}
+
+.file-tab.default-form {
+  max-width: 100%;
+  table th {
+    padding-left: 20px;
+  }
+  .attached-folder,
+  .attached-file {
+    padding: 0 0 0 50px;
+  }
+}
+
+.edit-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.task-description {
+  border: 0px;
+  text-decoration: none;
+  border-radius: 0;
+  color: #8c8c8c;
+  &:hover {
+    background-color: #d6dadc;
+    text-decoration: none;
+    cursor: pointer;
+    color: #4d4d4d;
+  }
+}
+
+.task-component {
+  display: inline-block;
+  width: 120px;
+  text-align: left;
+}
+
+.task-name {
+  color: #000;
+}
+
+.sale-title {
+  border-bottom: 3px solid #2e6da4;
+  margin-top: 7px;
+  margin-right: 15px;
+}
+
+.sale-modal {
+  width: 60vw;
+}

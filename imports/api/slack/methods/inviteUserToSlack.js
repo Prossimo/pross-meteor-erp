@@ -1,5 +1,5 @@
 import {Meteor} from 'meteor/meteor'
-import _ from 'underscore'
+import find from 'lodash/find'
 import SimpleSchema from 'simpl-schema'
 import slackClient, {ERROR} from '../restful'
 
@@ -24,7 +24,7 @@ Meteor.methods({
 
                 if (!data.ok) break
                 if (!data.members) break
-                if (_.findWhere(_.pluck(data.members, 'profile'), {email})) break
+                if (find(map(data.members, 'profile'), {email})) break
                 if (!data.cursor) break
 
                 cursor = data.cursor

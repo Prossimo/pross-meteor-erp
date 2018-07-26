@@ -1,8 +1,8 @@
-import {_} from 'meteor/underscore'
 import { Meteor } from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
+import isUndefined from 'lodash/isUndefined'
 import Companies from './companies'
 import CompanyTypes from './companytypes'
 import {ROLES} from '../users/users'
@@ -39,11 +39,11 @@ export const updateCompany = new ValidatedMethod({
         if(company.user_id!==this.userId) throw new Meteor.Error('Permission denied')
 
         const data = {
-            name: _.isUndefined(name) ? null : name,
-            website: _.isUndefined(website) ? null : website,
-            type_ids: _.isUndefined(type_ids) ? [] : type_ids,
-            phone_numbers: _.isUndefined(phone_numbers) ? [] : phone_numbers,
-            addresses: _.isUndefined(addresses) ? [] : addresses,
+            name: isUndefined(name) ? null : name,
+            website: isUndefined(website) ? null : website,
+            type_ids: isUndefined(type_ids) ? [] : type_ids,
+            phone_numbers: isUndefined(phone_numbers) ? [] : phone_numbers,
+            addresses: isUndefined(addresses) ? [] : addresses,
             user_id: this.userId
         }
 
@@ -100,7 +100,7 @@ export const updateCompanyType = new ValidatedMethod({
         if(type && type._id !== companyType._id) throw new Meteor.Error('Duplicated type name')
 
         const data = {
-            name: _.isUndefined(name) ? null : name
+            name: isUndefined(name) ? null : name
         }
 
         return CompanyTypes.update({_id}, {$set:data})

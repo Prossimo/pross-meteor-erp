@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import KanbanItem from './KanbanItem'
 import { info, warning  } from '/imports/api/lib/alerts'
 

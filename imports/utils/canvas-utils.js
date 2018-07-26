@@ -1,6 +1,7 @@
 const PercentLoadedCache = {}
 const PercentLoadedCanvas = document.createElement('canvas')
 PercentLoadedCanvas.style.position = 'absolute'
+
 const CanvasUtils = {
     dataURIForLoadedPercent: (percent) => {
         percent = Math.floor(percent / 5.0) * 5.0
@@ -28,4 +29,4 @@ const CanvasUtils = {
 
 }
 
-module.exports = CanvasUtils
+export default CanvasUtils
