@@ -31,7 +31,7 @@ export default class EmailFrame extends React.Component {
     }*/
 
     componentDidUpdate() {
-        this._writeContent()
+        // this._writeContent()
     }
 
     componentWillUnmount() {
