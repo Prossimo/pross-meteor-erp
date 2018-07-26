@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types';
-import _ from 'underscore'
+import isEqual from 'lodash/isEqual'
 import {Button} from 'react-bootstrap'
 import {BootstrapTable, TableHeaderColumn} from 'react-bootstrap-table'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -74,7 +74,7 @@ class EditableUsersTable extends Component {
                 if (person.username !== cellValue) return true
             })
 
-            if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
+            if (!isEqual(this.props.createdUsers, uniqueUsername)) {
                 validationStatus = false
             }
         } else if(cellName === 'email') {
@@ -82,7 +82,7 @@ class EditableUsersTable extends Component {
                 if (person.email !== cellValue) return true
             })
 
-            if (!_.isEqual(this.props.createdUsers, uniqueEmail)) {
+            if (!isEqual(this.props.createdUsers, uniqueEmail)) {
                 validationStatus = false
             }
         }
@@ -100,7 +100,7 @@ class EditableUsersTable extends Component {
             response.notification.type = 'error'
             response.notification.msg = 'Value must be inserted'
             response.notification.title = 'Requested Value'
-        } else if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
+        } else if (!isEqual(this.props.createdUsers, uniqueUsername)) {
             response.isValid = false
             response.notification.type = 'error'
             response.notification.msg = 'Value must be unique'
@@ -120,7 +120,7 @@ class EditableUsersTable extends Component {
             response.notification.type = 'error'
             response.notification.msg = 'Value must be inserted'
             response.notification.title = 'Requested Value'
-        } else if (!_.isEqual(this.props.createdUsers, uniqueUsername)) {
+        } else if (!isEqual(this.props.createdUsers, uniqueUsername)) {
             response.isValid = false
             response.notification.type = 'error'
             response.notification.msg = 'Value must be unique'

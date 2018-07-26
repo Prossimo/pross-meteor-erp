@@ -35,6 +35,8 @@ SlackMails.schema = new SimpleSchema({
 
     thread_id: {type: String},
     thread_ts: {type: String},
+    message_ids: {type: Array, optional: true},
+    'message_ids.$': {type: String},
     created_at: {type: Date, denyUpdate: true, optional: true},
     modified_at: {type: Date, denyInsert: true, optional: true}
 })

@@ -42,21 +42,24 @@ export default class MessageItemContainer extends React.Component {
     }
 
     render() {
-       return this._renderMessage({pending: false})
+        return this._renderMessage({pending: false})
     }
 
 
     _renderMessage({pending}) {
         const classnames = this._classNames()
-        return <ItemMessage
-            ref="message"
-            pending={pending}
-            message={this.props.message}
-            className={classnames}
-            collapsed={this.props.collapsed}
-            isLastMsg={this.props.isLastMsg}
-            conversationId={this.props.conversationId}
-        />
+        return (
+            <ItemMessage
+                ref="message"
+                pending={pending}
+                message={this.props.message}
+                className={classnames}
+                collapsed={this.props.collapsed}
+                isLastMsg={this.props.isLastMsg}
+                conversationId={this.props.conversationId}
+                onToggleCollapsed={this.props.onToggleCollapsed}
+            />
+        )
     }
 
     _classNames() {

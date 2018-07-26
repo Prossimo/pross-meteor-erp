@@ -1,72 +1,88 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import {createContainer} from 'meteor/react-meteor-data'
 import last from 'lodash/last'
 import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
 import clone from 'lodash/clone'
-import {NylasUtils, MessageStore, Actions} from '/imports/api/nylas'
+import {NylasUtils, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
 import Spinner from '/imports/ui/components/utils/spinner'
+import Messages from '../../../api/models/messages/messages'
 
 const $ = window.jQuery
 class MessageList extends (React.Component) {
-
-    constructor(props) {
-        super(props)
-
-        this.onMessageStoreChanged = this.onMessageStoreChanged.bind(this)
-
-        this.state = this._getStateFromStore()
-        this.state.minified = true
-        this.MINIFY_THRESHOLD = 3
+    state = {
+        messagesExpandedState: {},
+        minified: true
     }
 
-    componentDidMount() {
-        this.unsubscribe = MessageStore.listen(this.onMessageStoreChanged)
-    }
+    MINIFY_THRESHOLD = 3
 
-    componentWillUnmount() {
-        if(this.unsubscribe) this.unsubscribe()
-    }
+    componentWillReceiveProps(newProps) {
+        if(!isEqual(newProps.messages, this.props.messages)) {
+            this.setMessagesExpandedState(newProps)
 
-    onMessageStoreChanged() {
-        const newState = this._getStateFromStore()
+            setTimeout(() => {
+                const lastMessage = last(newProps.messages)
+                // console.log('Last message position', $(`#message-item-${lastMessage.id}`).position().top)
 
-        if(this.state.currentThread && newState.currentThread && this.state.currentThread.id != newState.currentThread.id)
-            newState.minified = true
-        this.setState(newState)
+                if (lastMessage) {
+                    $(`#item-message-${lastMessage.id}`)[0].scrollIntoView(true)
+                }
+            }, 100)
+        }
 
-        setTimeout(() => {
-            $('#column-message').scrollTop($('#column-message')[0].scrollHeight)
-        }, 200)
-    }
-
-    _getStateFromStore() {
-        return {
-            messages: MessageStore.messages(),
-            messagesExpandedState: MessageStore.messagesExpanded(),
-            currentThread: MessageStore.currentThread(),
-            loading: MessageStore.loading()
+        if (newProps.thread && !isEqual(newProps.thread, this.props.thread)) {
+            this.setState({
+                minified: true
+            })
+            this.setMessagesExpandedState(newProps)
         }
     }
 
-    render() { //console.log('render MessageList')
-      const { loading, currentThread } = this.state
-      if (loading) {
-        return <Spinner visible={true}/>
-      } else {
-        if (!currentThread) return <div />
-      }
+    setMessagesExpandedState = (props) => {
+        this.setState(({messagesExpandedState}) => {
+            props.messages.forEach((message, idx) => {
+                if(message.unread || message.draft || idx==props.messages.length - 1) {
+                    messagesExpandedState[message.id] = 'default'
+                }
+            })
 
-      return (
-          <div id="list-message" className="list-message">
-              {this.renderSubject()}
-              {this.renderMessages()}
-          </div>
-      )
+            return {messagesExpandedState}
+        })
     }
 
-    renderSubject() {
-        let subject = this.state.currentThread.subject
+    onToggleCollapsed = (message) => {
+        this.setState(({messagesExpandedState}) => {
+            if (messagesExpandedState[message.id]) {
+                delete messagesExpandedState[message.id]
+            } else {
+                messagesExpandedState[message.id] = 'explicit'
+            }
+
+            return {messagesExpandedState}
+        })
+    }
+
+    render() { //console.log('render MessageList')
+        const {loading, thread} = this.props
+        if (!thread) {
+            return <div/>
+        } else if(loading) {
+            return <Spinner visible={true}/>
+        }
+
+        return (
+            <div id="list-message" className="list-message">
+                {this.renderSubject()}
+                {this.renderMessages()}
+            </div>
+        )
+    }
+
+    renderSubject = () => {
+        let subject = this.props.thread.subject
 
         if (!subject || subject.length == 0)
             subject = '(No Subject)'
@@ -74,7 +90,7 @@ class MessageList extends (React.Component) {
         return (
             <div className="message-subject-wrap">
                 {/*<MailImportantIcon thread={this.state.currentThread}/>*/}
-                {this.state.loading && <i className="fa fa-spinner fa-spin fa-fw"></i> }
+                {this.props.loading && <i className="fa fa-spinner fa-spin fa-fw"></i>}
                 <div style={{flex: 1}}>
                     <span className="message-subject">{subject}</span>
                     {/*<MailLabelSet removable={true} thread={@state.currentThread} includeCurrentCategories={true} />*/}
@@ -84,7 +100,7 @@ class MessageList extends (React.Component) {
         )
     }
 
-    renderIcons() {
+    renderIcons = () => {
         return (
             <div className="message-icons-wrap">
                 {/*{@_renderExpandToggle()}*/}
@@ -97,10 +113,10 @@ class MessageList extends (React.Component) {
     }
 
 
-    renderMessages() {
+    renderMessages = () => {
         const elements = []
 
-        let {messages} = this.state
+        let {messages} = this.props
         const lastMessage = last(messages)
         const hasReplyArea = lastMessage && !lastMessage.draft
         messages = this._messagesWithMinification(messages)
@@ -116,13 +132,16 @@ class MessageList extends (React.Component) {
             const isBeforeReplyArea = isLastMsg && hasReplyArea
 
             elements.push(  // Should be replaced message.id to message.clientId in future
-                <MessageItemContainer key={`message-${idx}`}
-                                      ref={`message-container-${message.id}`}
-                                      message={message}
-                                      collapsed={collapsed}
-                                      isLastMsg={isLastMsg}
-                                      isBeforeReplyArea={isBeforeReplyArea}
-                                      scrollTo={this._scrollTo}/>
+                <MessageItemContainer
+                    key={`message-${idx}`}
+                    ref={`message-container-${message.id}`}
+                    message={message}
+                    collapsed={collapsed}
+                    isLastMsg={isLastMsg}
+                    isBeforeReplyArea={isBeforeReplyArea}
+                    scrollTo={this._scrollTo}
+                    onToggleCollapsed={() => this.onToggleCollapsed(message)}
+                />
             )
         })
 
@@ -132,29 +151,28 @@ class MessageList extends (React.Component) {
         return elements
     }
 
-    _messagesWithMinification(messages=[]) {
-        if(!this.state.minified) return messages
+    _messagesWithMinification = (messages = []) => {
+        if (!this.state.minified) return messages
 
         messages = clone(messages)
         const minifyRanges = []
         let consecutiveCollapsed = 0
 
         messages.forEach((message, idx) => {
-            if(idx == 0)return
+            if (idx == 0) return
 
             const expandState = this.state.messagesExpandedState[message.id]
 
-            if(!expandState)
+            if (!expandState)
                 consecutiveCollapsed += 1
-            else
-            {
+            else {
                 let minifyOffset
-                if(expandState == 'default')
+                if (expandState == 'default')
                     minifyOffset = 1
                 else //if expandState is "explicit"
                     minifyOffset = 0
 
-                if(consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset)
+                if (consecutiveCollapsed >= this.MINIFY_THRESHOLD + minifyOffset)
                     minifyRanges.push({
                         start: idx - consecutiveCollapsed,
                         length: (consecutiveCollapsed - minifyOffset)
@@ -164,7 +182,7 @@ class MessageList extends (React.Component) {
         })
 
         let indexOffset = 0
-        for(const range of minifyRanges) {
+        for (const range of minifyRanges) {
             const start = range.start - indexOffset
             const minified = {
                 type: 'minifiedBundle',
@@ -178,7 +196,7 @@ class MessageList extends (React.Component) {
         return messages
     }
 
-    _renderMinifiedBundle(bundle) {
+    _renderMinifiedBundle = (bundle) => {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10)
         const h = Math.round(BUNDLE_HEIGHT / lines.length)
@@ -198,7 +216,7 @@ class MessageList extends (React.Component) {
         )
     }
 
-    _renderReplyArea() {
+    _renderReplyArea = () => {
         const icon = `/icons/inbox/${this._replyType()}-footer.png`
         return (
             <div className="footer-reply-area-wrap" onClick={this._onClickReplyArea} key='reply-area'>
@@ -211,7 +229,7 @@ class MessageList extends (React.Component) {
     }
 
 
-    _replyType() {
+    _replyType = () => {
         const defaultReplyType = 'reply-all'
         const lastMessage = last(filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
         if (!lastMessage) return 'reply'
@@ -226,12 +244,13 @@ class MessageList extends (React.Component) {
         }
     }
 
-    _lastMessage() {
+    _lastMessage = () => {
         const messages = this.state.messages || []
         return last(filter(messages, m => !m.draft))
     }
+
     _onClickReplyArea = () => {
-        if(!this.state.currentThread) return
+        if (!this.state.currentThread) return
         Actions.composeReply({
             thread: this.state.currentThread,
             message: this._lastMessage(),
@@ -243,4 +262,15 @@ class MessageList extends (React.Component) {
     }
 }
 
-export default MessageList
+MessageList.propTypes = {
+    thread: PropTypes.object
+}
+
+export default createContainer((props) => {
+    const {thread} = props
+
+    return {
+        loading: !thread || !subsCache.subscribe('messages.byThread', thread.id),
+        messages: thread ? Messages.find({thread_id: thread.id}, {sort: {date: 1}}).fetch() : [],
+    }
+}, MessageList)
