@@ -1,8 +1,8 @@
-import {_} from 'meteor/underscore'
 import {Meteor} from 'meteor/meteor'
 import {chai, assert} from 'meteor/practicalmeteor:chai'
 import {resetDatabase} from 'meteor/xolvio:cleaner'
 import {Factory} from 'meteor/dburles:factory'
+import clone from 'lodash/clone'
 import People from './people'
 import Designations from './conversations'
 import Contacts from '../contacts/contacts'
@@ -172,7 +172,7 @@ if(Meteor.isServer) {
             data.role = 'Manager'
             // duplicated email
             assert.throws(() => {
-                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                insertPerson._execute({userId:adminId}, clone(data).emails.push({
                     email: 'john@prossimo.us.office',
                     type: 'home',
                     is_default: false
@@ -181,7 +181,7 @@ if(Meteor.isServer) {
 
             // duplicated email.is_default true
             assert.throws(() => {
-                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                insertPerson._execute({userId:adminId}, clone(data).emails.push({
                     email: 'john@prossimo.us.office1',
                     type: 'home',
                     is_default: true
@@ -190,7 +190,7 @@ if(Meteor.isServer) {
 
             // duplicated phone_number
             assert.throws(() => {
-                insertPerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                insertPerson._execute({userId:adminId}, clone(data).phone_numbers.push({
                     number: '1-234-5678',
                     type: 'office',
                     is_default: false
@@ -199,7 +199,7 @@ if(Meteor.isServer) {
 
             // duplicated phone_number.is_default
             assert.throws(() => {
-                insertPerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                insertPerson._execute({userId:adminId}, clone(data).phone_numbers.push({
                     number: '2-234-5678',
                     type: 'office',
                     is_default: true
@@ -209,7 +209,7 @@ if(Meteor.isServer) {
             // existing person with same email
             const person = Factory.create('person')
             assert.throws(() => {
-                insertPerson._execute({userId:adminId}, _.clone(data).emails.push({
+                insertPerson._execute({userId:adminId}, clone(data).emails.push({
                     email: person.emails[0].email,
                     type: 'home',
                     is_default: false
@@ -310,7 +310,7 @@ if(Meteor.isServer) {
 
             // duplicated email
             assert.throws(() => {
-                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                updatePerson._execute({userId:adminId}, clone(data).emails.push({
                     email: 'john@prossimo.us.office',
                     type: 'home',
                     is_default: false
@@ -319,7 +319,7 @@ if(Meteor.isServer) {
 
             // duplicated email.is_default true
             assert.throws(() => {
-                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                updatePerson._execute({userId:adminId}, clone(data).emails.push({
                     email: 'john@prossimo.us.office1',
                     type: 'home',
                     is_default: true
@@ -328,7 +328,7 @@ if(Meteor.isServer) {
 
             // duplicated phone_number
             assert.throws(() => {
-                updatePerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                updatePerson._execute({userId:adminId}, clone(data).phone_numbers.push({
                     number: '1-234-5678',
                     type: 'office',
                     is_default: false
@@ -337,7 +337,7 @@ if(Meteor.isServer) {
 
             // duplicated phone_number.is_default
             assert.throws(() => {
-                updatePerson._execute({userId:adminId}, _.clone(data).phone_numbers.push({
+                updatePerson._execute({userId:adminId}, clone(data).phone_numbers.push({
                     number: '2-234-5678',
                     type: 'office',
                     is_default: true
@@ -347,7 +347,7 @@ if(Meteor.isServer) {
             // existing person with same email
             const person1 = Factory.create('person')
             assert.throws(() => {
-                updatePerson._execute({userId:adminId}, _.clone(data).emails.push({
+                updatePerson._execute({userId:adminId}, clone(data).emails.push({
                     email: person1.emails[0].email,
                     type: 'home',
                     is_default: false

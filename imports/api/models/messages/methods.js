@@ -2,11 +2,11 @@ import { Meteor } from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 import SimpleSchema from 'simpl-schema'
+import uniq from 'lodash/uniq'
 import Messages from './messages'
 import NylasAPI from '../../nylas/nylas-api'
 import Threads from '../threads/threads'
 import {NylasAccounts} from "../index";
-import _ from "underscore";
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -104,13 +104,13 @@ export const saveMessage = new ValidatedMethod({
                         }
                         let mentions
                         if(existingThread) {
-                            Threads.update({id:thread.id}, {$set:_.extend(thread, data)})
+                            Threads.update({id:thread.id}, {$set:Object.assign(thread, data)})
 
                             const members = [existingThread.getAssignee()].concat(existingThread.getFollowers())
-                            mentions = _.uniq(members.filter(m => m&&m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
+                            mentions = uniq(members.filter(m => m&&m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
 
                         } else {
-                            Threads.insert(_.extend(thread, data))
+                            Threads.insert(Object.assign(thread, data))
                         }
 
                         const existingMessage = Messages.findOne({id:message.id})

@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import Spinner from '../utils/spinner'
 import DraggableImg from '../utils/DraggableImg'
 import AttachmentComponent from './attachment-component'

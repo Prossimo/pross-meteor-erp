@@ -15,7 +15,7 @@ const CommonSchema = {
     }
 }
 const Schema = {
-    thread: _.extend(_.clone(CommonSchema), {
+    thread: Object.assign(_.clone(CommonSchema), {
         subject: {
             type: 'string'
         },
@@ -56,7 +56,7 @@ const Schema = {
             type: 'array'
         }
     }),
-    message: _.extend(_.clone(CommonSchema), {
+    message: Object.assign(_.clone(CommonSchema), {
         thread_id: {
             type: 'string'
         },

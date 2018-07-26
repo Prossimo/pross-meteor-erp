@@ -1,6 +1,7 @@
-import _ from 'underscore'
+import PropTypes from 'prop-types'
 import {Roles} from 'meteor/alanning:roles'
-import React, { Component, PropTypes } from 'react'
+import map from 'lodash/map'
+import React, { Component } from 'react'
 import Select from 'react-select'
 import {Users, ROLES, USER_STATUS} from '/imports/api/models'
 
@@ -32,13 +33,13 @@ export default class SelectMembers extends Component{
         }
 
         if(this.props.onSelectMembers) {
-            this.props.onSelectMembers(_.pluck(selectedMembers, 'value'))
+            this.props.onSelectMembers(map(selectedMembers, 'value'))
         }
     }
 
     changeMembers = (selectedMembers) => {
         this.setState({ selectedMembers})
-        this.props.onSelectMembers(_.pluck(selectedMembers, 'value'))
+        this.props.onSelectMembers(map(selectedMembers, 'value'))
     }
 
     renderMembers() {

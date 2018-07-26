@@ -1,0 +1,32 @@
+@import 'variables';
+@import 'bootstrap';
+@import 'account';
+@import 'aside';
+@import 'attachments';
+@import 'auth';
+@import 'button-dropdown';
+@import 'buttons';
+@import 'company';
+@import 'composer';
+@import 'contact';
+@import 'conversation';
+@import 'dashboard';
+@import 'dialer';
+@import 'fixed-popover';
+@import 'global';
+@import 'header';
+@import 'inbox-settings';
+@import 'inbox';
+@import 'kanban';
+@import 'loader';
+@import 'messages';
+@import 'popup';
+@import 'projects';
+@import 'settings';
+@import 'single-project';
+@import 'spinner';
+@import 'switch';
+
+body {
+    font-size: 16px;
+}

@@ -116,7 +116,7 @@ const TaskDebugStatus = {
 //   }
 //
 //   performLocal() {
-//     this.updatedTodo = _.extend(_.clone(this.existingTodo), this.newData);
+//     this.updatedTodo = Object.assign(_.clone(this.existingTodo), this.newData);
 //     return DatabaseStore.persistModel(this.updatedTodo);
 //   }
 //

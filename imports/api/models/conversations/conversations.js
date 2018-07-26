@@ -1,7 +1,8 @@
 import { Mongo } from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import {Factory} from 'meteor/dburles:factory'
-import {_} from 'meteor/underscore'
+import uniq from 'lodash/uniq'
+import find from 'lodash/find'
 import faker from 'faker'
 import Threads from '../threads/threads'
 import Messages from '../messages/messages'
@@ -82,14 +83,14 @@ Conversations.helpers({
                 Messages.find({id: {$in: t.draft_ids}}).fetch().forEach((m) => messages.push(m))
             }
         })
-        return _.uniq(messages.sort((m1, m2) => m1.date - m2.date), false, (m) => m.id)
+        return uniq(messages.sort((m1, m2) => m1.date - m2.date), false, (m) => m.id)
     },
     parent() {
         const sr = SalesRecords.findOne({conversationIds:this._id})
-        if(sr) return _.extend(sr, {type:'deal'})
+        if(sr) return Object.assign(sr, {type:'deal'})
 
         const pr = Projects.findOne({conversationIds:this._id})
-        if(pr) return _.extend(pr, {type:'project'})
+        if(pr) return Object.assign(pr, {type:'project'})
 
         return null
     },
@@ -98,9 +99,9 @@ Conversations.helpers({
         const parent = this.parent()
         if(parent && parent.type === 'deal' && parent.dealer) participants.push(People.findOne(parent.dealer))
 
-        const peopleIds = _.pluck(this.participants, 'peopleId')
+        const peopleIds = map(this.participants, 'peopleId')
         participants = participants.concat(People.find({_id:{$in:peopleIds}}).map(p => {
-            p.isMain = _.findWhere(this.participants, {peopleId:p._id}).isMain
+            p.isMain = find(this.participants, {peopleId:p._id}).isMain
             return p
         }))
 

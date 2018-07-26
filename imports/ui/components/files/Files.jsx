@@ -1,7 +1,10 @@
 import React, {Component} from 'react'
 import moment from 'moment'
 import styled from 'styled-components'
-import _ from 'underscore'
+import sortBy from 'lodash/sortBy'
+import last from 'lodash/last'
+import findIndex from 'lodash/findIndex'
+import once from 'lodash/once'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import FileUploader from './FileUploader.jsx'
@@ -52,7 +55,7 @@ class Files extends Component {
         this.downloadFile = this.downloadFile.bind(this)
         this.openExternal = this.openExternal.bind(this)
         this.createNewFile = this.createNewFile.bind(this)
-        this.checkRemoteFolder = _.once(({folderId, name, type, _id}) => {
+        this.checkRemoteFolder = once(({folderId, name, type, _id}) => {
             Meteor.call('drive.getFiles', {fileId: folderId}, error => {
                 if (error) {
                     const newName = props.project ? `p-${name}` : `d-${name}`
@@ -80,13 +83,13 @@ class Files extends Component {
     }
 
     openFileDirectly(folderId) {
-        const indexInPath = _.findIndex(this.state.viewPath, item => item.folderId === folderId)
+        const indexInPath = findIndex(this.state.viewPath, item => item.folderId === folderId)
         this.state.viewPath = this.state.viewPath.slice(0, indexInPath + 1)
         this.listFiles()
     }
 
     listFiles() {
-        const folderId = _.last(this.state.viewPath).folderId
+        const folderId = last(this.state.viewPath).folderId
         const query = `'${folderId}' in parents and trashed = false`
         // LIST CURRENT FILES
         this.setState({
@@ -132,7 +135,7 @@ class Files extends Component {
     }
 
     renderViewPath() {
-        const activeFolderId = _.last(this.state.viewPath).folderId
+        const activeFolderId = last(this.state.viewPath).folderId
         return (
             <ol className='breadcrumb'>
                 {
@@ -165,7 +168,7 @@ class Files extends Component {
             return (<tr className='text-center'>
                 <td colSpan={2}>Empty Folder</td>
             </tr>)
-        const files = _.sortBy(this.state.files, ({modifiedTime}) => -new Date(modifiedTime).getTime())
+        const files = sortBy(this.state.files, ({modifiedTime}) => -new Date(modifiedTime).getTime())
         return files.map(file => {
             const {id, name, modifiedTime, iconLink, webViewLink, mimeType, webContentLink} = file
             const formattedTime = moment(modifiedTime).format('YYYY MMM DD hh:mm:ss')
@@ -206,7 +209,7 @@ class Files extends Component {
         if (this.state.selectedFile.id) {
             open(this.state.selectedFile.webViewLink, '_blank')
         } else {
-            const {folderId} = _.last(this.state.viewPath)
+            const {folderId} = last(this.state.viewPath)
             Meteor.call(
                 'drive.getFiles',
                 {fileId: folderId},
@@ -294,7 +297,7 @@ class Files extends Component {
                 resolve(result)
             })
         }).then(({name, filetype}) => {
-            const parent = _.last(this.state.viewPath).folderId
+            const parent = last(this.state.viewPath).folderId
             const file = {
                 name,
                 filetype,
@@ -344,7 +347,7 @@ class Files extends Component {
             <FileManager>
                 <FileUploader
                     ref='uploader'
-                    folderId={_.last(this.state.viewPath).folderId}
+                    folderId={last(this.state.viewPath).folderId}
                     addFileToView={this.addFileToView}
                     slack={this.slack}
                     token={this.state.token}

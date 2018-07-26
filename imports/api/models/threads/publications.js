@@ -14,7 +14,7 @@ Meteor.publish('threads.mine', function() {
     }
 
     const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts()
-    return Threads.find({account_id:{$in:_.pluck(nylasAccounts, 'accountId')}})
+    return Threads.find({account_id:{$in:map(nylasAccounts, 'accountId')}})
 })
 
 Meteor.publish('threads.accountId', function(accountId) {

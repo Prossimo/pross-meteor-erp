@@ -1,5 +1,8 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
+import find from 'lodash/find'
+import values from 'lodash/values'
+import isEqual from 'lodash/isEqual'
+import clone from 'lodash/clone'
 import Actions from './actions'
 import DraftFactory from './draft-factory'
 import SendDraftTask from './tasks/send-draft-task'
@@ -188,7 +191,7 @@ class DraftStoreClass extends Reflux.Store {
            ErrorLog.error(err)
        }
 
-      this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft)
+      this._lastSavedDrafts[savedDraft.clientId] = clone(savedDraft)
 
       this.trigger()
    }
@@ -268,17 +271,17 @@ class DraftStoreClass extends Reflux.Store {
    }
 
    draftForClientId(clientId) {
-      return _.findWhere(this._drafts, {clientId})
+      return find(this._drafts, {clientId})
    }
 
    draftForReply(threadId, messageId) {
-      return _.findWhere(this._drafts, {thread_id: threadId, reply_to_message_id: messageId})
+      return find(this._drafts, {thread_id: threadId, reply_to_message_id: messageId})
    }
 
    changeDraftForClientId(clientId, data = {}) {
       let draft = this.draftForClientId(clientId)
 
-      draft = _.extend(draft, data)
+      draft = Object.assign(draft, data)
    }
 
    addUploadToDraftForClientId(clientId, upload) {
@@ -294,7 +297,7 @@ class DraftStoreClass extends Reflux.Store {
    removeUploadFromDraftForClientId(clientId, upload) {
       const draft = this.draftForClientId(clientId)
       if (draft && draft.uploads) {
-         const index = _.indexOf(draft.uploads, upload)
+         const index = indexOf(draft.uploads, upload)
 
          draft.uploads.splice(index, 1)
          this.trigger()
@@ -316,7 +319,7 @@ class DraftStoreClass extends Reflux.Store {
    removeFileFromDraftForClientId(clientId, file) {
       const draft = this.draftForClientId(clientId)
       if (draft && draft.files) {
-         const index = _.indexOf(draft.files, file)
+         const index = indexOf(draft.files, file)
 
          draft.files.splice(index, 1)
          this.trigger()
@@ -334,7 +337,7 @@ class DraftStoreClass extends Reflux.Store {
             upload.cancel()
          })
       }
-      const index = _.indexOf(this._drafts, draft)
+      const index = indexOf(this._drafts, draft)
 
       if (index > -1)
          this._drafts.splice(index, 1)
@@ -353,17 +356,17 @@ class DraftStoreClass extends Reflux.Store {
    }
 
    draftViewStateForModal() {
-      const states = _.values(this._draftsViewState)
+      const states = values(this._draftsViewState)
 
-      const stateForModal = _.findWhere(states, {modal: true})
+      const stateForModal = find(states, {modal: true})
 
       return stateForModal
    }
 
    draftViewStateForDraft() {
-      const states = _.values(this._draftsViewState)
+      const states = values(this._draftsViewState)
 
-      return _.findWhere(states, {draft: true})
+      return find(states, {draft: true})
    }
 
    isUploadingDraftFiles(clientId) {
@@ -378,8 +381,7 @@ class DraftStoreClass extends Reflux.Store {
 
       const draft = this.draftForClientId(clientId)
 
-       console.log(lastSavedDraft, draft)
-      return _.isEqual(draft, lastSavedDraft)
+      return isEqual(draft, lastSavedDraft)
    }
 }
 

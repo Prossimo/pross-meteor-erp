@@ -41,6 +41,9 @@
     "meteor"
   ],
   "rules": {
+    "no-unused-vars": ["error", {
+      "varsIgnorePattern": "Meteor|React"
+    }],
     // require braces in arrow function body
     "arrow-body-style": [2, "as-needed"],
     // require parens in arrow function arguments
@@ -62,7 +65,6 @@
     // disallow to use this/super before super() calling in constructors.
     "no-this-before-super": 0,
     // require let or const instead of var
-    "no-unused-vars": 1,
     "no-undef": 2,
     "no-var": 1,
     // require method and property shorthand syntax for object literals
@@ -81,7 +83,7 @@
     "require-yield": 0,
     "strict": [2, "never"],
     "quotes": [2, "single"],
-    "semi": [2, "never"],
+    // "semi": [2, "never"],
     "react/jsx-uses-vars": 2,
     "react/jsx-uses-react": 2,
     "react/react-in-jsx-scope": 2

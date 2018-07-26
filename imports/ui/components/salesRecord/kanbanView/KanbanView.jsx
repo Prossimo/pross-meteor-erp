@@ -1,4 +1,6 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
+import sortBy from 'lodash/sortBy'
 import KanbanColumn from './KanbanColumn'
 class KanbanView extends Component {
 	constructor() {
@@ -20,7 +22,7 @@ class KanbanView extends Component {
 				<div className="col-md-12" style={{height:'100%'}}>
 					{columns.map((col) => {
 						let data = this.filterColumn(col, isSubStage)
-						data = _.sortBy(data, ({ createdAt }) => -createdAt.getTime())
+						data = sortBy(data, ({ createdAt }) => -createdAt.getTime())
 						return (
 							<KanbanColumn
 								style={`col-md-${colSize}`}

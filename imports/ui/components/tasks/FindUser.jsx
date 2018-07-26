@@ -1,11 +1,15 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import first from 'lodash/first'
+
+import throttle from 'lodash/throttle'
 
 class FindUser extends Component {
   constructor(props) {
     super(props)
     this.changeState = this.changeState.bind(this)
     this.selectUser = this.selectUser.bind(this)
-    this.changeKeyword = _.throttle(keyword => {
+    this.changeKeyword = throttle(keyword => {
       const ignore = props.ignore ? props.ignore._id : ''
       Meteor.call('task.findUsers', { keyword, ignore }, (error, users) => {
         if (!error) this.setState({ users })
@@ -55,7 +59,7 @@ class FindUser extends Component {
           {
             this.state.users.map(user => {
               const { username, emails, _id } = user
-              const email = _.first(emails) ? `(${_.first(emails).address})` : ''
+              const email = first(emails) ? `(${first(emails).address})` : ''
               return (
                 <div
                   className='assignee-elem'

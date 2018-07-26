@@ -1,12 +1,15 @@
 /* global FlowRouter, subsManager */
-import _ from 'underscore'
 import {createContainer} from 'meteor/react-meteor-data'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Button, DropdownButton, MenuItem, Modal} from 'react-bootstrap'
+import { Card, CardHeader, CardBody} from 'reactstrap'
+import find from 'lodash/find'
+import uniq from 'lodash/uniq'
+import isEqual from 'lodash/isEqual'
 import {warning} from '/imports/api/lib/alerts'
 import {Actions, NylasUtils, AccountStore, ThreadStore, DraftStore, CategoryStore, DraftsStore} from '/imports/api/nylas'
-import '../../api/nylas/tasks/task-queue'
+import '/imports/api/nylas/tasks/task-queue'
 import ItemCategory from '../components/inbox/ItemCategory'
 import MessageList from '../components/inbox/MessageList'
 import Toolbar from '../components/inbox/Toolbar'
@@ -23,9 +26,9 @@ import {ClientErrorLog} from '/imports/utils/logger'
 import { Session } from 'meteor/session'
 import {Messages} from '/imports/api/models'
 
-import Utils from '../../utils/Utils'
+import Utils from '/imports/utils/Utils'
 import {Panel} from '../components/common'
-import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '../../api/models/threads/threads'
+import Threads, {THREAD_STATUS_CLOSED, THREAD_STATUS_OPEN} from '/imports/api/models/threads/threads'
 import {PAGESIZE} from '../../utils/constants'
 
 Session.set('currentThreadFilter', null)
@@ -122,7 +125,7 @@ class InboxPage extends (React.Component) {
     onDraftsStoreChanged = () => {
          const {currentCategory, currentDraft} = this.state
          const newCurrentDraft = DraftsStore.currentDraft(currentCategory)
-         if(!_.isEqual(currentDraft, newCurrentDraft)) {
+         if(!isEqual(currentDraft, newCurrentDraft)) {
              this.setState({
                  currentDraft: newCurrentDraft
              })
@@ -238,12 +241,12 @@ class InboxPage extends (React.Component) {
                 const conversationThreadIds = Threads.find({conversationId:{$ne:null}}, {fields:{id:1}}).map(t => t.id)
                 //filters['conversationId'] = null
                 filters['id'] = {$nin:conversationThreadIds}
-                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => find(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             } else if(category.id === 'unassigned') {
                 filters['assignee'] = {$ne:Meteor.userId()}
-                inboxes = Meteor.user().nylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+                inboxes = Meteor.user().nylasAccounts().map(({categories}) => find(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             }/* else if(currentCategory.type === 'teammember') {
-                inboxes = currentCategory.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
+                inboxes = currentCategory.privateNylasAccounts().map(({categories}) => find(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             }*/ else {
                 inboxes = [category]
             }
@@ -373,7 +376,7 @@ class InboxPage extends (React.Component) {
 
             const temp = () => {
                 const {participants} = this.state.currentThread
-                const noStoredParticipants = _.uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
+                const noStoredParticipants = uniq(JSON.parse(JSON.stringify(participants.filter((p) => People.findOne({'emails.email': new RegExp(`^${p.email}$`, 'i')}) == null))), (p) => p.email)
                 if (noStoredParticipants && noStoredParticipants.length) {
                     this.setState({
                         noStoredParticipants,
@@ -413,26 +416,31 @@ class InboxPage extends (React.Component) {
         const title = binding ? `Bind this thread to existing ${targetType}` : `Create new ${targetType} from this thread`
         return (
             <div className="column-panel" style={{order: 4, overflowY: 'auto', height: '100%', padding: 10}}>
-                <Panel title={title} actions={<i className="fa fa-arrow-right" onClick={this.hideTargetForm}/>}>
-                    {
-                        targetType === 'deal' &&
-                        <CreateSalesRecord
-                            {...this.props}
-                            thread={currentThread}
-                            salesRecord={selectedTarget}
-                            onSaved={this.hideTargetForm}
-                        />
-                    }
-                    {
-                        targetType === 'project' &&
-                        <CreateProject
-                            {...this.props}
-                            thread={currentThread}
-                            project={selectedTarget}
-                            onSaved={this.hideTargetForm}
-                        />
-                    }
-                </Panel>
+                <Card actions={<i className="fa fa-arrow-right" onClick={this.hideTargetForm}/>}>
+                    <CardHeader>
+                        {title}
+                    </CardHeader>
+                    <CardBody>
+                        {
+                            targetType === 'deal' &&
+                            <CreateSalesRecord
+                                {...this.props}
+                                thread={currentThread}
+                                salesRecord={selectedTarget}
+                                onSaved={this.hideTargetForm}
+                            />
+                        }
+                        {
+                            targetType === 'project' &&
+                            <CreateProject
+                                {...this.props}
+                                thread={currentThread}
+                                project={selectedTarget}
+                                onSaved={this.hideTargetForm}
+                            />
+                        }
+                    </CardBody>
+                </Card>
             </div>
         )
     }

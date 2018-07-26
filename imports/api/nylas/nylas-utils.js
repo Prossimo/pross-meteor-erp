@@ -5,7 +5,7 @@ import RegExpUtils from './RegExpUtils'
 import AccountStore from './account-store'
 import {ThreadStore} from '/imports/api/nylas'
 
-import filesize from 'filesize'
+import filesize from 'filesize/lib/filesize.es6'
 import path from 'path'
 
 

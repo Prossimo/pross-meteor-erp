@@ -1,7 +1,6 @@
 import { Mongo } from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
 import {Factory} from 'meteor/dburles:factory'
-import {_} from 'meteor/underscore'
 import faker from 'faker'
 
 class CompanyTypesCollection extends Mongo.Collection {

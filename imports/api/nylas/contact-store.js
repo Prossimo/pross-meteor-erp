@@ -83,7 +83,7 @@ class ContactStoreClass extends Reflux.Store {
         } else {
             this.fullyLoaded = true
         }
-        const cids = _.pluck(this.contacts, '_id')
+        const cids = map(this.contacts, '_id')
         result.forEach((c) => {
             if(!_.contains(cids, c._id))
                 this.contacts.push(c)

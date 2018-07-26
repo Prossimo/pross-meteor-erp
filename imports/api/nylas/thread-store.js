@@ -1,6 +1,7 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
 import QueryString from 'query-string'
+import find from 'lodash/find'
+import indexOf from 'lodash/indexOf'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
@@ -59,9 +60,9 @@ class ThreadStoreClass extends Reflux.Store {
 
         let promises
         if(category.id==='unassigned' || category.id==='not_filed' || category.id==='unreads') {
-            promises = Meteor.user().nylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+            promises = Meteor.user().nylasAccounts().map(account => loadThreads(find(account.categories, {name:'inbox'})))
         } else if(category.type === 'teammember') {
-            promises = category.privateNylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+            promises = category.privateNylasAccounts().map(account => loadThreads(find(account.categories, {name:'inbox'})))
         } else {
             promises = [loadThreads(category)]
         }
@@ -98,7 +99,7 @@ class ThreadStoreClass extends Reflux.Store {
                 }).then(threads => resolve(threads)).catch(err => reject(err)))
         }
 
-        const promises = Meteor.user().nylasAccounts().map(account => loadThreads(_.findWhere(account.categories, {name:'inbox'})))
+        const promises = Meteor.user().nylasAccounts().map(account => loadThreads(find(account.categories, {name:'inbox'})))
 
         this.fetching = true
         this.trigger()
@@ -138,9 +139,9 @@ class ThreadStoreClass extends Reflux.Store {
     }
     changeThreads(threads) {
         threads.forEach((t) => {
-            const thread = _.findWhere(this.threads, {id: t.id})
+            const thread = find(this.threads, {id: t.id})
             if (thread) {
-                const index = _.indexOf(this.threads, thread)
+                const index = indexOf(this.threads, thread)
                 this.threads[index] = t
             }
         })

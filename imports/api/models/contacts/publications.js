@@ -1,4 +1,5 @@
 import {Meteor} from 'meteor/meteor'
+import map from 'lodash/map'
 import Contacts from './contacts'
 
 Meteor.publish('contacts.mine', function () {
@@ -8,7 +9,7 @@ Meteor.publish('contacts.mine', function () {
     return Contacts.find({
         $or: [{
             account_id: {
-                $in:_.pluck(nylasAccounts, 'accountId')
+                $in:map(nylasAccounts, 'accountId')
             }
         },{
             userId: this.userId
