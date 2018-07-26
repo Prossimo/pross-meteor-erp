@@ -1,5 +1,6 @@
 import React from 'react'
 import {Modal} from 'react-bootstrap'
+import clone from 'lodash/clone'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
 import CreateSalesRecord from '/imports/ui/components/salesRecord/CreateSalesRecord'
 import {SearchInput} from '../components/common'
@@ -61,7 +62,7 @@ export default class SalesRecordPage extends React.Component{
     }
 
     render() {
-      const props = _.clone(this.props)
+      const props = clone(this.props)
       props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper }) => {
         const keyfilter = new RegExp(this.state.keyword,'i')
         return (props.stage ? stage === props.stage : 1) && (this.state.keyword == null || (name.search(keyfilter) > -1))

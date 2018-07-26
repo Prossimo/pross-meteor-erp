@@ -1,4 +1,3 @@
-import {_} from 'meteor/underscore'
 import {Meteor} from 'meteor/meteor'
 import {chai, assert} from 'meteor/practicalmeteor:chai'
 import {resetDatabase} from 'meteor/xolvio:cleaner'

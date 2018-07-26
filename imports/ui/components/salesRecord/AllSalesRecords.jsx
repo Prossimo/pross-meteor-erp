@@ -1,8 +1,10 @@
-/* global moment, FlowRouter */
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
-import {Table, Glyphicon, Button} from 'react-bootstrap'
-import classNames from 'classnames'
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import moment from 'moment'
+import sortBy from 'lodash/sortBy'
+import find from 'lodash/find'
+import {Table, Button} from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import {ROLES, Users, ClientStatus, SupplierStatus, People} from '/imports/api/models'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -265,7 +267,7 @@ class AllSalesRecords extends React.Component {
                     type: 'select',
                     editable: true,
                     renderer: record => {
-                        const status = _.findWhere(clientStatuses, {_id: record.clientStatus})
+                        const status = find(clientStatuses, {_id: record.clientStatus})
                         return status ? status.name : null
                     }
                 },
@@ -277,7 +279,7 @@ class AllSalesRecords extends React.Component {
                     type: 'select',
                     editable: true,
                     renderer: record => {
-                        const status = _.findWhere(supplierStatuses, {_id: record.supplierStatus})
+                        const status = find(supplierStatuses, {_id: record.supplierStatus})
                         return status ? status.name : null
                     }
                 },
@@ -289,7 +291,7 @@ class AllSalesRecords extends React.Component {
                     type: 'select',
                     editable: true,
                     renderer: record => {
-                        const state = _.findWhere(STATES, {stateCode: record.dealState})
+                        const state = find(STATES, {stateCode: record.dealState})
                         return state ? `${state.countryCode}/${state.state}` : null
                     }
                 }
@@ -458,9 +460,9 @@ class AllSalesRecords extends React.Component {
         }
 
         if (asc) {
-            return _.sortBy(salesRecords, by)
+            return sortBy(salesRecords, by)
         } else {
-            return _.sortBy(salesRecords, by).reverse()
+            return sortBy(salesRecords, by).reverse()
         }
     }
 

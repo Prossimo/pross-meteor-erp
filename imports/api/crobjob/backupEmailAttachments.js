@@ -1,6 +1,7 @@
-import _ from 'underscore'
 import request from 'request'
 import { Meteor } from 'meteor/meteor'
+import map from 'lodash/map'
+import uniq from 'lodash/uniq'
 import NylasAccounts from '/imports/api/models/nylasaccounts/nylas-accounts'
 import { drive } from '/imports/api/drive/methods/drive'
 import Threads from '/imports/api/models/threads/threads'
@@ -44,7 +45,7 @@ export default function() {
       { fields: { _id: 1, id: 1 } }
     ).fetch()
     const messages = Messages.find(
-      { isAttachmentBackup: {$ne: true}, thread_id: { $in: _.pluck(threads, 'id') } },
+      { isAttachmentBackup: {$ne: true}, thread_id: { $in: map(threads, 'id') } },
       { fields: { _id: 1, files: 1, account_id: 1 } }
     ).fetch()
     const files = messages
@@ -56,12 +57,12 @@ export default function() {
         return files
       })
       .reduce((result, next) => result.concat(next), [])
-    const uniqueFiles = _.uniq(files, ({ id }) => id)
+    const uniqueFiles = uniq(files, ({ id }) => id)
     Meteor.defer(() => {
       uniqueFiles.forEach(file => file.accessToken && saveAttachmentToDrive(file.accessToken, [emailFolderId], file))
     })
     Messages.update(
-      { _id: { $in: _.pluck(messages, '_id') } },
+      { _id: { $in: map(messages, '_id') } },
       { $set: { isAttachmentBackup: true }},
       { multi: true }
     )

@@ -1,6 +1,9 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
 import queryString from 'query-string'
+import size from 'lodash/size'
+import clone from 'lodash/clone'
+import uniq from 'lodash/uniq'
+import find from 'lodash/find'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import ChangeUnreadTask from './tasks/change-unread-task'
@@ -84,7 +87,7 @@ class MessageStoreClass extends Reflux.Store {
         if(!thread) return
 
         setTimeout(() => {
-          this._messages = _.uniq(Messages.find({thread_id:thread.id}, {sort:{created_at:1}}).fetch(), true, ({id}) => id)
+          this._messages = uniq(Messages.find({thread_id:thread.id}, {sort:{created_at:1}}).fetch(), true, ({id}) => id)
           this._expandMessagesToDefault()
           this._fetchExpandedAttachments(this._messages)
           this.trigger()
@@ -92,7 +95,7 @@ class MessageStoreClass extends Reflux.Store {
     }
 
     _onToggleMessageExpanded(id) {
-        const message = _.findWhere(this._messages, {id})
+        const message = find(this._messages, {id})
 
         if (!message) return
 
@@ -136,7 +139,7 @@ class MessageStoreClass extends Reflux.Store {
     }
 
     hasCollapsedMessages() {
-        return _.size(this._messagesExpanded) < this._messages.length
+        return size(this._messagesExpanded) < this._messages.length
     }
     _fetchExpandedAttachments(messages) {
         /*policy = PlanckEnv.config.get('core.attachments.downloadPolicy')
@@ -146,7 +149,7 @@ class MessageStoreClass extends Reflux.Store {
             if (!this._messagesExpanded[message.id]) continue
             for (const file of message.files) {
                 if(NylasUtils.shouldDisplayAsImage(file)) {
-                    Actions.fetchImage(_.extend(_.clone(file), {account_id: message.account_id}))
+                    Actions.fetchImage(Object.assign(clone(file), {account_id: message.account_id}))
                 }
             }
         }
@@ -165,7 +168,7 @@ class MessageStoreClass extends Reflux.Store {
     }
 
     messagesExpanded() {
-        return _.clone(this._messagesExpanded)
+        return clone(this._messagesExpanded)
     }
 
     addMessage(message) {

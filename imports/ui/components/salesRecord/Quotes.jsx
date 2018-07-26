@@ -1,13 +1,14 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
 import {Modal} from 'react-bootstrap'
+import find from 'lodash/find'
+import isEmpty from 'lodash/isEmpty'
 import classNames from 'classnames'
 import AddQuoteForm from './AddQuoteForm'
 import AddQuoteRevisionForm from './AddQuoteRevisionForm'
 import currencyFormatter from 'currency-formatter'
 import {info, warning} from '/imports/api/lib/alerts'
 import {ROLES} from '/imports/api/models'
-import _ from 'underscore'
 import {DraftStore} from '/imports/api/nylas'
 import moment from 'moment'
 
@@ -78,7 +79,7 @@ class QuoteItem extends React.Component {
   render() {
     const {quote} = this.props
     const lastRevisionNumber = Math.max(...quote.revisions.map(item => item.revisionNumber))
-    const latest = _.findWhere(quote.revisions, {revisionNumber: lastRevisionNumber})
+    const latest = find(quote.revisions, {revisionNumber: lastRevisionNumber})
     const revisions = quote.revisions
       .filter(revision => revision !== latest)
       .sort((a, b) => a.revisionNumber > b.revisionNumber ? -1 : 1)
@@ -138,7 +139,7 @@ class QuoteItem extends React.Component {
           </div>
           <div className="quote-revision">
             <ul className="revision-list">{revisions}</ul>
-            {!_.isEmpty(revisions) && <span className="show-revisions"/>}
+            {!isEmpty(revisions) && <span className="show-revisions"/>}
           </div>
         </li>
       )
@@ -269,7 +270,7 @@ class Quotes extends React.Component {
 
   renderQuotes() {
     const {quotes, salesRecord} = this.props
-    if (_.isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>
+    if (isEmpty(quotes))return <div className="info-label"><p>No quotes yet</p></div>
       return (
         <ul
         className="quotes-list"

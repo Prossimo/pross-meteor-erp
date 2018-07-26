@@ -19,7 +19,7 @@ Meteor.publish('messages.mine', function() {
     }
 
     const nylasAccounts = Meteor.users.findOne({_id:this.userId}).nylasAccounts()
-    return Messages.find({account_id:{$in:_.pluck(nylasAccounts, 'accountId')}})
+    return Messages.find({account_id:{$in:map(nylasAccounts, 'accountId')}})
 })
 
 
@@ -38,7 +38,7 @@ Meteor.publish('messages.one', function({threadId, messageId}) {
 
 Meteor.publish('messages.all', function () {
     if(!this.userId) return this.ready()
-    
+
     return Messages.find()
 })
 
@@ -53,7 +53,7 @@ Meteor.publish('messages.bySalesRecord', function (salesRecordId) {
         const threads = salesRecord.threads()
 
         if(threads && threads.length>0) {
-            return Messages.find({thread_id: _.pluck(threads, 'id')})
+            return Messages.find({thread_id: map(threads, 'id')})
         }
     }
     return this.ready()
@@ -70,7 +70,7 @@ Meteor.publish('messages.byProject', function (projectId) {
         const threads = project.threads()
 
         if(threads && threads.length>0) {
-            return Messages.find({thread_id: _.pluck(threads, 'id')})
+            return Messages.find({thread_id: map(threads, 'id')})
         }
     }
     return this.ready()

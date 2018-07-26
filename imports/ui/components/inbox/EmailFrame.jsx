@@ -1,25 +1,23 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-import _ from 'underscore'
+import { findDOMNode } from 'react-dom'
+import PropTypes from 'prop-types'
+import defer from 'lodash/defer'
 //import {autolink} from './autolinker';
 //import {autoscaleImages} from './autoscale-images';
 import QuotedHTMLTransformer from '../../../utils/quoted-html-transformer'
 import EventedIFrame from './EventedIFrame'
 export default class EmailFrame extends React.Component {
-
+    state = {
+        showQuotedText: this.props.showQuotedText,
+        shouldShowDetailMark: !this.props.showQuotedText && QuotedHTMLTransformer.hasQuotedHTML(this.props.content)
+    }
     static propTypes = {
-        showQuotedText: React.PropTypes.bool,
-        content: React.PropTypes.string
+        showQuotedText: PropTypes.bool,
+        content: PropTypes.string
     }
 
-    constructor(props) {
-        super(props)
+    _lastComputedHeight = 0
 
-        this.state = {
-            showQuotedText: props.showQuotedText,
-            shouldShowDetailMark: !props.showQuotedText && QuotedHTMLTransformer.hasQuotedHTML(props.content)
-        }
-    }
     componentDidMount() {
         this._mounted = true
         this._writeContent()
@@ -41,7 +39,7 @@ export default class EmailFrame extends React.Component {
         }
     }
 
-    componentWillReceiveProps (newProps) {
+    componentWillReceiveProps = (newProps) => {
         if(newProps.content !== this.props.content) {
             this.setState({
                 shouldShowDetailMark: !this.props.showQuotedText && QuotedHTMLTransformer.hasQuotedHTML(newProps.content)
@@ -49,7 +47,7 @@ export default class EmailFrame extends React.Component {
         }
     }
 
-    _emailContent() {
+    _emailContent = () => {
         // When showing quoted text, always return the pure content
         if (this.state.showQuotedText) {
             return this.props.content
@@ -61,8 +59,8 @@ export default class EmailFrame extends React.Component {
         })
     }
 
-    _writeContent() {
-        const iframeNode = ReactDOM.findDOMNode(this.refs.iframe)
+    _writeContent = () => {
+        const iframeNode = findDOMNode(this.refs.iframe)
         const doc = iframeNode.contentDocument
         if (!doc) { return }
         doc.open()
@@ -89,13 +87,13 @@ export default class EmailFrame extends React.Component {
         this._onMustRecalculateFrameHeight()
     }
 
-    _onMustRecalculateFrameHeight() {
+    _onMustRecalculateFrameHeight = () => {
         this.refs.iframe.setHeightQuietly(0)
         this._lastComputedHeight = 0
         this._setFrameHeight()
     }
 
-    _getFrameHeight(doc) {
+    _getFrameHeight = (doc) => {
         if (doc && doc.body) {
             return doc.body.scrollHeight
         }
@@ -105,7 +103,7 @@ export default class EmailFrame extends React.Component {
         return 0
     }
 
-    _setFrameHeight() {
+    _setFrameHeight = () => {
         if (!this._mounted) {
             return
         }
@@ -117,8 +115,8 @@ export default class EmailFrame extends React.Component {
         // reset it's scrollTop to ~0 (the new combined heiht of all children).
         // To prevent this, the holderNode holds the last computed height until
         // the new height is computed.
-        const holderNode = ReactDOM.findDOMNode(this.refs.iframeHeightHolder)
-        const iframeNode = ReactDOM.findDOMNode(this.refs.iframe)
+        const holderNode = findDOMNode(this.refs.iframeHeightHolder)
+        const iframeNode = findDOMNode(this.refs.iframe)
         const height = this._getFrameHeight(iframeNode.contentDocument) + 35
 
         // Why 5px? Some emails have elements with a height of 100%, and then put
@@ -132,7 +130,7 @@ export default class EmailFrame extends React.Component {
         }
 
         if (iframeNode.contentDocument.readyState !== 'complete') {
-            _.defer(() => this._setFrameHeight())
+            defer(() => this._setFrameHeight())
         }
     }
 
@@ -140,6 +138,7 @@ export default class EmailFrame extends React.Component {
         const {showQuotedText} = this.state
         this.setState({showQuotedText: !showQuotedText})
     }
+
     render() {
         return (
             <div

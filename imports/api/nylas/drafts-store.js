@@ -1,6 +1,7 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
 import QueryString from 'query-string'
+import find from 'lodash/find'
+import indexOf from 'lodash/indexOf'
 import Actions from './actions'
 import NylasAPI from './nylas-api'
 import CategoryStore from './category-store'
@@ -75,7 +76,7 @@ class DraftsStoreClass extends Reflux.Store {
                 }).then(threads => resolve(threads)).catch(err => reject(err)))
         }
 
-        const promises = Meteor.user().nylasAccounts().map(account => loadDrafts(_.findWhere(account.categories, {name:'drafts'})))
+        const promises = Meteor.user().nylasAccounts().map(account => loadDrafts(find(account.categories, {name:'drafts'})))
 
         this.fetching = true
         this.trigger()
@@ -109,9 +110,9 @@ class DraftsStoreClass extends Reflux.Store {
     }
     changeDrafts(drafts) {
        drafts.forEach((t) => {
-            const draft = _.findWhere(this.drafts, {id: t.id})
+            const draft = find(this.drafts, {id: t.id})
             if (draft) {
-                const index = _.indexOf(this.drafts, draft)
+                const index = indexOf(this.drafts, draft)
                 this.drafts[index] = t
             }
         })

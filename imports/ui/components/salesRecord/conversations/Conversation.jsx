@@ -1,7 +1,8 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {Panel} from 'react-bootstrap'
+import {Card, CardHeader, CardBody} from 'reactstrap'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import DraftStore from '/imports/api/nylas/draft-store'
 import ComposeButton from '../../inbox/composer/ComposeButton'
@@ -16,10 +17,10 @@ import ParticipantsSelectModal from './ParticipantsSelectModal'
 
 export default class Conversation extends TrackerReact(React.Component) {
     static propTypes = {
-        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]),
-        targetId: React.PropTypes.string,   // SalesRecordId or ProjectId
-        conversationId: React.PropTypes.string,
-        onlyStakeholders: React.PropTypes.bool
+        targetCollection: PropTypes.oneOf([SalesRecords, Projects]),
+        targetId: PropTypes.string,   // SalesRecordId or ProjectId
+        conversationId: PropTypes.string,
+        onlyStakeholders: PropTypes.bool
     }
 
     constructor(props) {
@@ -94,7 +95,9 @@ export default class Conversation extends TrackerReact(React.Component) {
 
         return (
             <div className="list">
-                <Panel header="Assignees">
+                <Card>
+                <CardHeader>Assignees</CardHeader>
+                <CardBody>
                     {
                         conversation.getAssignees().map((m, i) => (
                             <div key={`assignee-${i}`} className="item">
@@ -103,7 +106,8 @@ export default class Conversation extends TrackerReact(React.Component) {
                             </div>
                         ))
                     }
-                </Panel>
+                </CardBody>
+                </Card>
             </div>
         )
     }
@@ -114,7 +118,9 @@ export default class Conversation extends TrackerReact(React.Component) {
 
         return (
             <div className="list">
-                <Panel header="Followers">
+                <Card>
+                <CardHeader>Followers</CardHeader>
+                <CardBody>
                     {
                         conversation.getFollowers().map((m, i) => (
                             <div key={`assignee-${i}`} className="item">
@@ -123,7 +129,8 @@ export default class Conversation extends TrackerReact(React.Component) {
                             </div>
                         ))
                     }
-                </Panel>
+                </CardBody>
+                </Card>
             </div>
         )
     }

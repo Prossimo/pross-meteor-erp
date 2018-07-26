@@ -1,6 +1,7 @@
 import { drive } from '/imports/api/drive/methods/drive'
 import { WebApp } from 'meteor/webapp'
 import { Random } from 'meteor/random'
+import first from 'lodash/first'
 import { SalesRecords, Projects } from '/imports/api/models'
 import { slackClient } from '/imports/api/slack'
 import bodyParser from 'body-parser'
@@ -80,7 +81,7 @@ export const observeGoogleFile = function() {
       const getFileSync = Meteor.wrapAsync(drive.files.get)
       const {id, name, webViewLink, parents} = getFileSync({ fileId, fields: 'id,name,webViewLink,parents' })
       if (parents && parents.length) {
-        return { id, name, webViewLink, parentId: _.first(parents) }
+        return { id, name, webViewLink, parentId: first(parents) }
       }
       return null
     }

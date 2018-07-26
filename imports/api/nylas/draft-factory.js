@@ -9,7 +9,7 @@ class DraftFactoryClass {
         if (!account) return Promise.reject(new Error('Could not get Nylas account info'))
 
         const body = fields.body || ''
-        return Promise.resolve(_.extend({
+        return Promise.resolve(Object.assign({
             body,
             subject: '',
             clientId: NylasUtils.generateTempId(),

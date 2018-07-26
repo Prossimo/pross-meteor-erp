@@ -1,6 +1,7 @@
-import React, {Component, PropTypes} from 'react'
-import Task from './Task.jsx'
-import TaskAdding from './TaskAdding.jsx'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
+import Task from './Task'
+import TaskAdding from './TaskAdding'
 
 class TaskList extends Component {
     constructor() {

@@ -139,7 +139,7 @@ export const updateProject = new ValidatedMethod({
 
         if (members && members.length) {
             Meteor.users.find({
-                _id: {$in: _.pluck(members, 'userId').filter(mid => _.pluck(project.members, 'userId').indexOf(mid) == -1)},
+                _id: {$in: map(members, 'userId').filter(mid => map(project.members, 'userId').indexOf(mid) == -1)},
                 slack: {$exists: true},
             }).forEach(
                 ({slack: {id}}) => Meteor.call('inviteUserToSlackChannel', {...project.slackChannel, user: id})

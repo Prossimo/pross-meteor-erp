@@ -1,9 +1,11 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { ProgressBar } from 'react-bootstrap'
-import { info, warning } from '/imports/api/lib/alerts'
-import MediaUploader from '../libs/MediaUploader'
+import {info, warning} from '/imports/api/lib/alerts'
+import sortBy from 'lodash/sortBy'
+import MediaUploader from './MediaUploader'
 import {Treebeard, decorators} from './accordionview'
-import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '../../../api/lib/filters'
+import { getUserName, getUserEmail, getSlackUsername, getAvatarUrl } from '/imports/api/lib/filters'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 
@@ -140,7 +142,7 @@ class Files extends Component {
             if (error || !result || !result.files) {
                 return warning('could not list files from google drive')
             }
-            data.children = _.sortBy(result.files, ({ name }) => name)
+            data.children = sortBy(result.files, ({ name }) => name)
             data.children.forEach((item, index) => {
                if (item.mimeType == 'application/vnd.google-apps.folder') {
                    data.children[index].loading = true
@@ -160,7 +162,7 @@ class Files extends Component {
             if (error || !result || !result.files) {
                 return warning('could not list files from google drive')
             }
-            curnode.children = _.sortBy(result.files, ({ name }) => name)
+            curnode.children = sortBy(result.files, ({ name }) => name)
             curnode.children.forEach((item, index) => {
                 if (item.mimeType == 'application/vnd.google-apps.folder') {
                     curnode.children[index].loading = true
@@ -193,7 +195,7 @@ class Files extends Component {
         event.preventDefault()
         if (!this.state.cursor || this.state.cursor.mimeType != 'application/vnd.google-apps.folder') {
             this.setState({msgstring: 'Please select folder!'})
-            return 
+            return
         }
         const file_name = prompt('Please enter new file name', 'Create new file')
 
@@ -315,7 +317,7 @@ class Files extends Component {
                     if (error || !result || !result.files) {
                         return warning('could not list files from google drive')
                     }
-                    node.children = _.sortBy(result.files, ({ name }) => name)
+                    node.children = sortBy(result.files, ({ name }) => name)
                     node.children.forEach((item, index) => {
                         if (item.mimeType == 'application/vnd.google-apps.folder') {
                             node.children[index].loading = true
@@ -418,9 +420,9 @@ class Files extends Component {
         })
     }
 
-    addFile(event) {
+    addFile = (event) => {
         event.preventDefault()
-        const files = _.toArray(event.target.files).map((file) => {
+        const files = Array.from(event.target.files).map((file) => {
             file.id = Meteor.uuid()
             file.uploaded = 0
             return file

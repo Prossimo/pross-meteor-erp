@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import MediaUploader from '../../libs/MediaUploader'
 import { ProgressBar } from 'react-bootstrap'
 import swal from 'sweetalert2'

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { FlowRouter } from 'meteor/kadira:flow-router'
 import Tasks from '/imports/api/models/tasks/tasks'
 import SaleRecords from '/imports/api/models/salesRecords/salesRecords'

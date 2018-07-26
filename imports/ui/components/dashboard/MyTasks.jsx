@@ -1,8 +1,12 @@
-/* global moment */
 import {Roles} from 'meteor/alanning:roles'
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
 import Select from 'react-select'
+import moment from 'moment'
+import find from 'lodash/find'
+import sortBy from 'lodash/sortBy'
 import {Panel, Table, Dropdown, MenuItem} from 'react-bootstrap'
+import { Card, CardHeader, CardBody } from 'reactstrap';
+
 import {createContainer} from 'meteor/react-meteor-data'
 import Tasks, {TaskStatus} from '/imports/api/models/tasks/tasks'
 import {getUserName} from '/imports/api/lib/filters'
@@ -11,21 +15,16 @@ import {CustomToggle} from '../common'
 import {ClientErrorLog} from '/imports/utils/logger'
 
 class MyTasks extends Component {
-    constructor(props) {
-        super()
-        this.renderTasks = this.renderTasks.bind(this)
-
-        this.state = {
-            showAllTasks: false,
-            showCompletedTasks: false,
-            viewOption: 'all',
-            sort: {
-                by: 'dueDate',
-                asc: false
-            },
-            dueDateOption: 'all',
-            userOption: 'all'
-        }
+    state = {
+        showAllTasks: false,
+        showCompletedTasks: false,
+        viewOption: 'all',
+        sort: {
+            by: 'dueDate',
+            asc: false
+        },
+        dueDateOption: 'all',
+        userOption: 'all'
     }
 
     componentWillReceiveProps(newProps) {
@@ -33,7 +32,7 @@ class MyTasks extends Component {
         this.setState({tasks: showCompletedTasks ? newProps.tasks : newProps.tasks.filter(t => t.status !== 'Complete')})
     }
 
-    getTasks() {
+    getTasks = () => {
         const {showCompletedTasks, showAllTasks, viewOption, dueDateOption, userOption} = this.state
 
         let tasks = showAllTasks ? Tasks.find().fetch().filter(t => t.parent()!=null) : this.props.tasks
@@ -67,20 +66,19 @@ class MyTasks extends Component {
         })
     }
 
-
-    getSortedData() {
+    getSortedData = () => {
         const tasks = this.getTasks()
         const {by, asc} = this.state.sort
 
-        const sort = () => _.sortBy(tasks, t => {
+        const sort = () => sortBy(tasks, t => {
             if(by === 'parentId') {
                 return t.parent() ? t.parent().name : ''
             } else if(by === 'assignee') {
-                const assignee = _.findWhere(this.props.users, {_id:t.assignee})
+                const assignee = find(this.props.users, {_id:t.assignee})
                 const assigneeName = assignee ? getUserName(assignee) : ''
                 return assigneeName
             } else if(by === 'approver') {
-                const approver = _.findWhere(this.props.users, {_id:t.approver})
+                const approver = find(this.props.users, {_id:t.approver})
                 const approverName = approver ? getUserName(approver) : ''
                 return approverName
             } else {
@@ -137,7 +135,7 @@ class MyTasks extends Component {
         this.setState({userOption:option.value})
     }
 
-    renderStatusSelector(task) {
+    renderStatusSelector = (task) => {
         return (
             <Dropdown id="task-status-selector" style={{float:'right'}} pullRight>
                 <CustomToggle bsRole="toggle">
@@ -151,7 +149,8 @@ class MyTasks extends Component {
             </Dropdown>
         )
     }
-    renderTasks() {
+
+    renderTasks = () => {
         const tasks = this.getSortedData()
         const {users, userId} = this.props
         const {hoverStatusTask} = this.state
@@ -192,20 +191,18 @@ class MyTasks extends Component {
         const usersOptions = [{value:'all', label:'All'},{value:'assignee', label:'Assignee'},{value:'approver', label:'Approver'}]
 
         const header = (
-            <div style={{display: 'flex'}}>
+            <CardHeader style={{display: 'flex'}}>
                 <div style={{flex: 1}}>
                     My Tasks
                 </div>
                 <div style={{display:'flex'}}>
-                    {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks}
-                                                                                  onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
-                    <span><input type="checkbox" value={this.state.showCompletedTasks}
-                                 onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
+                    {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks} onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
+                    <span><input type="checkbox" value={this.state.showCompletedTasks} onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
                     <Select className="small-select" value={this.state.viewOption} options={viewOptions} onChange={this.selectViewOption} clearable={false}/>&nbsp;
                     <Select className="small-select" value={this.state.dueDateOption} options={dueDateOptions} onChange={this.selectDueDateOption} clearable={false}/>&nbsp;
                     <Select className="small-select" value={this.state.userOption} options={usersOptions} onChange={this.selectUserOption} clearable={false}/>
                 </div>
-            </div>
+            </CardHeader>
         )
         const sortIcon = (field) => {
             if(by === field && asc) return <i style={{marginLeft:5}} className="fa fa-caret-up"/>
@@ -215,27 +212,30 @@ class MyTasks extends Component {
 
         return (
             <div className="my-tasks">
-                <Panel header={header}>
-                    All tasks assigned from/to you.
-                    <Table responsive>
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th onClick={() => this.sortBy('name')}>Name{sortIcon('name')}</th>
-                            <th onClick={() => this.sortBy('status')}>Status{sortIcon('status')}</th>
-                            <th onClick={() => this.sortBy('parentId')}>Deal/Project{sortIcon('parentId')}</th>
-                            <th colSpan={2}>Desciption</th>
-                            <th onClick={() => this.sortBy('assignee')}>Assignee{sortIcon('assignee')}</th>
-                            <th onClick={() => this.sortBy('approver')}>Approver{sortIcon('approver')}</th>
-                            <th onClick={() => this.sortBy('dueDate')}>DueDate{sortIcon('dueDate')}</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {this.renderTasks()}
-                        </tbody>
-                    </Table>
-                </Panel>
+                <Card>
+                    {header}
+                    <CardBody>
+                        All tasks assigned from/to you.
+                        <Table responsive>
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th onClick={() => this.sortBy('name')}>Name{sortIcon('name')}</th>
+                                <th onClick={() => this.sortBy('status')}>Status{sortIcon('status')}</th>
+                                <th onClick={() => this.sortBy('parentId')}>Deal/Project{sortIcon('parentId')}</th>
+                                <th colSpan={2}>Desciption</th>
+                                <th onClick={() => this.sortBy('assignee')}>Assignee{sortIcon('assignee')}</th>
+                                <th onClick={() => this.sortBy('approver')}>Approver{sortIcon('approver')}</th>
+                                <th onClick={() => this.sortBy('dueDate')}>DueDate{sortIcon('dueDate')}</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {this.renderTasks()}
+                            </tbody>
+                        </Table>
+                    </CardBody>
+                </Card>
             </div>
         )
     }

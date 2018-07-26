@@ -1,7 +1,11 @@
-import _ from 'underscore';
-import React, {Component, PropTypes} from 'react';
-import {findDOMNode} from 'react-dom';
-import PopoverActions from './PopoverActions';
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
+import defer from 'lodash/defer'
+import isEqual from 'lodash/isEqual'
+import pick from 'lodash.pick'
+import sortBy from 'lodash/sortBy'
+import {findDOMNode} from 'react-dom'
+import PopoverActions from './PopoverActions'
 
 
 const Directions = {
@@ -9,16 +13,16 @@ const Directions = {
     Down: 'down',
     Left: 'left',
     Right: 'right',
-};
+}
 
 const InverseDirections = {
     [Directions.Up]: Directions.Down,
     [Directions.Down]: Directions.Up,
     [Directions.Left]: Directions.Right,
     [Directions.Right]: Directions.Left,
-};
+}
 
-const OFFSET_PADDING = 11.5;
+const OFFSET_PADDING = 11.5
 
 /**
  * Renders a popover absultely positioned in the window next to the provided
@@ -60,7 +64,7 @@ class FixedPopover extends Component {
         this.focusElementWithTabIndex()
         findDOMNode(this.refs.popoverContainer).addEventListener('animationend', this.onAnimationEnd)
         window.addEventListener('resize', this.onWindowResize)
-        _.defer(this.onPopoverRendered)
+        defer(this.onPopoverRendered)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -70,13 +74,13 @@ class FixedPopover extends Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         return (
-            !_.isEqual(this.state, nextState) || !_.isEqual(this.props, nextProps)
+            !isEqual(this.state, nextState) || !isEqual(this.props, nextProps)
         )
     }
 
     componentDidUpdate() {
         this.focusElementWithTabIndex()
-        _.defer(this.onPopoverRendered)
+        defer(this.onPopoverRendered)
     }
 
     componentWillUnmount() {
@@ -86,7 +90,7 @@ class FixedPopover extends Component {
     }
 
     onAnimationEnd = () => {
-        _.defer(this.focusElementWithTabIndex);
+        defer(this.focusElementWithTabIndex);
     }
 
     onWindowResize() {
@@ -151,9 +155,9 @@ class FixedPopover extends Component {
         // Automatically focus the element inside us with the lowest tab index
         const popoverNode = findDOMNode(this);
 
-        // _.sortBy ranks in ascending numerical order.
+        // sortBy ranks in ascending numerical order.
         const focusable = popoverNode.querySelectorAll("[tabIndex], input");
-        const matches = _.sortBy(focusable, (node) => {
+        const matches = sortBy(focusable, (node) => {
             if (node.tabIndex > 0) {
                 return node.tabIndex;
             } else if (node.nodeName === "INPUT") {
@@ -185,7 +189,7 @@ class FixedPopover extends Component {
 
     computeAdjustedOffsetAndDirection = ({direction, currentRect, windowDimensions, fallback = this.fallback, offsetPadding = OFFSET_PADDING}) => {
         const {overflows, overflowValues} = this.computeOverflows({currentRect, windowDimensions})
-        const overflowCount = Object.keys(_.pick(overflows, (val) => val === true)).length
+        const overflowCount = Object.keys(pick(overflows, (val) => val === true)).length
 
         if (overflowCount > 0) {
             if (fallback) {

@@ -4,9 +4,10 @@ import React from 'react'
 import classNames from 'classnames'
 import swal from 'sweetalert2'
 import {info, warning} from '/imports/api/lib/alerts'
-import ContactStore from '../../../api/nylas/contact-store'
+import ContactStore from '/imports/api/nylas/contact-store'
 import Select from 'react-select'
 import {ROLES, Users, PeopleDesignations, People, SalesRecords, ClientStatus, SupplierStatus} from '/imports/api/models'
+import isEmpty from 'lodash/isEmpty'
 import Popup from '../popup/Popup'
 import ContactInfo from '../account/ContactInfo'
 import QuotesComponent from './Quotes'
@@ -18,6 +19,7 @@ import Conversations from './conversations/Conversations'
 import {Modal} from 'react-bootstrap'
 import {createContainer} from 'meteor/react-meteor-data'
 import {Panel, SlackChannelSelector, Selector} from '../common'
+import { Card, CardHeader, CardBody } from 'reactstrap'
 import SelectSubStage from './components/SelectSubStage'
 import Spinner from '../utils/spinner'
 import {ClientErrorLog} from '/imports/utils/logger'
@@ -553,30 +555,36 @@ class SingleSalesRecord extends React.Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Slack Channel"
-                               actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
-                                                              onSelectChannel={this.updateSlackChannel}/>}>
+                        <Card actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
+                            onSelectChannel={this.updateSlackChannel}/>}>
+                            <CardHeader>Slack Channel</CardHeader>
+                            <CardBody>
                             {salesRecord.slackChannel.name || salesRecord.slackChannel.id}&nbsp;{salesRecord.slackChannel.isPrivate &&
                         <i className="fa fa-lock"/>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Members"
-                               actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
-                                                  options={Users.find().map(u => ({value: u._id, label: u.name()}))}
-                                                  onSelect={this.onSelectMembers}/>}>
+                        <Card actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
+                            options={Users.find().map(u => ({value: u._id, label: u.name()}))}
+                            onSelect={this.onSelectMembers}/>}>
+                            <CardHeader>Members</CardHeader>
+                            <CardBody>
                             {members && members.length ? this.renderMembers(members) :
                                 <div>There are no members assigned to this project</div>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Dealer"
-                               actions={<Selector value={dealer && {value: dealer._id, label: dealer.name}}
-                                                  options={dealers.map(d => ({value: d._id, label: d.name}))}
-                                                  onSelect={this.onSelectDealer}/>}>
+                        <Card actions={<Selector value={dealer && {value: dealer._id, label: dealer.name}}
+                            options={dealers.map(d => ({value: d._id, label: d.name}))}
+                            onSelect={this.onSelectDealer}/>}>
+                            <CardHeader>Dealers</CardHeader>
+                            <CardBody>
                             {dealer ? this.renderDealer(dealer) :
                                 <div>Dealer is not set yet.</div>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                     <div className='sidebar-box'>
                         <div>
@@ -588,7 +596,7 @@ class SingleSalesRecord extends React.Component {
                             const existPeople = this.props.stakeholders.filter(stake =>
                                 stake.designation && stake.designation.name === d.name
                             )
-                            if (_.isEmpty(existPeople)) return ''
+                            if (isEmpty(existPeople)) return ''
                             return (
                                 <div key={d._id}>
                                     <h4>{d.name}</h4>

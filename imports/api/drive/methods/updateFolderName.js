@@ -1,5 +1,5 @@
-import { drive } from './drive'
 import SimpleSchema from 'simpl-schema'
+import { drive } from './drive'
 import { ValidatedMethod } from 'meteor/mdg:validated-method'
 
 export default new ValidatedMethod({

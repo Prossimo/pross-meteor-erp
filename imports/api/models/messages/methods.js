@@ -100,9 +100,9 @@ export const saveMessage = new ValidatedMethod({
                             data.followers = followers
                         }
                         if(existingThread) {
-                            Threads.update({id:thread.id}, {$set:_.extend(thread, data)})
+                            Threads.update({id:thread.id}, {$set:Object.assign(thread, data)})
                         } else {
-                            Threads.insert(_.extend(thread, data))
+                            Threads.insert(Object.assign(thread, data))
                         }
 
                         const existingMessage = Messages.findOne({id:message.id})

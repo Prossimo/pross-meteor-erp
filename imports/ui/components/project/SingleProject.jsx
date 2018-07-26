@@ -1,14 +1,15 @@
 /* global FlowRouter */
-import _ from 'underscore'
 import React, {Component} from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import classNames from 'classnames'
+import find from 'lodash/find'
 import {info, warning} from '/imports/api/lib/alerts'
 import {Users, Projects, People} from '/imports/api/models'
 import Activities from './Activities'
 import Tasks from '../tasks/TaskBoard.jsx'
 import Files from '../files/Files.jsx'
 import {Panel, Selector, SlackChannelSelector} from '../common'
+import { Card, CardHeader, CardBody } from 'reactstrap'
 import Conversations from '../salesRecord/conversations/Conversations'
 
 class SingleProject extends Component {
@@ -53,7 +54,7 @@ class SingleProject extends Component {
 
     onSelectMembers = (members) => {
         const {project} = this.props
-        const userIds = _.pluck(project.members, 'userId')
+        const userIds = map(project.members, 'userId')
         if (members && project.members && members.length == project.members.length && members.every(m => userIds.indexOf(m.value) > -1)) return
 
 
@@ -67,11 +68,11 @@ class SingleProject extends Component {
 
     onSelectStakeholders = (stakeholders) => {
         const {project} = this.props
-        const peopleIds = _.pluck(project.stakeholders, 'peopleId')
+        const peopleIds = map(project.stakeholders, 'peopleId')
         if (stakeholders && project.stakeholders && stakeholders.length == project.stakeholders.length && stakeholders.every(m => peopleIds.indexOf(m.value) > -1)) return
 
         project.stakeholders = stakeholders.map(p => {
-            const stakeholder = _.findWhere(project.stakeholders, {peopleId: p.value})
+            const stakeholder = find(project.stakeholders, {peopleId: p.value})
             if (stakeholder) return stakeholder
 
             return {peopleId: p.value, isMainStakeholder: false, addToMain: true}
@@ -225,29 +226,35 @@ class SingleProject extends Component {
                 </div>
                 <aside className="right-sidebar">
                     <div className="sidebar-box">
-                        <Panel title="Slack Channel" actions={<SlackChannelSelector channel={project.slackChannel.id}
-                                                                                    onSelectChannel={this.updateSlackChannel}/>}>
+                        <Card actions={<SlackChannelSelector channel={project.slackChannel.id}
+                            onSelectChannel={this.updateSlackChannel}/>}>
+                            <CardHeader>Slack Channel</CardHeader>
+                            <CardBody>
                             {project.slackChannel.name || project.slackChannel.id}&nbsp;{project.slackChannel.isPrivate && <i className="fa fa-lock"/>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Members"
-                               actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
-                                                  options={Users.find().map(u => ({value: u._id, label: u.name()}))}
-                                                  onSelect={this.onSelectMembers}/>}>
+                        <Card actions={<Selector multiple value={members.map(m => ({value: m._id, label: m.name()}))}
+                            options={Users.find().map(u => ({value: u._id, label: u.name()}))}
+                            onSelect={this.onSelectMembers}/>}>
+                        <CardHeader>Members</CardHeader>
+                        <CardBody>
                             {members && members.length ? this.renderMembers(members) :
                                 <div>There are no members assigned to this project</div>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                     <div className="sidebar-box">
-                        <Panel title="Stakeholders" actions={<Selector multiple value={stakeholders.map(p => ({
-                            value: p._id,
-                            label: p.name
-                        }))} options={People.find().map(p => ({value: p._id, label: p.name}))}
-                                                                       onSelect={this.onSelectStakeholders}/>}>
+                        <Card actions={<Selector multiple value={stakeholders.map(p => ({
+                            value: p._id, label: p.name }))} options={People.find().map(p => ({value: p._id, label: p.name}))}
+                            onSelect={this.onSelectStakeholders}/>}>
+                            <CardHeader>Stakeholders</CardHeader>
+                            <CardBody>
                             {stakeholders && stakeholders.length ? this.renderStakeholders(stakeholders) :
                                 <div>There are no members assigned to this project</div>}
-                        </Panel>
+                            </CardBody>
+                        </Card>
                     </div>
                 </aside>
             </div>

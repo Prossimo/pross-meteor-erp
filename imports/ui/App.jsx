@@ -10,6 +10,8 @@ import Header from './components/header/Header'
 import Aside from './components/aside/Aside'
 import Spinner from './components/utils/spinner'
 import {SalesRecords} from '/imports/api/models'
+import 'bootstrap';
+import '/imports/assets/scss/index.scss'
 
 class App extends React.Component{
     constructor(props){

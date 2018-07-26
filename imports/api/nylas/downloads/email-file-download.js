@@ -15,7 +15,7 @@ class EmailFileDownload extends Download {
     }
 
     data() {
-        //return _.extend(super.data(), {provider:'email', blob:this.blob});
+        //return Object.assign(super.data(), {provider:'email', blob:this.blob});
         return Object.freeze(_.clone({
             state: this.state,
             fileId: this.fileId,

@@ -14,7 +14,7 @@ export default class SyncbackDraftTask extends Task {
 
    performRemote() {
       console.log('SyncbackDraftTask performRemote', this.draft)
-       if (this.draft.files && this.draft.files.length) this.draft.file_ids = _.pluck(this.draft.files, 'id')
+       if (this.draft.files && this.draft.files.length) this.draft.file_ids = map(this.draft.files, 'id')
 
        return NylasAPI.makeRequest({
          accountId: this.draft.account_id,

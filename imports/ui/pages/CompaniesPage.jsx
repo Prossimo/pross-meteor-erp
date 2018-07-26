@@ -3,7 +3,7 @@ import {Modal} from 'react-bootstrap'
 import {removeCompany} from '/imports/api/models/companies/methods'
 import CompaniesList from '../components/companies/CompaniesList'
 import CompanyOverview from '../components/companies/CompanyOverview'
-import CompanyForm from '../components/companies/CompanyForm'
+import CompanyForm from '/imports/ui/components/companies/CompanyForm'
 import {warning} from '/imports/api/lib/alerts'
 
 

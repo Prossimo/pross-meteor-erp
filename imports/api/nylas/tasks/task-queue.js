@@ -1,4 +1,9 @@
 import Reflux from 'reflux'
+import some from 'lodash/some'
+import filter from 'lodash/filter'
+import find from 'lodash/find'
+import flatten from 'lodash/flatten'
+import throttle from 'lodash/throttle'
 import Task from './task'
 import Actions from '../actions'
 
@@ -41,7 +46,7 @@ class TaskQueueClass extends Reflux.Store {
     }
 
     _dequeueObsoleteTasks = (task) => {
-        const obsolete = _.filter(this._queue, (otherTask) => {
+        const obsolete = filter(this._queue, (otherTask) => {
             // Do not interrupt tasks which are currently processing
             if (otherTask.queueState.isProcessing) return false
 
@@ -83,15 +88,15 @@ class TaskQueueClass extends Reflux.Store {
     _resolveTaskArgument = (taskOrId) => {
         if (!taskOrId) return null
         else if (taskOrId instanceof Task)
-            return _.find(this._queue, (task) => task === taskOrId)
+            return find(this._queue, (task) => task === taskOrId)
         else
-            return _.findWhere(this._queue, {id: taskOrId})
+            return find(this._queue, {id: taskOrId})
     }
 
 
     _updateSoon = () => {
         if (!this._updateSoonThrottled) {
-            this._updateSoonThrottled = _.throttle(() => {
+            this._updateSoonThrottled = throttle(() => {
                     this._processQueue()
                     this._ensurePeriodicUpdates()
                 }
@@ -173,7 +178,7 @@ class TaskQueueClass extends Reflux.Store {
     }
 
     _ensurePeriodicUpdates = () => {
-        const anyIsProcessing = _.any(this._queue, (task) => task.queueState.isProcessing)
+        const anyIsProcessing = some(this._queue, (task) => task.queueState.isProcessing)
 
         // The task queue triggers periodically as tasks are processed, even if no
         // major events have occurred. This allows tasks which have state, like
@@ -189,9 +194,9 @@ class TaskQueueClass extends Reflux.Store {
         }
     }
 
-    _taskIsBlocked = (task) => _.any(this._queue, (otherTask) => task.isDependentOnTask(otherTask) && task != otherTask)
+    _taskIsBlocked = (task) => some(this._queue, (otherTask) => task.isDependentOnTask(otherTask) && task != otherTask)
 
-    _tasksDependingOn = (task) => _.filter(this._queue, (otherTask) => otherTask.isDependentOnTask(task) && task != otherTask)
+    _tasksDependingOn = (task) => filter(this._queue, (otherTask) => otherTask.isDependentOnTask(task) && task != otherTask)
 
 
     // Recursively notifies tasks of dependent errors
@@ -224,10 +229,10 @@ class TaskQueueClass extends Reflux.Store {
     // whether or not we should dequeue that task.
     _dequeueDownstreamTasks = (responses = []) => {
         // Responses are nested arrays due to the recursion
-        responses = _.flatten(responses)
+        responses = flatten(responses)
 
         // A response may be `null` if it hit our infinite recursion check.
-        responses = _.filter(responses, (r) => r != null)
+        responses = filter(responses, (r) => r != null)
 
         responses.forEach((resp) => {
             resp.downstreamTask.queueState.status = Task.Status.Continue
