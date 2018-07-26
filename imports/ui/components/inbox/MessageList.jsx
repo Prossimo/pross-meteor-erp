@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import last from 'lodash/last'
 import filter from 'lodash/filter'
+import isEqual from 'lodash/isEqual'
 import clone from 'lodash/clone'
 import {NylasUtils, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'
@@ -11,24 +12,19 @@ import Messages from '../../../api/models/messages/messages'
 
 const $ = window.jQuery
 class MessageList extends (React.Component) {
-
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            messagesExpandedState: {},
-            minified: true
-        }
-
-        this.MINIFY_THRESHOLD = 3
+    state = {
+        messagesExpandedState: {},
+        minified: true
     }
 
+    MINIFY_THRESHOLD = 3
+
     componentWillReceiveProps(newProps) {
-        if(!_.isEqual(newProps.messages, this.props.messages)) {
+        if(!isEqual(newProps.messages, this.props.messages)) {
             this.setMessagesExpandedState(newProps)
 
             setTimeout(() => {
-                const lastMessage = _.last(newProps.messages)
+                const lastMessage = last(newProps.messages)
                 // console.log('Last message position', $(`#message-item-${lastMessage.id}`).position().top)
 
                 if (lastMessage) {
@@ -37,7 +33,7 @@ class MessageList extends (React.Component) {
             }, 100)
         }
 
-        if (newProps.thread && !_.isEqual(newProps.thread, this.props.thread)) {
+        if (newProps.thread && !isEqual(newProps.thread, this.props.thread)) {
             this.setState({
                 minified: true
             })
@@ -45,7 +41,7 @@ class MessageList extends (React.Component) {
         }
     }
 
-    setMessagesExpandedState(props) {
+    setMessagesExpandedState = (props) => {
         this.setState(({messagesExpandedState}) => {
             props.messages.forEach((message, idx) => {
                 if(message.unread || message.draft || idx==props.messages.length - 1) {
@@ -85,7 +81,7 @@ class MessageList extends (React.Component) {
         )
     }
 
-    renderSubject() {
+    renderSubject = () => {
         let subject = this.props.thread.subject
 
         if (!subject || subject.length == 0)
@@ -104,7 +100,7 @@ class MessageList extends (React.Component) {
         )
     }
 
-    renderIcons() {
+    renderIcons = () => {
         return (
             <div className="message-icons-wrap">
                 {/*{@_renderExpandToggle()}*/}
@@ -117,7 +113,7 @@ class MessageList extends (React.Component) {
     }
 
 
-    renderMessages() {
+    renderMessages = () => {
         const elements = []
 
         let {messages} = this.props
@@ -155,7 +151,7 @@ class MessageList extends (React.Component) {
         return elements
     }
 
-    _messagesWithMinification(messages = []) {
+    _messagesWithMinification = (messages = []) => {
         if (!this.state.minified) return messages
 
         messages = clone(messages)
@@ -200,7 +196,7 @@ class MessageList extends (React.Component) {
         return messages
     }
 
-    _renderMinifiedBundle(bundle) {
+    _renderMinifiedBundle = (bundle) => {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10)
         const h = Math.round(BUNDLE_HEIGHT / lines.length)
@@ -220,7 +216,7 @@ class MessageList extends (React.Component) {
         )
     }
 
-    _renderReplyArea() {
+    _renderReplyArea = () => {
         const icon = `/icons/inbox/${this._replyType()}-footer.png`
         return (
             <div className="footer-reply-area-wrap" onClick={this._onClickReplyArea} key='reply-area'>
@@ -233,7 +229,7 @@ class MessageList extends (React.Component) {
     }
 
 
-    _replyType() {
+    _replyType = () => {
         const defaultReplyType = 'reply-all'
         const lastMessage = last(filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
         if (!lastMessage) return 'reply'
@@ -248,7 +244,7 @@ class MessageList extends (React.Component) {
         }
     }
 
-    _lastMessage() {
+    _lastMessage = () => {
         const messages = this.state.messages || []
         return last(filter(messages, m => !m.draft))
     }

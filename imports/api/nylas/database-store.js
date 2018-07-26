@@ -1,5 +1,7 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
+import isEqual from 'lodash/isEqual'
+import clone from 'lodash/clone'
+import isEmpty from 'lodash/isEmpty'
 
 const LIMIT = 100
 const CommonSchema = {
@@ -15,7 +17,7 @@ const CommonSchema = {
     }
 }
 const Schema = {
-    thread: Object.assign(_.clone(CommonSchema), {
+    thread: Object.assign(clone(CommonSchema), {
         subject: {
             type: 'string'
         },
@@ -56,7 +58,7 @@ const Schema = {
             type: 'array'
         }
     }),
-    message: Object.assign(_.clone(CommonSchema), {
+    message: Object.assign(clone(CommonSchema), {
         thread_id: {
             type: 'string'
         },
@@ -187,7 +189,7 @@ class DatabaseStore extends Reflux.Store {
             }
         }
 
-        if(where && !_.isEmpty(where)) {
+        if(where && !isEmpty(where)) {
             return ` WHERE ${Object.keys(where).map((key) => filter(key, where[key])).join(' AND ')}`
         } else {
             return ''
@@ -232,7 +234,7 @@ class DatabaseStore extends Reflux.Store {
                                 )
 
                             })
-                        } else if (!_.isEqual(dbObj, obj)) {
+                        } else if (!isEqual(dbObj, obj)) {
                             changed = true
                             this.db.transaction((tx) => {
                                 const query = this.buildQuery(QueryType.update, objName, {where:{id:obj.id}})

@@ -1,5 +1,9 @@
 /* eslint no-unused-vars: 0*/
-import _ from 'underscore'
+import clone from 'lodash/clone'
+import intersection from 'lodash/intersection'
+import isEqual from 'lodash/isEqual'
+import isString from 'lodash/isString'
+import map from 'lodash/map'
 import Task from './task'
 import NylasAPI from '../nylas-api'
 import {APIError} from '../errors'
@@ -204,7 +208,7 @@ export default class ChangeMailTask extends Task {
         if (this._shouldChangeBackwards()) {
             modelArray.forEach((model, idx) => {
                 if (this._restoreValues[model.id]) {
-                    const updated = Object.assign(_.clone(model), this._restoreValues[model.id])
+                    const updated = Object.assign(clone(model), this._restoreValues[model.id])
                     modelArray[idx] = updated
                     changed.push(updated)
                 }
@@ -213,10 +217,10 @@ export default class ChangeMailTask extends Task {
             this._restoreValues = this._restoreValues || {}
             modelArray.forEach((model, idx) => {
                 const fieldsNew = this.changesToModel(model)
-                const fieldsCurrent = _.pick(model, Object.keys(fieldsNew))
-                if (!_.isEqual(fieldsCurrent, fieldsNew)) {
+                const fieldsCurrent = _map(model, Object.keys(fieldsNew))
+                if (!isEqual(fieldsCurrent, fieldsNew)) {
                     this._restoreValues[model.id] = fieldsCurrent
-                    const updated = Object.assign(_.clone(model), fieldsNew)
+                    const updated = Object.assign(clone(model), fieldsNew)
                     modelArray[idx] = updated
                     changed.push(updated)
                 }
@@ -307,7 +311,7 @@ export default class ChangeMailTask extends Task {
 
         // Never give the undo task the Model objects - make it look them up!
         // This ensures that they never revert other fields
-        const toIds = (arr) => _.map(arr, v => _.isString(v) ? v : v.id)
+        const toIds = (arr) => map(arr, v => isString(v) ? v : v.id)
         task.threads = toIds(this.threads)
         task.messages = (this.threads.length > 0) ? [] : toIds(this.messages)
         return task
@@ -315,7 +319,7 @@ export default class ChangeMailTask extends Task {
 
     objectIds() {
         return [].concat(this.threads, this.messages).map((v) =>
-            _.isString(v) ? v : v.id
+            isString(v) ? v : v.id
         )
     }
 
@@ -340,7 +344,7 @@ export default class ChangeMailTask extends Task {
             return false
         }
         const otherOlder = other.sequentialId < this.sequentialId
-        const otherSameObjs = _.intersection(other.objectIds(), this.objectIds()).length > 0
+        const otherSameObjs = intersection(other.objectIds(), this.objectIds()).length > 0
         return otherOlder && otherSameObjs
     }
 

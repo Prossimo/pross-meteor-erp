@@ -1,10 +1,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {createContainer} from 'meteor/react-meteor-data'
+import { withTracker} from 'meteor/react-meteor-data'
 import last from 'lodash/last'
 import filter from 'lodash/filter'
 import clone from 'lodash/clone'
+import isEqual from 'lodash/isEqual'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import MessageItemContainer from '/imports/ui/components/inbox/MessageItemContainer'
 import ConversationStore from '/imports/api/nylas/conversation-store'
@@ -14,32 +15,25 @@ import Conversations from '/imports/api/models/conversations/conversations'
 
 @Radium
 class ConversationList extends TrackerReact(React.Component) {
-
+    state = {
+        messagesExpandedState: {},
+        minified: true
+    }
     static propTypes = {
         conversationId: PropTypes.string
     }
-    constructor(props) {
-        super(props)
-
-
-        this.MINIFY_THRESHOLD = 3
-
-        this.state = {
-            messagesExpandedState: {}
-        }
-        this.state.minified = true
-    }
+    MINIFY_THRESHOLD = 3
 
     componentDidMount() {
         this.setMessagesExpandedState(this.props)
     }
 
     componentWillReceiveProps(newProps) {
-        if (!_.isEqual(newProps.messages, this.props.messages)) {
+        if (!isEqual(newProps.messages, this.props.messages)) {
             this.setMessagesExpandedState(newProps)
 
             setTimeout(() => {
-                const lastMessage = _.last(newProps.messages)
+                const lastMessage = last(newProps.messages)
                 // console.log('Last message position', $(`#message-item-${lastMessage.id}`).position().top)
 
                 if (lastMessage) {
@@ -48,7 +42,7 @@ class ConversationList extends TrackerReact(React.Component) {
             }, 100)
         }
 
-        if (newProps.thread && !_.isEqual(newProps.thread, this.props.thread)) {
+        if (newProps.thread && !isEqual(newProps.thread, this.props.thread)) {
             this.setState({
                 minified: true
             })
@@ -56,7 +50,7 @@ class ConversationList extends TrackerReact(React.Component) {
         }
     }
 
-    setMessagesExpandedState(props) {
+    setMessagesExpandedState = (props) => {
         this.setState(({messagesExpandedState}) => {
             props.messages.forEach((message, idx) => {
                 if (message.unread || message.draft || idx == props.messages.length - 1) {
@@ -90,7 +84,7 @@ class ConversationList extends TrackerReact(React.Component) {
         )
     }
 
-    renderMessages() {
+    renderMessages = () => {
         const elements = []
 
         let messages = this.props.messages
@@ -129,7 +123,7 @@ class ConversationList extends TrackerReact(React.Component) {
         return elements
     }
 
-    _messagesWithMinification(messages = []) {
+    _messagesWithMinification = (messages = []) => {
         if (!this.state.minified) return messages
 
         messages = clone(messages)
@@ -174,7 +168,7 @@ class ConversationList extends TrackerReact(React.Component) {
         return messages
     }
 
-    _renderMinifiedBundle(bundle) {
+    _renderMinifiedBundle = (bundle) => {
         const BUNDLE_HEIGHT = 36
         const lines = bundle.messages.slice(0, 10)
         const h = Math.round(BUNDLE_HEIGHT / lines.length)
@@ -194,7 +188,7 @@ class ConversationList extends TrackerReact(React.Component) {
         )
     }
 
-    _renderReplyArea() {
+    _renderReplyArea = () => {
         const icon = `/icons/inbox/${this._replyType()}-footer.png`
         return (
             <div className="footer-reply-area-wrap" onClick={this._onClickReplyArea} key='reply-area'>
@@ -207,7 +201,7 @@ class ConversationList extends TrackerReact(React.Component) {
     }
 
 
-    _replyType() {
+    _replyType = () => {
         const defaultReplyType = 'reply-all'
         const lastMessage = last(filter(this.state.messages?this.state.messages:[], (m) => !m.draft))
         if (!lastMessage) return 'reply'
@@ -222,7 +216,7 @@ class ConversationList extends TrackerReact(React.Component) {
         }
     }
 
-    _lastMessage() {
+    _lastMessage = () => {
         const messages = this.messages || []
         return last(filter(messages, m => !m.draft))
     }
@@ -242,13 +236,13 @@ class ConversationList extends TrackerReact(React.Component) {
 }
 
 ConversationList.propTypes = {
-    conversationId: React.PropTypes.string
+    conversationId: PropTypes.string
 }
 
-export default createContainer((props) => {
+export default withTracker((props) => {
     const {conversationId} = props
 
     return {
         messages: Conversations.findOne(conversationId).messages(),
     }
-}, ConversationList)
+})(ConversationList)
