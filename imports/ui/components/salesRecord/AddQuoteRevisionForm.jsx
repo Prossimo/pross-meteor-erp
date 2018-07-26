@@ -1,6 +1,8 @@
 import React from 'react'
 import moment from 'moment'
-import _ from 'underscore'
+import PropTypes from 'prop-types'
+import first from 'lodash/first'
+import isArray from 'lodash/isArray'
 import { FlowRouter } from 'meteor/kadira:flow-router'
 import { getAvatarUrl, getSlackUsername } from '../../../api/lib/filters'
 import { warning, info } from '/imports/api/lib/alerts'
@@ -13,18 +15,18 @@ import {MailTemplates} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component{
     static propTypes = {
-        currentUser: React.PropTypes.object,
-        usersArr: React.PropTypes.object,
-        quote: React.PropTypes.object,
-        salesRecord: React.PropTypes.object,
-        draftClientId: React.PropTypes.string,
-        saved: React.PropTypes.func
+        currentUser: PropTypes.object,
+        usersArr: PropTypes.object,
+        quote: PropTypes.object,
+        salesRecord: PropTypes.object,
+        draftClientId: PropTypes.string,
+        saved: PropTypes.func
     }
 
     constructor(props){
         super(props)
 
-        const defaultRevisionNumber = _.isArray(props.quote.revisions) ? props.quote.revisions.length : 0
+        const defaultRevisionNumber = isArray(props.quote.revisions) ? props.quote.revisions.length : 0
 
         this.state = {
             currentFile: null,
@@ -156,7 +158,7 @@ class AddQuoteForm extends React.Component{
           { query: `'${salesRecord.folderId}' in parents and name = 'CLIENT QUOTE'` },
           (error, { files }) => {
             if (error) return alert('folder CLIENT QUOTE is not found!')
-            const clientQuoteId = _.first(files).id
+            const clientQuoteId = first(files).id
             new MediaUploader({
               file: currentFile,
               token: this.token,

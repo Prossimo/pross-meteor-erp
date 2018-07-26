@@ -8,7 +8,7 @@ import {createProject} from '../projects/methods'
 import {ErrorLog} from '/imports/utils/logger'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
-
+let getCategories = () => { console.log('bare func') };
 Meteor.methods({
     addNylasAccount(data) {
         check(data, {
@@ -92,7 +92,7 @@ Meteor.methods({
 
                         // Folders or labels list
 
-                        const getCategories = NylasAPI.makeRequest({
+                        getCategories = NylasAPI.makeRequest({
                             path: `/${account.organization_unit}s`,
                             method: 'GET',
                             auth: {

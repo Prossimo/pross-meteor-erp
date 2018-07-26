@@ -14,7 +14,7 @@ class NylasAccountsCollection extends Mongo.Collection {
     remove(selector) {
         const accounts = this.find(selector).fetch()
         if(accounts && accounts.length) {
-            const ids = _.pluck(accounts, 'accountId')
+            const ids = map(accounts, 'accountId')
 
             Contacts.remove({account_id:{$in:ids}, edited:{$ne:true}})
             Projects.remove({nylasAccountId:{$in:ids}})

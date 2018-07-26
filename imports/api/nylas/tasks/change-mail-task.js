@@ -204,7 +204,7 @@ export default class ChangeMailTask extends Task {
         if (this._shouldChangeBackwards()) {
             modelArray.forEach((model, idx) => {
                 if (this._restoreValues[model.id]) {
-                    const updated = _.extend(_.clone(model), this._restoreValues[model.id])
+                    const updated = Object.assign(_.clone(model), this._restoreValues[model.id])
                     modelArray[idx] = updated
                     changed.push(updated)
                 }
@@ -216,7 +216,7 @@ export default class ChangeMailTask extends Task {
                 const fieldsCurrent = _.pick(model, Object.keys(fieldsNew))
                 if (!_.isEqual(fieldsCurrent, fieldsNew)) {
                     this._restoreValues[model.id] = fieldsCurrent
-                    const updated = _.extend(_.clone(model), fieldsNew)
+                    const updated = Object.assign(_.clone(model), fieldsNew)
                     modelArray[idx] = updated
                     changed.push(updated)
                 }

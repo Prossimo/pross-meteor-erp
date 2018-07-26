@@ -1,12 +1,14 @@
-import React, { Component, PropTypes } from 'react'
-import { createContainer } from 'meteor/react-meteor-data'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import {createContainer} from 'meteor/react-meteor-data'
+import sortBy from 'lodash/sortBy'
 import styled from 'styled-components'
 import moment from 'moment'
 import swal from 'sweetalert2'
 import Textcomplete from 'textcomplete/lib/textcomplete'
 import Textarea from 'textcomplete/lib/textarea'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import CommentIcon from './CommentIcon.jsx'
+import CommentIcon from './CommentIcon'
 
 class CommentList extends Component {
   constructor() {
@@ -152,7 +154,7 @@ class CommentList extends Component {
                   </div>
                 </div>
                 {
-                  this.renderComments(_.sortBy(childComments, ({ createdAt }) => -createdAt.getTime()), level + 1)
+                  this.renderComments(sortBy(childComments, ({ createdAt }) => -createdAt.getTime()), level + 1)
                 }
               </div>
             )
@@ -167,7 +169,7 @@ class CommentList extends Component {
       .props
       .comments
       .filter(({ parentId }) => !parentId)
-    return this.renderComments(_.sortBy(comments, ({ createdAt }) => -createdAt.getTime()), 0)
+    return this.renderComments(sortBy(comments, ({ createdAt }) => -createdAt.getTime()), 0)
   }
 }
 

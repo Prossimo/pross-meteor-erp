@@ -5,8 +5,6 @@ import SimpleSchema from 'simpl-schema'
 import Messages from './messages'
 import NylasAPI from '../../nylas/nylas-api'
 import Threads from '../threads/threads'
-import {NylasAccounts} from "../index";
-import _ from "underscore";
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
@@ -77,10 +75,9 @@ export const saveMessage = new ValidatedMethod({
         message: Messages.schema.omit('_id','created_at','modified_at'),
         conversationId: {type:String, optional:true},
         isNew: {type:Boolean, optional:true},
-        isReply: {type:Boolean, optional:true},
-        shouldNotifySlack: {type:Boolean, optional:true}
+        isReply: {type:Boolean, optional:true}
     }).validator({clean:true}),
-    run({conversationId, isNew, isReply, message, shouldNotifySlack}) {
+    run({conversationId, isNew, isReply, message}) {
         if(!this.userId) throw new Meteor.Error(403, 'Not authorized')
 
         NylasAPI.makeRequest({
@@ -102,15 +99,10 @@ export const saveMessage = new ValidatedMethod({
                             followers.push(this.userId)
                             data.followers = followers
                         }
-                        let mentions
                         if(existingThread) {
-                            Threads.update({id:thread.id}, {$set:_.extend(thread, data)})
-
-                            const members = [existingThread.getAssignee()].concat(existingThread.getFollowers())
-                            mentions = _.uniq(members.filter(m => m&&m.slack!=null).map(({slack}) => slack), false, ({id}) => id)
-
+                            Threads.update({id:thread.id}, {$set:Object.assign(thread, data)})
                         } else {
-                            Threads.insert(_.extend(thread, data))
+                            Threads.insert(Object.assign(thread, data))
                         }
 
                         const existingMessage = Messages.findOne({id:message.id})
@@ -119,14 +111,6 @@ export const saveMessage = new ValidatedMethod({
                         } else if(existingMessage.version !== message.version) {
                             Messages.update({_id: existingMessage._id}, {$set: {...message}})
                         }
-
-                        if (shouldNotifySlack) {
-                            const nylasAccount = NylasAccounts.findOne({accountId: message.account_id})
-                            if (nylasAccount.isTeamAccount) {
-                                Meteor.call('sendMailToSlack', message, {mentions})
-                            }
-                        }
-
                     }
                 })
             }

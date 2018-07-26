@@ -1,5 +1,6 @@
-import _ from 'underscore'
 import Reflux from 'reflux'
+import find from 'lodash/find'
+import includes from 'lodash/includes'
 import Actions from './actions'
 import CategoryStore from './category-store'
 import {NylasAccounts} from '../models'
@@ -27,7 +28,7 @@ class AccountStoreClass extends Reflux.Store {
             allCategories = allCategories.concat(account.categories)
         })
 
-        if(!currentCategory || !_.contains(allCategories, currentCategory)) {
+        if(!currentCategory || !includes(allCategories, currentCategory)) {
             CategoryStore.selectCategory(allCategories[0])
         }
 
@@ -45,7 +46,7 @@ class AccountStoreClass extends Reflux.Store {
     }
 
     accountForEmail(email) {
-        return _.findWhere(this.accounts(), {emailAddress:email})
+        return find(this.accounts(), {emailAddress:email})
     }
 
     accountForAccountId(accountId) {

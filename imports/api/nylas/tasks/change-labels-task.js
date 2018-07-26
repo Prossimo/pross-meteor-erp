@@ -60,8 +60,8 @@ export default class ChangeLabelsTask extends ChangeMailTask {
         const labelsToAdd = existingLabelsToAdd;
         let labelsToRemove = existingLabelsToRemove;
 
-        const setToAdd = new Set(_.compact(_.pluck(labelsToAdd, 'name')));
-        const setToRemove = new Set(_.compact(_.pluck(labelsToRemove, 'name')));
+        const setToAdd = new Set(_.compact(map(labelsToAdd, 'name')));
+        const setToRemove = new Set(_.compact(map(labelsToRemove, 'name')));
 
         if (setToRemove.has('all')) {
             if (!setToAdd.has('spam') && !setToAdd.has('trash')) {
@@ -131,7 +131,7 @@ export default class ChangeLabelsTask extends ChangeMailTask {
     }
 
     changesToModel(model) {
-        const labelsToRemoveIds = _.pluck(this.labelsToRemove, 'id')
+        const labelsToRemoveIds = map(this.labelsToRemove, 'id')
 
         let labels = _.reject(model.labels, ({id}) => labelsToRemoveIds.includes(id));
         labels = labels.concat(this.labelsToAdd);

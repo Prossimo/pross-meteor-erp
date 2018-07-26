@@ -7,6 +7,7 @@ import {
   renderComponent,
   withHandlers,
 } from 'recompose'
+import first from 'lodash/first'
 import Select from 'react-select'
 import 'react-select/dist/react-select.css'
 import Settings from '/imports/api/models/settings/settings'
@@ -92,6 +93,6 @@ export default createContainer(() => {
   const settings = Settings.find({ key: SLACK_NOTIFICATION_CHANNEL }).fetch()
   return {
     ready: sub.ready(),
-    slackChannel: _.first(settings),
+    slackChannel: first(settings),
   }
 }, SlackPageWithData)

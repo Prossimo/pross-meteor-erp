@@ -1,5 +1,6 @@
 import React, {Component} from 'react'
 import HtmlToReact from 'html-to-react'
+import PropTypes from 'prop-types'
 
 import {getUserName, getAvatarUrl} from '../../../api/lib/filters'
 import styled from 'styled-components'

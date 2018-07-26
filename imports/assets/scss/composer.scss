@@ -1,0 +1,123 @@
+@import '../../../../node_modules/react-quill/dist/quill.snow.css';
+
+.composer-inner-wrap {
+  label {
+    padding: 5px 10px;
+  }
+  input {
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .input-wrap {
+    display: flex;
+    flex: 1;
+    padding: 10px 0;
+    .participant-label {
+      width: 70px;
+    }
+    .select-wrap {
+      flex: 1;
+    }
+  }
+  .composer-header-actions {
+    display: flex;
+    position: relative;
+    float: right;
+    cursor: default;
+    .action {
+      color: fadeout(#000, 50%);
+      font-size: 13.020000000000001px;
+      padding: 16px 6px;
+      img.content-mask {
+        background-color: fadeout(#000, 50%);
+      }
+      &:last-child {
+        padding-right: 0;
+      }
+      &:hover {
+        color: #419bf9;
+        cursor: default;
+        img.content-mask {
+          background-color: #419bf9;
+        }
+      }
+    }
+  }
+  .composer-action-bar-wrap {
+    position: relative;
+    width: 100%;
+    background: #fdfdfd;
+    border-top: 1px solid #ebebeb;
+    box-shadow: inset 0 2px 1px rgba(0, 0, 0, 0.03);
+    border-bottom: 0;
+    border-radius: 3px;
+    .btn1.btn-toolbar:not(.btn-emphasis) {
+      background: transparent;
+      box-shadow: 0 0 0;
+      margin: 0;
+      padding: 0 9px;
+      white-space: nowrap;
+      img.content-mask {
+        background-color: fadeout(#05101b, 30%);
+      }
+      &:hover img.content-mask {
+        background-color: fadeout(#05101b, 5%);
+      }
+      &.btn-enabled {
+        color: #3187e1;
+        img.content-mask {
+          background-color: #3187e1;
+        }
+      }
+    }
+    .btn-send {
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+    .composer-action-bar-content {
+      display: flex;
+      flex-direction: row;
+      padding: 9px 22.5px;
+      .composer-action-bar-plugins {
+        flex-wrap: wrap;
+      }
+    }
+  }
+  .attachments-area {
+    padding: 0;
+    margin: 0;
+  }
+  .file-provider-popover {
+    .menu {
+      width: 250px;
+      .item .file-provider-option img {
+        width: 20px;
+        height: 20px;
+      }
+    }
+    .divider {
+      border-top: 1px solid #ddd;
+    }
+    .custom-section {
+      padding: 7.5px 12px;
+    }
+    .cancel-section {
+      padding: 5px 12px;
+      padding-bottom: 6px;
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+  .quill .quill-contents {
+    height: 450px;
+  }
+  .signature {
+    padding: 5px 20px;
+    font-size: 11px;
+    p {
+      margin: 0;
+    }
+  }
+}

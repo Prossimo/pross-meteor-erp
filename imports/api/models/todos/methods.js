@@ -32,7 +32,7 @@ Meteor.methods({
 
         data = data.filter((item) => item.id && item.email && item.account_id)
 
-        let existingTodos = Todos.find({id: {$in: _.pluck(data, 'id')}}).fetch()
+        let existingTodos = Todos.find({id: {$in: map(data, 'id')}}).fetch()
 
         let ids = []
         data.forEach((item) => {

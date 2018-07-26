@@ -1,5 +1,6 @@
-/* global FlowRouter, moment */
+/* global FlowRouter */
 import React, {Component} from 'react'
+import moment from 'moment'
 import styled from 'styled-components'
 
 class KanbanItem extends Component {

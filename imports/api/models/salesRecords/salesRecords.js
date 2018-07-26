@@ -185,7 +185,7 @@ SalesRecords.helpers({
     messages() {
         const threads = this.threads()
 
-        return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+        return Messages.find({thread_id:{$in:map(threads, 'id')}}).fetch()
     },
     tasks() {
         return Tasks.find({parentId:this._id, parentType:'deal'}).fetch()
@@ -199,7 +199,7 @@ SalesRecords.helpers({
         return conversation.contacts()
     },
     people() {
-        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        const peopleIds = map(this.stakeholders, 'peopleId')
         return People.find({_id:{$in:peopleIds}}).fetch()
     },
     getMembers() {

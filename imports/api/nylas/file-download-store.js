@@ -82,4 +82,5 @@ class FileDownloadStoreClass extends Reflux.Store {
 }
 
 const FileDownloadStore = new FileDownloadStoreClass()
+
 export default FileDownloadStore

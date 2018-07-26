@@ -1,4 +1,6 @@
 import React from 'react'
+import PropTypes from 'prop-types'
+import first from 'lodash/first'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {Alert} from 'react-bootstrap'
 import {getSlackUsername, getAvatarUrl} from '../../../api/lib/filters'
@@ -12,12 +14,12 @@ import {MailTemplates} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component {
     static propTypes = {
-        currentUser: React.PropTypes.object,
-        usersArr: React.PropTypes.object,
-        quotes: React.PropTypes.array,
-        salesRecord: React.PropTypes.object,
-        draftClientId: React.PropTypes.string,
-        saved: React.PropTypes.func
+        currentUser: PropTypes.object,
+        usersArr: PropTypes.object,
+        quotes: PropTypes.array,
+        salesRecord: PropTypes.object,
+        draftClientId: PropTypes.string,
+        saved: PropTypes.func
     }
 
     constructor(props) {
@@ -153,7 +155,7 @@ class AddQuoteForm extends React.Component {
             {query: `'${salesRecord.folderId}' in parents and name = 'CLIENT QUOTE'`},
             (error, {files}) => {
                 if (error) return alert('folder CLIENT QUOTE is not found!')
-                const clientQuoteId = _.first(files).id
+                const clientQuoteId = first(files).id
                 new MediaUploader({
                     file: currentFile,
                     token: this.token,

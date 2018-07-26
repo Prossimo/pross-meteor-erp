@@ -1,6 +1,6 @@
-import _ from 'underscore'
 import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
+import find from 'lodash/find'
 import Users from '../users/users'
 import People from '../people/people'
 import Tasks from '../tasks/tasks'
@@ -65,7 +65,7 @@ Projects.helpers({
     messages() {
         const threads = this.threads()
 
-        return Messages.find({thread_id:{$in:_.pluck(threads, 'id')}}).fetch()
+        return Messages.find({thread_id:{$in:map(threads, 'id')}}).fetch()
     },
     tasks() {
         return Tasks.find({parentId:this._id, parentType:'project'}).fetch()
@@ -73,17 +73,17 @@ Projects.helpers({
     getMembers() {
         if (!this.members || this.members.length == 0) return []
 
-        const memberIds = _.pluck(this.members, 'userId')
+        const memberIds = map(this.members, 'userId')
         return Users.find({_id: {$in: memberIds}}).fetch()
     },
 
     getStakeholders() {
         if (!this.stakeholders || this.stakeholders.length == 0) return []
 
-        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        const peopleIds = map(this.stakeholders, 'peopleId')
         //console.log(JSON.stringify({_id: {$in:peopleIds}}))
         return People.find({_id: {$in: peopleIds}}).map(p => {
-            const stakeholder = _.findWhere(this.stakeholders, {peopleId: p._id})
+            const stakeholder = find(this.stakeholders, {peopleId: p._id})
             return {
                 ...p,
                 email: p.defaultEmail(),
@@ -94,7 +94,7 @@ Projects.helpers({
         })
     },
     people() {
-        const peopleIds = _.pluck(this.stakeholders, 'peopleId')
+        const peopleIds = map(this.stakeholders, 'peopleId')
         return People.find({_id: {$in: peopleIds}}).fetch()
     },
     nylasAccount() {
