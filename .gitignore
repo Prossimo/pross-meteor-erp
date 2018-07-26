@@ -10,5 +10,7 @@ package-lock.json
 logs/
 version.desktop
 .desktop-installer/
-.vscode/
+.vscode
+packages.sh
+meteor-remote.sh
 export/

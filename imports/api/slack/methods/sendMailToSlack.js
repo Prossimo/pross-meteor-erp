@@ -15,17 +15,6 @@ Meteor.methods({
         check(files, Match.Maybe(Array))
         check(mentions, Match.Maybe(Array))
 
-        let thread_ts = null
-        const slackMail = SlackMails.findOne({thread_id: message.thread_id})
-        // console.log('=====> slackmails', slackMail._id)
-        if (slackMail) {
-            if (slackMail.message_ids && slackMail.message_ids.indexOf(message.id) > -1) {
-                // if already sent message just return
-                return
-            }
-            thread_ts = slackMail.thread_ts
-        }
-
         const thread = Threads.findOne({id: message.thread_id})
         let target, conversation
         if (thread && thread.conversationId) {
@@ -44,7 +33,10 @@ Meteor.methods({
 
         if (!slackChannelId) throw new Meteor.Error('Could not find slack channel for inbox')
 
-
+        let thread_ts = null
+        const slackMail = SlackMails.findOne({thread_id: message.thread_id})
+        // console.log('=====> slackmails', slackMail._id)
+        if (slackMail) thread_ts = slackMail.thread_ts
 
         const to = []
         message.to.forEach((c) => {
@@ -108,19 +100,7 @@ Meteor.methods({
         console.log('===> sendBotMessage', params)
         const ts = Meteor.call('sendBotMessage', slackChannelId, slackText, params)
 
-        if (!slackMail) {
-            SlackMails.insert({
-                thread_id: message.thread_id,
-                thread_ts: ts,
-                message_ids: [message.id]
-            })
-        } else {
-            SlackMails.update(slackMail._id, {
-                $push: {
-                    message_ids: message.id
-                }
-            })
-        }
+        if (!slackMail) SlackMails.insert({thread_id: message.thread_id, thread_ts: ts})
 
         /*if(files && files.length) {
             files.forEach(file => {console.log(file)

@@ -553,7 +553,7 @@ class SingleSalesRecord extends React.Component {
                         </div>
                     </div>
                 </div>
-                <aside className="right-sidebar" style={{overflow: 'auto'}}>
+                <aside className="right-sidebar">
                     <div className="sidebar-box">
                         <Card actions={<SlackChannelSelector channel={salesRecord.slackChannel.id}
                             onSelectChannel={this.updateSlackChannel}/>}>
