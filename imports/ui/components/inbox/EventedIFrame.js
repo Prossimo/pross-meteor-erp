@@ -13,11 +13,11 @@ export default class EventedIFrame extends React.Component {
         if (this.props.searchable) {
 
         }
-        this._subscribeToIFrameEvents();
+        this._subscribeToIFrameEvents()
     }
 
     componentWillUnmount() {
-        this._unsubscribeFromIFrameEvents();
+        this._unsubscribeFromIFrameEvents()
 
         if (this.props.searchable) {
 
@@ -39,13 +39,13 @@ export default class EventedIFrame extends React.Component {
     }
 
     didReplaceDocument() {
-        this._unsubscribeFromIFrameEvents();
-        this._subscribeToIFrameEvents();
+        this._unsubscribeFromIFrameEvents()
+        this._subscribeToIFrameEvents()
     }
 
     setHeightQuietly(height) {
-        this._ignoreNextResize = true;
-        ReactDOM.findDOMNode(this).height = `${height}px`;
+        this._ignoreNextResize = true
+        ReactDOM.findDOMNode(this).height = `${height}px`
     }
 
     _onSearchableStoreChange() {
@@ -53,22 +53,22 @@ export default class EventedIFrame extends React.Component {
     }
 
     _unsubscribeFromIFrameEvents() {
-        const node = ReactDOM.findDOMNode(this);
-        const doc = node.contentDocument;
+        const node = ReactDOM.findDOMNode(this)
+        const doc = node.contentDocument
 
-        if (!doc) return;
+        if (!doc) return
 
-        doc.removeEventListener('click', this._onIFrameClick);
+        doc.removeEventListener('click', this._onIFrameClick)
         //doc.removeEventListener('keydown', this._onIFrameKeydown);
-        doc.removeEventListener('mousedown', this._onIFrameMouseEvent);
-        doc.removeEventListener('mousemove', this._onIFrameMouseEvent);
-        doc.removeEventListener('mouseup', this._onIFrameMouseEvent);
+        doc.removeEventListener('mousedown', this._onIFrameMouseEvent)
+        doc.removeEventListener('mousemove', this._onIFrameMouseEvent)
+        doc.removeEventListener('mouseup', this._onIFrameMouseEvent)
         //doc.removeEventListener('contextmenu', this._onIFrameContextualMenu);
 
         if (node.contentWindow) {
-            node.contentWindow.removeEventListener('focus', this._onIFrameFocus);
-            node.contentWindow.removeEventListener('blur', this._onIFrameBlur);
-            node.contentWindow.removeEventListener('resize', this._onIFrameResize);
+            node.contentWindow.removeEventListener('focus', this._onIFrameFocus)
+            node.contentWindow.removeEventListener('blur', this._onIFrameBlur)
+            node.contentWindow.removeEventListener('resize', this._onIFrameResize)
         }
     }
 
@@ -77,51 +77,51 @@ export default class EventedIFrame extends React.Component {
         const doc = node.contentDocument
 
         _.defer(() => {
-            doc.addEventListener("click", this._onIFrameClick)
+            doc.addEventListener('click', this._onIFrameClick)
             //doc.addEventListener("keydown", this._onIFrameKeydown)
-            doc.addEventListener("mousedown", this._onIFrameMouseEvent)
-            doc.addEventListener("mousemove", this._onIFrameMouseEvent)
-            doc.addEventListener("mouseup", this._onIFrameMouseEvent)
+            doc.addEventListener('mousedown', this._onIFrameMouseEvent)
+            doc.addEventListener('mousemove', this._onIFrameMouseEvent)
+            doc.addEventListener('mouseup', this._onIFrameMouseEvent)
             //doc.addEventListener("contextmenu", this._onIFrameContextualMenu)
             if (node.contentWindow) {
-                node.contentWindow.addEventListener("focus", this._onIFrameFocus)
-                node.contentWindow.addEventListener("blur", this._onIFrameBlur)
+                node.contentWindow.addEventListener('focus', this._onIFrameFocus)
+                node.contentWindow.addEventListener('blur', this._onIFrameBlur)
                 if (this.props.onResize) node.contentWindow.addEventListener('resize', this._onIFrameResize)
             }
-        });
+        })
     }
 
     _getContainingTarget = (event, options) => {
-        let target = event.target;
+        let target = event.target
 
         while (target && target != document && target != window) {
-            if (target.getAttribute(options.with)) return target;
+            if (target.getAttribute(options.with)) return target
 
-            target = target.parentElement;
+            target = target.parentElement
         }
-        return null;
+        return null
     }
 
     _onIFrameBlur = (event) => {
-        const node = ReactDOM.findDOMNode(this);
-        node.contentWindow.getSelection().empty();
+        const node = ReactDOM.findDOMNode(this)
+        node.contentWindow.getSelection().empty()
     }
 
     _onIFrameFocus = (event) => {
-        window.getSelection().empty();
+        window.getSelection().empty()
     }
 
     _onIFrameResize = (event) => {
         if (this._ignoreNextResize) {
-            this._ignoreNextResize = false;
-            return;
+            this._ignoreNextResize = false
+            return
         }
-        if (this.props.onResize) this.props.onResize(event);
+        if (this.props.onResize) this.props.onResize(event)
     }
 
     _onIFrameClick = (e) => {
         e.stopPropagation()
-        const target = this._getContainingTarget(e, {with: 'href'});
+        const target = this._getContainingTarget(e, {with: 'href'})
 
         if (target) {
             const rawHref = target.getAttribute('href')
@@ -153,9 +153,9 @@ export default class EventedIFrame extends React.Component {
 
         const eventAttrs = {}
 
-        for (let key of Object.keys(event)) {
-            if (key in ['webkitMovementX', 'webkitMovementY']) continue;
-            eventAttrs[key] = event[key];
+        for (const key of Object.keys(event)) {
+            if (key in ['webkitMovementX', 'webkitMovementY']) continue
+            eventAttrs[key] = event[key]
         }
 
         node.dispatchEvent(new MouseEvent(event.type, _.extend({}, eventAttrs, {
@@ -167,11 +167,11 @@ export default class EventedIFrame extends React.Component {
     }
 
     _onIFrameKeydown = (event) => {
-        if (event.metaKey || event.altKey || event.ctrlKey) return;
+        if (event.metaKey || event.altKey || event.ctrlKey) return
         ReactDOM.findDOMNode(this).dispatchEvent(new KeyboardEvent(event.type, event))
     }
 
     _onIFrameContextualMenu = (event) => {
-        event.preventDefault();
+        event.preventDefault()
     }
 }

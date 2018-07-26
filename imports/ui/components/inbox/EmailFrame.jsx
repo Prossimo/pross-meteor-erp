@@ -150,7 +150,7 @@ export default class EmailFrame extends React.Component {
                     ref="iframe"
                     seamless="seamless"
                     //searchable
-                    //onResize={this._onMustRecalculateFrameHeight}
+                    onResize={this._onMustRecalculateFrameHeight}
                 />
 
                 {this.state.shouldShowDetailMark && <i className="fa fa-ellipsis-h btn-detail-toggle" onClick={this._toggleQuotedBody}/>}
