@@ -74,8 +74,10 @@ export const upsertThread = new ValidatedMethod({
                 Threads.insert(thread)
             } else if (existingThread && (thread.version != existingThread.version || thread.unread!=existingThread.unread)) { // It should be uncommented after deployment
                 //console.log('updateThread')
-                thread.conversationId = existingThread.conversationId
-                Threads.update({_id: existingThread._id}, {$set: {...thread}})
+                const updateData = {...thread}
+                updateData.conversationId = existingThread.conversationId
+                if (thread.unread) updateData.readByUsers = []
+                Threads.update({_id: existingThread._id}, {$set: updateData})
             }
         }
 

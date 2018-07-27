@@ -115,7 +115,7 @@ Meteor.methods({
                 message_ids: [message.id]
             })
         } else {
-            SlackMails.update(slackMail._id, {
+            SlackMails.update({_id: slackMail._id}, {
                 $push: {
                     message_ids: message.id
                 }

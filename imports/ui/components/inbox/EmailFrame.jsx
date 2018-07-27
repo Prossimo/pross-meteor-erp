@@ -26,12 +26,12 @@ export default class EmailFrame extends React.Component {
         //this._unlisten = EmailFrameStylesStore.listen(this._writeContent);
     }
 
-    /*shouldComponentUpdate(nextProps, nextState) {
-        return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state));
-    }*/
+    shouldComponentUpdate(nextProps, nextState) {
+        return (!Utils.isEqualReact(nextProps, this.props) || !Utils.isEqualReact(nextState, this.state))
+    }
 
     componentDidUpdate() {
-        // this._writeContent()
+        this._writeContent()
     }
 
     componentWillUnmount() {
@@ -131,7 +131,7 @@ export default class EmailFrame extends React.Component {
             this._lastComputedHeight = height
         }
 
-        if (iframeNode.contentDocument.readyState !== 'complete') {
+        if (iframeNode.contentDocument.readyState !== 'complete' || height === 35) {
             _.defer(() => this._setFrameHeight())
         }
     }
@@ -150,7 +150,7 @@ export default class EmailFrame extends React.Component {
                     ref="iframe"
                     seamless="seamless"
                     //searchable
-                    //onResize={this._onMustRecalculateFrameHeight}
+                    onResize={this._onMustRecalculateFrameHeight}
                 />
 
                 {this.state.shouldShowDetailMark && <i className="fa fa-ellipsis-h btn-detail-toggle" onClick={this._toggleQuotedBody}/>}
