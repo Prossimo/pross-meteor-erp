@@ -131,7 +131,7 @@ export default class EmailFrame extends React.Component {
             this._lastComputedHeight = height
         }
 
-        if (iframeNode.contentDocument.readyState !== 'complete') {
+        if (iframeNode.contentDocument.readyState !== 'complete' || height === 35) {
             _.defer(() => this._setFrameHeight())
         }
     }
