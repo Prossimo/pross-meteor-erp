@@ -1,7 +1,7 @@
 /* global moment, FlowRouter */
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
-import {Table, Glyphicon, Button} from 'react-bootstrap'
+import { Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'
 import {ROLES, Users, ClientStatus, SupplierStatus, People} from '/imports/api/models'
@@ -12,6 +12,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import KanbanView from './kanbanView/KanbanView'
+import { Panel, Navbar, Container } from '/imports/ui/styled'
 
 import {DEAL_PRIORITY, DEAL_PROBABILITY} from '/imports/api/models/salesRecords/salesRecords'
 
@@ -23,7 +24,7 @@ import {
     SUB_STAGE_TICKET,
     STAGES_MAP,
     STATES
-} from '../../../api/constants/project'
+} from '/imports/api/constants/project'
 
 class AllSalesRecords extends React.Component {
     constructor(props) {
@@ -33,6 +34,7 @@ class AllSalesRecords extends React.Component {
         const supplierStatuses = SupplierStatus.find().fetch()
 
         this.state = {
+            collapsed: false,
             hoverCell: {
                 key: null,
                 rowIndex: null,
@@ -301,20 +303,9 @@ class AllSalesRecords extends React.Component {
             by: 'productionStartDate',
             asc: false
         }
-
-        this.renderRows = this.renderRows.bind(this)
-        this.allowEdit = this.allowEdit.bind(this)
-        this.handleChange = this.handleChange.bind(this)
-        this.handleMouseEnter = this.handleMouseEnter.bind(this)
-        this.handleMouseLeave = this.handleMouseLeave.bind(this)
-        this.renderEditButton = this.renderEditButton.bind(this)
-        this.renderSaveButton = this.renderSaveButton.bind(this)
-        this.updateProject = this.updateProject.bind(this)
-        this.removeProject = this.removeProject.bind(this)
-        this.updateStage = this.updateStage.bind(this)
     }
 
-    handleMouseLeave() {
+    handleMouseLeave = () => {
         this.setState({
             hoverCell: {
                 key: null,
@@ -324,7 +315,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    handleMouseEnter(key, rowIndex, value) {
+    handleMouseEnter = (key, rowIndex, value) => {
         const {editable} = this.state.possibleColumns.find((column) => column.key === key)
         if (!editable) return
         this.setState({
@@ -336,7 +327,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    allowEdit(key, rowIndex, value, _id) {
+    allowEdit = (key, rowIndex, value, _id) => {
         this.setState({
             edittingCell: {
                 key,
@@ -347,7 +338,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    handleChange(value) {
+    handleChange = (value) => {
         const edittingCell = this.state.edittingCell
         edittingCell.value = value
         this.setState({
@@ -355,7 +346,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    renderEditButton(key, index, value, _id) {
+    renderEditButton = (key, index, value, _id) => {
         if (this.state.edittingCell.key) return
         if (key === this.state.hoverCell.key && index === this.state.hoverCell.rowIndex) {
             return (
@@ -369,7 +360,7 @@ class AllSalesRecords extends React.Component {
         }
     }
 
-    updateProject() {
+    updateProject = () => {
         // TODO: update salesRecord at here
         const {type} = this.state.possibleColumns.find(({key}) => key === this.state.edittingCell.key)
         const _id = this.state.edittingCell._id
@@ -381,7 +372,7 @@ class AllSalesRecords extends React.Component {
                 break
             case 'select':
                 // When user did not select any new option
-                value = value.value ? value.value : value
+                value = value.value || value
                 break
             default:
                 break
@@ -401,7 +392,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    updateStage() {
+    updateStage = () => {
         const _id = this.state.edittingCell._id
         let {value} = this.state.edittingCell
         value = value.value ? value.value : value
@@ -420,11 +411,11 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    renderSaveButton(key) {
+    renderSaveButton = (key) => {
         return (
             <button
                 className='btn btn-warning btn-sm pull-right'
-                onClick={key === 'stage' ? this.updateStage.bind('', key) : this.updateProject}
+                onClick={key === 'stage' ? () => this.updateStage(key) : this.updateProject}
             >
                 <i className='fa fa-save'/> Save
             </button>
@@ -432,7 +423,7 @@ class AllSalesRecords extends React.Component {
 
     }
 
-    getSubStages(stage) {
+    getSubStages = (stage) => {
         switch (stage) {
             case 'lead':
                 return SUB_STAGES_LEAD
@@ -447,7 +438,7 @@ class AllSalesRecords extends React.Component {
         }
     }
 
-    getSortedData() {
+getSortedData = () => {
         let {salesRecords} = this.props
         const {keyword} = this.props
         const {by, asc} = this.state.sort
@@ -471,7 +462,7 @@ class AllSalesRecords extends React.Component {
         else this.setState({sort: {by: key, asc: true}})
     }
 
-    renderRows() {
+    renderRows = () => {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         const salesRecords = this.getSortedData()
         return salesRecords.map((project, index) => (
@@ -574,7 +565,7 @@ class AllSalesRecords extends React.Component {
         ))
     }
 
-    renderProjectList() {
+    renderProjectList = () => {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
         const {by, asc} = this.state.sort
         return (
@@ -582,15 +573,13 @@ class AllSalesRecords extends React.Component {
                 <Table condensed hover>
                     <thead>
                     <tr>
-                        {
-                            selectedColumns.map(({label, key}) => (
-                                <th style={{cursor: 'pointer'}} key={key} onClick={() => this.sortBy(key)}>
-                                    {label}
-                                    {by == key && asc && <i style={{marginLeft: 5}} className="fa fa-caret-up"/>}
-                                    {by == key && !asc && <i style={{marginLeft: 5}} className="fa fa-caret-down"/>}
-                                </th>
-                            ))
-                        }
+                        {selectedColumns.map(({label, key}) => (
+                            <th style={{cursor: 'pointer'}} key={key} onClick={() => this.sortBy(key)}>
+                                {label}
+                                {by == key && asc && <i style={{marginLeft: 5}} className="fa fa-caret-up"/>}
+                                {by == key && !asc && <i style={{marginLeft: 5}} className="fa fa-caret-down"/>}
+                            </th>
+                        ))}
                         <th className="th-action"></th>
                     </tr>
                     </thead>
@@ -602,7 +591,7 @@ class AllSalesRecords extends React.Component {
         )
     }
 
-    removeProject(_id) {
+    removeProject = (_id) => {
         swal({
             title: 'Are you sure ?',
             type: 'warning',
@@ -645,7 +634,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    archiveSalesRecord(_id) {
+    archiveSalesRecord = (_id) => {
         swal({
             title: 'Are you sure to archive this deal?',
             type: 'warning',
@@ -668,7 +657,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    activeSalesRecord(_id) {
+    activeSalesRecord = (_id) => {
         Meteor.call('archiveSalesRecord', _id, false, (error, result) => {
             if (error) {
                 const msg = error.reason ? error.reason : error.message
@@ -682,7 +671,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    goToProject(project) {
+    goToProject = (project) => {
         FlowRouter.go('Deal', {id: project._id})
     }
 
@@ -743,7 +732,7 @@ class AllSalesRecords extends React.Component {
         })
     }
 
-    renderKanbanView() {
+    renderKanbanView = () => {
         const {stage, keyword} = this.props
         let {salesRecords} = this.props
         if(!this.state.showArchivedDeals) salesRecords = salesRecords.filter(s => !s.archived)
@@ -764,7 +753,7 @@ class AllSalesRecords extends React.Component {
         )
     }
 
-    renderListView() {
+    renderListView = () => {
         return (
             <div className="list-view-container">
                 <div className="list-view-toolbar">
@@ -781,46 +770,89 @@ class AllSalesRecords extends React.Component {
         )
     }
 
-    renderSwitchLabels() {
+    renderSwitchLabels = () => {
         const active = this.state.showKanbanView ? 'active' : ''
         return (
             <div className="flex toolbar-wrapper">
                 <div className="margin-auto"><input type="checkbox" value={this.state.showArchivedDeals}
                             onChange={e => this.setState({showArchivedDeals:e.target.checked})}/>&nbsp;Show Archived Deals&nbsp;&nbsp;</div>
+                <div>**
+                    {this.props.stage}
+                **</div>
                 <div className="flex-1 text-right input-group-btn">
-                    <button
-                        className={`btn btn-default ${!active ? 'active' : ''}`}
-                        data-toggle="tooltip" title="List View"
-                        data-replacement="auto"
-                        onClick={() => {
-                            this.setState({showKanbanView: false})
-                        }}
-                    >
-                        <span className="fa fa-list" aria-hidden="true"></span>
-                    </button>
-                    <button
-                        className={`btn btn-default ${active}`}
-                        data-toggle="tooltip" title="Kaban View"
-                        data-replacement="auto"
-                        onClick={() => {
-                            this.setState({showKanbanView: true})
-                        }}
-                    >
-                        <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
-                    </button>
+
                 </div>
             </div>
         )
     }
 
-    render() {
-        const showKaban = this.state.showKanbanView
+    toggleCollapse = (event) => {
+        event.preventDefault()
+        this.setState({
+            collapsed : !this.state.collapsed
+        })
+    }
+
+    renderNavbar = () => {
+        const active = this.state.showKanbanView ? 'active' : ''
         return (
-            <div className="content-container">
-                {this.renderSwitchLabels()}
-                {showKaban && this.renderKanbanView()}
-                {!showKaban && this.renderListView()}
-            </div>
+            <Navbar>
+                <Container fluid>
+                    <Navbar.Header>
+                        <Navbar.Brand onClick={this.toggleCollapse} href={`#${this.props.stage}`}>
+                            {this.props.title}
+                        </Navbar.Brand>
+                    </Navbar.Header>
+                    <Navbar.Nav>
+                        <Navbar.Form>
+                            <input type="checkbox"
+                                value={this.state.showArchivedDeals}
+                                onChange={e => this.setState({showArchivedDeals: e.target.checked})}
+                                />
+                            &nbsp;
+                            Show Archived Deals
+                        </Navbar.Form>
+                    </Navbar.Nav>
+                    <Navbar.Nav navbarRight>
+                        <Navbar.Item>
+                            <button
+                                className={`btn navbar-btn btn-default ${!active ? 'active' : ''}`}
+                                data-toggle="tooltip" title="List View"
+                                data-replacement="auto"
+                                onClick={() => {
+                                    this.setState({showKanbanView: false})
+                                }}
+                            >
+                                <span className="fa fa-list" aria-hidden="true"></span>
+                            </button>
+                            <button
+                                className={`btn navbar-btn btn-default ${active}`}
+                                data-toggle="tooltip" title="Kaban View"
+                                data-replacement="auto"
+                                onClick={() => {
+                                    this.setState({showKanbanView: true})
+                                }}
+                            >
+                                <span className="fa fa-align-left fa-rotate-90" aria-hidden="true"></span>
+                            </button>
+                        </Navbar.Item>
+                    </Navbar.Nav>
+                </Container>
+            </Navbar>
+        )
+    }
+
+    render() {
+        const { showKanbanView, collapsed } = this.state
+        return (
+            <Panel collapsed={collapsed}>
+                <Panel.HeadingNavbar>
+                    {this.renderNavbar()}
+                </Panel.HeadingNavbar>
+                <Panel.Body className="content-container">
+                    {showKanbanView ? this.renderKanbanView() : this.renderListView()}
+                </Panel.Body>
+            </Panel>
         )
     }
 }

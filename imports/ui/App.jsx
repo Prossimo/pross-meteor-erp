@@ -1,6 +1,6 @@
 import React from 'react'
 import classNames from 'classnames'
-import { createContainer  } from 'meteor/react-meteor-data'
+import { withTracker  } from 'meteor/react-meteor-data'
 import Alert from 'react-s-alert'
 import BlockUi from 'react-block-ui'
 import { Loader, Types } from 'react-loaders'
@@ -14,22 +14,22 @@ import {SalesRecords} from '/imports/api/models'
 class App extends React.Component{
     constructor(props){
         super(props)
-        this.toggleLoader =  this.toggleLoader.bind(this)
         this.state = {
             blocking: false
         }
     }
-    renderAside(){
-        const { currentUser } = this.props
+    renderAside = () => {
+        const { currentUser, salesRecords } = this.props
         if(!currentUser) return null
 
         return <Aside key="main-control-aside"
-                      salesRecords={this.props.salesRecords}
-                      currentUser={currentUser}/>
+            salesRecords={this.props.salesRecords}
+            currentUser={currentUser}
+        />
 
     }
 
-    toggleLoader(blocking) {
+    toggleLoader = (blocking) => {
         //disable scroller
         if(blocking === true) {
             $('.app').attr('style', 'overflow: hidden')
@@ -57,7 +57,7 @@ class App extends React.Component{
     }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
     const subscribers = []
     subscribers.push(Meteor.subscribe('users.all'))
     subscribers.push(Meteor.subscribe('nylasaccounts.all'))
@@ -90,4 +90,4 @@ export default createContainer(() => {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
         currentUser, users, usersArr, salesRecords
     }
-}, App)
+})(App)
