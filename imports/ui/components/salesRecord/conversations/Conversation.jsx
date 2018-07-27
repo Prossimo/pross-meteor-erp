@@ -141,9 +141,11 @@ export default class Conversation extends TrackerReact(React.Component) {
                     <div style={{flex: 1}}>
                         {this.renderAssignees()}
                         {this.renderFollowers()}
-                        <ParticipantList participants={participants}
-                                         onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
-                                         onChangeParticipants={this.updateParticipants}/>
+                        <ParticipantList
+                            participants={participants}
+                            onAddParticipant={() => this.setState({showParticipantsSelectModal: true})}
+                            onChangeParticipants={this.updateParticipants}
+                        />
                     </div>
                 </div>
                 {this.renderComposeModal()}
