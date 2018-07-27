@@ -97,7 +97,11 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                             let mentions
                                             const existingThread = Threads.findOne({id: thread_id})
                                             if (existingThread) {
-                                                Threads.update({id: thread_id}, {$set: thread})
+                                                const updateData = {
+                                                    ...thread
+                                                }
+                                                if (thread.unread) updateData.readByUsers = []
+                                                Threads.update({id: thread_id}, {$set: updateData})
 
                                                 //console.log('server router existingThread', existingThread)
 
