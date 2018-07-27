@@ -101,6 +101,8 @@ Picker.route('/callback/nylas/message.created', (params, req, res, next) => {
                                                     ...thread
                                                 }
                                                 if (thread.unread) updateData.readByUsers = []
+
+                                                updateData.conversationId = existingThread.conversationId
                                                 Threads.update({id: thread_id}, {$set: updateData})
 
                                                 //console.log('server router existingThread', existingThread)
