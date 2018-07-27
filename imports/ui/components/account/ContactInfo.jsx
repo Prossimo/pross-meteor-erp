@@ -239,4 +239,4 @@ class ContactInfo extends React.Component{
     }
 }
 
-export default  ContactInfo;
+export default ContactInfo

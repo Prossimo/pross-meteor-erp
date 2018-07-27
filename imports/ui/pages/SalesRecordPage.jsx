@@ -1,21 +1,16 @@
-import React from 'react'
+import React, { Component } from 'react'
 import {Modal} from 'react-bootstrap'
 import AllSalesRecords from '../components/salesRecord/AllSalesRecords'
 import CreateSalesRecord from '/imports/ui/components/salesRecord/CreateSalesRecord'
 import {SearchInput} from '../components/common'
 
-export default class SalesRecordPage extends React.Component{
-    constructor(props){
-        super(props)
-        this.state = {
-            keyword: '',
-            showModal: false
-        }
+export default class SalesRecordPage extends Component{
+    state = {
+        keyword: '',
+        showModal: false
     }
 
-    getTitle = () => {
-        const {stage} = this.props
-
+    getTitle = (stage) => {
         switch(stage) {
             case 'lead':
                 return 'All Leads'
@@ -40,10 +35,11 @@ export default class SalesRecordPage extends React.Component{
     }
 
     renderTabs = () => {
+        const { stage } = this.props
         return (
             <div className="flex">
                 <div className="sale-title">
-                    {this.getTitle()}
+                    {this.getTitle(stage)}
                 </div>
                 <div>
                     <button
@@ -60,26 +56,55 @@ export default class SalesRecordPage extends React.Component{
 
     }
 
-    render() {
-      const props = _.clone(this.props)
-      props.salesRecords = props.salesRecords.filter(({ stage, name, supplier, shipper }) => {
-        const keyfilter = new RegExp(this.state.keyword,'i')
-        return (props.stage ? stage === props.stage : 1) && (this.state.keyword == null || (name.search(keyfilter) > -1))
-      })
+    filterRecords = (list, currentStage) => {
+        return list.filter(({ stage, name }) => {
+            const keyfilter = new RegExp(this.state.keyword, 'i')
+            return (currentStage === stage) && (this.state.keyword == null || (name.search(keyfilter) > -1))
+        })
+    }
 
-      return (
-          <div className="projects-page">
-           	<div className="tab-container">
-            		<div className="tab-controls">
-              		{this.renderTabs()}
-            		</div>
-            		<div className="tab-content">
-              		<AllSalesRecords {...props} keword={this.state.keyword}/>
-            		</div>
-           	</div>
-              {this.renderModal(props)}
-          </div>
-      )
+    render() {
+        const {stage, ...props} = this.props
+        return (
+            <div className="projects-page">
+                <div className="tab-container">
+                    <div className="tab-controls">
+                        {this.renderTabs()}
+                    </div>
+                    <div className="tab-content">
+                        {stage ? <AllSalesRecords
+                            salesRecords={this.filterRecords(props.salesRecords, stage)}
+                            stage={stage}
+                            title={this.getTitle(stage)}
+                            keyword={this.state.keyword} /> : (
+                            <div>
+                                <AllSalesRecords
+                                    salesRecords={this.filterRecords(props.salesRecords, 'lead')}
+                                    stage='lead'
+                                    title={this.getTitle('lead')}
+                                    keyword={this.state.keyword}/>
+                                <AllSalesRecords
+                                    salesRecords={this.filterRecords(props.salesRecords, 'opportunity')}
+                                    stage='opportunity'
+                                    title={this.getTitle('opportunity')}
+                                    keyword={this.state.keyword}/>
+                                <AllSalesRecords
+                                    salesRecords={this.filterRecords(props.salesRecords, 'order')}
+                                    stage='order'
+                                    title={this.getTitle('order')}
+                                    keyword={this.state.keyword}/>
+                                <AllSalesRecords
+                                    salesRecords={this.filterRecords(props.salesRecords, 'ticket')}
+                                    stage='ticket'
+                                    title={this.getTitle('ticket')}
+                                    keyword={this.state.keyword}/>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                {this.renderModal(props)}
+            </div>
+        )
     }
 
     renderModal = (props) => {
