@@ -104,6 +104,7 @@ export const saveMessage = new ValidatedMethod({
                         }
                         let mentions
                         if(existingThread) {
+                            if (thread.unread) data.readByUsers = []
                             Threads.update({id:thread.id}, {$set:_.extend(thread, data)})
 
                             const members = [existingThread.getAssignee()].concat(existingThread.getFollowers())
