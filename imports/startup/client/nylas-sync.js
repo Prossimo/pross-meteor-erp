@@ -3,7 +3,8 @@ import Actions from '/imports/api/nylas/actions'
 import '/imports/api/nylas/contact-store'
 import '/imports/api/nylas/thread-store'
 
-const fetchContacts = () => {console.log('fetchContacts', Meteor.userId())
+const fetchContacts = () => {
+    // console.log('fetchContacts', Meteor.userId())
     if (Meteor.userId()) {
         Actions.loadContacts()
 

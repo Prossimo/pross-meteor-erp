@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor'
 import React from 'react'
 import classNames from 'classnames'
 import { withTracker  } from 'meteor/react-meteor-data'
