@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Roles } from 'meteor/alanning:roles'
-import { FlowRouter } from 'meteor/kadira:flow-router'
 import { Button } from 'react-bootstrap'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
@@ -24,10 +23,6 @@ class SalesRecord extends Component {
         })
     }
 
-
-    goToProject = (id) => {
-        FlowRouter.go('Deal', { id })
-    }
 
     removeProject = (_id) => {
         swal({
@@ -112,9 +107,7 @@ class SalesRecord extends Component {
     renderRecordButtons = ({_id, archived}) => {
         return (
             <td>
-                <div className='btn-group' style={{width: '100px'}}>
-                    <Button onClick={() => this.goToProject(_id)} bsSize='small'><i className='fa fa-link' />
-                    </Button>
+                <div className='btn-group' style={{width: '66px'}}>
                     {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
                         <Button onClick={() => this.removeProject(_id)} bsStyle='danger' bsSize='small'><i
                             className='fa fa-trash' /></Button>)}

@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
 import moment from 'moment'
 import Select from 'react-select'
+import {FlowRouter} from 'meteor/kadira:flow-router'
 import {FormControl, Button} from 'react-bootstrap'
 import { info, warning } from '/imports/api/lib/alerts'
 import {
@@ -12,6 +13,16 @@ import {
     SUB_STAGE_TICKET,
     STAGES_MAP,
 } from '/imports/api/constants/project'
+
+const LinkDiv = styled.a`
+    display: block;
+    color: #3379b7;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+        color: #202e54;
+    }
+`
 
 const EditField = styled.div`
     padding: 0;
@@ -141,7 +152,6 @@ class EditableField extends Component {
 
     handleSave = () => {
         const { record } = this.state
-        console.log('record', record)
         Meteor.call('updateRecord', record, (error) => {
             if (error) return warning(`Problems with updating project. ${error.error}`)
 
@@ -153,25 +163,31 @@ class EditableField extends Component {
     }
 
     handleChange = (key, value) => {
-        console.log('handleChange', key, value)
         const { record } = this.state
         record[key] = value
         this.setState({ record })
+    }
+
+    renderName = ({_id, name}) => {
+        return <LinkDiv onClick={() => this.goToProject(_id)}> {name} </LinkDiv>
+    }
+
+    goToProject = (id) => {
+        FlowRouter.go('Deal', { id })
     }
 
     render() {
         const { isEdit, record } = this.state
         const { colDetails, editing } = this.props
         const canEdit = isEdit && editing == this.editing
+        if (colDetails.key == 'name') {
+            colDetails.renderer = this.renderName
+        }
         return (
             <EditField edit={canEdit} ref={node => this.editing = node}>
-                {canEdit
-                    ? createElement(getComponent(colDetails.type), {
-                        record,
-                        colDetails,
-                        handleChange: (value) => this.handleChange(colDetails.key, value) })
-            : colDetails.renderer ? colDetails.renderer(record) : record[colDetails.key]
-        }
+                {canEdit ? createElement(getComponent(colDetails.type),
+                    { record, colDetails, handleChange: (value) => this.handleChange(colDetails.key, value) })
+                : colDetails.renderer ? colDetails.renderer(record) : record[colDetails.key]}
 
                 {canEdit
                     ? <Button bsSize="small" bsStyle="warning" onClick={this.handleSave}><i className="fa fa-save" /></Button>
