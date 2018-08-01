@@ -258,6 +258,9 @@ export default class SalesRecordPage extends Component {
     }
 
     handleCols = (columns) => {
+        if (columns.indexOf('name') < 0) {
+            columns.unshift('name')
+        }
         this.setState({ columns })
     }
 
