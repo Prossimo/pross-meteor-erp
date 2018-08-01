@@ -1,10 +1,18 @@
 import styled from 'styled-components'
 import classnames from 'classnames'
-import { Link } from 'react-router-dom'
 
 const Navbar = styled.nav.attrs({
     className: 'navbar navbar-default'
-})``
+})`
+    .container-fluid {
+        display: flex;
+        align-items: center;
+
+        .navbar-right {
+            margin-left: auto;
+        }
+    }
+`
 
 Object.assign(Navbar, {
     Header: styled.div.attrs({
@@ -36,7 +44,7 @@ Object.assign(Navbar, {
         className: 'navbar-brand'
     })``,
 
-    Text: styled.p.attrs({
+    Text: styled.div.attrs({
         className: 'navbar-text'
     })``,
 

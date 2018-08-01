@@ -1,4 +1,5 @@
 import _ from 'underscore'
+import moment from 'moment'
 import {Meteor} from 'meteor/meteor'
 import {Roles} from 'meteor/alanning:roles'
 import {check, Match} from 'meteor/check'
@@ -163,6 +164,28 @@ Meteor.methods({
             $set: {
                 show: visibleFields,
             }
+        })
+    },
+
+    updateRecord(data) {
+        check(data, Object)
+        const { _id, ...recordData} = data
+
+        delete recordData.createdAt
+        recordData.modifiedAt = new Date()
+        // current user belongs to ADMIN LIST
+        const isAdmin = Roles.userIsInRole(this.userId, [ROLES.ADMIN])
+
+        // current user belongs to salesRecords
+        const record = SalesRecords.findOne(_id)
+        if (!record) throw new Meteor.Error('Project does not exists')
+        const isMember = !!record.members.find(userId => userId === this.userId)
+
+        // check permission
+        if (!isMember && !isAdmin) throw new Meteor.Error('Access denied')
+
+        return SalesRecords.update(_id, {
+            $set: recordData
         })
     },
 

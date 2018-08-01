@@ -775,9 +775,9 @@ class AllSalesRecords extends React.Component {
             <div className="flex toolbar-wrapper">
                 <div className="margin-auto"><input type="checkbox" value={this.state.showArchivedDeals}
                             onChange={e => this.setState({showArchivedDeals:e.target.checked})}/>&nbsp;Show Archived Deals&nbsp;&nbsp;</div>
-                <div>
+                <div>**
                     {this.props.stage}
-                </div>
+                **</div>
                 <div className="flex-1 text-right input-group-btn">
 
                 </div>
