@@ -1,10 +1,46 @@
+import React from 'react'
+import {FlowRouter} from 'meteor/kadira:flow-router'
+import styled from 'styled-components'
 import moment from 'moment'
 import { DEAL_PRIORITY, DEAL_PROBABILITY } from '/imports/api/models/salesRecords/salesRecords'
 import { SHIPPING_MODE_LIST, STATES } from '/imports/api/constants/project'
 import { Users, ClientStatus, SupplierStatus, People} from '/imports/api/models'
+import {
+    SUB_STAGES_LEAD,
+    SUB_STAGES_OPP,
+    SUB_STAGES_ORDER,
+    SUB_STAGE_TICKET,
+    STAGES_MAP,
+} from '/imports/api/constants/project'
 
-const clientStatuses = ClientStatus.find().fetch()
-const supplierStatuses = SupplierStatus.find().fetch()
+const getSubStages = (stage) => {
+    switch (stage) {
+        case 'lead':
+            return SUB_STAGES_LEAD
+        case 'opportunity':
+            return SUB_STAGES_OPP
+        case 'order':
+            return SUB_STAGES_ORDER
+        case 'ticket':
+            return SUB_STAGE_TICKET
+        default:
+            return []
+    }
+}
+
+const goToProject = (id) => {
+    FlowRouter.go('Deal', { id })
+}
+
+const LinkDiv = styled.a `
+    display: block;
+    color: #3379b7;
+    cursor: pointer;
+    &:hover {
+        text-decoration: underline;
+        color: #202e54;
+    }
+`
 
 const dateRenderer = (value) => {
     let formatted = null
@@ -12,7 +48,6 @@ const dateRenderer = (value) => {
         formatted = moment(new Date(value)).format('MM/DD/YYYY')
     }
     catch (e) {
-        console.log('dateRenderer', value, e)
         formatted = value
     }
     return formatted
@@ -36,6 +71,9 @@ export const name = {
     type: 'text',
     selected: false,
     editable: true,
+    renderer: ({_id, name}) => {
+        return <LinkDiv onClick={() => goToProject(_id)}> {name} </LinkDiv>
+    }
 }
 
 export const dealer = {
@@ -189,7 +227,7 @@ export const stage = {
     key: 'stage',
     label: 'Stage',
     selected: false,
-    options: [],
+    options: STAGES_MAP,
     type: 'select',
     editable: true,
     rendered(record) {
@@ -202,7 +240,7 @@ export const subStage = {
     key: 'subStage',
     label: 'Sub Stage',
     selected: false,
-    options: [],
+    options: ({stage}) => getSubStages(stage),
     type: 'select',
     editable: true,
     rendered(record) {
@@ -215,7 +253,8 @@ export const teamLead = {
     key: 'teamLead',
     label: 'Team Lead',
     selected: false,
-    options: record => record.getMembers().map(m => ({value: m._id, label: m.name()})),
+    options: record => {
+        return record.getMembers().map(m => ({value: m._id, label: m.name()}))},
     type: 'select',
     editable: true,
     renderer: record => {
@@ -294,11 +333,14 @@ export const clientStatus = {
     key: 'clientStatus',
     label: 'Client Status',
     selected: false,
-    options: clientStatuses.map(v => ({value: v._id, label: v.name})),
-    type: 'select',
+    options: () => {
+        const statuses = ClientStatus.find().fetch()
+        return statuses.map(v => ({value: v._id, label: v.name}))
+    },
+    type: 'selectWithAdd',
     editable: true,
-    renderer: record => {
-        const status = _.findWhere(clientStatuses, {_id: record.clientStatus})
+    renderer: ({clientStatus}) => {
+        const status = ClientStatus.findOne(clientStatus)
         return status ? status.name : null
     }
 }
@@ -307,11 +349,14 @@ export const supplierStatus = {
     key: 'supplierStatus',
     label: 'Supplier Status',
     selected: false,
-    options: supplierStatuses.map(v => ({value: v._id, label: v.name})),
-    type: 'select',
+    options: () => {
+        const statuses = SupplierStatus.find().fetch()
+        return statuses.map(v => ({value: v._id, label: v.name}))
+    },
+    type: 'selectWithAdd',
     editable: true,
-    renderer: record => {
-        const status = _.findWhere(supplierStatuses, {_id: record.supplierStatus})
+    renderer: ({supplierStatus}) => {
+        const status = SupplierStatus.findOne(supplierStatus)
         return status ? status.name : null
     }
 }
