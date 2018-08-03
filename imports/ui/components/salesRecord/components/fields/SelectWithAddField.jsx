@@ -4,10 +4,10 @@ import { Button, Popover, OverlayTrigger} from 'react-bootstrap'
 const PopoverSelect = ({label, value, options}) => (
     <Popover id="popover-positioned-bottom" title={label} placement="bottom" positionTop="44px">
         <ul>
-            {options.map(({name, _id}) =>
-                <li key={_id} data-value={_id}>
-                    {value == _id ? 'Selected:' : null}
-                    {name}
+            {options.map(({label, value}, index) =>
+                <li key={index} data-value={value}>
+                    {value == value ? 'Selected:' : null}
+                    {label}
                 </li>
             )}
         </ul>
