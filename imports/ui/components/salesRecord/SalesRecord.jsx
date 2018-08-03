@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import { Roles } from 'meteor/alanning:roles'
+import { FlowRouter } from 'meteor/kadira:flow-router'
 import { Button } from 'react-bootstrap'
 import swal from 'sweetalert2'
+import {info, warning} from '/imports/api/lib/alerts'
 import 'sweetalert2/dist/sweetalert2.min.css'
 import {
     ROLES,
@@ -23,6 +25,9 @@ class SalesRecord extends Component {
         })
     }
 
+    goToProject = (id) => {
+        FlowRouter.go('Deal', { id })
+    }
 
     removeProject = (_id) => {
         swal({
@@ -107,7 +112,9 @@ class SalesRecord extends Component {
     renderRecordButtons = ({_id, archived}) => {
         return (
             <td>
-                <div className='btn-group' style={{width: '66px'}}>
+                <div className='btn-group' style={{width: '100px'}}>
+                    <Button onClick={() => this.goToProject(_id)} bsSize='small'><i className='fa fa-link' />
+                    </Button>
                     {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
                         <Button onClick={() => this.removeProject(_id)} bsStyle='danger' bsSize='small'><i
                             className='fa fa-trash' /></Button>)}
@@ -122,9 +129,15 @@ class SalesRecord extends Component {
         )
     }
 
-    setEditField = (_id) => {
-        const { record } = this.props
+    handleSave = (property) => {
+        const { record: {_id}, setEditField} = this.props
+        Meteor.call('updateProjectProperty', _id, property, (error) => {
+            if (error)
+                return warning(`Problems with updating project. ${error.error}`)
 
+            setEditField(null)
+            return info('Success update project')
+        })
     }
 
     render() {
@@ -139,9 +152,9 @@ class SalesRecord extends Component {
                                 ? <EditableField
                                     editing={editing}
                                     setEditField={setEditField}
+                                    handleSave={this.handleSave}
                                     record={record}
                                     colDetails={colDetails}
-                                    onEdit={this.setEditField}
                                 />
                                 : colDetails.renderer ? colDetails.renderer(record) : record[col]
                             }
