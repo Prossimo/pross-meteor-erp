@@ -124,7 +124,9 @@ export const saveMessage = new ValidatedMethod({
                         if (shouldNotifySlack) {
                             const nylasAccount = NylasAccounts.findOne({accountId: message.account_id})
                             if (nylasAccount.isTeamAccount) {
-                                Meteor.call('sendMailToSlack', message, {mentions})
+                                setTimeout(() => {
+                                    Meteor.call('sendMailToSlack', message, {mentions})
+                                }, 3 * 60 * 1000) // Send slack notification after 3 minutes to avoid duplicated notification from web hooking
                             }
                         }
 
