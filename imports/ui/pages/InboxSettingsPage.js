@@ -61,8 +61,14 @@ export default class InboxSettingsPage extends React.Component {
         return (
             <PanelGroup style={{height: '100%'}}>
                 {Meteor.user().isAdmin() &&
-                <Panel header="Team Inboxes" eventKey="1">{this.renderInboxesComponent(true)}</Panel>}
-                <Panel header="Individual Inboxes" eventKey="2">{this.renderInboxesComponent()}</Panel>
+                <Panel>
+                    <Panel.Heading>Team Inboxes</Panel.Heading>
+                    <Panel.Body>{this.renderInboxesComponent(true)}</Panel.Body>
+                </Panel>}
+                <Panel>
+                    <Panel.Heading>Individual Inboxes</Panel.Heading>
+                    <Panel.Body>{this.renderInboxesComponent()}</Panel.Body>
+                </Panel>
             </PanelGroup>
         )
     }
@@ -72,16 +78,19 @@ export default class InboxSettingsPage extends React.Component {
 
         const {addingIndividualInbox, addingTeamInbox} = this.state
         if (addingIndividualInbox && !isTeamAccount || addingTeamInbox && isTeamAccount) {
-            return <NylasSigninForm isAddingTeamInbox={isTeamAccount}
-                                    onCancel={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}
-                                    onCompleted={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}/>
+            return (
+                <NylasSigninForm
+                    isAddingTeamInbox={isTeamAccount}
+                    onCancel={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}
+                    onCompleted={() => isTeamAccount ? this.setState({addingTeamInbox: false}) : this.setState({addingIndividualInbox: false})}
+                />
+            )
         } else {
             return (
                 <div style={{padding: 10, backgroundColor: 'white'}}>
                     <div className="toolbar-panel">
                         <div style={{flex: 1}}>
-                            <Button bsStyle="primary"
-                                    onClick={() => isTeamAccount ? this.setState({addingTeamInbox: true}) : this.setState({addingIndividualInbox: true})}>
+                            <Button bsStyle="primary" onClick={() => isTeamAccount ? this.setState({addingTeamInbox: true}) : this.setState({addingIndividualInbox: true})}>
                                 Add an inbox
                             </Button>
                         </div>
@@ -95,30 +104,34 @@ export default class InboxSettingsPage extends React.Component {
                                     </div>
                                     <div>
                                         {
-                                            isTeamAccount && <Selector multiple
-                                                                       triggerEl={<i className="fa fa-user"/>}
-                                                                       value={(account.getTeamMembers() || []).map(m => ({
+                                            isTeamAccount && (
+                                                <Selector multiple
+                                                          triggerEl={<i className="fa fa-user"/>}
+                                                          value={(account.getTeamMembers() || []).map(m => ({
                                                                            value: m._id,
                                                                            label: m.name()
                                                                        }))}
-                                                                       options={Users.find().map(u => ({
+                                                          options={Users.find().map(u => ({
                                                                            value: u._id,
                                                                            label: u.name()
                                                                        }))}
-                                                                       onSelect={(members) => this.onSelectTeamMembers(account, members)}/>
+                                                          onSelect={(members) => this.onSelectTeamMembers(account, members)}
+                                                />
+                                            )
                                         }
-                                        &nbsp;<Button bsStyle="danger" bsSize="xsmall"
-                                                      onClick={() => this.onClickRemoveAccount(account)}>
-                                        <i className="fa fa-trash"/>
-                                    </Button>
+                                        &nbsp;
+                                        <Button bsStyle="danger" bsSize="xsmall" onClick={() => this.onClickRemoveAccount(account)}>
+                                            <i className="fa fa-trash"/>
+                                        </Button>
                                     </div>
                                 </div>
                             )
 
                             return (
                                 <Col md={6} key={account._id}>
-                                    <Panel header={header}>
-                                        <AccountSettingForm account={account}/>
+                                    <Panel>
+                                        <Panel.Heading>{header}</Panel.Heading>
+                                        <Panel.Body><AccountSettingForm account={account}/></Panel.Body>
                                     </Panel>
                                 </Col>
                             )
