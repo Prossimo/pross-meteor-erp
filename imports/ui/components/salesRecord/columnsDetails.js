@@ -335,7 +335,6 @@ export const clientStatus = {
     selected: false,
     options: () => {
         const statuses = ClientStatus.find().fetch()
-        console.log('statuses', statuses);
         return statuses.map(v => ({value: v._id, label: v.name}))
     },
     type: 'selectWithAdd',
