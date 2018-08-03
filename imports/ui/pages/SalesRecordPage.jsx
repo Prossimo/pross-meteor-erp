@@ -13,6 +13,7 @@ import {
     SUB_STAGES_OPP,
     SUB_STAGES_ORDER,
     SUB_STAGE_TICKET,
+    SUB_STAGES,
     STAGES_MAP,
     STATES
 } from '/imports/api/constants/project'
@@ -143,6 +144,16 @@ export default class SalesRecordPage extends Component {
 
     onChangeSearch = (keyword) => {
         this.delayedSearch(keyword)
+    }
+
+    sortGroups = (stages, groups) => {
+        const sorted = {}
+        stages.forEach((value) => {
+            if (groups[value]) {
+                sorted[value] = groups[value]
+            }
+        })
+        return sorted
     }
 
     filterRecords = (list, { stage, keyword, showArchivedDeals }) => {
@@ -283,7 +294,7 @@ export default class SalesRecordPage extends Component {
     renderList = (salesRecords) => {
         const { groupBy } = this.state
         return (groupBy === GROUP_BY.SUBSTAGE)
-            ? _.map(_.groupBy(salesRecords, GROUP_BY.SUBSTAGE), (group, key) =>
+            ? _.map(this.sortGroups(SUB_STAGES,  _.groupBy(salesRecords, GROUP_BY.SUBSTAGE)), (group, key) =>
                 _.map(this.renderSubGroup(group, key), (record, index) => React.cloneElement(record, { key: index }))
             )
             : this.sortRecords(salesRecords).map(this.renderRecord)
@@ -334,7 +345,7 @@ export default class SalesRecordPage extends Component {
                 <div ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
                     <Table hover>
                         <SalesRecordsTableHeader columns={columns} handleSort={this.handleSort} sort={sort} fixedHeader={fixedHeader}/>
-                        {_.map(_.groupBy(filteredRecords, GROUP_BY.STAGE), this.renderGroup)}
+                        {_.map(this.sortGroups(STAGES_MAP.map(item => item.value), _.groupBy(filteredRecords, GROUP_BY.STAGE)), this.renderGroup)}
                     </Table>
                 </div>
             </div>
