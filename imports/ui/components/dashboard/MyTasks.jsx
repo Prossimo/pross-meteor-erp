@@ -197,16 +197,19 @@ class MyTasks extends Component {
                     My Tasks
                 </div>
                 <div style={{display:'flex'}}>
-                    {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks}
-                                                                                  onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
-                    <span><input type="checkbox" value={this.state.showCompletedTasks}
-                                 onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
+                    {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && <span><input type="checkbox" value={this.state.showAllTasks} onChange={this.toggleShowAllTasks}/>&nbsp;All tasks&nbsp;&nbsp;</span>}
+
+                    <span><input type="checkbox" value={this.state.showCompletedTasks} onChange={this.toggleShowCompletedTasks}/>&nbsp;Completed tasks&nbsp;&nbsp;</span>
+
                     <Select className="small-select" value={this.state.viewOption} options={viewOptions} onChange={this.selectViewOption} clearable={false}/>&nbsp;
+
                     <Select className="small-select" value={this.state.dueDateOption} options={dueDateOptions} onChange={this.selectDueDateOption} clearable={false}/>&nbsp;
+
                     <Select className="small-select" value={this.state.userOption} options={usersOptions} onChange={this.selectUserOption} clearable={false}/>
                 </div>
             </div>
         )
+
         const sortIcon = (field) => {
             if(by === field && asc) return <i style={{marginLeft:5}} className="fa fa-caret-up"/>
             else if(by === field && !asc) return <i style={{marginLeft:5}} className="fa fa-caret-down"/>
@@ -232,7 +235,7 @@ class MyTasks extends Component {
                         </tr>
                         </thead>
                         <tbody>
-                        {this.renderTasks()}
+                            {this.renderTasks()}
                         </tbody>
                     </Table>
                 </Panel>

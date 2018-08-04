@@ -12,7 +12,7 @@ const EditField = styled.div`
     margin-right: 32px
     display: flex;
     align-items: center;
-    .btn {
+    > .btn {
         height: 100% !important;
         display: ${ ({edit}) => edit ? 'block' : 'none' };
         cursor: pointer;
@@ -66,13 +66,13 @@ class EditableField extends Component {
     }
 
     render() {
-        const { isEdit } = this.state
+        const { isEdit, value } = this.state
         const { record, colDetails, editing } = this.props
         const canEdit = isEdit && editing == this.editing
         return (
             <EditField edit={canEdit} ref={node => this.editing = node}>
                 {canEdit ? createElement(getComponent(colDetails.type),
-                    { record, colDetails, handleChange: this.handleChange })
+                    { record, colDetails, handleChange: this.handleChange, value })
                 : colDetails.renderer ? colDetails.renderer(record) : record[colDetails.key]}
 
                 {canEdit
