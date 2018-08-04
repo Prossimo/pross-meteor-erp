@@ -265,7 +265,7 @@ export default class SalesRecordPage extends Component {
                     <ThGroup colSpan={columns.length} onClick={this.handleGroup}>
                         {this.getTitle(stage)}
                     </ThGroup>
-                    <ThGroup style={{ width: '100px' }}>
+                    <ThGroup style={{ width: '80px' }}>
                         <div className="btn-group" style={{ float: 'right' }}>
                             <button
                                 className={`btn btn-default ${kanbanViews[stage] ? '' : 'active'}`}

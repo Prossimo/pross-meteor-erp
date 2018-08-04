@@ -25,10 +25,6 @@ class SalesRecord extends Component {
         })
     }
 
-    goToProject = (id) => {
-        FlowRouter.go('Deal', { id })
-    }
-
     removeProject = (_id) => {
         swal({
             title: 'Are you sure ?',
@@ -112,10 +108,9 @@ class SalesRecord extends Component {
     renderRecordButtons = ({_id, archived}) => {
         return (
             <td>
-                <div className='btn-group' style={{width: '100px'}}>
-                    <Button onClick={() => this.goToProject(_id)} bsSize='small'><i className='fa fa-link' />
-                    </Button>
-                    {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
+                <div className='btn-group' style={{width: '80px'}}>
+
+                {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
                         <Button onClick={() => this.removeProject(_id)} bsStyle='danger' bsSize='small'><i
                             className='fa fa-trash' /></Button>)}
                     {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && !archived && (
