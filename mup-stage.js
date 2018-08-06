@@ -15,10 +15,10 @@ module.exports = {
             one: {},
         },
 
-        ssl: {
-            autogenerate: {
-                email: 'quotes@prossimo.us',
-                domains: 'crm-test.mavrik.build'
+        proxy: {
+            domains: 'crm-test.mavrik.build',
+            ssl: {
+                letsEncryptEmail: 'quotes@prossimo.us'
             }
         },
 
