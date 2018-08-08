@@ -135,9 +135,17 @@ export const removeThread = new ValidatedMethod({
             const thread = Threads.findOne(_id)
             if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
 
-            Threads.remove({_id})
+            const account = NylasAccounts.findOne({accountId: thread.account_id})
+            const trashCategory = account.categories.find(c => c.name === 'trash')
+            const updateData = {}
+            if (account.organizationUnit === 'label') {
+                updateData.labels = [trashCategory]
+            } else {
+                updateData.folders = [trashCategory]
+            }
+            Threads.update({_id}, {$set: updateData})
 
-            Messages.remove({thread_id: thread.id})
+            // Messages.remove({thread_id: thread.id})
 
             return true
         } else if (id) {
@@ -145,9 +153,17 @@ export const removeThread = new ValidatedMethod({
             const thread = Threads.findOne({id})
             if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
 
-            Threads.remove({id})
+            const account = NylasAccounts.findOne({accountId: thread.account_id})
+            const trashCategory = account.categories.find(c => c.name === 'trash')
+            const updateData = {}
+            if (account.organizationUnit === 'label') {
+                updateData.labels = [trashCategory]
+            } else {
+                updateData.folders = [trashCategory]
+            }
+            Threads.update({id}, {$set: updateData})
 
-            Messages.remove({thread_id: id})
+            // Messages.remove({thread_id: id})
 
             return true
         }
