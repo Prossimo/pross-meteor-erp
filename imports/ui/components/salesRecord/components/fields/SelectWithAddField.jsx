@@ -1,93 +1,123 @@
 import React, { Component } from 'react'
-import { Popover, Overlay } from 'react-bootstrap'
+import { Glyphicon, MenuItem, Dropdown, Modal, InputGroup, FormControl, Button } from 'react-bootstrap'
 import _ from 'underscore'
 
-const COUNT_IN_COL = 6
-
-class PopoverContent extends Component {
+export default class SelectWithAddField extends Component {
     state = {
-        isEdit: false,
-        options: this.props.options
+        value: this.props.record[this.props.colDetails.key],
+        showModal: false
     }
 
-    renderEdit = (options) => {
-        const chunked = _.chunk(options, Math.ceil(options.length / COUNT_IN_COL))
-        return (
-            <div className="container-fluid">
-                {chunked.map((chunk, cidx) => (
-                    <div className="row" key={cidx}>
-                        {chunk.map((option, idx, array, colWidth = Math.ceil(12 / chunk.length)) => (
-                            <div className={`col-sm-${colWidth}`} key={idx}>
-                                <input type="text" defaultValue={option.label} name={`status_${option.value}`} />
-                                <div className="btn btn-xs btn-danger"><i className="fa fa-remove" /></div>
-                            </div>
-                        ))}
-                    </div>
-                ))}
-                <div>
-                    <strong className="btn btn-block btn-success" onClick={() => this.setState({ isEdit: false })}>Apply</strong>
-                </div>
-            </div>
-        )
+    saveNew = () => {
+        const value = this.input.value
+
+        const { colDetails: { key }, handleChange } = this.props
+        Meteor.call('list.new', { key, value }, (err, res) => {
+            this.input.value = ''
+            this.setState({ value: res })
+            handleChange(res)
+        })
     }
 
-    renderList = (options) => {
-        const { value, handleChange } = this.props
-        return (
-            <ul>
-                {options.map((option, index) =>
-                    <li key={index}>
-                        <div className={`btn ${value == option.value ? 'btn-primary' : 'btn-default'} btn-block`} onClick={() => handleChange(option.value)}>
-                            {option.label}
-                        </div>
-                    </li>
-                )}
-                <li>
-                    <strong className="btn btn-block btn-warning" onClick={() => this.setState({isEdit: true})}>Add/Edit List Item</strong>
-                </li>
-            </ul>
-        )
-    }
+    updateStatus = (event) => {
+        event.target.classList.add('edited')
+        if (event.which == 13 || event.keyCode == 13) {
+            const value = event.target.dataset.value
+            const label = event.target.value
 
-    render() {
-        const { options, isEdit } = this.state
-        return isEdit ? this.renderEdit(options) : this.renderList(options)
-    }
-}
+            event.target.classList.remove('edited')
+            const { colDetails: { key }, handleChange } = this.props
+            Meteor.call('list.update', { key, item: { value, label } }, (err, res) => {
+                /** @todo check then field was updated in iput and in list for select */
+                if (res) {
+                    this.setState({ value })
+                    handleChange(value)
+                }
 
-export default class SelectWithAddField extends Component{
-    state = {
-        show: false
-    }
-
-    handleClick = e => {
-      this.setState({ target: e.target, show: !this.state.show })
-    };
-
-    render() {
-        const { record, colDetails, handleChange, value } = this.props
-        const ppp = {
-            value,
-            options: _.isFunction(colDetails.options) ? colDetails.options() : colDetails.options,
-            handleChange
+            })
         }
+    }
 
+    delStatus = (value) => {
+        const { colDetails: { key }, handleChange } = this.props
+        Meteor.call('list.del', { key, value }, (err, res) => {
+            /** @todo check then field was removed */
+            if (res) {
+                this.setState({ value: '' })
+                handleChange('')
+            }
+        })
+    }
+
+    handleChange = (event) => {
+        const { handleChange } = this.props
+        const value = event.target.dataset.value
+        this.setState({ value })
+        handleChange(value)
+    }
+
+    openModal = () => {
+        this.setState({ showModal: true })
+    }
+
+    closeModal = () => {
+        this.setState({ showModal: false })
+    }
+
+    renderSelectInput = ({ value, label }, index) => (
+        <li key={index}>
+            <InputGroup>
+                <FormControl type="text" placeholder="Enter status..." {...{ 'data-value': value }} defaultValue={label} onKeyPress={this.updateStatus} onChange={this.setEditState} />
+                <InputGroup.Addon onClick={() => this.delStatus(value)}><i className="fa fa-minus" /></InputGroup.Addon>
+            </InputGroup>
+        </li>
+    )
+
+    renderModal = (colOptions) => {
+        const { showModal } = this.state
+        return (
+            <Modal show={showModal} onHide={this.closeModal}>
+                <Modal.Header>
+                    <Modal.Title>Edit statuses</Modal.Title>
+                </Modal.Header>
+
+                <Modal.Body>
+                    <ul ref={node => this.inputsList = node}>
+                        {colOptions.map(this.renderSelectInput)}
+                    </ul>
+                    <InputGroup>
+                        <FormControl type="text" placeholder="Enter new status..." inputRef={node => this.input = node} />
+                        <InputGroup.Addon onClick={this.saveNew}><i className="fa fa-plus" /></InputGroup.Addon>
+                    </InputGroup>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <Button onClick={this.closeModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
+        )
+    }
+
+    render() {
+        const { record, colDetails: { key, options } } = this.props
+        const { value } = this.state
+        const colOptions = _.isFunction(options) ? options() : options
+        const current = _.findWhere(colOptions, { value }) || {}
         return (
             <div>
-                <div className="btn btn-default btn-block" style={{ cursor: 'pointer' }} onClick={this.handleClick}>
-                    {colDetails.renderer ? colDetails.renderer({ clientStatus: value }) : value}
-                </div>
-                <Overlay
-                    show={this.state.show}
-                    target={this.state.target}
-                    placement="bottom"
-                    container={this}
-                >
-                    <Popover id={`popover_${record._id}_${colDetails.key}`} title={colDetails.label} placement="bottom" positionTop="44px">
-                        <PopoverContent {...ppp} />
-                    </Popover>
-
-                </Overlay>
+                <Dropdown id={`${key}-${record._id}`}>
+                    <Dropdown.Toggle>
+                        {current.label || 'Select status'}
+                    </Dropdown.Toggle>
+                    <Button bsStyle="info"
+                        onClick={this.openModal}><Glyphicon glyph="plus" /></Button>
+                    <Dropdown.Menu>
+                        {colOptions.map((option, index) => (
+                            <MenuItem active={option.value === value} {...{ 'data-value': option.value }} key={index} onClick={this.handleChange}>{option.label}</MenuItem>
+                        ))}
+                    </Dropdown.Menu>
+                </Dropdown>
+                {this.renderModal(colOptions)}
             </div>
         )
     }

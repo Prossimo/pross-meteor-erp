@@ -2,26 +2,42 @@ import { Meteor } from 'meteor/meteor'
 import React, { Component } from 'react'
 import { Checkbox } from 'react-bootstrap'
 import { Modal } from 'react-bootstrap'
-import {Navbar, Container} from '/imports/ui/styled'
+import { connect } from 'react-redux'
+import _ from 'underscore'
+import store from '/imports/redux/store'
+import { setParam } from '/imports/redux/actions'
+import { Navbar, Container } from '/imports/ui/styled'
 import CreateSalesRecord from '/imports/ui/components/salesRecord/CreateSalesRecord'
 import 'bootstrap-select'
 import 'bootstrap-select/dist/css/bootstrap-select.min.css'
 import { SearchInput } from '../../components/common'
 import * as columnsDetails from './columnsDetails'
+import SavedViews from './components/SavedViews'
+import { DEALS } from '/imports/utils/constants'
 
 class SalesRecordsNavbar extends Component {
     state = {
         showModal: false
     }
 
-    static defaultProps = {
-        columns: [],
-        showArchivedDeals: false,
-        groupBySubstage: false
+    onChangeSearch = (keyword) => {
+        this.delayedSearch(keyword)
     }
 
     componentDidMount() {
-        const { columns, handleCols } = this.props
+        const { dealsParams: { columns } } = this.props
+
+        this.delayedSearch = _.debounce((keyword) => {
+            store.dispatch(setParam('keyword', keyword))
+        }, 1000)
+
+        $(this.saveState).selectpicker({
+            style: 'btn-primary',
+            size: 5
+        })
+        $(this.saveState).on('changed.bs.select', function () {
+            const selectedState = $(this).val()
+        })
 
         $(this.selectCols).selectpicker({
             style: 'btn-default',
@@ -32,26 +48,39 @@ class SalesRecordsNavbar extends Component {
         $(this.selectCols).on('changed.bs.select', function () {
             const selectedKeys = $(this).val()
             Meteor.call('updateVisibleFields', 'salesRecord', selectedKeys, (err, res) => {
-                handleCols(selectedKeys)
+                store.dispatch(setParam('columns', selectedKeys))
             })
         })
+    }
+
+    componentDidUpdate() {
+        this.resetCols()
+    }
+
+    resetCols = () => {
+        const { dealsParams: { columns } } = this.props
+        const oldValues = $(this.selectCols).selectpicker('val')
+        if (!_.isMatch(oldValues, columns)) {
+            $(this.selectCols).selectpicker('val', columns)
+        }
     }
 
     renderColumnsSelect = () => {
         return (
             <select multiple ref={node => this.selectCols = node}>
-                {Object.keys(columnsDetails).map(( key ) =>
+                {Object.keys(columnsDetails).map((key) =>
                     <option value={key} key={key}>{columnsDetails[key].label}</option>)}
             </select>
         )
     }
 
     toggleGroupBy = (event) => {
-        this.props.toggleGroupBy(event.currentTarget.checked)
+        const groupBy = event.currentTarget.checked ? DEALS.GROUP_BY.SUBSTAGE : DEALS.GROUP_BY.STAGE
+        store.dispatch(setParam('groupBy', groupBy))
     }
 
     toggleShowArchive = (event) => {
-        this.props.toggleShowArchive(event.currentTarget.checked)
+        store.dispatch(setParam('showArchivedDeals', event.currentTarget.checked))
     }
 
     renderModal = (props) => {
@@ -71,41 +100,44 @@ class SalesRecordsNavbar extends Component {
     render() {
         const {
             title,
-            showArchivedDeals,
-            groupBySubstage,
-            onChangeSearch,
-            modalProps
+            dealsParams: {
+                showArchivedDeals,
+                groupBy,
+                keyword,
+                columns
+            },
+            modalProps,
         } = this.props
 
-        return (
+        return columns.length > 0 && (
             <Navbar>
                 <Container fluid>
                     <Navbar.Header>
                         <Navbar.Brand>
                             {title}
                         </Navbar.Brand>
-                    </Navbar.Header>
-                    <Navbar.Text>
+                        <br />
                         <button
                             className="btn btn-primary"
                             onClick={() => this.setState({ showModal: true })}
                         >
                             <span className="fa fa-plus"></span> Add Deal
                         </button>
-                    </Navbar.Text>
-                    <Navbar.Text>
-                        <Checkbox checked={showArchivedDeals} onChange={this.toggleShowArchive}>
-                            Show Archived Deals
-                        </Checkbox>
-                    </Navbar.Text>
-                    <Navbar.Text>
-                        <Checkbox onChange={this.toggleGroupBy}>
-                            Group by sub stage
-                        </Checkbox>
-                    </Navbar.Text>
+                    </Navbar.Header>
                     <Navbar.Nav navbarRight>
+                        <Navbar.Text>
+                            <SavedViews />
+                        </Navbar.Text>
+                        <Navbar.Text>
+                            <Checkbox checked={showArchivedDeals} onChange={this.toggleShowArchive}>
+                                Show Archived Deals
+                            </Checkbox>
+                            <Checkbox checked={groupBy === DEALS.GROUP_BY.SUBSTAGE} onChange={this.toggleGroupBy}>
+                                Group by sub stage
+                            </Checkbox>
+                        </Navbar.Text>
                         <Navbar.Text style={{ width: 250 }}>
-                            <SearchInput onChange={onChangeSearch} />
+                            <SearchInput value={keyword} onChange={this.onChangeSearch} />
                         </Navbar.Text>
                         <Navbar.Text>
                             {this.renderColumnsSelect()}
@@ -118,4 +150,10 @@ class SalesRecordsNavbar extends Component {
     }
 }
 
-export default SalesRecordsNavbar
+const mapStateToProps = ({ dealsParams }) => {
+    return {
+        dealsParams
+    }
+}
+
+export default connect(mapStateToProps)(SalesRecordsNavbar)

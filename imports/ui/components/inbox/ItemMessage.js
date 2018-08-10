@@ -12,7 +12,7 @@ import AttachmentComponent from '../attachment/attachment-component'
 import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
 import {info, warning} from '/imports/api/lib/alerts'
-import TaskModal from '../../components/tasks/TaskModal'
+import TaskModal from '../tasks/TaskModal'
 
 
 class ItemMessage extends React.Component {

@@ -4,21 +4,21 @@ import styled from 'styled-components'
 import _ from 'underscore'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import FileUploader from './FileUploader.jsx'
-import DropOverlay from './DropOverlay.jsx'
+import FileUploader from './FileUploader'
+import DropOverlay from './DropOverlay'
 import {warning} from '/imports/api/lib/alerts'
 import {
     getSlackUsername,
     getAvatarUrl
-} from '../../../api/lib/filters'
+} from '/imports/api/lib/filters'
 
 const FileManager = styled.div `
-  position: relative;
+    position: relative;
 `
 const LoadingIcon = styled.div `
-  position: absolute;
-  top: 150px;
-  left: 50%
+    position: absolute;
+    top: 150px;
+    left: 50%
 `
 
 class Files extends Component {

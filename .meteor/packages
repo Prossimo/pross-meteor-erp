@@ -75,3 +75,4 @@ ostrio:loggerfile
 omega:meteor-desktop-watcher@=0.17.2
 omega:meteor-desktop-bundler@=0.17.2
 omega:meteor-desktop-localstorage@=0.0.11
+tunifight:loggedin-mixin
