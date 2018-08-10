@@ -23,7 +23,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         stage: React.PropTypes.string,
         salesRecord: React.PropTypes.object,
         thread: React.PropTypes.object,         // thread to be attached from email
-       onSaved: React.PropTypes.func
+        onSaved: React.PropTypes.func
     }
 
     constructor(props) {

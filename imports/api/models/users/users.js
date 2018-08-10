@@ -22,6 +22,19 @@ export const STATUS = {
 
 const Schema = {}
 
+const DealStateSchema = new SimpleSchema({
+    id: {
+        type: String,
+    },
+    name: {
+        type: String,
+    },
+    params: {
+        type: Object,
+        blackbox: true
+    }
+})
+
 Schema.User = new SimpleSchema({
     username: {
         type: String,
@@ -88,6 +101,12 @@ Schema.User = new SimpleSchema({
         type: Object,
         optional: true,
         blackbox: true
+    },
+    dealsStates: {
+        type: Array
+    },
+    'dealsStates.$': {
+        type: DealStateSchema
     },
     createdBy: {
         type: String,
