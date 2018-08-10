@@ -1,8 +1,11 @@
-import {Meteor} from 'meteor/meteor'
-import React, {Component} from 'react'
+import { Meteor } from 'meteor/meteor'
+import React, { Component } from 'react'
+import { connect } from 'react-redux'
 import { Table } from 'react-bootstrap'
 import _ from 'underscore'
 import styled from 'styled-components'
+import store from '/imports/redux/store'
+import { setParam } from '/imports/redux/actions'
 import SalesRecord from '/imports/ui/components/salesRecord/SalesRecord'
 import SalesRecordsNavbar from '/imports/ui/components/salesRecord/SalesRecordsNavbar'
 import SalesRecordsTableHeader from '/imports/ui/components/salesRecord/SalesRecordsTableHeader'
@@ -24,17 +27,7 @@ const subStages = [].concat(
     SUB_STAGES_ORDER,
     SUB_STAGE_TICKET,
 )
-
-const GROUP_BY = {
-    STAGE: 'stage',
-    SUBSTAGE: 'subStage'
-}
-const ORDER = {
-    ASC: 1,
-    DESC: -1
-}
-
-const defaultColumns = ['_id', 'name', 'subStage', 'productionStartDate'];
+import { DEALS } from '/imports/utils/constants'
 
 const ThGroup = styled.th`
     vertical-align: middle;
@@ -55,37 +48,18 @@ const ThSubGroup = styled(ThGroup)`
     }
 `
 
-export default class SalesRecordPage extends Component {
+class SalesRecordPage extends Component {
     state = {
-        keyword: '',
-        columns: [],
-        groupBy: GROUP_BY.STAGE,
-        showArchivedDeals: false,
-        sort: {
-            key: 'productionStartDate',
-            order: ORDER.ASC
-        },
-        kanbanViews: {
-            lead: false,
-            opportunity: false,
-            order: false,
-            ticket: false,
-        },
         editing: null,
         fixedHeader: false
     }
 
     componentDidMount() {
-        this.delayedSearch = _.debounce((keyword) => {
-            this.setState({ keyword })
-        }, 1000)
-
         Meteor.call('getVisibleFields', 'salesRecord', (error, columns) => {
             if (error) {
-                this.setState({ columns: defaultColumns })
                 throw new Meteor.Error(error.message)
             }
-            this.setState({ columns })
+            store.dispatch(setParam('columns', columns))
 
             Meteor.setTimeout(() => {
                 const $tableContainer = $(this.tableContainer)
@@ -128,7 +102,7 @@ export default class SalesRecordPage extends Component {
     }
 
     sortRecords = (list) => {
-        const {sort} = this.state
+        const { sort } = this.props
         return list.sort((a, b) => {
             return a[sort.key] < b[sort.key]
                 ? sort.order
@@ -137,13 +111,20 @@ export default class SalesRecordPage extends Component {
     }
 
     setKanbanView = (key, flag) => {
-        const {kanbanViews} = this.state
+        const { kanbanViews } = this.props
         kanbanViews[key] = flag
-        this.setState({kanbanViews})
+        store.dispatch(setParam('kanbanViews', kanbanViews))
+        this.forceUpdate()
     }
 
-    onChangeSearch = (keyword) => {
-        this.delayedSearch(keyword)
+    sortGroups = (stages, groups) => {
+        const sorted = {}
+        stages.forEach((value) => {
+            if (groups[value]) {
+                sorted[value] = groups[value]
+            }
+        })
+        return sorted
     }
 
     sortGroups = (stages, groups) => {
@@ -159,7 +140,6 @@ export default class SalesRecordPage extends Component {
     filterRecords = (list, { stage, keyword, showArchivedDeals }) => {
         const keyfilter = new RegExp(keyword, 'i')
         if (keyword || stage || showArchivedDeals) {
-            console.log('keyfilter', keyfilter)
             return list.filter((item) => {
                 const byKey = !keyword || item.name.search(keyfilter) > -1
                 const byStage = !stage || item.stage == stage
@@ -177,7 +157,7 @@ export default class SalesRecordPage extends Component {
         const $allNext = $thRow.nextAll('tr')
         const $nextRow = _.find($allNext, row => {
             return $(row).children().first().attr('colspan') > 0
-        } )
+        })
         const $siblings = $nextRow ? $thRow.nextUntil($nextRow, 'tr') : $allNext
 
         if ($thRow.hasClass('collapsed')) {
@@ -202,33 +182,21 @@ export default class SalesRecordPage extends Component {
         }
     }
 
-    handleSort = (sort) => {
-        this.setState({ sort })
-    }
-
     handleCols = (columns) => {
         if (columns.indexOf('name') < 0) {
             columns.unshift('name')
         }
-        this.setState({ columns })
+        // this.setState({ columns })
+        store.dispatch(setParam('columns', columns))
     }
 
     handleScroll = (event) => {
         this.setState({ fixedHeader: event.currentTarget.scrollTop > $('th', $(this.tableContainer)).height() })
     }
 
-    toggleShowArchive = (showArchivedDeals) => {
-        this.setState({ showArchivedDeals })
-    }
-
-    toggleGroupBy = (groupBy) => {
-        this.setState({
-            groupBy: groupBy ? GROUP_BY.SUBSTAGE : GROUP_BY.STAGE
-        })
-    }
-
     renderRecord = (record, index) => {
-        const { columns, editing } = this.state
+        const { columns } = this.props
+        const { editing } = this.state
         return <SalesRecord
             columns={columns}
             record={record}
@@ -239,7 +207,7 @@ export default class SalesRecordPage extends Component {
     }
 
     renderSubGroup = (group, key) => {
-        const { columns } = this.state
+        const { columns } = this.props
         const subGroup = []
         const substage = _.findWhere(subStages, { value: key })
 
@@ -258,7 +226,7 @@ export default class SalesRecordPage extends Component {
     }
 
     renderGroup = (group, stage) => {
-        const { columns, kanbanViews } = this.state
+        const { columns, kanbanViews } = this.props
         return (
             <tbody key={stage}>
                 <tr>
@@ -292,21 +260,21 @@ export default class SalesRecordPage extends Component {
     }
 
     renderList = (salesRecords) => {
-        const { groupBy } = this.state
-        return (groupBy === GROUP_BY.SUBSTAGE)
-            ? _.map(this.sortGroups(SUB_STAGES,  _.groupBy(salesRecords, GROUP_BY.SUBSTAGE)), (group, key) =>
+        const { groupBy } = this.props
+        return (groupBy === DEALS.GROUP_BY.SUBSTAGE)
+            ? _.map(this.sortGroups(SUB_STAGES, _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)), (group, key) =>
                 _.map(this.renderSubGroup(group, key), (record, index) => React.cloneElement(record, { key: index }))
             )
             : this.sortRecords(salesRecords).map(this.renderRecord)
     }
 
     renderKanbanView = (salesRecords, stage) => {
-        const { columns } = this.state
+        const { columns } = this.props
 
         const isSubStage = stage !== undefined
         const kanbanColumns = isSubStage
-            ? this.getSubStages(stage).map((sub) => ({id: sub.value, title: sub.label}))
-            : STAGES_MAP.map((stage) => ({id: stage.value, title: stage.label}))
+            ? this.getSubStages(stage).map((sub) => ({ id: sub.value, title: sub.label }))
+            : STAGES_MAP.map((stage) => ({ id: stage.value, title: stage.label }))
 
         return (
             <tr>
@@ -325,30 +293,35 @@ export default class SalesRecordPage extends Component {
     }
 
     render() {
-        const { stage, salesRecords, groupBy, ...props } = this.props
-        const { keyword, columns, sort, showArchivedDeals, fixedHeader } = this.state
-        const filteredRecords = this.filterRecords(salesRecords, { keyword, showArchivedDeals, stage})
+        const { stage, salesRecords, groupBy, keyword, columns, showArchivedDeals, kanbanViews, ...props } = this.props
+        const { fixedHeader } = this.state
+        const filteredRecords = this.filterRecords(salesRecords, { keyword, showArchivedDeals, stage })
 
         return (
-            <div className="projects-page" style={{height: 'auto'}}>
-                {columns.length > 0 ? <SalesRecordsNavbar
+            <div className="projects-page" style={{ height: 'auto' }}>
+                <SalesRecordsNavbar
                     title={this.getTitle(stage)}
-                    columns={columns}
-                    toggleGroupBy={this.toggleGroupBy}
-                    groupBySubstage={groupBy === GROUP_BY.SUBSTAGE}
-                    toggleShowArchive={this.toggleShowArchive}
-                    showArchivedDeals={showArchivedDeals}
-                    handleCols={this.handleCols}
-                    onChangeSearch={this.onChangeSearch}
-                    modalProps={{...props, stage}}
-                /> : null}
+                    modalProps={{ ...props, stage }} />
                 <div ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
+                    <div>
+                        {JSON.stringify(kanbanViews)}
+                    </div>
+
                     <Table hover>
-                        <SalesRecordsTableHeader columns={columns} handleSort={this.handleSort} sort={sort} fixedHeader={fixedHeader}/>
-                        {_.map(this.sortGroups(STAGES_MAP.map(item => item.value), _.groupBy(filteredRecords, GROUP_BY.STAGE)), this.renderGroup)}
+                        <SalesRecordsTableHeader fixedHeader={fixedHeader} />
+                        {_.map(this.sortGroups(STAGES_MAP.map(item => item.value), _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)), this.renderGroup)}
                     </Table>
                 </div>
             </div>
         )
     }
 }
+
+const mapStateToProps = (state) => {
+    const { dealsParams } = state
+    return {
+        ...dealsParams
+    }
+}
+
+export default connect(mapStateToProps)(SalesRecordPage)

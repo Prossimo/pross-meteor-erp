@@ -1,16 +1,17 @@
 import { Meteor } from 'meteor/meteor'
 import React from 'react'
-import classNames from 'classnames'
 import { withTracker  } from 'meteor/react-meteor-data'
 import Alert from 'react-s-alert'
 import BlockUi from 'react-block-ui'
 import { Loader, Types } from 'react-loaders'
+import {Provider} from 'react-redux'
 import 'loaders.css/loaders.min.css'
 import 'react-block-ui/style.css'
 import Header from './components/header/Header'
 import Aside from './components/aside/Aside'
 import Spinner from './components/utils/spinner'
 import {SalesRecords} from '/imports/api/models'
+import store from '/imports/redux/store'
 
 class App extends React.Component{
     constructor(props){
@@ -45,14 +46,16 @@ class App extends React.Component{
         if(loading) return <Spinner visible={true}/>
 
         return (
-            <BlockUi className="app" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
-                <Header user={currentUser} />
-                {this.renderAside()}
-                <div className="page-content active-aside">
-                    {React.cloneElement(this.props.content, {...this.props, toggleLoader: this.toggleLoader})}
-                </div>
-                <Alert stack={{limit: 3}}/>
-            </BlockUi>
+            <Provider store={store}>
+                <BlockUi className="app" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
+                    <Header user={currentUser} />
+                    {this.renderAside()}
+                    <div className="page-content active-aside">
+                        {React.cloneElement(this.props.content, {...this.props, toggleLoader: this.toggleLoader})}
+                    </div>
+                    <Alert stack={{limit: 3}}/>
+                </BlockUi>
+            </Provider>
 
         )
     }

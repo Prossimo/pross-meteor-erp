@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
+import { connect } from 'react-redux'
+import store from '/imports/redux/store'
+import {setParam} from '/imports/redux/actions'
 import * as columnsDetails from './columnsDetails'
 
 const ActiveThInner = styled.div`
@@ -40,12 +43,13 @@ class SalesRecordsTableHeader extends Component {
     }
 
     handleSort = (event) => {
-        const { handleSort, sort } = this.props
+        const { sort } = this.props
         const key = event.currentTarget.dataset.key
-        handleSort({
+
+        store.dispatch(setParam('sort', {
             key,
             order: key == sort.key ? -1 * sort.order : 1
-        })
+        }))
     }
 
     render() {
@@ -74,4 +78,11 @@ class SalesRecordsTableHeader extends Component {
     }
 }
 
-export default SalesRecordsTableHeader
+const mapStateToProps = ({ dealsParams: { columns, sort } }) => {
+    return {
+        columns,
+        sort
+    }
+}
+
+export default connect(mapStateToProps)(SalesRecordsTableHeader)

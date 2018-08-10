@@ -5,7 +5,7 @@ import NylasUtils from '../../../api/nylas/nylas-utils'
 import ButtonDropdown from '../utils/ButtonDropdown'
 import Menu from '../utils/Menu'
 import Actions from '../../../api/nylas/actions'
-import PeopleForm from '../../components/people/PeopleForm'
+import PeopleForm from '../people/PeopleForm'
 import {People} from '../../../api/models'
 import AccountStore from '/imports/api/nylas/account-store'
 
