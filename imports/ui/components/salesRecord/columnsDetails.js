@@ -45,7 +45,8 @@ const LinkDiv = styled.a `
 const dateRenderer = (value) => {
     let formatted = null
     try {
-        formatted = moment(new Date(value)).format('MM/DD/YYYY')
+        const momentDate = moment(new Date(value))
+        formatted = momentDate.isValid() ? momentDate.format('MM/DD/YYYY') : ''
     }
     catch (e) {
         formatted = value
@@ -72,7 +73,7 @@ export const name = {
     selected: false,
     editable: true,
     renderer: ({_id, name}) => {
-        return <LinkDiv onClick={() => goToProject(_id)}> {name} </LinkDiv>
+        return <LinkDiv onClick={() => goToProject(_id)} style={{minWidth: '200px'}}> {name} </LinkDiv>
     }
 }
 

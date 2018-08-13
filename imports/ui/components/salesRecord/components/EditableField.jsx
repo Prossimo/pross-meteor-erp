@@ -8,7 +8,7 @@ const EditField = styled.div`
     box-sizing: border-box;
     outline: none !important;
     position: relative;
-    height: 46px;
+    min-height: 46px;
     margin-right: 32px
     display: flex;
     align-items: center;
