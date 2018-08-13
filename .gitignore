@@ -12,3 +12,4 @@ version.desktop
 .desktop-installer/
 .vscode/
 export/
+mup-stage-local.js
