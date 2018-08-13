@@ -73,7 +73,7 @@ export const name = {
     selected: false,
     editable: true,
     renderer: ({_id, name}) => {
-        return <LinkDiv onClick={() => goToProject(_id)}> {name} </LinkDiv>
+        return <LinkDiv onClick={() => goToProject(_id)} style={{minWidth: '200px'}}> {name} </LinkDiv>
     }
 }
 
