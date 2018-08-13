@@ -103,7 +103,8 @@ Schema.User = new SimpleSchema({
         blackbox: true
     },
     dealsStates: {
-        type: Array
+        type: Array,
+        optional: true
     },
     'dealsStates.$': {
         type: DealStateSchema
