@@ -19,7 +19,8 @@ const INITIAL = {
         opportunity: false,
         order: false,
         ticket: false,
-    }
+    },
+    collapsedViews: {}
 }
 
 const dealsParams = (state = INITIAL, action) => {

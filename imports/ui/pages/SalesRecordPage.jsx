@@ -117,6 +117,17 @@ class SalesRecordPage extends Component {
         this.forceUpdate()
     }
 
+    setCollapsedView = (key) => {
+        const { collapsedViews } = this.props
+        if (key in collapsedViews) {
+            collapsedViews[key] = !collapsedViews[key]
+        } else {
+            collapsedViews[key] = true
+        }
+        store.dispatch(setParam('collapsedViews', collapsedViews))
+        this.forceUpdate() /** @todo possible its need */
+    }
+
     sortGroups = (stages, groups) => {
         const sorted = {}
         stages.forEach((value) => {
@@ -207,30 +218,33 @@ class SalesRecordPage extends Component {
     }
 
     renderSubGroup = (group, key) => {
-        const { columns } = this.props
+        const {columns, collapsedViews} = this.props
         const subGroup = []
         const substage = _.findWhere(subStages, { value: key })
 
         subGroup.push((
             <tr key="trSubHead">
-                <ThSubGroup colSpan={columns.length} onClick={this.handleSubGroup}>
+                <ThSubGroup colSpan={columns.length} onClick={() => this.setCollapsedView(substage.value)}>
                     {substage ? substage.label : key}
                 </ThSubGroup>
                 <ThSubGroup></ThSubGroup>
             </tr>
         ))
-        this.sortRecords(group).forEach((record, index) => {
-            subGroup.push(this.renderRecord(record, index))
-        })
+
+        if (!collapsedViews[substage.value])  {
+            this.sortRecords(group).forEach((record, index) => {
+                subGroup.push(this.renderRecord(record, index))
+            })
+        }
         return subGroup
     }
 
     renderGroup = (group, stage) => {
-        const { columns, kanbanViews } = this.props
+        const { columns, kanbanViews, collapsedViews } = this.props
         return (
             <tbody key={stage}>
                 <tr>
-                    <ThGroup colSpan={columns.length} onClick={this.handleGroup}>
+                    <ThGroup colSpan={columns.length} onClick={() => this.setCollapsedView(stage)}>
                         {this.getTitle(stage)}
                     </ThGroup>
                     <ThGroup style={{ width: '80px' }}>
@@ -254,7 +268,7 @@ class SalesRecordPage extends Component {
                         </div>
                     </ThGroup>
                 </tr>
-                {kanbanViews[stage] ? this.renderKanbanView(group, stage) : this.renderList(group)}
+                {!collapsedViews[stage] ? kanbanViews[stage] ? this.renderKanbanView(group, stage) : this.renderList(group): null}
             </tbody>
         )
     }
