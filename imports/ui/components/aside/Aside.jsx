@@ -5,74 +5,9 @@ import classNames from 'classnames'
 import findIndex from 'lodash/findIndex'
 import '../popup/PopoverStore'
 import { ROLES } from '/imports/api/models'
+import { PAGES } from '/imports/utils/constants'
 
-const pages = [{
-        label: 'Dashboard',
-        route: 'Dashboard'
-    }, {
-        label: 'Inbox',
-        route: 'Inbox'
-    },
-    {
-        label: 'Projects',
-        route: 'Projects',
-    },
-    {
-        label: 'Deals',
-        route: 'Deals',
-        subItems: [{
-                label: 'Leads',
-                route: 'Leads'
-            },
-            {
-                label: 'Opportunities',
-                route: 'Opportunities'
-            },
-            {
-                label: 'Orders',
-                route: 'Orders'
-            },
-            {
-                label: 'Tickets',
-                route: 'Tickets'
-            },
-        ]
-    },
-    {
-        label: 'Contacts',
-        subItems: [{
-                label: 'People',
-                route: 'People'
-            },
-            {
-                label: 'Companies',
-                route: 'Companies'
-            },
-            {
-                label: 'Email Contacts',
-                route: 'Contacts'
-            }
-
-        ]
-    },
-    {
-        label: 'Financial',
-        route: 'Financial'
-    },
-    {
-        label: 'Settings',
-        subItems: [{
-                label: 'Account',
-                route: 'Account'
-            },
-            {
-                label: 'Inbox',
-                route: 'InboxSettings'
-            },
-        ]
-    }
-]
-
+const pages = PAGES
 class NavigationItem extends Component{
 
     toggleTopMenu = () => {

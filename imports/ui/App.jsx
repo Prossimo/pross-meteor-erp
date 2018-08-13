@@ -8,7 +8,7 @@ import {Provider} from 'react-redux'
 import 'loaders.css/loaders.min.css'
 import 'react-block-ui/style.css'
 import Header from './components/header/Header'
-import Aside from './components/aside/Aside'
+// import Aside from './components/aside/Aside'
 import Spinner from './components/utils/spinner'
 import {SalesRecords} from '/imports/api/models'
 import store from '/imports/redux/store'
@@ -20,16 +20,16 @@ class App extends React.Component{
             blocking: false
         }
     }
-    renderAside = () => {
-        const { currentUser, salesRecords } = this.props
-        if(!currentUser) return null
+    // renderAside = () => {
+    //     const { currentUser, salesRecords } = this.props
+    //     if(!currentUser) return null
 
-        return <Aside key="main-control-aside"
-            salesRecords={this.props.salesRecords}
-            currentUser={currentUser}
-        />
+    //     return <Aside key="main-control-aside"
+    //         salesRecords={this.props.salesRecords}
+    //         currentUser={currentUser}
+    //     />
 
-    }
+    // }
 
     toggleLoader = (blocking) => {
         //disable scroller
@@ -49,8 +49,8 @@ class App extends React.Component{
             <Provider store={store}>
                 <BlockUi className="app" tag="div" loader={<Loader active type="line-spin-fade-loader" color="#5b8bff"/>} blocking={this.state.blocking}>
                     <Header user={currentUser} />
-                    {this.renderAside()}
-                    <div className="page-content active-aside">
+                    {/* this.renderAside() */}
+                    <div className="page-content">
                         {React.cloneElement(this.props.content, {...this.props, toggleLoader: this.toggleLoader})}
                     </div>
                     <Alert stack={{limit: 3}}/>

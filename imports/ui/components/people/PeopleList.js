@@ -274,7 +274,6 @@ export default class PeopleList extends TrackerReact(React.Component) {
 
     renderRows() {
         const selectedColumns = this.state.possibleColumns.filter(({selected}) => selected)
-        console.log('selectedColumns', selectedColumns)
         const people = this.loadData()
         if (!people || people.length == 0) return
 
