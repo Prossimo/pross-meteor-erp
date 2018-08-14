@@ -65,7 +65,9 @@ export default class AddressInput extends React.Component {
         )
 
         return (
-            <Panel header={header}>
+            <Panel>
+                <Panel.Heading>{header}</Panel.Heading>
+                <Panel.Body>
                 <table className='table table-condensed'>
                     <thead>
                     <tr>
@@ -92,6 +94,7 @@ export default class AddressInput extends React.Component {
                     }
                     </tbody>
                 </table>
+                </Panel.Body>
             </Panel>
         )
     }

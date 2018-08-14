@@ -1,7 +1,7 @@
 import React from 'react'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
-import {Panel} from 'react-bootstrap'
+import {Button, Panel} from 'react-bootstrap'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import DraftStore from '/imports/api/nylas/draft-store'
 import ComposeButton from '../../inbox/composer/ComposeButton'
@@ -94,7 +94,9 @@ export default class Conversation extends TrackerReact(React.Component) {
 
         return (
             <div className="list">
-                <Panel header="Assignees">
+                <Panel>
+                    <Panel.Heading>Assignees</Panel.Heading>
+                    <Panel.Body>
                     {
                         conversation.getAssignees().map((m, i) => (
                             <div key={`assignee-${i}`} className="item">
@@ -103,6 +105,7 @@ export default class Conversation extends TrackerReact(React.Component) {
                             </div>
                         ))
                     }
+                    </Panel.Body>
                 </Panel>
             </div>
         )
@@ -114,7 +117,9 @@ export default class Conversation extends TrackerReact(React.Component) {
 
         return (
             <div className="list">
-                <Panel header="Followers">
+                <Panel>
+                    <Panel.Heading>Followers</Panel.Heading>
+                    <Panel.Body>
                     {
                         conversation.getFollowers().map((m, i) => (
                             <div key={`assignee-${i}`} className="item">
@@ -123,6 +128,7 @@ export default class Conversation extends TrackerReact(React.Component) {
                             </div>
                         ))
                     }
+                    </Panel.Body>
                 </Panel>
             </div>
         )

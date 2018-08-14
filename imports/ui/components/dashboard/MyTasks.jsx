@@ -218,7 +218,9 @@ class MyTasks extends Component {
 
         return (
             <div className="my-tasks">
-                <Panel header={header}>
+                <Panel>
+                    <Panel.Heading>{header}</Panel.Heading>
+                    <Panel.Body>
                     All tasks assigned from/to you.
                     <Table responsive>
                         <thead>
@@ -238,6 +240,7 @@ class MyTasks extends Component {
                             {this.renderTasks()}
                         </tbody>
                     </Table>
+                    </Panel.Body>
                 </Panel>
             </div>
         )

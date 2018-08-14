@@ -333,16 +333,21 @@ export default class PeopleList extends TrackerReact(React.Component) {
             <Grid fluid>
                 <Row>
                     <Col md={4}>
-                        <Panel header="Social Info">
+                        <Panel>
+                            <Panel.Heading>Social Info</Panel.Heading>
+                            <Panel.Body>
                             <ListGroup>
                                 <ListGroupItem><Label>Twitter</Label>&nbsp;{person.twitter}</ListGroupItem>
                                 <ListGroupItem><Label>Facebook</Label>&nbsp;{person.facebook}</ListGroupItem>
                                 <ListGroupItem><Label>LinkedIn</Label>&nbsp;{person.linkedin}</ListGroupItem>
                             </ListGroup>
+                            </Panel.Body>
                         </Panel>
                     </Col>
                     <Col md={4}>
-                        <Panel header="Emails">
+                        <Panel>
+                            <Panel.Heading>Emails</Panel.Heading>
+                            <Panel.Body>
                             <Table>
                                 <thead><tr>
                                     <th width="60%">Email</th>
@@ -361,10 +366,13 @@ export default class PeopleList extends TrackerReact(React.Component) {
                                 }
                                 </tbody>
                             </Table>
+                            </Panel.Body>
                         </Panel>
                     </Col>
                     <Col md={4}>
-                        <Panel header="Phone numbers">
+                        <Panel>
+                            <Panel.Heading>Phone numbers</Panel.Heading>
+                            <Panel.Body>
                             <Table>
                                 <thead><tr>
                                     <th width="40%">Number</th>
@@ -385,6 +393,7 @@ export default class PeopleList extends TrackerReact(React.Component) {
                                 }
                                 </tbody>
                             </Table>
+                            </Panel.Body>
                         </Panel>
                     </Col>
                 </Row>
