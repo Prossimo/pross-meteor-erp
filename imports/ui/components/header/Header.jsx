@@ -81,6 +81,7 @@ class Header extends Component {
     render() {
         const { user } = this.props
         const { pages } = this.state
+        const userName = user ? getUserName(user, true) : ''
         return user ? (
                 <Navbar fixedTop fluid inverse>
                     <Navbar.Header>
@@ -97,8 +98,8 @@ class Header extends Component {
                         </NavItem>
                     </Nav>
                     <Navbar.Text pullRight className="user-info">
-                        <img src={getAvatarUrl(user)} alt={getUserName(user, true)} />
-                        <span className="username">{getUserName(user, true)}</span>
+                        <img src={getAvatarUrl(user)} alt={userName} />
+                        <span className="username">{userName}</span>
                     </Navbar.Text>
                 </Navbar>
         ) : null

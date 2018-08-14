@@ -68,7 +68,6 @@ class SalesRecordPage extends Component {
                 })
             }, 200)
         })
-
     }
 
     getTitle = (stage) => {
@@ -171,7 +170,9 @@ class SalesRecordPage extends Component {
     }
 
     handleScroll = (event) => {
-        this.setState({ fixedHeader: event.currentTarget.scrollTop > $('th', $(this.tableContainer)).height() })
+        const scrollTop = event.currentTarget.scrollTop
+        this.setState({ fixedHeader: scrollTop > $('th', $(this.tableContainer)).height() })
+        store.dispatch(setParam('scrollTop', scrollTop))
     }
 
     renderRecord = (record, index) => {
@@ -285,7 +286,7 @@ class SalesRecordPage extends Component {
                 <SalesRecordsNavbar
                     title={this.getTitle(stage)}
                     modalProps={{ ...props, stage }} />
-                <div ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
+                <div id="tableContainer" ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
                     <Table hover>
                         <SalesRecordsTableHeader fixedHeader={fixedHeader} />
                         {_.map(this.sortGroups(STAGES_MAP.map(item => item.value), _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)), this.renderGroup)}

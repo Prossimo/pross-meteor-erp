@@ -20,7 +20,8 @@ const INITIAL = {
         order: false,
         ticket: false,
     },
-    collapsedViews: {}
+    collapsedViews: {},
+    scrollTop: 0
 }
 
 const dealsParams = (state = INITIAL, action) => {
