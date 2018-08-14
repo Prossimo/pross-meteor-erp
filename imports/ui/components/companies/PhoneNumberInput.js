@@ -67,7 +67,9 @@ export default class PhoneNumberInput extends React.Component {
         )
 
         return (
-            <Panel header={header}>
+            <Panel>
+                <Panel.Heading>{header}</Panel.Heading>
+                <Panel.Body>
                 <table className='table table-condensed'>
                     <thead>
                     <tr>
@@ -90,6 +92,7 @@ export default class PhoneNumberInput extends React.Component {
                     }
                     </tbody>
                 </table>
+                </Panel.Body>
             </Panel>
         )
     }

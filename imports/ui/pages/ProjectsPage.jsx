@@ -57,9 +57,13 @@ export default class ProjectsPage extends Component {
     }
 
     renderSearchBox() {
+        const { keyword } = this.state
         if(this.state.activeTab.label === 'Add Project') return null
 
-        return <div><SearchInput onChange={this.onChangeSearch}/></div>
+        return <div><SearchInput
+            onChange={this.onChangeSearch}
+            value={keyword}
+        /></div>
     }
 
     render() {

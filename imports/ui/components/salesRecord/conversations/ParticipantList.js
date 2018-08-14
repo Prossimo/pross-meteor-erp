@@ -48,8 +48,9 @@ export default class ParticipantList extends React.Component {
         )
         return (
             <div className="panel-content-list" style={style}>
-                <Panel header={header}>
-                    {
+                <Panel>
+                    <Panel.Heading>{header}</Panel.Heading>
+                    <Panel.Body>{
                         this.state.participants.map((p, i) => (
                             <div key={i} className="panel-content-item">
                                 <div style={{flex:1}}>
@@ -62,7 +63,7 @@ export default class ParticipantList extends React.Component {
                                 </div>
                             </div>
                         ))
-                    }
+                    }</Panel.Body>
                 </Panel>
             </div>
         )
