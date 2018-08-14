@@ -1,19 +1,50 @@
 import React, { Component } from 'react'
 import {FlowRouter} from 'meteor/kadira:flow-router'
+import {Roles} from 'meteor/alanning:roles'
 import {NavLink} from 'react-router-dom'
-import classNames from 'classnames'
+import findIndex from 'lodash/findIndex'
 import {
     Navbar,
     NavDropdown,
     Nav,
     NavItem,
-    // NavText,
-    MenuItem
 } from 'react-bootstrap'
+import {ROLES} from '/imports/api/models'
 import {PAGES} from '/imports/utils/constants'
 import {getUserName, getAvatarUrl} from '/imports/api/lib/filters'
 
 class Header extends Component {
+    state = {
+        pages: PAGES
+    }
+
+    componentDidMount() {
+        this.setState({pages: this.addAdminMenu(PAGES)})
+    }
+
+    addAdminMenu = (pages) => {
+        const { user = {}} = this.props
+        const settingsItemIndex = findIndex(pages, { label: 'Settings' })
+        if (settingsItemIndex) {
+            //admin & super admin & employer allow
+            if (Roles.userIsInRole(user._id, [ROLES.ADMIN, ROLES.SALES])) {
+                pages[settingsItemIndex].subItems.push({
+                    label: 'Admin',
+                    route: 'Admin'
+                })
+            }
+            if (Roles.userIsInRole(user._id, [ROLES.ADMIN])) {
+                pages[settingsItemIndex].subItems.push({
+                    label: 'Google Drive',
+                    route: 'GoogleDriveSettings'
+                }, {
+                        label: 'Slack Channel',
+                        route: 'SlackChannelSettings'
+                    })
+            }
+        }
+        return pages
+    }
 
     logout = () => {
         Meteor.logout((err) => {
@@ -24,7 +55,6 @@ class Header extends Component {
         })
     }
 
-
     goToRoute = (route) => {
         if (!route) return
         if (typeof route === 'string') {
@@ -33,7 +63,6 @@ class Header extends Component {
             FlowRouter.go(FlowRouter.path(route.name, route.params))
         }
     }
-
 
     renderSubMenu = (label, route, subItems, key) => {
         return (
@@ -51,6 +80,7 @@ class Header extends Component {
 
     render() {
         const { user } = this.props
+        const { pages } = this.state
         return user ? (
                 <Navbar fixedTop fluid inverse>
                     <Navbar.Header>
@@ -59,7 +89,7 @@ class Header extends Component {
                         </Navbar.Brand>
                     </Navbar.Header>
                     <Nav>
-                        {this.renderMenu(PAGES)}
+                        {this.renderMenu(pages)}
                     </Nav>
                     <Nav pullRight>
                         <NavItem onClick={this.logout}>
