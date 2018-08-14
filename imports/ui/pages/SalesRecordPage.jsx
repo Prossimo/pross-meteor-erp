@@ -68,7 +68,6 @@ class SalesRecordPage extends Component {
                 })
             }, 200)
         })
-
     }
 
     getTitle = (stage) => {
@@ -162,37 +161,6 @@ class SalesRecordPage extends Component {
         }
     }
 
-    handleSubGroup = (event) => {
-        const $thRow = $(event.currentTarget).parents('tr')
-        const $tbody = $(event.currentTarget).parents('tbody')
-        const $allNext = $thRow.nextAll('tr')
-        const $nextRow = _.find($allNext, row => {
-            return $(row).children().first().attr('colspan') > 0
-        })
-        const $siblings = $nextRow ? $thRow.nextUntil($nextRow, 'tr') : $allNext
-
-        if ($thRow.hasClass('collapsed')) {
-            $siblings.show()
-            $thRow.removeClass('collapsed')
-        } else {
-            $siblings.hide()
-            $thRow.addClass('collapsed')
-        }
-        // get all rows after current before next contains subgroupheader
-    }
-
-    handleGroup = (event) => {
-        const $thRow = $(event.currentTarget).parents('tr')
-        const $tbody = $(event.currentTarget).parents('tbody')
-        if ($thRow.hasClass('collapsed')) {
-            $('tr', $tbody).not($thRow).show()
-            $thRow.removeClass('collapsed')
-        } else {
-            $('tr', $tbody).not($thRow).hide()
-            $thRow.addClass('collapsed')
-        }
-    }
-
     handleCols = (columns) => {
         if (columns.indexOf('name') < 0) {
             columns.unshift('name')
@@ -202,7 +170,9 @@ class SalesRecordPage extends Component {
     }
 
     handleScroll = (event) => {
-        this.setState({ fixedHeader: event.currentTarget.scrollTop > $('th', $(this.tableContainer)).height() })
+        const scrollTop = event.currentTarget.scrollTop
+        this.setState({ fixedHeader: scrollTop > $('th', $(this.tableContainer)).height() })
+        store.dispatch(setParam('scrollTop', scrollTop))
     }
 
     renderRecord = (record, index) => {
@@ -307,7 +277,7 @@ class SalesRecordPage extends Component {
     }
 
     render() {
-        const { stage, salesRecords, groupBy, keyword, columns, showArchivedDeals, kanbanViews, ...props } = this.props
+        const { stage, salesRecords, keyword, showArchivedDeals, ...props } = this.props
         const { fixedHeader } = this.state
         const filteredRecords = this.filterRecords(salesRecords, { keyword, showArchivedDeals, stage })
 
@@ -316,11 +286,7 @@ class SalesRecordPage extends Component {
                 <SalesRecordsNavbar
                     title={this.getTitle(stage)}
                     modalProps={{ ...props, stage }} />
-                <div ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
-                    <div>
-                        {JSON.stringify(kanbanViews)}
-                    </div>
-
+                <div id="tableContainer" ref={node => this.tableContainer = node} style={{ maxHeight: '1000rem', overflow: 'auto', position: 'relative' }} onScroll={this.handleScroll}>
                     <Table hover>
                         <SalesRecordsTableHeader fixedHeader={fixedHeader} />
                         {_.map(this.sortGroups(STAGES_MAP.map(item => item.value), _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)), this.renderGroup)}

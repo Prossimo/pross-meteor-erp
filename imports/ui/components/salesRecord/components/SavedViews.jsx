@@ -68,6 +68,11 @@ class SavedViews extends Component {
             activeState: state
         })
         store.dispatch(setParams(params))
+
+        const tableContainer = document.getElementById('tableContainer')
+        if (tableContainer && params.scrollTop) {
+            tableContainer.scrollTop = params.scrollTop
+        }
     }
 
     selectState = (event) => {
