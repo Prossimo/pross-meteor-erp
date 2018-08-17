@@ -2,7 +2,7 @@ import React from 'react'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel, Checkbox} from 'react-bootstrap'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import config from '../../../api/config'
-import {warning} from '/imports/api/lib/alerts'
+import {info, warning} from '/imports/api/lib/alerts'
 import Actions from '../../../api/nylas/actions'
 
 export default class NylasSigninForm extends React.Component {
@@ -163,7 +163,7 @@ export default class NylasSigninForm extends React.Component {
                     prompt: 'consent'
                 }
             })
-            
+
             window.open(googleUrl, 'Google authentication', 'width=730,height=650')
 
             window.addEventListener('message', this.receiveMessageFromGoolgeAuthWindow, false)
@@ -175,13 +175,15 @@ export default class NylasSigninForm extends React.Component {
     signin = () => {
         this.setState({isProcessing: true})
         const signinData = this.signinData
-        Meteor.call('addNylasAccount', signinData, (err, res) => {console.log('Signin to Inbox', err, res)
+        Meteor.call('addNylasAccount', signinData, (err, res) => {
+            console.log('Signin to Inbox', err, res)
             if(err) {
                 console.log(err)
                 this.setState({isProcessing: false})
                 return warning(err.message)
             }
 
+            info('Signin to Inbox successful')
             setTimeout(() => {
                 Actions.changedAccounts()
                 this.setState({isProcessing: false})

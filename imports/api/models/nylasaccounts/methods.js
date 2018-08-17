@@ -9,6 +9,12 @@ import {ErrorLog} from '/imports/utils/logger'
 
 const bound = Meteor.bindEnvironment((callback) => callback())
 
+const authError = (error) => {
+    console.log('error', error)
+    ErrorLog.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
+    throw new Meteor.Error(error.name, error.message)
+}
+
 Meteor.methods({
     addNylasAccount(data) {
         check(data, {
@@ -28,6 +34,7 @@ Meteor.methods({
             throw new Meteor.Error('You must login to app')
 
         const nylasAccounts = Meteor.user().nylasAccounts()
+        // console.log('nylasAccounts', nylasAccounts);
         if (_.find(nylasAccounts, {emailAddress: email}))
             throw new Meteor.Error('You have already registered with this data')
 
@@ -55,6 +62,7 @@ Meteor.methods({
 
         console.log('authdata =======>', authData)
         // Call Nylas authorization API
+
         return NylasAPI.makeRequest({
             path: '/connect/authorize',
             method: 'POST',
@@ -66,11 +74,10 @@ Meteor.methods({
                 pass: '',
                 sendImmediately: true
             }
-        })
-            .then((result) =>
-
-                // Call API for getting token
-                NylasAPI.makeRequest({
+        }).then((result) => {
+            console.log('NylasAPI.authorize result', result)
+            // Call API for getting token
+            return NylasAPI.makeRequest({
                     path: '/connect/token',
                     method: 'POST',
                     timeout: 60000,
@@ -88,11 +95,11 @@ Meteor.methods({
                         ErrorLog.error('NylasAPI makeRequest(\'/connect/token\') error', error)
                     }
                 })
-                    .then((account) => {
+                .then((account) => {
+                    console.log('NylasAPI.token account', account)
+                    // Folders or labels list
 
-                        // Folders or labels list
-
-                        const getCategories = NylasAPI.makeRequest({
+                    const getCategories = NylasAPI.makeRequest({
                             path: `/${account.organization_unit}s`,
                             method: 'GET',
                             auth: {
@@ -101,42 +108,66 @@ Meteor.methods({
                                 sendImmediately: true
                             }
                         })
-                            .then((categories) => {
-                                if(categories.length === 0) { console.log('categories repeating')
-                                    return getCategories()
-                                } else {
-                                    bound(() => {
-                                        const nylasAccountId = NylasAccounts.insert({
-                                            accessToken: account.access_token,
-                                            accountId: account.account_id,
-                                            emailAddress: account.email_address,
-                                            provider: account.provider,
-                                            organizationUnit: account.organization_unit,
-                                            name: account.name,
-                                            isTeamAccount,
-                                            userId: !isTeamAccount ? currentUserId : null,
-                                            categories
-                                        })
-
-                                        if (isTeamAccount) {
-                                            try {
-                                                createProject.call({name: account.name, nylasAccountId, isServer: true, members:[], isPrivateSlackChannel})
-                                            } catch (err) {
-                                                ErrorLog.error(err)
-                                            }
-                                        }
+                        .then((categories) => {
+                            if (categories.length === 0) {
+                                // console.log('categories repeating')
+                                return getCategories()
+                            } else {
+                                bound(() => {
+                                    const nylasAccountId = NylasAccounts.insert({
+                                        accessToken: account.access_token,
+                                        accountId: account.account_id,
+                                        emailAddress: account.email_address,
+                                        provider: account.provider,
+                                        organizationUnit: account.organization_unit,
+                                        name: account.name,
+                                        isTeamAccount,
+                                        userId: !isTeamAccount ? currentUserId : null,
+                                        categories
                                     })
 
-                                    return true
-                                }
-                            })
-                        return true
-                    })
+                                    if (isTeamAccount) {
+                                        try {
+                                            createProject.call({
+                                                name: account.name,
+                                                nylasAccountId,
+                                                isServer: true,
+                                                members: [],
+                                                isPrivateSlackChannel
+                                            })
+                                        } catch (err) {
+                                            ErrorLog.error(err)
+                                        }
+                                    }
+                                })
+
+                                return true
+                            }
+                        })
+                    return true
+                })
+        }).catch(authError)
+        /*
+        return NylasAPI.makeRequest({
+            path: '/connect/authorize',
+            method: 'POST',
+            body: authData,
+            returnsModel: false,
+            timeout: 60000,
+            auth: {
+                user: '',
+                pass: '',
+                sendImmediately: true
+            }
+        })
+            .then(
             )
             .catch((error) => {
                 ErrorLog.error('NylasAPI makeRequest(\'/connect/authorize\') error', error)
                 throw error
             })
+
+        */
     },
 
     removeNylasAccount(account) {
