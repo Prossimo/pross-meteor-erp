@@ -222,6 +222,7 @@ class SalesRecordPage extends Component {
                             <button
                                 className={`btn btn-default ${kanbanViews[stage] ? '' : 'active'}`}
                                 data-toggle="tooltip" title="List View"
+                                data-placement="left"
                                 data-replacement="auto"
                                 onClick={() => this.setKanbanView(stage, false)}
                             >
@@ -230,6 +231,7 @@ class SalesRecordPage extends Component {
                             <button
                                 className={`btn btn-default ${kanbanViews[stage] ? 'active' : ''}`}
                                 data-toggle="tooltip" title="Kaban View"
+                                data-placement="left"
                                 data-replacement="auto"
                                 onClick={() => this.setKanbanView(stage, true)}
                             >

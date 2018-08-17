@@ -10,24 +10,26 @@ class SavedViews extends Component {
         showModal: false,
         newStateName: '',
         states: [],
-        activeState: {}
+        activeStateId: null
     }
 
     componentDidMount() {
         this.getStates()
-        this.unsubscribeState = store.subscribe(this.resetActiveState)
+        // this.unsubscribeState = store.subscribe(this.resetActiveState)
     }
 
     componentWillUnmount() {
-        this.unsubscribeState()
+        // this.unsubscribeState()
     }
 
     resetActiveState = () => {
-        const { activeState: { params } } = this.state
-        const { dealsParams } = store.getState()
-        if (params && !_.isMatch(params, dealsParams)) {
-            this.setState({ activeState: {} })
-        }
+        // const { activeStateId } = this.state
+        // const { params } = activeState
+        // const { dealsParams } = store.getState()
+        // console.log('resetActiveState', params, dealsParams, _.isMatch(params, dealsParams));
+        // if (params && !_.isMatch(params, dealsParams)) {
+        //     this.setState({ activeState: {} })
+        // }
     }
 
     getStates = () => {
@@ -60,12 +62,12 @@ class SavedViews extends Component {
     }
 
     applyState = (state) => {
-        const { name, params } = state
+        const { id, params } = state
         // this.set dropdown label = name
         // apply params to list
         this.setState({
             showModal: false,
-            activeState: state
+            activeStateId: state.id
         })
         store.dispatch(setParams(params))
 
@@ -108,19 +110,19 @@ class SavedViews extends Component {
     }
 
     render() {
-        const { showModal, states, newStateName, activeState } = this.state
-
+        const { showModal, states, newStateName, activeStateId } = this.state
+        const activeState = states.find(({id}) => activeStateId == id)
         return (
             <div>
                 <Dropdown id="saved-views">
                     <Dropdown.Toggle>
-                        {activeState.name || 'Select saved state'}
+                        {activeState ? activeState.name : 'Select saved state'}
                     </Dropdown.Toggle>
                     <Button bsStyle="info"
                         onClick={this.openModal}><Glyphicon glyph="plus" /></Button>
                     <Dropdown.Menu>
                         {states.map((state, index) => (
-                            <MenuItem active={state.id === activeState.id} {...{ 'data-stateid': state.id }} key={index} onClick={this.selectState}>{state.name}</MenuItem>
+                            <MenuItem active={state.id === activeStateId} {...{ 'data-stateid': state.id }} key={index} onClick={this.selectState}>{state.name}</MenuItem>
                         ))}
                     </Dropdown.Menu>
                 </Dropdown>
