@@ -45,4 +45,7 @@ const dealsParams = (state = INITIAL, action) => {
     return state
 }
 
+export {
+    INITIAL as DealsDefaultState
+}
 export default dealsParams

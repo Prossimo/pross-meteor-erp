@@ -4,6 +4,7 @@ import { InputGroup, FormControl } from 'react-bootstrap'
 import store from '/imports/redux/store'
 import { setParams, dealsParams } from '/imports/redux/actions'
 import _ from 'underscore'
+import {DealsDefaultState} from '/imports/redux/reducers/dealsParams'
 
 class SavedViews extends Component {
     state = {
@@ -34,7 +35,13 @@ class SavedViews extends Component {
 
     getStates = () => {
         Meteor.call('users.dealsState.list', (err, states) => {
-            this.setState({ states })
+            const statesWithDefault = _.clone(states)
+            statesWithDefault.unshift({
+                id: 'default_state',
+                name: 'Default State',
+                params: DealsDefaultState
+            })
+            this.setState({ states: statesWithDefault })
         })
     }
 
@@ -112,6 +119,7 @@ class SavedViews extends Component {
     render() {
         const { showModal, states, newStateName, activeStateId } = this.state
         const activeState = states.find(({id}) => activeStateId == id)
+
         return (
             <div>
                 <Dropdown id="saved-views">
@@ -133,7 +141,7 @@ class SavedViews extends Component {
 
                     <Modal.Body>
                         <ul>
-                            {states.map((state, index) => (
+                            {_.clone(states).slice(1).map((state, index) => (
                                 <li key={index}>
                                     <a href="#apply-state" onClick={(event) => { event.preventDefault(); return this.applyState(state) }}>{state.name}</a>
                                     <span data-id={state.id} className="badge badge-danger" onClick={(event) => { event.preventDefault(); return this.removeState(state.id) }}>
