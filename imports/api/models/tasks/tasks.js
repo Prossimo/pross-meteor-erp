@@ -1,5 +1,6 @@
 import {Mongo} from 'meteor/mongo'
 import SimpleSchema from 'simpl-schema'
+import moment from 'moment'
 import SalesRecords from '../salesRecords/salesRecords'
 import Projects from '../projects/projects'
 
@@ -143,4 +144,51 @@ Tasks.helpers({
         return null
     }
 })
+
+const applyFilter = ({ parentId, filter, userId }) => {
+    const selector = {
+        isRemoved: { $ne: true }
+    }
+
+    if (parentId && filter) {
+        const {
+            AssignToMe,
+            DueDate,
+            IamApprover,
+            Today,
+            Tomorrow,
+        } = filter
+
+        selector.parentId = parentId
+
+        if (AssignToMe) selector.assignee = userId
+        if (IamApprover) selector.approver = userId
+        if (DueDate) selector.dueDate = {
+            $lt: new Date()
+        }
+        if (Today) {
+            const start = moment(`${moment().format('YYYY-MM-DD')} 00:00:00`).toDate()
+            const end = moment(`${moment().format('YYYY-MM-DD')} 23:59:59`).toDate()
+            selector.dueDate = {
+                $gte: start,
+                $lte: end
+            }
+        }
+
+        if (Tomorrow) {
+            const start = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 00:00:00`).toDate()
+            const end = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 23:59:59`).toDate()
+            selector.dueDate = {
+                $gte: start,
+                $lte: end
+            }
+        }
+    }
+
+    return selector
+}
+
+export {
+    applyFilter
+}
 export default Tasks

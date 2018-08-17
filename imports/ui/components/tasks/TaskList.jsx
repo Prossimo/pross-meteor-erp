@@ -3,12 +3,7 @@ import Task from './Task.jsx'
 import TaskAdding from './TaskAdding.jsx'
 
 class TaskList extends Component {
-    constructor() {
-        super()
-        this.handleDrop = this.handleDrop.bind(this)
-    }
-
-    handleDrop(event) {
+    handleDrop = (event) => {
         const task = JSON.parse(event.dataTransfer.getData('task'))
         task.dueDate = new Date(task.dueDate)
         task.status = this.props.listName
