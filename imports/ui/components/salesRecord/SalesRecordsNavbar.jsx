@@ -43,7 +43,8 @@ class SalesRecordsNavbar extends Component {
             style: 'btn-default',
             size: 4
         })
-        $(this.selectCols).selectpicker('val', columns)
+        // $(this.selectCols).selectpicker('val', columns)
+        this.resetCols()
 
         $(this.selectCols).on('changed.bs.select', function () {
             const selectedKeys = $(this).val()
@@ -59,6 +60,10 @@ class SalesRecordsNavbar extends Component {
 
     resetCols = () => {
         const { dealsParams: { columns } } = this.props
+        if (columns.indexOf('name') < 0) {
+            columns.unshift('name')
+        }
+
         const oldValues = $(this.selectCols).selectpicker('val')
         if (!_.isMatch(oldValues, columns)) {
             $(this.selectCols).selectpicker('val', columns)
@@ -109,7 +114,7 @@ class SalesRecordsNavbar extends Component {
             modalProps,
         } = this.props
 
-        return columns.length > 0 && (
+        return (
             <Navbar>
                 <Container fluid>
                     <Navbar.Header>

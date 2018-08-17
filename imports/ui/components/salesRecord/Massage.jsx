@@ -11,7 +11,6 @@ class Massage extends Component {
     constructor(props) {
         super(props)
         this.userName = props.message.author ? getUserName(props.message.author, true) : props.user
-        this.formatMessage = this.formatMessage.bind(this)
     }
 
     renderFile() {
@@ -25,7 +24,7 @@ class Massage extends Component {
         }
     }
 
-    formatMessage() {
+    formatMessage = () => {
         const {message} = this.props
         let formattedMessage = null
         // RENDER TEXT MESSAGE

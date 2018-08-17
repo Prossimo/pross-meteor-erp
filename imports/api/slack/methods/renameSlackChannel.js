@@ -7,7 +7,7 @@ Meteor.methods({
         check(name, String)
         check(isPrivate, Match.Maybe(Boolean))
 
-        const renameChannel = slackClient[isPrivate ? 'groups' : 'channels'.rename]
+        const renameChannel = isPrivate ? slackClient.groups.rename : slackClient.channels.rename
 
         let response = renameChannel({ name, channel:id })
         if (response.data.ok) {
