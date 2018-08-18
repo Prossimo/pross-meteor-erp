@@ -5,15 +5,44 @@ import {getUserName, getAvatarUrl} from '../../../api/lib/filters'
 import styled from 'styled-components'
 import moment from 'moment'
 import Utils from '/imports/utils/Utils'
+import Tasks from '/imports/api/models/tasks/tasks'
 import {ClientErrorLog} from '/imports/utils/logger'
 
-class Massage extends Component {
+
+const Attachment = styled.div`
+    padding-left: 10px;
+    background-color: rgba(204,204,204,0.2);
+    font-size: 0.9em;
+    .content {
+        padding-left: 10px;
+        border-left: 3px solid #${({color}) => color};
+    }
+`
+class Message extends Component {
     constructor(props) {
         super(props)
         this.userName = props.message.author ? getUserName(props.message.author, true) : props.user
     }
 
-    renderFile() {
+    composeLink = ({ title_link, title = '' }) => {
+        const composedLink = {
+            href: title_link,
+            target: '_blank'
+        }
+        const name = title.replace(/Task:\s(Task\s\#\d+)/, '$1')
+        if (title && name) {
+            const task = Tasks.findOne({ name })
+            if (task) {
+                composedLink.href += `/tasks/${task._id}`
+                composedLink.target =  null
+            }
+        }
+
+        return composedLink
+    }
+
+
+    renderFile = () => {
         const {message} = this.props
         if (!message.file) return
         const {file} = message
@@ -26,6 +55,7 @@ class Massage extends Component {
 
     formatMessage = () => {
         const {message} = this.props
+
         let formattedMessage = null
         // RENDER TEXT MESSAGE
         if (message.text) {
@@ -47,15 +77,6 @@ class Massage extends Component {
                     {
                         message.attachments.map(({text, pretext, title, id, color, title_link}) => {
                             const url = /\<(\S+)\|(.+)\>/.exec(text)
-                            const Attachment = styled.div `
-              padding-left: 10px;
-              background-color: rgba(204,204,204,0.2);
-              font-size: 0.9em;
-              .content {
-                padding-left: 10px;
-                border-left: 3px solid #${color};
-              }
-            `
                             let pretextEl = '', textEl = ''
                             if(pretext) {
                                 const html = Utils.slackParsedText(pretext)
@@ -75,11 +96,12 @@ class Massage extends Component {
                                     textEl = html
                                 }
                             }
+
                             return (
-                                <Attachment key={id}>
+                                <Attachment key={id} color={color}>
                                     <div>{pretextEl}</div>
                                     <div className='content'>
-                                        <div><strong><a href={title_link} target='_blank'>{title}</a></strong></div>
+                                        <div><strong><a {...this.composeLink({ title_link, title })}>{title}</a></strong></div>
                                         {
                                             textEl
                                         }
@@ -96,6 +118,7 @@ class Massage extends Component {
 
     render() {
         const {message} = this.props
+
         return (
             <li className='activity-msg'>
                 <div className='avatar'>
@@ -112,5 +135,5 @@ class Massage extends Component {
     }
 }
 
-export default Massage
+export default Message
 

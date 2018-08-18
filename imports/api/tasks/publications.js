@@ -1,7 +1,8 @@
-import moment from 'moment'
-import {Tasks} from '../models'
+import Tasks, {
+    applyFilter
+} from '/imports/api/models/tasks/tasks'
 
-Meteor.publishComposite('task.all', function (param) {
+Meteor.publishComposite('task.all', function (param = {}) {
     /*if (!Match.test(param, {
       parentId: Match.Maybe(String),
       filter: Match.Maybe({
@@ -12,41 +13,12 @@ Meteor.publishComposite('task.all', function (param) {
         Tomorrow: Boolean,
       }),
     })) return this.ready()*/
-
     if (!this.userId) return this.ready()
 
-    const selector = {
-        isRemoved: false
-    }
-    if (param && param.parentId && param.filter) {
-        const {
-            parentId,
-            filter: {
-                AssignToMe,
-                DueDate,
-                IamApprover,
-                Today,
-                Tomorrow,
-            },
-        } = param
-
-        selector.parentId = parentId
-
-        if (AssignToMe) selector.assignee = this.userId
-        if (IamApprover) selector.approver = this.userId
-        if (DueDate) selector.dueDate = {$lt: new Date()}
-        if (Today) {
-            const start = moment(`${moment().format('YYYY-MM-DD')} 00:00:00`).toDate()
-            const end = moment(`${moment().format('YYYY-MM-DD')} 23:59:59`).toDate()
-            selector.dueDate = {$gte: start, $lte: end}
-        }
-
-        if (Tomorrow) {
-            const start = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 00:00:00`).toDate()
-            const end = moment(`${moment().add(1, 'd').format('YYYY-MM-DD')} 23:59:59`).toDate()
-            selector.dueDate = {$gte: start, $lte: end}
-        }
-    }
+    const selector = applyFilter({
+        userId: this.userId,
+        ...param
+    })
 
     return {
         find() {

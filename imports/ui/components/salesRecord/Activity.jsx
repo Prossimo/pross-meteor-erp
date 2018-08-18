@@ -1,6 +1,6 @@
 import React from 'react'
 import {FlowRouter} from 'meteor/kadira:flow-router'
-import Massage from './Massage'
+import Message from './Message'
 import { getUserName } from '../../../api/lib/filters'
 
 class Activity extends React.Component{
@@ -8,7 +8,7 @@ class Activity extends React.Component{
         super(props)
     }
 
-    getMassageList(){
+    getMessageList(){
         const { users } = this.props
         if(!this.props.messages.length){
             return (
@@ -20,7 +20,7 @@ class Activity extends React.Component{
         const activityList = this.props.messages.map(item => {
             switch (item.type) {
                 case 'message': {
-                    return <Massage key={item._id}  message={item}/>
+                    return <Message key={item._id}  message={item}/>
                 }break
                 case 'event':{
                     return (
@@ -49,7 +49,7 @@ class Activity extends React.Component{
     render() {
         return (
             <div className="activity">
-                {this.getMassageList()}
+                {this.getMessageList()}
             </div>
         )
     }

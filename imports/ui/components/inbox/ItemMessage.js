@@ -11,7 +11,6 @@ import MessageControls from './MessageControls'
 import AttachmentComponent from '../attachment/attachment-component'
 import ImageAttachmentComponent from '../attachment/image-attachment-component'
 import FileDownloadStore from '../../../api/nylas/file-download-store'
-import {info, warning} from '/imports/api/lib/alerts'
 import TaskModal from '../tasks/TaskModal'
 
 
@@ -19,14 +18,9 @@ class ItemMessage extends React.Component {
     static propTypes = {
         viewonly: React.PropTypes.bool
     }
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            detailedHeaders: props.viewonly,
-            downloads: FileDownloadStore.downloadDataForFiles(_.pluck(props.message.files, 'id'))
-        }
-
+    state = {
+        detailedHeaders: this.props.viewonly,
+        downloads: FileDownloadStore.downloadDataForFiles(_.pluck(this.props.message.files, 'id'))
     }
 
     componentDidMount() {
@@ -46,14 +40,15 @@ class ItemMessage extends React.Component {
         )
     }
 
-    renderTaskModal() {
+    renderTaskModal = () => {
         const {showTaskModal, task, taskFolderId} = this.state
 
         if(!showTaskModal || !task) return ''
 
         return <TaskModal onSaved={() => this.setState({showTaskModal:false})} onClose={() => this.setState({showTaskModal:false})} isOpen={showTaskModal} task={task} taskFolderId={taskFolderId}/>
     }
-    renderCollapsed() {
+
+    renderCollapsed = () => {
         let attachmentIcon = []
         if (this.props.message.files.length > 0) {
             attachmentIcon = <div className="collapsed-attachment"></div>

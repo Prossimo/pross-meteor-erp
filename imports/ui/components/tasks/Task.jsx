@@ -5,25 +5,61 @@ import TaskModifying from './TaskModifying.jsx'
 import swal from 'sweetalert2'
 import 'sweetalert2/dist/sweetalert2.min.css'
 
+const AssigneeIcon = styled.div`
+  width: 35px;
+  height: 20px;
+  background-color: #519839;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 3px;
+  overflow-x: hidden;
+  position: relative;
+  float: right;
+  margin-left: 2px;
+  color: white;
+`
+
+const ApproverIcon = styled.div`
+  width: 35px;
+  height: 20px;
+  background-color: #ccc;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 3px;
+  overflow-x: hidden;
+  position: relative;
+  float: right;
+  margin-left: 2px;
+`
+
+const CloseButton = styled.a`
+  position: absolute;
+  top: 0px;
+  right: 5px;
+  font-size: 1.5em;
+  color: black;
+`
+
+const DueDateIcon = styled(ApproverIcon)`
+  float: left;
+  width: 80px;
+  background-color: ${({ status, dueDate}) => status === 'Complete' ? '#ccc' : (dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46')};
+  color: white;
+`
+
+
 class Task extends Component {
-  constructor(props) {
-    super(props)
-
-    this.showDetail = this.showDetail.bind(this)
-    this.closeTask = this.closeTask.bind(this)
-  }
-
   shortenName({ profile: { firstName, lastName } }) {
     return `${firstName} ${lastName}`
       .split(' ')
       .reduce((result, next) => `${result}${next.charAt(0)}`, '')
   }
 
-  showDetail() {
+  showDetail = () => {
     this.refs.taskModifying.showDetail()
   }
 
-  closeTask(_id, event) {
+  closeTask = (_id, event) => {
     event.preventDefault()
     event.stopPropagation()
     swal({
@@ -52,44 +88,6 @@ class Task extends Component {
   render() {
     const { task } = this.props
 
-    const AssigneeIcon = styled.div `
-      width: 35px;
-      height: 20px;
-      background-color: #519839;
-      text-align: center;
-      font-weight: bold;
-      border-radius: 3px;
-      overflow-x: hidden;
-      position: relative;
-      float: right;
-      margin-left: 2px;
-      color: white;
-    `
-    const ApproverIcon = styled.div `
-      width: 35px;
-      height: 20px;
-      background-color: #ccc;
-      text-align: center;
-      font-weight: bold;
-      border-radius: 3px;
-      overflow-x: hidden;
-      position: relative;
-      float: right;
-      margin-left: 2px;
-    `
-    const DueDateIcon = styled(ApproverIcon) `
-      float: left;
-      width: 80px;
-      background-color: ${task.status === 'Complete' ? '#ccc' : (task.dueDate.valueOf() >= Date.now() ? '#0079BF' : '#EB5A46')};
-      color: white;
-    `
-    const CloseButton = styled.a `
-      position: absolute;
-      top: 0px;
-      right: 5px;
-      font-size: 1.5em;
-      color: black;
-    `
     return (
       <div
         className='task-container'
@@ -109,7 +107,7 @@ class Task extends Component {
         <ApproverIcon>
           { this.props.approver ? this.shortenName(this.props.approver) : '?' }
         </ApproverIcon>
-        <DueDateIcon>
+        <DueDateIcon status={task.status} dueDate={task.dueDate}>
           { moment(task.dueDate).format('YYYY/MM/DD') }
         </DueDateIcon>
         <TaskModifying
