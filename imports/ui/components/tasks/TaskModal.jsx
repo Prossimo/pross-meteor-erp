@@ -15,28 +15,23 @@ import Attachments from './upload/Attachments'
 import {TaskStatus} from '/imports/api/models/tasks/tasks'
 
 class TaskModal extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            isFinding: {
-                assignee: false,
-                approver: false,
-            },
-            errors: [],
-            isAttach: false,
-        }
-
-        const {task} = props
-        this.state.task = {
-            name: task ? task.name : '',
-            assignee: task ? task.assignee : null,
-            approver: task ? task.approver : null,
-            dueDate: task ? task.dueDate : new Date(),
-            description: task ? task.description : '',
-            status: task ? task.status : TaskStatus[0],
-            parentId: task ? task.parentId : null,
-            parentType: task ? task.parentType : null
-        }
+    state = {
+        isFinding: {
+            assignee: false,
+            approver: false,
+        },
+        errors: [],
+        isAttach: false,
+        task: Object.assign({
+            name: '',
+            assignee: null,
+            approver: null,
+            dueDate: new Date(),
+            description: '',
+            status: TaskStatus[0],
+            parentId: null,
+            parentType: null
+        }, this.props.task || {})
     }
 
     assignToMe = () => {

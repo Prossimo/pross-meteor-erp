@@ -1,7 +1,8 @@
 /* global FlowRouter */
 import _ from 'underscore'
 import React, {Component} from 'react'
-import {createContainer} from 'meteor/react-meteor-data'
+import { FlowRouter } from 'meteor/kadira:flow-router'
+import {withTracker} from 'meteor/react-meteor-data'
 import classNames from 'classnames'
 import {info, warning} from '/imports/api/lib/alerts'
 import {Users, Projects, People} from '/imports/api/models'
@@ -11,44 +12,37 @@ import Files from '../files/Files.jsx'
 import {Panel, Selector, SlackChannelSelector} from '../common'
 import Conversations from '../salesRecord/conversations/Conversations'
 
+
+const projectTabs = {
+    activity: {
+        label: 'Activity',
+        component: Activities
+    },
+    conversations: {
+        label: 'Conversations',
+        component: Conversations
+    },
+    tasks: {
+        label: 'Tasks',
+        component: Tasks
+    },
+    files: {
+        label: 'Files',
+        component: Files
+    },
+}
+
 class SingleProject extends Component {
-    constructor(props) {
-        super(props)
-        const projectId = FlowRouter.getParam('id')
-        this.tabs = [
-            {
-                label: 'Activity',
-                component: <Activities projectId={projectId}/>
-            },
-            {
-                label: 'Conversations',
-                component: <Conversations targetCollection={Projects} targetId={projectId}/>
-            },
-            {
-                label: 'Tasks',
-                component: <Tasks projectId={projectId}/>
-            },
-            {
-                label: 'Files',
-                component: <Files type='project'/>
-            },
-        ]
-
-        this.state = {
-            activeTab: this.tabs.find(tab => tab.label === 'Activity'),
-            showPopup: false,
-            popupData: null,
-            selectUser: null,
-            selectedCategory: [],
-            selectedDesignation: null,
-        }
+    state = {
+        showPopup: false,
+        popupData: null,
+        selectUser: null,
+        selectedCategory: [],
+        selectedDesignation: null,
     }
 
-    componentDidMount() {
-
-    }
-    toggleTab(activeTab) {
-        this.setState({activeTab})
+    static defaultProps = {
+        tab: 'activity'
     }
 
     onSelectMembers = (members) => {
@@ -138,30 +132,34 @@ class SingleProject extends Component {
 
     getTabs() {
         if(this.props.project.nylasAccountId) {
-            return this.tabs.filter(t => t.label!=='Conversations')
+            return _.omit(projectTabs, (item, key) => key === 'conversations')
         }
-        return this.tabs
+        return projectTabs
     }
+
     renderTabs() {
-        const {activeTab} = this.state
+        const {tab, projectId} = this.props
 
         return <ul>
-            {this.getTabs().map(item => (
-                <li key={item.label}
-                    onClick={this.toggleTab.bind(this, item)}
-                    className={classNames({'active': item === activeTab})}
+            {_.map(this.getTabs(), (item, key) => (
+                <li key={key} data-key={key}
+                    onClick={() => FlowRouter.go('Project', { id: projectId, tabName: key})}
+                    className={classNames({'active': key === tab})}
                 >{item.label}</li>
             ))}
         </ul>
     }
 
     renderContent() {
-        const {activeTab} = this.state
-        if (activeTab.component) {
-            return React.cloneElement(activeTab.component, this.props)
-        } else {
-            return activeTab.content
+        const { tab, ...props } = this.props
+        if (tab === 'conversations') {
+            props.targetId = props.projectId
+            props.targetCollection = Projects
         }
+        if (tab === 'files') {
+            props.type = 'Project'
+        }
+        return React.createElement(projectTabs[tab].component, props)
     }
 
     renderMembers(members) {
@@ -205,7 +203,8 @@ class SingleProject extends Component {
     render() {
         if (this.props.loading) return (<div>Loading ...</div>)
 
-        const {project} = this.props
+        const {project, tab } = this.props
+
         if(!project) return <div>Could not load project</div>
 
         const members = project.getMembers()
@@ -255,12 +254,17 @@ class SingleProject extends Component {
     }
 }
 
-export default createContainer(() => {
+export default withTracker((props) => {
     const projectId = FlowRouter.getParam('id')
-    const subscribers = [subsCache.subscribe('slackusers.all'), subsCache.subscribe('projects.one', projectId)]
+    const subscribers = [
+        subsCache.subscribe('slackusers.all'),
+        subsCache.subscribe('projects.one', projectId)
+    ]
 
     return {
         loading: !subscribers.reduce((prev, subscriber) => prev && subscriber.ready(), true),
-        project: Projects.findOne(projectId)
+        project: Projects.findOne(projectId),
+        projectId,
+        ...props
     }
-}, SingleProject)
+})(SingleProject)

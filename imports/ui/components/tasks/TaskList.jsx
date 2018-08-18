@@ -30,6 +30,7 @@ class TaskList extends Component {
                         </div>
                     </div>
                     <div>
+                        tasks list
                         {
                             this.props.tasks.map((task) => {
                                 const assignee = this.props.users.find(({_id}) => _id === task.assignee)

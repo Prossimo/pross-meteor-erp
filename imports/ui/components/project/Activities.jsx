@@ -3,7 +3,7 @@ import moment from 'moment'
 import { createContainer } from 'meteor/react-meteor-data'
 import SlackMessages from '/imports/api/models/slackMessages/slackMessages'
 import Projects from '/imports/api/models/projects/projects'
-import Message from '../salesRecord/Massage.jsx'
+import Message from '../salesRecord/Message.jsx'
 import { getUserName } from '../../../api/lib/filters'
 
 class Activities extends Component {
@@ -15,7 +15,7 @@ class Activities extends Component {
     this.props.subscribers.forEach(sub => sub.stop())
   }
 
-  getMassageList() {
+  getMessagesList() {
     if (!this.props.messages.length) {
       return (
         <div className='massage-list'>
@@ -58,7 +58,7 @@ class Activities extends Component {
   render() {
     return (
       <div className='activity'>
-        {this.getMassageList()}
+        {this.getMessagesList()}
       </div>
     )
   }

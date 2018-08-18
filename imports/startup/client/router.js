@@ -83,12 +83,12 @@ FlowRouter.route('/projects', {
     }
 })
 
-FlowRouter.route('/project/:id', {
+FlowRouter.route('/project/:id/:tabName?/:taskId?', {
     name: 'Project',
-    action() {
+    action({tabName}) {
         checkAuth()
         mount(App, {
-            content: <SingleProject/>
+            content: <SingleProject tab={tabName} />
         })
     }
 })

@@ -1,20 +1,24 @@
 import React, { Component, PropTypes } from 'react'
 import TaskDetail from './TaskDetail.jsx'
+import store from '/imports/redux/store'
+import {activeTask} from '/imports/redux/actions'
 
 class TaskModifying extends Component {
-  constructor() {
-    super()
-    this.state = {
-      task: {
-        showDetail: false,
-      },
-    }
-
-    this.showDetail = this.showDetail.bind(this)
-    this.hideDetail = this.hideDetail.bind(this)
+  state = {
+    task: {
+      showDetail: false,
+    },
   }
 
-  showDetail() {
+  componentDidMount() {
+    const { task } = this.props
+    const { projects: { activeTask } } = store.getState()
+    if (task && task._id == activeTask) {
+      this.showDetail()
+    }
+  }
+
+  showDetail = () => {
     this.setState({
       task: {
         showDetail: true,
@@ -22,12 +26,13 @@ class TaskModifying extends Component {
     })
   }
 
-  hideDetail() {
+  hideDetail = () => {
     this.setState({
       task: {
         showDetail: false,
       },
     })
+    store.dispatch(activeTask(null))
   }
 
   render() {

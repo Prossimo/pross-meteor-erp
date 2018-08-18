@@ -6,7 +6,9 @@ import Projects from '/imports/api/models/projects/projects'
 import { withTracker } from 'meteor/react-meteor-data'
 import TaskList from './TaskList.jsx'
 import TaskFilter from './TaskFilter.jsx'
-import { ReactiveDict } from 'meteor/reactive-dict'
+import store from '/imports/redux/store'
+import {activeTask} from '/imports/redux/actions'
+import {ReactiveDict} from 'meteor/reactive-dict'
 import './TaskBoard.scss'
 
 const defaultFilterState = {
@@ -62,6 +64,12 @@ class TaskBoard extends Component {
 export default withTracker(() => {
     const subscribers = []
     const parentId = FlowRouter.current().params.id
+    const taskId = FlowRouter.current().params.taskId
+    if (taskId) {
+        store.dispatch(activeTask(taskId))
+    } else {
+        store.dispatch(activeTask(null))
+    }
     let loading = true
     let tasks = []
     const filter = taskFilter.all()
