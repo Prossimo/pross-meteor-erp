@@ -310,7 +310,8 @@ class Details extends TrackerReact(React.Component) {
                 } else if (field === 'teamLead') {
                     const members = this.props.salesRecord.getMembers()
                     selectOptions = members.map(m => ({label: m.name(), value: m._id}))
-                    displayValue = value && _.findWhere(members, {_id: value}).name()
+                    const member = _.findWhere(members, {_id: value})
+                    displayValue = member && member.name()
                 } else if (field === 'priority') {
                     selectOptions = Object.values(DEAL_PRIORITY).map(value => ({label: value, value}))
                 } else if (field === 'probability') {
@@ -376,7 +377,7 @@ class Details extends TrackerReact(React.Component) {
                 }
             }
 
-            if(field === 'slackChannel') displayValue = value.name
+            if(field === 'slackChannel') displayValue = value && value.name
 
             if(!readonly) {
                 return (
