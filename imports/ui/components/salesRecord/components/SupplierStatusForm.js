@@ -1,10 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Alert} from 'react-bootstrap'
 import {insertSupplierStatus, updateSupplierStatus} from '/imports/api/models/salesRecords/verified-methods'
 
 export default class SupplierStatusForm extends React.Component {
     static propTypes = {
-        onSaved: React.PropTypes.func
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

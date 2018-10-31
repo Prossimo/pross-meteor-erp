@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Panel} from 'react-bootstrap'
@@ -16,10 +17,10 @@ import ParticipantsSelectModal from './ParticipantsSelectModal'
 
 export default class Conversation extends TrackerReact(React.Component) {
     static propTypes = {
-        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]),
-        targetId: React.PropTypes.string,   // SalesRecordId or ProjectId
-        conversationId: React.PropTypes.string,
-        onlyStakeholders: React.PropTypes.bool
+        targetCollection: PropTypes.oneOf([SalesRecords, Projects]),
+        targetId: PropTypes.string,   // SalesRecordId or ProjectId
+        conversationId: PropTypes.string,
+        onlyStakeholders: PropTypes.bool
     }
 
     constructor(props) {

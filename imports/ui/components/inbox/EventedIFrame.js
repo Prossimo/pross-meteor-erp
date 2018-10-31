@@ -1,12 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import url from 'url'
 import _ from 'underscore'
 
 export default class EventedIFrame extends React.Component {
     static propTypes = {
-        searchable: React.PropTypes.bool,
-        onResize: React.PropTypes.func
+        searchable: PropTypes.bool,
+        onResize: PropTypes.func
     }
 
     componentDidMount() {

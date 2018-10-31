@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import Actions from '../../../api/nylas/actions'
@@ -16,7 +17,7 @@ import TaskModal from '../tasks/TaskModal'
 
 class ItemMessage extends React.Component {
     static propTypes = {
-        viewonly: React.PropTypes.bool
+        viewonly: PropTypes.bool
     }
     state = {
         detailedHeaders: this.props.viewonly,

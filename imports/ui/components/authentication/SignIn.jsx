@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import Actions from '/imports/api/nylas/actions'

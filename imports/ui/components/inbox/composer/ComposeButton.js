@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 import Actions from '../../../../api/nylas/actions'
 
@@ -6,7 +7,7 @@ export default class ComposeButton extends React.Component {
     static displayName = 'ComposeButton';
 
     static propTypes = {
-        conversationId: React.PropTypes.string
+        conversationId: PropTypes.string
     }
 
     constructor(props) {

@@ -1,5 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Modal} from 'react-bootstrap'
 import classNames from 'classnames'
 import AddQuoteForm from './AddQuoteForm'

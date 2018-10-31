@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import Menu from '../../utils/Menu'
 import ButtonDropdown from '../../utils/ButtonDropdown'
 import Actions from '../../../../api/nylas/actions'
@@ -12,10 +13,10 @@ export default class SendActionButton extends React.Component {
     static displayName = 'SendActionButton';
 
     static propTypes = {
-        clientId: React.PropTypes.string,
-        style: React.PropTypes.object,
-        isValidDraft: React.PropTypes.func,
-        disabled: React.PropTypes.func
+        clientId: PropTypes.string,
+        style: PropTypes.object,
+        isValidDraft: PropTypes.func,
+        disabled: PropTypes.func
     };
 
     static defaultProps = {

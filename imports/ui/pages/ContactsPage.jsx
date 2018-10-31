@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Modal} from 'react-bootstrap'
 import ContactsList from '../components/contacts/ContactsList'
 import ContactOverview from '../components/contacts/ContactOverview'

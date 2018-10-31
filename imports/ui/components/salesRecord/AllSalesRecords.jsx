@@ -1,5 +1,6 @@
 /* global moment, FlowRouter */
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Roles} from 'meteor/alanning:roles'
 import { Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'

@@ -1,5 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import ContactInfo from '../components/account/ContactInfo'
 import EmailSignature from '../components/account/EmailSignature'

@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
@@ -8,11 +9,11 @@ import Contacts from '/imports/api/models/contacts/contacts'
 const PAGESIZE = 100
 export default class ContactsList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelectContacts: React.PropTypes.func,
-        onCreateContact: React.PropTypes.func,
-        onConvertToPeople: React.PropTypes.func,
-        updatedContact: React.PropTypes.object,
-        removedContact: React.PropTypes.object
+        onSelectContacts: PropTypes.func,
+        onCreateContact: PropTypes.func,
+        onConvertToPeople: PropTypes.func,
+        updatedContact: PropTypes.object,
+        removedContact: PropTypes.object
     }
 
     constructor(props) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Panel, Button, FormControl} from 'react-bootstrap'
 import Select from 'react-select'
 import {People} from '/imports/api/models'
@@ -7,8 +8,8 @@ const emailTypeOptions = People.EmailTypes.map(t => ({value:t, label:t}))
 
 export default class EmailsInput extends React.Component {
     static propTypes = {
-        emails: React.PropTypes.array,
-        onChange: React.PropTypes.func
+        emails: PropTypes.array,
+        onChange: PropTypes.func
     }
 
     constructor(props) {

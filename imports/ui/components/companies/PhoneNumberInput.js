@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Panel, Button, FormControl} from 'react-bootstrap'
 
 
 export default class PhoneNumberInput extends React.Component {
     static propTypes = {
-        phoneNumbers: React.PropTypes.array,
-        onChange: React.PropTypes.func
+        phoneNumbers: PropTypes.array,
+        onChange: PropTypes.func
     }
 
     constructor(props) {

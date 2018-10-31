@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import TaskDetail from './TaskDetail.jsx'
 import store from '/imports/redux/store'
 import {activeTask} from '/imports/redux/actions'

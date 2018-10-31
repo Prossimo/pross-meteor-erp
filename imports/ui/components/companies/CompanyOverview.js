@@ -1,12 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 
 
 export default class CompanyOverview extends React.Component {
     static propTypes = {
-        company: React.PropTypes.object,
-        onRemoveCompany: React.PropTypes.func,
-        onEditCompany: React.PropTypes.func
+        company: PropTypes.object,
+        onRemoveCompany: PropTypes.func,
+        onEditCompany: PropTypes.func
     }
 
     constructor(props) {

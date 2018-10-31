@@ -1,13 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 import EmailFrame from '../inbox/EmailFrame'
 
 export default class TemplateOverview extends React.Component {
     static propTypes = {
-        template: React.PropTypes.object,
-        showToolbar: React.PropTypes.bool,
-        onRemoveTemplate: React.PropTypes.func,
-        onEditTemplate: React.PropTypes.func
+        template: PropTypes.object,
+        showToolbar: PropTypes.bool,
+        onRemoveTemplate: PropTypes.func,
+        onEditTemplate: PropTypes.func
     }
 
     constructor(props) {

@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import {InputGroup, FormControl, Button} from 'react-bootstrap'
 import Actions from '/imports/api/nylas/actions'
 

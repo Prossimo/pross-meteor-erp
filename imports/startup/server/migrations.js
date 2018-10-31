@@ -254,6 +254,7 @@ Migrations.add({
 
     }
 })
+
 // Meteor.startup(() => {
 //     if(!Meteor.isTest && !Meteor.isAppTest) {
 //         Migrations.migrateTo(12)

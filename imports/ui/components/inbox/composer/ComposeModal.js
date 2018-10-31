@@ -1,14 +1,15 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Modal} from 'react-bootstrap'
 import ComposeView from './ComposeView'
 import DraftStore from '../../../../api/nylas/draft-store'
 
 export default class ComposeModal extends React.Component {
     static propTypes = {
-        clientId: React.PropTypes.string,
-        isOpen: React.PropTypes.bool,
-        onClose: React.PropTypes.func.isRequired,
-        lazySend: React.PropTypes.bool
+        clientId: PropTypes.string,
+        isOpen: PropTypes.bool,
+        onClose: PropTypes.func.isRequired,
+        lazySend: PropTypes.bool
     }
 
     constructor(props) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import moment from 'moment'
 import _ from 'underscore'
 import { FlowRouter } from 'meteor/kadira:flow-router'
@@ -13,12 +14,12 @@ import {MailTemplates} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component{
     static propTypes = {
-        currentUser: React.PropTypes.object,
-        usersArr: React.PropTypes.object,
-        quote: React.PropTypes.object,
-        salesRecord: React.PropTypes.object,
-        draftClientId: React.PropTypes.string,
-        saved: React.PropTypes.func
+        currentUser: PropTypes.object,
+        usersArr: PropTypes.object,
+        quote: PropTypes.object,
+        salesRecord: PropTypes.object,
+        draftClientId: PropTypes.string,
+        saved: PropTypes.func
     }
 
     constructor(props){

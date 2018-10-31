@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel, Checkbox} from 'react-bootstrap'
 import {isValidEmail, isValidPassword} from '../../../api/lib/validation.js'
 import config from '../../../api/config'
@@ -7,9 +8,9 @@ import Actions from '../../../api/nylas/actions'
 
 export default class NylasSigninForm extends React.Component {
     static propTypes = {
-        onCancel: React.PropTypes.func,
-        onCompleted: React.PropTypes.func,
-        isAddingTeamInbox: React.PropTypes.bool
+        onCancel: PropTypes.func,
+        onCompleted: PropTypes.func,
+        isAddingTeamInbox: PropTypes.bool
     }
     constructor(props) {
         super(props)

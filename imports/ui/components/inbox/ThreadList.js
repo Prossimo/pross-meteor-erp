@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {ThreadStore, Actions} from '/imports/api/nylas'

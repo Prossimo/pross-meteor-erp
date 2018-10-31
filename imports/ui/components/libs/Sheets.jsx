@@ -1,5 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
-import React, {Component, PropTypes} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import {Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'
 import DatePicker from 'react-datepicker'

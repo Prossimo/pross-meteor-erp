@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from '/imports/api/lib/alerts'
@@ -18,8 +19,8 @@ const HTTPS_PROTOCOL = 'https://'
 
 export default class PersonForm extends React.Component {
     static propTypes = {
-        person: React.PropTypes.object,
-        onSaved: React.PropTypes.func
+        person: PropTypes.object,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

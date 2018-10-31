@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import swal from 'sweetalert2'
 import moment from 'moment'
 import 'sweetalert2/dist/sweetalert2.min.css'

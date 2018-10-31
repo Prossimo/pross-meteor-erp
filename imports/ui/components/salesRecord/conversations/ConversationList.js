@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {createContainer} from 'meteor/react-meteor-data'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
@@ -235,7 +236,7 @@ class ConversationList extends TrackerReact(React.Component) {
 }
 
 ConversationList.propTypes = {
-    conversationId: React.PropTypes.string
+    conversationId: PropTypes.string
 }
 
 export default createContainer((props) => {

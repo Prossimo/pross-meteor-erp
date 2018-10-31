@@ -1,14 +1,15 @@
 import _ from 'underscore';
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 //import DOMUtils from '../../utils/dom-utils'
 
 class MenuItem extends React.Component {
     static propTypes = {
-        divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool]),
-        selected: React.PropTypes.bool,
-        checked: React.PropTypes.bool
+        divider: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+        selected: PropTypes.bool,
+        checked: PropTypes.bool
     }
 
     render() {
@@ -37,8 +38,8 @@ class MenuItem extends React.Component {
 
 class MenuNameEmailItem extends React.Component {
     static propTypes = {
-        name: React.PropTypes.string,
-        email: React.PropTypes.string
+        name: PropTypes.string,
+        email: PropTypes.string
     }
 
     render() {
@@ -56,16 +57,16 @@ class MenuNameEmailItem extends React.Component {
 
 class Menu extends React.Component {
     static propTypes = {
-        className: React.PropTypes.string,
-        footerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
-        headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
-        itemContent: React.PropTypes.func.isRequired,
-        itemKey: React.PropTypes.func.isRequired,
-        itemChecked: React.PropTypes.func,
-        items: React.PropTypes.array.isRequired,
-        onSelect: React.PropTypes.func.isRequired,
-        onEscape: React.PropTypes.func,
-        defaultSelectedIndex: React.PropTypes.number
+        className: PropTypes.string,
+        footerComponents: PropTypes.arrayOf(PropTypes.element),
+        headerComponents: PropTypes.arrayOf(PropTypes.element),
+        itemContent: PropTypes.func.isRequired,
+        itemKey: PropTypes.func.isRequired,
+        itemChecked: PropTypes.func,
+        items: PropTypes.array.isRequired,
+        onSelect: PropTypes.func.isRequired,
+        onEscape: PropTypes.func,
+        defaultSelectedIndex: PropTypes.number
     }
 
     static defaultProps = {

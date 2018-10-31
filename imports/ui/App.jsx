@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withTracker  } from 'meteor/react-meteor-data'
 import Alert from 'react-s-alert'
 import BlockUi from 'react-block-ui'

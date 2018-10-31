@@ -1,5 +1,6 @@
 import _ from 'underscore'
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import {NylasUtils, Actions} from '/imports/api/nylas'
 import MessageItemContainer from './MessageItemContainer'

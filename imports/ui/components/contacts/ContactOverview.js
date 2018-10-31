@@ -1,13 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 
 
 export default class ContactOverview extends React.Component {
     static propTypes = {
-        contact: React.PropTypes.object,
-        onRemoveContact: React.PropTypes.func,
-        onEditContact: React.PropTypes.func,
-        onConvertToPerson: React.PropTypes.func
+        contact: PropTypes.object,
+        onRemoveContact: PropTypes.func,
+        onEditContact: PropTypes.func,
+        onConvertToPerson: PropTypes.func
     }
 
     constructor(props) {

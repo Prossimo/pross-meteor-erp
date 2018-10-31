@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 import Actions from '/imports/api/nylas/actions'
 
@@ -7,8 +8,8 @@ export default class FileUpload extends React.Component {
     static displayName = 'FileUpload';
 
     static propTypes = {
-        clientId: React.PropTypes.string,
-        upload: React.PropTypes.object,
+        clientId: PropTypes.string,
+        upload: PropTypes.object,
     };
 
     _onClickRemove = (event) => {

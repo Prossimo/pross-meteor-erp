@@ -1,16 +1,17 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import classnames from 'classnames'
 
 import ItemMessage from './ItemMessage'
 
 export default class MessageItemContainer extends React.Component {
     static propTypes = {
-        message: React.PropTypes.object.isRequired,
-        collapsed: React.PropTypes.bool,
-        isLastMsg: React.PropTypes.bool,
-        isBeforeReplyArea: React.PropTypes.bool,
-        scrollTo: React.PropTypes.func,
-        conversationId: React.PropTypes.string
+        message: PropTypes.object.isRequired,
+        collapsed: PropTypes.bool,
+        isLastMsg: PropTypes.bool,
+        isBeforeReplyArea: PropTypes.bool,
+        scrollTo: PropTypes.func,
+        conversationId: PropTypes.string
     }
 
     constructor(props) {

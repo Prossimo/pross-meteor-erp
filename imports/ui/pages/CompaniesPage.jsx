@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Modal} from 'react-bootstrap'
 import {removeCompany} from '/imports/api/models/companies/methods'
 import CompaniesList from '../components/companies/CompaniesList'

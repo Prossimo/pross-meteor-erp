@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import Select from 'react-select'
 import {Modal} from 'react-bootstrap'
@@ -23,8 +24,8 @@ const HTTPS_PROTOCOL = 'https://'
 
 export default class CompanyForm extends React.Component {
     static propTypes = {
-        company: React.PropTypes.object,
-        onSaved: React.PropTypes.func
+        company: PropTypes.object,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

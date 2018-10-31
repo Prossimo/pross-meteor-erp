@@ -3,6 +3,7 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import Select from 'react-select'
 import {info, warning} from '/imports/api/lib/alerts'
@@ -20,10 +21,10 @@ import ConversationForm from './conversations/ConversationForm'
 
 class CreateSalesRecord extends TrackerReact(React.Component) {
     static propTypes = {
-        stage: React.PropTypes.string,
-        salesRecord: React.PropTypes.object,
-        thread: React.PropTypes.object,         // thread to be attached from email
-        onSaved: React.PropTypes.func
+        stage: PropTypes.string,
+        salesRecord: PropTypes.object,
+        thread: PropTypes.object,         // thread to be attached from email
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

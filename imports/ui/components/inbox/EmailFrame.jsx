@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import _ from 'underscore'
 //import {autolink} from './autolinker';
@@ -8,8 +9,8 @@ import EventedIFrame from './EventedIFrame'
 export default class EmailFrame extends React.Component {
 
     static propTypes = {
-        showQuotedText: React.PropTypes.bool,
-        content: React.PropTypes.string
+        showQuotedText: PropTypes.bool,
+        content: PropTypes.string
     }
 
     constructor(props) {

@@ -1,6 +1,7 @@
 /* global moment*/
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
 import PlacesAutocomplete from 'react-places-autocomplete'

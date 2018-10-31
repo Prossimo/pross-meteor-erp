@@ -1,5 +1,6 @@
 import _ from 'underscore';
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import NylasUtils from '../../../api/nylas/nylas-utils';
 
@@ -175,12 +176,12 @@ class MessageParticipants extends React.Component {
 }
 
 MessageParticipants.propTypes = {
-    to: React.PropTypes.array,
-    cc: React.PropTypes.array,
-    bcc: React.PropTypes.array,
-    from: React.PropTypes.array,
-    onClick: React.PropTypes.func,
-    isDetailed: React.PropTypes.bool
+    to: PropTypes.array,
+    cc: PropTypes.array,
+    bcc: PropTypes.array,
+    from: PropTypes.array,
+    onClick: PropTypes.func,
+    isDetailed: PropTypes.bool
 }
 
 MessageParticipants.defaultProps = {

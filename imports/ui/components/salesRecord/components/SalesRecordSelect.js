@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import SalesRecords from '/imports/api/models/salesRecords/salesRecords'
 
 export default class SalesRecordSelect extends React.Component {
     static propTypes = {
-        onChange: React.PropTypes.func.isRequired,
-        selectedSalesRecord: React.PropTypes.object
+        onChange: PropTypes.func.isRequired,
+        selectedSalesRecord: PropTypes.object
     }
 
     constructor(props) {

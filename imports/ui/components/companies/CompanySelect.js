@@ -1,12 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import {Companies} from '/imports/api/models'
 
 export default class CompanySelect extends React.Component {
     static propTypes = {
-        onChange: React.PropTypes.func.isRequired,
-        company: React.PropTypes.object,
-        companyId: React.PropTypes.string
+        onChange: PropTypes.func.isRequired,
+        company: PropTypes.object,
+        companyId: PropTypes.string
     }
 
     constructor(props) {

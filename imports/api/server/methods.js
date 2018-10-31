@@ -14,7 +14,7 @@ import {prossDocDrive} from '../drive'
 import {getUserEmail} from '/imports/api/lib/filters'
 
 import '../lib/extendMatch.js'
-import google from 'googleapis'
+import { google } from 'googleapis'
 import config from '../config'
 
 import '../nylas/methods'

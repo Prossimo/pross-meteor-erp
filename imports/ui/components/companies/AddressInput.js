@@ -1,10 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Panel, Button, FormControl} from 'react-bootstrap'
 
 export default class AddressInput extends React.Component {
     static propTypes = {
-        addresses: React.PropTypes.array,
-        onChange: React.PropTypes.func
+        addresses: PropTypes.array,
+        onChange: PropTypes.func
     }
 
     constructor(props) {

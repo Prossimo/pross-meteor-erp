@@ -1,14 +1,15 @@
 import _ from 'underscore'
 import moment from 'moment'
 import React from 'react'
+import PropTypes from 'prop-types'
 import NylasUtils from '/imports/api/nylas/nylas-utils'
 
 class MessageTimestamp extends React.Component {
     static propTypes = {
-        date: React.PropTypes.number.isRequired,
-        className: React.PropTypes.string,
-        isDetailed: React.PropTypes.bool,
-        onClick: React.PropTypes.func
+        date: PropTypes.number.isRequired,
+        className: PropTypes.string,
+        isDetailed: PropTypes.bool,
+        onClick: PropTypes.func
     }
 
     shouldComponentUpdate(nextProps, nextState) {
