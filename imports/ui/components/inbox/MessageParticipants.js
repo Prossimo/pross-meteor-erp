@@ -42,7 +42,7 @@ class MessageParticipants extends React.Component {
 
 
     render() {
-        classSet = classnames({
+        const classSet = classnames({
             "participants": true,
             "message-participants": true,
             "collapsed": !this.props.isDetailed,

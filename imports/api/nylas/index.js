@@ -23,5 +23,5 @@ export {
     MessageStore,
     CategoryStore,
     AccountStore,
-   DraftsStore
+    DraftsStore
 }

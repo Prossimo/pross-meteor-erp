@@ -34,7 +34,7 @@ Session.set('currentThreadOptions', {
   sort: {
     last_message_received_timestamp: -1
   },
-  skip: 1,
+  skip: 0,
   limit: PAGESIZE,
 })
 Session.set('threadsCount', 0)
@@ -43,7 +43,7 @@ Session.set('currentDraftOptions', {
   sort: {
     date: -1
   },
-  skip: 1,
+  skip: 0,
   limit: 200
 })
 
@@ -63,7 +63,7 @@ class InboxPage extends (React.Component) {
             currentThread: currentCategory ? ThreadStore.currentThread(currentCategory) : null,
             keyword: null,
             draftKeyword: null,
-            threadStartIndex: 1,
+            threadStartIndex: 0,
             threadTotalCount: 0,
             currentDraft: DraftsStore.currentDraft(currentCategory),
         }
@@ -88,7 +88,7 @@ class InboxPage extends (React.Component) {
                     if (err) ClientErrorLog.error(err)
                 })
             }
-        }, 1 * 1000 * 120)   // every 5 minutes
+        }, 1 * 1000 * 5)   // every 5 minutes
     }
 
     componentWillUnmount() {
@@ -110,9 +110,9 @@ class InboxPage extends (React.Component) {
     onCategoryStoreChanged = () => {
         const currentCategory = CategoryStore.currentCategory
         setTimeout(() => {
-            this.setState({ currentCategory, threadStartIndex: 1 })
+            this.setState({ currentCategory, threadStartIndex: 0 })
             const currentThreadFilter = this.threadFilter(currentCategory)
-            const currentThreadOptions = this.threadOptions(1)
+            const currentThreadOptions = this.threadOptions(0)
             const currentDraftFilter = this.draftFilter()
             Session.set('currentThreadFilter', currentThreadFilter)
             Session.set('currentThreadOptions', currentThreadOptions)
@@ -500,9 +500,9 @@ class InboxPage extends (React.Component) {
           const categoriesForAccount = CategoryStore.getCategories(account.accountId)
           if (categoriesForAccount && categoriesForAccount.length && categoriesForAccount[0]) {
             const category = categoriesForAccount[0]
-            this.setState({ currentCategory: category, threadStartIndex: 1 })
+            this.setState({ currentCategory: category, threadStartIndex: 0 })
             const currentThreadFilter = this.threadFilter(category)
-            const currentThreadOptions = this.threadOptions(1)
+            const currentThreadOptions = this.threadOptions(0)
             const currentDraftFilter = this.draftFilter()
             Session.set('currentThreadFilter', currentThreadFilter)
             Session.set('currentThreadOptions', currentThreadOptions)

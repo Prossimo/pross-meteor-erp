@@ -43,7 +43,9 @@ Meteor.publish('threads.custom', function(query, options) {
         this.ready()
         return
     }
-    return Threads.find(query, options)
+    return Threads.find(query, {
+        options
+    })
 })
 
 Meteor.publish('threads.params', function(filters={}, options={}) {
