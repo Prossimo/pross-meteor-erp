@@ -70,6 +70,10 @@ class SalesRecordPage extends Component {
         })
     }
 
+    componentDidUpdate() {
+
+    }
+
     getTitle = (stage) => {
         switch (stage) {
             case 'lead':
@@ -149,6 +153,7 @@ class SalesRecordPage extends Component {
 
     filterRecords = (list, { stage, keyword, showArchivedDeals }) => {
         const keyfilter = new RegExp(keyword, 'i')
+
         if (keyword || stage || showArchivedDeals) {
             return list.filter((item) => {
                 const byKey = !keyword || item.name.search(keyfilter) > -1
@@ -157,7 +162,7 @@ class SalesRecordPage extends Component {
                 return byKey && byStage && byArchive
             })
         } else {
-            return list
+            return list.filter(item => !item.archived);
         }
     }
 
@@ -282,7 +287,6 @@ class SalesRecordPage extends Component {
         const { stage, salesRecords, keyword, showArchivedDeals, ...props } = this.props
         const { fixedHeader } = this.state
         const filteredRecords = this.filterRecords(salesRecords, { keyword, showArchivedDeals, stage })
-
         return (
             <div className="projects-page" style={{ height: 'auto' }}>
                 <SalesRecordsNavbar
