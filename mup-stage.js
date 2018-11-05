@@ -1,14 +1,14 @@
 module.exports = {
     servers: {
         one: {
-            host: '138.197.5.55',
+            host: '159.203.107.170',
             username: 'root',
             pem: '~/.ssh/id_rsa'
         }
     },
 
     meteor: {
-        name: 'prossimo-prod',
+        name: 'prossimo-stage',
         path: '.',
 
         servers: {
@@ -18,13 +18,14 @@ module.exports = {
         ssl: {
             autogenerate: {
                 email: 'quotes@prossimo.us',
-                domains: 'crm.mavrik.build'
+                domains: 'crm-test.mavrik.build'
             }
         },
 
         env: {
-            ROOT_URL: 'https://crm.mavrik.build',
-            MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580'
+            ROOT_URL: 'https://crm-test.mavrik.build',
+            // MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580'
+            MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds153303-a0.mlab.com:53303,ds153303-a1.mlab.com:53303/mavrik-test?replicaSet=rs-ds153303'
         },
 
         buildOptions: {
@@ -34,9 +35,9 @@ module.exports = {
         },
 
         docker: {
-            image: 'abernix/meteord:base',
+            image: 'abernix/meteord:node-8.11.2-base',
             args: [
-                '-e "VIRTUAL_HOST=crm.mavrik.build"',
+                '-e "VIRTUAL_HOST=crm-test.mavrik.build"',
                 '-e "HTTPS_METHOD=nohttp"'
             ]
         },
@@ -44,5 +45,8 @@ module.exports = {
         deployCheckWaitTime: 60,
 
         enableUploadProgressBar: true
+    },
+    proxy: {
+        domains: 'crm-test.mavrik.build'
     }
 }

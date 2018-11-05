@@ -4,7 +4,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Modal} from 'react-bootstrap'
-import PlacesAutocomplete from 'react-places-autocomplete'
+// import PlacesAutocomplete from 'react-places-autocomplete'
 import {info, warning} from '/imports/api/lib/alerts'
 import {SHIPPING_MODE_LIST, STATES, STAGES_MAP, SUB_STAGES_LEAD, SUB_STAGES_OPP, SUB_STAGES_ORDER, SUB_STAGE_TICKET} from '/imports/api/constants/project'
 import DatePicker from 'react-datepicker'
@@ -263,9 +263,13 @@ class Details extends TrackerReact(React.Component) {
             case 'address':
                 return (
                     <div>
-                        <PlacesAutocomplete
-                            inputProps={{value:value || '', onChange, onBlur:this.saveSalesRecord}}
-                        />
+                        {
+                            /*
+                                <PlacesAutocomplete
+                                    inputProps={{value:value || '', onChange, onBlur:this.saveSalesRecord}}
+                                />
+                            */
+                        }
                     </div>
                 )
             default:
