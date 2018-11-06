@@ -1,4 +1,4 @@
-import {google} from 'googleapis'
+import google from 'googleapis'
 import { prossDocDrive } from '../../config'
 
 const { clientId, clientSecret, redirectUri, refreshToken } = prossDocDrive

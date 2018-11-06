@@ -71,7 +71,9 @@ export default class SelectStakeholders extends Component {
         })
     }
 
-    selectPeople = (people) => {
+    selectPeople = (peopleOption) => {
+        const people = Array.isArray(peopleOption) ? peopleOption : [peopleOption];
+
         !people.find(({isMainStakeholder}) => isMainStakeholder)
         && people.length
         && (people[0].isMainStakeholder = true)
