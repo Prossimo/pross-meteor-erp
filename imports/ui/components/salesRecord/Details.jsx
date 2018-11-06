@@ -263,6 +263,10 @@ class Details extends TrackerReact(React.Component) {
             case 'address':
                 return (
                     <div>
+                        {
+                            /*
+                            */
+                        }
                         <PlacesAutocomplete
                             inputProps={{value:value || '', onChange, onBlur:this.saveSalesRecord}}
                         />
