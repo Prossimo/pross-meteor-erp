@@ -81,7 +81,7 @@
     "slackify-html": "^1.0.1",
     "streamsaver": "^1.0.1",
     "styled-components": "^4.0.2",
-    "sweetalert2": "^7.28.11",
+    "sweetalert2": "^6.6.0",
     "talon": "^2.3.2",
     "textcomplete": "^0.17.1",
     "twilio": "^3.23.2",

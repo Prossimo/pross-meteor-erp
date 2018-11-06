@@ -56,6 +56,7 @@ class SalesRecord extends Component {
                 })
             })
         }).then(({isRemoveFolders, isRemoveSlack}) => {
+            console.log(isRemoveSlack, isRemoveFolders);
             Meteor.call('removeSalesRecord', {_id, isRemoveFolders, isRemoveSlack}, (error) => {
                 if (error) {
                     const msg = error.reason ? error.reason : error.message
