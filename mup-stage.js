@@ -25,7 +25,7 @@ module.exports = {
         env: {
             ROOT_URL: 'https://crm-test.mavrik.build',
             // MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580'
-            MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds153303-a0.mlab.com:53303,ds153303-a1.mlab.com:53303/mavrik-test?replicaSet=rs-ds153303'
+            MONGO_URL: 'mongodb://mavrik-test:P4ssiveH0use@ds153303-a0.mlab.com:53303,ds153303-a1.mlab.com:53303/mavrik-test?replicaSet=rs-ds153303'
         },
 
         buildOptions: {
