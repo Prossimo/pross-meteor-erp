@@ -251,12 +251,9 @@ class SalesRecordPage extends Component {
     }
 
     renderList = (salesRecords) => {
-        const { groupBy } = this.props
-        return (groupBy === DEALS.GROUP_BY.SUBSTAGE)
-            ? _.map(this.sortGroups(SUB_STAGES, _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)), (group, key) =>
-                _.map(this.renderSubGroup(group, key), (record, index) => React.cloneElement(record, { key: index }))
-            )
-            : this.sortRecords(salesRecords).map(this.renderRecord)
+        return _.map(this.sortGroups(SUB_STAGES, _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)), (group, key) =>
+            _.map(this.renderSubGroup(group, key), (record, index) => React.cloneElement(record, { key: index }))
+        )
     }
 
     renderKanbanView = (salesRecords, stage) => {
