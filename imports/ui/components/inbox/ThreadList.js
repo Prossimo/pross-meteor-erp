@@ -1,4 +1,5 @@
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import {createContainer} from 'meteor/react-meteor-data'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {ThreadStore, Actions} from '/imports/api/nylas'
@@ -70,10 +71,9 @@ ThreadList.propTypes = {
 export default createContainer((props) => {
   const { threadFilter, threadOptions } = props
   const subscribers = []
-  subscribers.push(subsCache.subscribe('threads.custom', threadFilter, threadOptions))
+  subscribers.push(Meteor.subscribe('threads.custom', threadFilter, threadOptions))
 
   let threads = Threads.find(threadFilter, threadOptions).fetch()
-
   threads = _.uniq(threads, false, ({id}) => id)
 
   return {

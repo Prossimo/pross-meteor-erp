@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { createContainer } from 'meteor/react-meteor-data'
 import styled from 'styled-components'
 import moment from 'moment'

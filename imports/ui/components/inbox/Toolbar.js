@@ -1,6 +1,7 @@
 /* global FlowRouter */
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {DropdownButton, MenuItem, FormControl, InputGroup, Button} from 'react-bootstrap'
 import ComposeButton from './composer/ComposeButton'
@@ -17,8 +18,8 @@ import {PAGESIZE} from '/imports/utils/constants'
 
 export default class Toolbar extends TrackerReact(React.Component) {
     static propTypes = {
-        thread: React.PropTypes.object,
-        onSelectExtraMenu: React.PropTypes.func
+        thread: PropTypes.object,
+        onSelectExtraMenu: PropTypes.func
     }
 
     constructor(props) {

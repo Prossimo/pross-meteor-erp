@@ -1,11 +1,12 @@
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import FileUpload from './FileUpload';
 
 export default class ImageFileUpload extends FileUpload {
     static displayName = 'ImageFileUpload';
 
     static propTypes = {
-        uploadData: React.PropTypes.object,
+        uploadData: PropTypes.object,
     };
 
     constructor(props) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Alert} from 'react-bootstrap'
 import {warning} from '/imports/api/lib/alerts'
 import {updateDesignation} from '/imports/api/models/people/methods'
@@ -7,7 +8,7 @@ import SimpleSchema from 'simpl-schema'
 
 export default class RoleForm extends React.Component {
     static propTypes = {
-        onSaved: React.PropTypes.func
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

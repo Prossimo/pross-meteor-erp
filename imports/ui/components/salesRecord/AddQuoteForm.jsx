@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import {Alert} from 'react-bootstrap'
 import {getSlackUsername, getAvatarUrl} from '../../../api/lib/filters'
@@ -12,12 +13,12 @@ import {MailTemplates} from '/imports/api/models'
 
 class AddQuoteForm extends React.Component {
     static propTypes = {
-        currentUser: React.PropTypes.object,
-        usersArr: React.PropTypes.object,
-        quotes: React.PropTypes.array,
-        salesRecord: React.PropTypes.object,
-        draftClientId: React.PropTypes.string,
-        saved: React.PropTypes.func
+        currentUser: PropTypes.object,
+        usersArr: PropTypes.object,
+        quotes: PropTypes.array,
+        salesRecord: PropTypes.object,
+        draftClientId: PropTypes.string,
+        saved: PropTypes.func
     }
 
     constructor(props) {

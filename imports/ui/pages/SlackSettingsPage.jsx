@@ -8,7 +8,7 @@ import {
   withHandlers,
 } from 'recompose'
 import Select from 'react-select'
-import 'react-select/dist/react-select.css'
+// import 'react-select/dist/react-select.css'
 import Settings from '/imports/api/models/settings/settings'
 import { createContainer } from 'meteor/react-meteor-data'
 

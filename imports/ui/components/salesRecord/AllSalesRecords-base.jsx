@@ -1,5 +1,6 @@
 /* global moment, FlowRouter */
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Roles} from 'meteor/alanning:roles'
 import { Table, Glyphicon, Button} from 'react-bootstrap'
 import classNames from 'classnames'
@@ -620,6 +621,7 @@ class AllSalesRecords extends React.Component {
                 })
             })
         }).then(({isRemoveFolders, isRemoveSlack}) => {
+            console.log(isRemoveSlack, isRemoveFolders);
             Meteor.call('removeSalesRecord', {_id, isRemoveFolders, isRemoveSlack}, (error, result) => {
                 if (error) {
                     const msg = error.reason ? error.reason : error.message

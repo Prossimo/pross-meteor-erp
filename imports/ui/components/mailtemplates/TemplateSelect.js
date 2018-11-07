@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import MailTemplates from '/imports/api/models/mailtemplates/mailtemplates'
 
 export default class TemplateSelect extends React.Component {
     static propTypes = {
-        onChange: React.PropTypes.func.isRequired,
-        selectedTemplate: React.PropTypes.object
+        onChange: PropTypes.func.isRequired,
+        selectedTemplate: PropTypes.object
     }
 
     constructor(props) {

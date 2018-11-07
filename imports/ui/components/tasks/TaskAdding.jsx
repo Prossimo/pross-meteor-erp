@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TaskDetail from './TaskDetail.jsx'
 
@@ -18,14 +19,17 @@ class TaskAdding extends Component {
   showDetail() {
     this.setState({
       task: {
+        ...this.state.task,
         showDetail: true,
       },
     })
   }
 
   hideDetail() {
+    console.log('OK');
     this.setState({
       task: {
+        ...this.state.task,
         showDetail: false,
       },
     })
@@ -41,8 +45,13 @@ class TaskAdding extends Component {
       }
     `
     return (
-      <TaskAdding onClick={ this.showDetail }>
-        + Add a task ...
+      <TaskAdding>
+        <a href="#" style={{ display: 'block' }} onClick={ (event) => {
+          event.preventDefault();
+          this.showDetail();
+        } }  >        
+          + Add a task ...
+        </a>
         <TaskDetail
           showDetail={this.showDetail}
           hideDetail={this.hideDetail}

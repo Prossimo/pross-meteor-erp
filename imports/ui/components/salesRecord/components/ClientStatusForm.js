@@ -1,10 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Alert} from 'react-bootstrap'
 import {insertClientStatus, updateClientStatus} from '/imports/api/models/salesRecords/verified-methods'
 
 export default class ClientStatusForm extends React.Component {
     static propTypes = {
-        onSaved: React.PropTypes.func
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

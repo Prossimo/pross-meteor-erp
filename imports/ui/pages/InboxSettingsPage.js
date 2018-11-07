@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Tabs, Tab, PanelGroup, Panel, Button, Col} from 'react-bootstrap'
 import {Users} from '/imports/api/models'
 import AccountStore from '../../api/nylas/account-store'

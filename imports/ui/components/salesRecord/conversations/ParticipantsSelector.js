@@ -1,5 +1,6 @@
 import _ from 'underscore'
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import {Table, Checkbox} from 'react-bootstrap'
 
 export default class ParticipantsSelector extends React.Component {

@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import AccountStore from '/imports/api/nylas/account-store'
 
 export default class AccountSelect extends React.Component {
     static propTypes = {
-        onChange: React.PropTypes.func.isRequired,
-        account: React.PropTypes.object
+        onChange: PropTypes.func.isRequired,
+        account: PropTypes.object
     }
 
     constructor(props) {

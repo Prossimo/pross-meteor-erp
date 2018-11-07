@@ -1,11 +1,12 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 
 class ItemDraft extends React.Component{
     static propTypes = {
-        draft: React.PropTypes.object.isRequired,
-        onClick: React.PropTypes.func,
-        selected: React.PropTypes.bool
+        draft: PropTypes.object.isRequired,
+        onClick: PropTypes.func,
+        selected: PropTypes.bool
     }
 
     constructor(props) {

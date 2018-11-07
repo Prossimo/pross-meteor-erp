@@ -13,3 +13,4 @@ version.desktop
 .vscode/
 export/
 mup-stage-local.js
+yarn.lock

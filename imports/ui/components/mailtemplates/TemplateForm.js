@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
 import {warning} from '/imports/api/lib/alerts'
@@ -6,8 +7,8 @@ import {warning} from '/imports/api/lib/alerts'
 
 export default class TemplateForm extends React.Component {
     static propTypes = {
-        template: React.PropTypes.object,
-        onSaved: React.PropTypes.func
+        template: PropTypes.object,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Table, Button, InputGroup, FormControl, Modal, Panel, ListGroup, ListGroupItem, Label, Grid, Row, Col} from 'react-bootstrap'
 
@@ -11,10 +12,10 @@ import {ClientErrorLog} from '/imports/utils/logger'
 const PAGESIZE = 100
 export default class PeopleList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelect: React.PropTypes.func,
-        onCreatePerson: React.PropTypes.func,
-        updatedPerson: React.PropTypes.object,
-        removedPerson: React.PropTypes.object
+        onSelect: PropTypes.func,
+        onCreatePerson: PropTypes.func,
+        updatedPerson: PropTypes.object,
+        removedPerson: PropTypes.object
     }
 
     constructor(props) {

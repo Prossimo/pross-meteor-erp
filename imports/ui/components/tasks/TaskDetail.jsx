@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { FlowRouter } from 'meteor/kadira:flow-router'
 import { Modal } from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
@@ -22,10 +23,7 @@ class TaskDetail extends Component {
       },
       errors: [],
       isAttach: false,
-    }
-
-    if (props.isNew) {
-      this.state.task = {
+      task: (!props.isNew && props.task) || {
         name: `Task #${props.total + 1}`,
         assignee: null,
         approver: null,
@@ -90,7 +88,6 @@ class TaskDetail extends Component {
   }
 
   render() {
-    !this.props.isNew && (this.state.task = this.props.task)
     const selectUsers = [
       {
         name: 'assignee',

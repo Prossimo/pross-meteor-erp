@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 
@@ -7,10 +8,10 @@ const PAGESIZE = 100
 
 export default class CompaniesList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelectCompany: React.PropTypes.func,
-        onCreateCompany: React.PropTypes.func,
-        updatedCompany: React.PropTypes.object,
-        removedCompany: React.PropTypes.object
+        onSelectCompany: PropTypes.func,
+        onCreateCompany: PropTypes.func,
+        updatedCompany: PropTypes.object,
+        removedCompany: PropTypes.object
     }
 
     constructor(props) {

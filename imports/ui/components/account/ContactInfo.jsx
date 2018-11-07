@@ -1,4 +1,5 @@
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { getUserRoles, getUserEmail } from '../../../api/lib/filters';
 import Alert from 'react-s-alert';

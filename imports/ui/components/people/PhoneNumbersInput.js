@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Panel, Button, FormControl} from 'react-bootstrap'
 import Select from 'react-select'
 import {People} from '/imports/api/models'
@@ -7,8 +8,8 @@ const phoneNumberTypeOptions = People.PhoneNumberTypes.map(t => ({value:t, label
 
 export default class PhoneNumbersInput extends React.Component {
     static propTypes = {
-        phoneNumbers: React.PropTypes.array,
-        onChange: React.PropTypes.func
+        phoneNumbers: PropTypes.array,
+        onChange: PropTypes.func
     }
 
     constructor(props) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {InputGroup, FormControl} from 'react-bootstrap'
 
 export default class SearchInput extends React.Component {

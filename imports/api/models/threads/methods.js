@@ -7,6 +7,7 @@ import Threads from './threads'
 import Messages from '../messages/messages'
 import NylasAccounts from '../nylasaccounts/nylas-accounts'
 import NylasAPI from '/imports/api/nylas/nylas-api'
+import ThreadStore from '/imports/api/nylas/thread-store'
 
 export const getThread = new ValidatedMethod({
     name: 'thread.get',
@@ -106,14 +107,29 @@ export const fetchNewThreads = new ValidatedMethod({
                 method: 'GET',
                 auth
             }).then(threads => {
-                resolve(threads)
-            }).catch(err => reject(err)))
+                let existing = null;
+                if (Meteor.isServer) {                
+                    threads.forEach((thread) => {
+                        existing = Threads.findOne({ id: thread.id });
+                        if (!existing) {
+                            Threads.insert({
+                                ...thread,
+                                created_at: new Date(),
+                            });
+                        }
+                    });
+                }
+
+                resolve(threads);
+            }).catch((err) => {
+                reject(err);
+            }))
         }
 
         const promises = accounts.map(account => loadThreads(account))
 
         Promise.all(promises).then((threads) => {
-            //console.log('Server Fetch New Threads result')
+
         }).finally(() => {
 
         })

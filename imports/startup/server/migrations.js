@@ -51,10 +51,13 @@ Migrations.add({
         },{
             name: 'Consultant',
             role_addable: true,
-            roles: []
+            roles: ['Consultant']
         }]
 
-        designations.forEach((d) => PeopleDesignations.insert(d))
+        designations.forEach((d) => PeopleDesignations.insert({
+            ...d,
+            roles: d.roles.map(role => ({ name: role }))
+        }))
     },
     down() {
         PeopleDesignations.remove({})
@@ -254,8 +257,9 @@ Migrations.add({
 
     }
 })
-// Meteor.startup(() => {
-//     if(!Meteor.isTest && !Meteor.isAppTest) {
-//         Migrations.migrateTo(12)
-//     }
-// })
+
+Meteor.startup(() => {
+    if(!Meteor.isTest && !Meteor.isAppTest) {
+        Migrations.migrateTo(3)
+    }
+})

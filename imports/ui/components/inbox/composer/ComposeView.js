@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FormControl, Button} from 'react-bootstrap'
 import ReactQuill from 'react-quill'
 import AttachActionButton from './AttachActionButton'
@@ -23,8 +24,8 @@ import {Parser as HtmlToReactParser} from 'html-to-react'
 
 export default class ComposeView extends React.Component {
    static propTypes = {
-      clientId: React.PropTypes.string,
-      lazySend: React.PropTypes.bool
+      clientId: PropTypes.string,
+      lazySend: PropTypes.bool
    }
 
    constructor(props) {

@@ -1,13 +1,14 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import { THREAD_STATUS_CLOSED } from '/imports/api/models/threads/threads'
 
 class ItemThread extends React.Component{
     static propTypes = {
-        thread: React.PropTypes.object.isRequired,
-        onClick: React.PropTypes.func,
-        selected: React.PropTypes.bool,
-        onChangeStatus: React.PropTypes.func
+        thread: PropTypes.object.isRequired,
+        onClick: PropTypes.func,
+        selected: PropTypes.bool,
+        onChangeStatus: PropTypes.func
     }
 
     constructor(props) {

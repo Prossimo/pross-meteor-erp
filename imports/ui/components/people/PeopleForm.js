@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Modal} from 'react-bootstrap'
 import Select from 'react-select'
 import {warning} from '/imports/api/lib/alerts'
@@ -11,8 +12,8 @@ import CompanyForm from '../companies/CompanyForm'
 
 export default class PeopleForm extends TrackerReact(React.Component) {
     static propTypes = {
-        people: React.PropTypes.array,
-        onSaved: React.PropTypes.func
+        people: PropTypes.array,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

@@ -111,7 +111,7 @@ Meteor.methods({
                         .then((categories) => {
                             if (categories.length === 0) {
                                 // console.log('categories repeating')
-                                return getCategories()
+                                // return getCategories()
                             } else {
                                 bound(() => {
                                     const nylasAccountId = NylasAccounts.insert({

@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Modal} from 'react-bootstrap'
 import NylasUtils from '../../../api/nylas/nylas-utils'
 import ButtonDropdown from '../utils/ButtonDropdown'
@@ -12,7 +13,7 @@ import AccountStore from '/imports/api/nylas/account-store'
 
 class MessageControls extends React.Component {
     static propTypes = {
-        message: React.PropTypes.object.isRequired
+        message: PropTypes.object.isRequired
     }
 
     constructor(props) {

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import _ from 'underscore'
 import classNames from 'classnames'
 
@@ -113,7 +114,7 @@ export default class Spinner extends React.Component {
 }
 
 Spinner.propTypes = {
-    visible: React.PropTypes.bool,
-    withCover: React.PropTypes.bool,
-    style: React.PropTypes.object
+    visible: PropTypes.bool,
+    withCover: PropTypes.bool,
+    style: PropTypes.object
 }

@@ -1,19 +1,20 @@
 import _ from 'underscore';
-import React from 'react';
+import React from 'react'
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import classNames from 'classnames';
 //import DOMUtils from '../../utils/dom-utils'
 
 class MenuItem extends React.Component {
     static propTypes = {
-        divider: React.PropTypes.oneOfType([React.PropTypes.string, React.PropTypes.bool]),
-        selected: React.PropTypes.bool,
-        checked: React.PropTypes.bool
+        divider: PropTypes.oneOfType([PropTypes.string, PropTypes.bool]),
+        selected: PropTypes.bool,
+        checked: PropTypes.bool
     }
 
     render() {
         if (this.props.divider) {
-            dividerLabel = _.isString(this.props.divider) ? this.props.divider : ''
+            const dividerLabel = _.isString(this.props.divider) ? this.props.divider : ''
             return (
                 <div className="item divider">
                     {dividerLabel}
@@ -21,7 +22,7 @@ class MenuItem extends React.Component {
             )
         }
         else {
-            className = classNames({
+            const className = classNames({
                 "item": true,
                 "selected": this.props.selected,
                 "checked": this.props.checked
@@ -37,8 +38,8 @@ class MenuItem extends React.Component {
 
 class MenuNameEmailItem extends React.Component {
     static propTypes = {
-        name: React.PropTypes.string,
-        email: React.PropTypes.string
+        name: PropTypes.string,
+        email: PropTypes.string
     }
 
     render() {
@@ -56,16 +57,16 @@ class MenuNameEmailItem extends React.Component {
 
 class Menu extends React.Component {
     static propTypes = {
-        className: React.PropTypes.string,
-        footerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
-        headerComponents: React.PropTypes.arrayOf(React.PropTypes.element),
-        itemContent: React.PropTypes.func.isRequired,
-        itemKey: React.PropTypes.func.isRequired,
-        itemChecked: React.PropTypes.func,
-        items: React.PropTypes.array.isRequired,
-        onSelect: React.PropTypes.func.isRequired,
-        onEscape: React.PropTypes.func,
-        defaultSelectedIndex: React.PropTypes.number
+        className: PropTypes.string,
+        footerComponents: PropTypes.arrayOf(PropTypes.element),
+        headerComponents: PropTypes.arrayOf(PropTypes.element),
+        itemContent: PropTypes.func.isRequired,
+        itemKey: PropTypes.func.isRequired,
+        itemChecked: PropTypes.func,
+        items: PropTypes.array.isRequired,
+        onSelect: PropTypes.func.isRequired,
+        onEscape: PropTypes.func,
+        defaultSelectedIndex: PropTypes.number
     }
 
     static defaultProps = {
@@ -94,6 +95,7 @@ class Menu extends React.Component {
 
     componentWillReceiveProps(newProps) {
 
+        let selection, newSelectionIndex = null;
         if (this.state.selectedIndex >= 0) {
             selection = this.props.items[this.state.selectedIndex]
             newSelectionIndex = 0
@@ -102,8 +104,8 @@ class Menu extends React.Component {
         }
 
         if (selection) {
-            selectionKey = this.props.itemKey(selection)
-            newSelection = _.find(newProps.items, (item) => this.props.itemKey(item) == selectionKey)
+            const selectionKey = this.props.itemKey(selection)
+            const newSelection = _.find(newProps.items, (item) => this.props.itemKey(item) == selectionKey)
             if (newSelection) newSelectionIndex = newProps.items.indexOf(newSelection)
         }
 
@@ -111,17 +113,17 @@ class Menu extends React.Component {
     }
 
     componentDidUpdate() {
-        item = ReactDOM.findDOMNode(this).querySelector(".selected")
-        container = ReactDOM.findDOMNode(this).querySelector(".content-container")
+        const item = ReactDOM.findDOMNode(this).querySelector(".selected")
+        const container = ReactDOM.findDOMNode(this).querySelector(".content-container")
         /*adjustment = DOMUtils.scrollAdjustmentToMakeNodeVisibleInContainer(item, container)
         if (adjustment != 0)
             container.scrollTop += adjustment*/
     }
 
     render() {
-        hc = this.props.headerComponents ? this.props.headerComponents : []
+        let hc = this.props.headerComponents ? this.props.headerComponents : []
         if (hc.length == 0) hc = <span></span>
-        fc = this.props.footerComponents ? this.props.footerComponents : []
+        let fc = this.props.footerComponents ? this.props.footerComponents : []
         if (fc.length == 0) fc = <span></span>
 
         return (
@@ -159,8 +161,8 @@ class Menu extends React.Component {
     }
 
     _contentContainer() {
-        items = this.props.items.map(this._itemComponentForItem) || []
-        contentClass = classNames({
+        const items = this.props.items.map(this._itemComponentForItem) || []
+        const contentClass = classNames({
             'content-container': true,
             'empty': items.length == 0
         })
@@ -173,12 +175,12 @@ class Menu extends React.Component {
     }
 
     _itemComponentForItem(item, i) {
-        content = this.props.itemContent(item)
+        const content = this.props.itemContent(item)
 
         if (React.isValidElement(content) && content.type == MenuItem)
             return content
 
-        onMouseDown = (event) => {
+        const onMouseDown = (event) => {
             event.preventDefault()
             if (this.props.onSelect) this.props.onSelect(item)
         }
@@ -197,7 +199,7 @@ class Menu extends React.Component {
     _onShiftSelectedIndex(delta) {
         if (this.props.items.length == 0) return;
 
-        index = this.state.selectedIndex + delta
+        let index = this.state.selectedIndex + delta
 
         isDivider = true
         while (isDivider) {
@@ -216,7 +218,7 @@ class Menu extends React.Component {
     }
 
     _onEnter() {
-        item = this.props.items[this.state.selectedIndex]
+        const item = this.props.items[this.state.selectedIndex]
         if (item) this.props.onSelect(item)
     }
 

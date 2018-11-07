@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import People from '/imports/api/models/people/people'
 import {createContainer} from 'meteor/react-meteor-data'
@@ -70,7 +71,9 @@ export default class SelectStakeholders extends Component {
         })
     }
 
-    selectPeople = (people) => {
+    selectPeople = (peopleOption) => {
+        const people = Array.isArray(peopleOption) ? peopleOption : [peopleOption];
+
         !people.find(({isMainStakeholder}) => isMainStakeholder)
         && people.length
         && (people[0].isMainStakeholder = true)

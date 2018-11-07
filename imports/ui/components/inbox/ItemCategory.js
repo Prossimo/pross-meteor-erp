@@ -1,12 +1,13 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Badge} from 'react-bootstrap'
 import Utils from '../../../utils/Utils'
 
 class ItemCategory extends React.Component {
     /*static propTypes = {
-        category: React.PropTypes.object.required,
-        onClick: React.PropTypes.func,
-        selected: React.PropTypes.bool
+        category: PropTypes.object.required,
+        onClick: PropTypes.func,
+        selected: PropTypes.bool
     }*/
 
     constructor(props) {

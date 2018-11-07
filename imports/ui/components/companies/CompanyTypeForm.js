@@ -1,5 +1,6 @@
 import _ from 'underscore'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
 import {CompanyTypes} from '/imports/api/models'
@@ -8,8 +9,8 @@ import {insertCompanyType, updateCompanyType} from '/imports/api/models/companie
 
 export default class CompanyTypeForm extends React.Component {
     static propTypes = {
-        type: React.PropTypes.object,
-        onSaved: React.PropTypes.func
+        type: PropTypes.object,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

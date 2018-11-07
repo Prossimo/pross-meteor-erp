@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, Alert, Table, Checkbox} from 'react-bootstrap'
 import {insertConversation, updateConversation} from '/imports/api/models/conversations/methods'
 import {SalesRecords, Projects} from '/imports/api/models'
@@ -7,11 +8,11 @@ import {ClientErrorLog} from '/imports/utils/logger'
 
 export default class ConversationForm extends React.Component {
     static propTypes = {
-        name: React.PropTypes.string,
-        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]).isRequired,
-        targetId: React.PropTypes.string.isRequired,    // salesRecordId or projectId
-        _id: React.PropTypes.string,
-        onSaved: React.PropTypes.func
+        name: PropTypes.string,
+        targetCollection: PropTypes.oneOf([SalesRecords, Projects]).isRequired,
+        targetId: PropTypes.string.isRequired,    // salesRecordId or projectId
+        _id: PropTypes.string,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

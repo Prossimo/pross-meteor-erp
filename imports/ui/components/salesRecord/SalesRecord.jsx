@@ -18,11 +18,13 @@ import * as columnsDetails from './columnsDetails'
 class SalesRecord extends Component {
 
     componentDidMount() {
-        $('[data-toggle="tooltip"]').tooltip()
-        $('[data-toggle="tooltip"]').on('show.bs.tooltip', function () {
-            // Only one tooltip should ever be open at a time
-            $('.tooltip').not(this).hide()
-        })
+        try {
+            $('[data-toggle="tooltip"]').tooltip()
+            $('[data-toggle="tooltip"]').on('show.bs.tooltip', function () {
+                // Only one tooltip should ever be open at a time
+                $('.tooltip').not(this).hide()
+            })
+        } catch(e) {}
     }
 
     removeProject = (_id) => {
@@ -30,19 +32,19 @@ class SalesRecord extends Component {
             title: 'Are you sure ?',
             type: 'warning',
             html: `
-<div class='form-group text-left'>
-<div class='checkbox'>
-    <label>
-    <input type='checkbox' checked id='confirm-remove-folders'/> Remove resource folders
-    </label>
-</div>
-<div class='checkbox'>
-    <label>
-    <input type='checkbox' checked id='confirm-remove-slack'/> Remove slack channel
-    </label>
-</div>
-</div>
-`,
+                <div class='form-group text-left'>
+                <div class='checkbox'>
+                    <label>
+                    <input type='checkbox' checked id='confirm-remove-folders'/> Remove resource folders
+                    </label>
+                </div>
+                <div class='checkbox'>
+                    <label>
+                    <input type='checkbox' checked id='confirm-remove-slack'/> Remove slack channel
+                    </label>
+                </div>
+                </div>
+            `,
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
@@ -54,6 +56,7 @@ class SalesRecord extends Component {
                 })
             })
         }).then(({isRemoveFolders, isRemoveSlack}) => {
+            console.log(isRemoveSlack, isRemoveFolders);
             Meteor.call('removeSalesRecord', {_id, isRemoveFolders, isRemoveSlack}, (error) => {
                 if (error) {
                     const msg = error.reason ? error.reason : error.message

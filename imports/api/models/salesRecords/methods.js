@@ -31,6 +31,7 @@ const validatePermission = (userId, salesRecord) => {
 
 Meteor.methods({
     removeSalesRecord({_id, isRemoveSlack, isRemoveFolders}) {
+        console.log(isRemoveSlack, isRemoveFolders);
         new SimpleSchema({
             _id: String,
             isRemoveSlack: Boolean,

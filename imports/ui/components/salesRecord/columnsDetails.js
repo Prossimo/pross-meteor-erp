@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import styled from 'styled-components'
 import moment from 'moment'
@@ -98,7 +99,7 @@ export const productionStartDate = {
     label: 'Start Date',
     selected: false,
     type: 'date',
-    editable: true,
+    editable: false,
     renderer(record) {
         return dateRenderer(record.productionStartDate)
     }

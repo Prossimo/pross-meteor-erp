@@ -1,5 +1,6 @@
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import { ROLES } from '/imports/api/models'
 import {Tabs, Tab, Modal} from 'react-bootstrap'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
@@ -11,8 +12,8 @@ import {removeConversation} from '/imports/api/models/conversations/methods'
 
 export default class Conversations extends TrackerReact(React.Component) {
     static propTypes = {
-        targetCollection: React.PropTypes.oneOf([SalesRecords, Projects]).isRequired,
-        targetId: React.PropTypes.string.isRequired
+        targetCollection: PropTypes.oneOf([SalesRecords, Projects]).isRequired,
+        targetId: PropTypes.string.isRequired
     }
 
     constructor(props) {

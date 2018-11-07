@@ -1,4 +1,5 @@
-import React, {Component, PropTypes} from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types';
 import {DropdownButton, MenuItem} from 'react-bootstrap'
 import Actions from '../../../../api/nylas/actions'
 import AccountStore from '/imports/api/nylas/account-store'

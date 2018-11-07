@@ -3,12 +3,17 @@ import {FlowRouter} from 'meteor/kadira:flow-router'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FormGroup, Radio, Modal, Checkbox} from 'react-bootstrap'
 import Select from 'react-select'
 import {info, warning} from '/imports/api/lib/alerts'
 import {
     SHIPPING_MODE_LIST,
-    STAGES
+    SUB_STAGES_LEAD,
+    SUB_STAGES_OPP,
+    SUB_STAGES_ORDER,
+    SUB_STAGE_TICKET,
+    STAGES,
 } from '/imports/api/constants/project'
 import moment from 'moment'
 import SelectMembers from './components/SelectMembers'
@@ -20,10 +25,10 @@ import ConversationForm from './conversations/ConversationForm'
 
 class CreateSalesRecord extends TrackerReact(React.Component) {
     static propTypes = {
-        stage: React.PropTypes.string,
-        salesRecord: React.PropTypes.object,
-        thread: React.PropTypes.object,         // thread to be attached from email
-        onSaved: React.PropTypes.func
+        stage: PropTypes.string,
+        salesRecord: PropTypes.object,
+        thread: PropTypes.object,         // thread to be attached from email
+        onSaved: PropTypes.func
     }
 
     constructor(props) {
@@ -34,7 +39,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
         const {salesRecord} = props
         this.state = {
             projectName: salesRecord ? salesRecord.name : '',
-            subStage: salesRecord ? salesRecord.subStage : null,
+            subStage: salesRecord ? salesRecord.subStage : this.getFirstSubStage(STAGES[0]),
             actualDeliveryDate: salesRecord ? moment(salesRecord.actualDeliveryDate) : null/*moment()*/,
             productionStartDate: salesRecord ? moment(salesRecord.productionStartDate) : null/*moment()*/,
             startDate: salesRecord && salesRecord.estDeliveryRange && salesRecord.estDeliveryRange.length ? moment(salesRecord.estDeliveryRange[0]) : null/*moment().subtract(29, 'days')*/,
@@ -347,6 +352,21 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     selectConversation = (e) => {
         this.setState({selectedConversation: e.target.value})
     }
+
+    getFirstSubStage(stage) {
+        switch (stage) {
+            case 'lead':
+                return SUB_STAGES_LEAD[0].value
+            case 'opportunity':
+                return SUB_STAGES_OPP[0].value
+            case 'order':
+                return SUB_STAGES_ORDER[0].value
+            case 'ticket':
+                return SUB_STAGE_TICKET[0].value
+            default:
+                return ''
+        }
+    } 
 }
 
 export default CreateSalesRecord

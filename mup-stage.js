@@ -24,7 +24,8 @@ module.exports = {
 
         env: {
             ROOT_URL: 'https://crm-test.mavrik.build',
-            MONGO_URL: 'mongodb://prossimo-user:prossimo2018@ds113700.mlab.com:13700/prossimo'
+            // MONGO_URL: 'mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580'
+            MONGO_URL: 'mongodb://mavrik-test:P4ssiveH0use@ds153303-a0.mlab.com:53303,ds153303-a1.mlab.com:53303/mavrik-test?replicaSet=rs-ds153303'
         },
 
         buildOptions: {
@@ -34,11 +35,18 @@ module.exports = {
         },
 
         docker: {
-            image: 'abernix/meteord:base'
+            image: 'abernix/meteord:node-8.11.2-base',
+            args: [
+                '-e "VIRTUAL_HOST=crm-test.mavrik.build"',
+                '-e "HTTPS_METHOD=nohttp"'
+            ]
         },
 
         deployCheckWaitTime: 60,
 
         enableUploadProgressBar: true
+    },
+    proxy: {
+        domains: 'crm-test.mavrik.build'
     }
 }

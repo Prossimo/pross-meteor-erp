@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button, Form, FormGroup, FormControl, Col, ControlLabel} from 'react-bootstrap'
 import {warning} from "/imports/api/lib/alerts"
 import {Contacts} from '/imports/api/models'
@@ -11,8 +12,8 @@ import 'loaders.css/loaders.min.css';
 
 export default class ContactForm extends React.Component {
     static propTypes = {
-        contact: React.PropTypes.object,
-        onSaved: React.PropTypes.func
+        contact: PropTypes.object,
+        onSaved: PropTypes.func
     }
 
     constructor(props) {

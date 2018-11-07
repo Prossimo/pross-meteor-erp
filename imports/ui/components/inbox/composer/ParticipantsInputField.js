@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import NylasUtils from '../../../../api/nylas/nylas-utils'
 import ContactStore from '../../../../api/nylas/contact-store'
 import Select, {Creatable} from 'react-select'
@@ -6,11 +7,11 @@ import Select, {Creatable} from 'react-select'
 
 export default class ParticipantsInputField extends React.Component {
     static propTypes = {
-        label: React.PropTypes.string,
-        values: React.PropTypes.array,      // Pre selected contacts array
-        options: React.PropTypes.array,      // selectable contacts array
-        onChange: React.PropTypes.func,
-        onlyselect: React.PropTypes.bool
+        label: PropTypes.string,
+        values: PropTypes.array,      // Pre selected contacts array
+        options: PropTypes.array,      // selectable contacts array
+        onChange: PropTypes.func,
+        onlyselect: PropTypes.bool
     }
 
     constructor (props) {

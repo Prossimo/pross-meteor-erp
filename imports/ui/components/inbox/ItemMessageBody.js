@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import EmailFrame from './EmailFrame'
 import CanvasUtils from '../../../utils/canvas-utils'
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {FlowRouter} from 'meteor/kadira:flow-router'
 import Message from './Message'
 import { getUserName } from '../../../api/lib/filters'

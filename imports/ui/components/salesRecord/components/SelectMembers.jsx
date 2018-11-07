@@ -1,6 +1,7 @@
 import _ from 'underscore'
 import {Roles} from 'meteor/alanning:roles'
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import Select from 'react-select'
 import {Users, ROLES, USER_STATUS} from '/imports/api/models'
 

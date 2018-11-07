@@ -1,6 +1,7 @@
 /* global FlowRouter */
 import {Roles} from 'meteor/alanning:roles'
 import React from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import swal from 'sweetalert2'
 import {info, warning} from '/imports/api/lib/alerts'

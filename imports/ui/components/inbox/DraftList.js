@@ -1,5 +1,6 @@
 import _ from 'underscore'
-import React, {PropTypes} from 'react'
+import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {NylasUtils, Actions, DraftsStore} from '/imports/api/nylas'
 import ItemDraft from './ItemDraft'

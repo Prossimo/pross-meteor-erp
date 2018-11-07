@@ -34,7 +34,7 @@ module.exports = {
         },
 
         docker: {
-            image: 'abernix/meteord:base',
+            image: 'abernix/meteord:node-8.11.2-base',
             args: [
                 '-e "VIRTUAL_HOST=crm.mavrik.build"',
                 '-e "HTTPS_METHOD=nohttp"'
@@ -44,5 +44,8 @@ module.exports = {
         deployCheckWaitTime: 60,
 
         enableUploadProgressBar: true
+    },
+    proxy: {
+        domains: 'crm.mavrik.build'
     }
 }

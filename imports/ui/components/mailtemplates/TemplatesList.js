@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import TrackerReact from 'meteor/ultimatejs:tracker-react'
 import {Button, Table, InputGroup, FormControl} from 'react-bootstrap'
 import MailTemplates from '/imports/api/models/mailtemplates/mailtemplates'
@@ -6,9 +7,9 @@ import MailTemplates from '/imports/api/models/mailtemplates/mailtemplates'
 
 export default class TemplatesList extends TrackerReact(React.Component) {
     static propTypes = {
-        onSelectTemplate: React.PropTypes.func,
-        onCreateTemplate: React.PropTypes.func,
-        selectedTemplate: React.PropTypes.object
+        onSelectTemplate: PropTypes.func,
+        onCreateTemplate: PropTypes.func,
+        selectedTemplate: PropTypes.object
     }
 
     constructor(props) {

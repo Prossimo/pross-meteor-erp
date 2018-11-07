@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 import Actions from '../../../api/nylas/actions'
 import NylasUtils from '../../../api/nylas/nylas-utils'
@@ -8,7 +9,7 @@ export default class ThreadToggleUnreadButton extends React.Component {
     static displayName = 'ThreadToggleUnreadButton';
 
     static propTypes = {
-        thread: React.PropTypes.object
+        thread: PropTypes.object
     }
 
     constructor(props) {
