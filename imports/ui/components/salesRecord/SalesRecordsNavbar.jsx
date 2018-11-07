@@ -137,9 +137,6 @@ class SalesRecordsNavbar extends Component {
                             <Checkbox checked={showArchivedDeals} onChange={this.toggleShowArchive}>
                                 Show Archived Deals
                             </Checkbox>
-                            <Checkbox checked={groupBy === DEALS.GROUP_BY.SUBSTAGE} onChange={this.toggleGroupBy}>
-                                Group by sub stage
-                            </Checkbox>
                         </Navbar.Text>
                         <Navbar.Text style={{ width: 250 }}>
                             <SearchInput value={keyword} onChange={this.onChangeSearch} />
