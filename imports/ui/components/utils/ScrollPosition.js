@@ -11,14 +11,12 @@ class ScrollPosition extends React.Component {
   }
 
   componentDidMount() {
-    const scrollTop = this.props.scrollTop;
-    console.log(" current mount scrollTop", scrollTop);
-    this.scrollPositionRef.current.scrollTop = scrollTop;
+    const { scrollTop } = this.props;
+    this.scrollPositionRef.current.parentElement.scrollTop = scrollTop;
   }
 
   componentWillUnmount() {
-    const scrollTop = this.scrollPositionRef.current.scrollTop;
-    console.log(" current unmount scrollTop", scrollTop);
+    const scrollTop = this.scrollPositionRef.current.parentElement.scrollTop;
     store.dispatch(setParam("scrollTop", scrollTop));
   }
 
@@ -26,9 +24,8 @@ class ScrollPosition extends React.Component {
     return <div ref={this.scrollPositionRef} />;
   }
 }
-const mapStateToProps = state => {
-  const scrollTop = state.scrollTop ? state.scrollTop : 100;
-  return { scrollTop };
-};
+const mapStateToProps = ({ dealsParams }) => ({ 
+  scrollTop: dealsParams.scrollTop || 0 
+});
 
 export default connect(mapStateToProps)(ScrollPosition);
