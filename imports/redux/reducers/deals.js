@@ -1,7 +1,6 @@
 import { DEALS_LIST } from "../constants";
 const INITIAL = [];
 const deals = (state = INITIAL, action) => {
-  console.log("deals reducer", state, action);
   switch (action.type) {
     case DEALS_LIST:
       return state;
