@@ -99,7 +99,7 @@ export const productionStartDate = {
     label: 'Start Date',
     selected: false,
     type: 'date',
-    editable: true,
+    editable: false,
     renderer(record) {
         return dateRenderer(record.productionStartDate)
     }

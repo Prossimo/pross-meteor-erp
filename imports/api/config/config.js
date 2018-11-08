@@ -14,7 +14,7 @@ module.exports = {
     google: {
         clientId: '327167868055-vajtpce2skojkg4lujkr982ev1lehpvg.apps.googleusercontent.com',
         clientSecret: 'onNvBkUvhfhm5QNLfYVx1MiD',
-        redirectUri: 'http://crm-test.mavrik.build/auth/google/callback',
+        redirectUri: 'http://crm.mavrik.build/auth/google/callback',
         clientDriveId: '977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com',
         clientDriveSecret: 'aJmwh_egnDWiuebEc2GkEwOA',
         serviceAccountEmail: '977294428736-compute@developer.gserviceaccount.com',

@@ -19,6 +19,7 @@ class TaskAdding extends Component {
   showDetail() {
     this.setState({
       task: {
+        ...this.state.task,
         showDetail: true,
       },
     })
@@ -27,6 +28,7 @@ class TaskAdding extends Component {
   hideDetail() {
     this.setState({
       task: {
+        ...this.state.task,
         showDetail: false,
       },
     })
@@ -42,8 +44,13 @@ class TaskAdding extends Component {
       }
     `
     return (
-      <TaskAdding onClick={ this.showDetail }>
-        + Add a task ...
+      <TaskAdding>
+        <a href="#" style={{ display: 'block' }} onClick={ (event) => {
+          event.preventDefault();
+          this.showDetail();
+        } }  >        
+          + Add a task ...
+        </a>
         <TaskDetail
           showDetail={this.showDetail}
           hideDetail={this.hideDetail}
