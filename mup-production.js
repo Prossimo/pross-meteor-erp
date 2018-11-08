@@ -44,5 +44,8 @@ module.exports = {
         deployCheckWaitTime: 60,
 
         enableUploadProgressBar: true
+    },
+    proxy: {
+        domains: 'crm.mavrik.build'
     }
 }

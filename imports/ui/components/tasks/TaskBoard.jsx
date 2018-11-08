@@ -31,7 +31,6 @@ const taskFilter = new ReactiveDict(defaultFilterState)
 class TaskBoard extends Component {
     componentWillUnmount() {
         taskFilter.set(defaultFilterState)
-
         this.props.subscribers.forEach(sub => sub.stop())
     }
 
