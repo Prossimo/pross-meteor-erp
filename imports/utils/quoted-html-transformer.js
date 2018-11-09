@@ -94,8 +94,9 @@ class QuotedHTMLTransformerClass {
 
     _parseHTML = (text) => {
         if(this.isServerSide) {
-            const jsdom = require('jsdom')
-            return jsdom.jsdom(text)
+            const jsdom = require("jsdom");
+            const { JSDOM } = jsdom;
+            return new JSDOM(text).window.document;
         } else {
             const domParser = new DOMParser()
             let doc
