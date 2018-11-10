@@ -26,6 +26,7 @@ class TaskAdding extends Component {
   }
 
   hideDetail() {
+    console.log('OK');
     this.setState({
       task: {
         ...this.state.task,
