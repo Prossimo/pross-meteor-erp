@@ -5,6 +5,7 @@ import store from "/imports/redux/store";
 import { setParam } from "/imports/redux/actions";
 
 class ScrollPosition extends React.Component {
+
   componentDidMount() {
     const { scrollTop, children } = this.props;
     if (!children.length) {
