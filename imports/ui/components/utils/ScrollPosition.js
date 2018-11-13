@@ -16,6 +16,7 @@ class ScrollPosition extends React.Component {
 
   componentWillUnmount() {
     const scrollTop = ReactDOM.findDOMNode(this).scrollTop;
+
     store.dispatch(setParam("scrollTop", scrollTop));
   }
 
