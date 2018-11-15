@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Table } from "react-bootstrap";
-import _ from "underscore";
+import _ from "lodash";
 import styled from "styled-components";
 import store from "/imports/redux/store";
 import { setParam } from "/imports/redux/actions";
@@ -18,7 +18,7 @@ import {
   SUB_STAGE_TICKET,
   SUB_STAGES,
   STAGES_MAP,
-  STATES
+  STAGES
 } from "/imports/api/constants/project";
 
 const subStages = [].concat(
@@ -127,22 +127,21 @@ class SalesRecordPage extends Component {
     this.forceUpdate(); /** @todo possible its need */
   };
 
-  sortGroups = (stages, groups) => {
-    const sorted = {};
-    stages.forEach(value => {
-      if (groups[value]) {
-        sorted[value] = groups[value];
-      }
+  filteredStages = (stages, groups) => {
+    const fs = stages.filter(value => {
+      return groups[value];
     });
-    return sorted;
+    console.log("fs", fs);
+
+    return fs;
   };
 
   sortGroups = (stages, groups) => {
     const sorted = {};
-    stages.forEach(value => {
-      if (groups[value]) {
-        sorted[value] = groups[value];
-      }
+    console.log("sortGroups");
+
+    this.filteredStages(stages, groups).forEach(value => {
+      sorted[value] = groups[value];
     });
     return sorted;
   };
@@ -195,8 +194,9 @@ class SalesRecordPage extends Component {
   renderSubGroup = (group, key) => {
     const { columns, collapsedViews } = this.props;
     const subGroup = [];
-    const substage = _.findWhere(subStages, { value: key });
-
+    const substage = _.find(subStages, { value: key });
+    // debugger;
+    // console.log("substage, group", substage, group);
     subGroup.push(
       <tr key="trSubHead">
         <ThSubGroup
@@ -205,20 +205,48 @@ class SalesRecordPage extends Component {
         >
           {substage ? substage.label : key}
         </ThSubGroup>
-        <ThSubGroup />
       </tr>
     );
 
     if (!collapsedViews[substage.value]) {
-      this.sortRecords(group).forEach((record, index) => {
-        subGroup.push(this.renderRecord(record, index));
-      });
+      // console.log("substage", substage);
+      // debugger;
+      if (group) {
+        this.sortRecords(group).forEach((record, index) => {
+          subGroup.push(this.renderRecord(record, index));
+        });
+      }
     }
+    //console.log("subGroup", subGroup);
+    debugger;
     return subGroup;
+  };
+
+  renderList = salesRecords => {
+    // console.log("salesRecords: ", salesRecords);
+    // console.log("groupBy: ", _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE));
+    const sortedGroup = this.sortGroups(
+      SUB_STAGES,
+      _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)
+    );
+
+    const defaultSubGroup = {
+      proposed: [],
+      proposed: [],
+      proposed: [],
+      proposed: []
+    };
+    const subGroups = { ...defaultSubGroup, ...sortedGroup };
+    return _.map(sortedGroup, (group, key) =>
+      _.map(this.renderSubGroup(group, key), (record, index) =>
+        React.cloneElement(record, { key: index })
+      )
+    );
   };
 
   renderGroup = (group, stage) => {
     const { columns, kanbanViews, collapsedViews } = this.props;
+    console.log("group, stage", group, stage);
     return (
       <tbody key={stage}>
         <tr>
@@ -260,25 +288,13 @@ class SalesRecordPage extends Component {
             </div>
           </ThGroup>
         </tr>
+
         {!collapsedViews[stage]
           ? kanbanViews[stage]
             ? this.renderKanbanView(group, stage)
             : this.renderList(group)
           : null}
       </tbody>
-    );
-  };
-
-  renderList = salesRecords => {
-    return _.map(
-      this.sortGroups(
-        SUB_STAGES,
-        _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)
-      ),
-      (group, key) =>
-        _.map(this.renderSubGroup(group, key), (record, index) =>
-          React.cloneElement(record, { key: index })
-        )
     );
   };
 
@@ -323,6 +339,14 @@ class SalesRecordPage extends Component {
       showArchivedDeals,
       stage
     });
+    // console.log(
+    //   "AAAAA: ",
+
+    //   this.sortGroups(
+    //     STAGES_MAP.map(item => item.value),
+    //     _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
+    //   )
+    // );
     return (
       <div className="projects-page" style={{ height: "auto" }}>
         <SalesRecordsNavbar
