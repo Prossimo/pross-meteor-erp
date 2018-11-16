@@ -30,7 +30,6 @@ alanning:roles
 percolate:migrations
 cfs:standard-packages
 cfs:filesystem
-meteorhacks:npm
 xolvio:cleaner
 tmeasday:acceptance-test-driver
 
@@ -80,4 +79,3 @@ tunifight:loggedin-mixin
 
 
 
-npm-container
