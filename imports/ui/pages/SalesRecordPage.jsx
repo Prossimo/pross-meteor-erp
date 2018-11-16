@@ -2,7 +2,7 @@ import { Meteor } from "meteor/meteor";
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import { Table } from "react-bootstrap";
-import _ from "underscore";
+import _ from "lodash";
 import styled from "styled-components";
 import store from "/imports/redux/store";
 import { setParam } from "/imports/redux/actions";
@@ -18,7 +18,7 @@ import {
   SUB_STAGE_TICKET,
   SUB_STAGES,
   STAGES_MAP,
-  STATES
+  STAGES
 } from "/imports/api/constants/project";
 
 const subStages = [].concat(
@@ -127,22 +127,15 @@ class SalesRecordPage extends Component {
     this.forceUpdate(); /** @todo possible its need */
   };
 
-  sortGroups = (stages, groups) => {
-    const sorted = {};
-    stages.forEach(value => {
-      if (groups[value]) {
-        sorted[value] = groups[value];
-      }
+  filteredStages = (stages, groups) =>
+    stages.filter(value => {
+      return groups[value];
     });
-    return sorted;
-  };
 
   sortGroups = (stages, groups) => {
     const sorted = {};
-    stages.forEach(value => {
-      if (groups[value]) {
-        sorted[value] = groups[value];
-      }
+    this.filteredStages(stages, groups).forEach(value => {
+      sorted[value] = groups[value];
     });
     return sorted;
   };
@@ -195,8 +188,9 @@ class SalesRecordPage extends Component {
   renderSubGroup = (group, key) => {
     const { columns, collapsedViews } = this.props;
     const subGroup = [];
-    const substage = _.findWhere(subStages, { value: key });
-
+    const substage = _.find(subStages, { value: key });
+    debugger;
+    console.log("substage, group", substage, group);
     subGroup.push(
       <tr key="trSubHead">
         <ThSubGroup
@@ -205,16 +199,44 @@ class SalesRecordPage extends Component {
         >
           {substage ? substage.label : key}
         </ThSubGroup>
-        <ThSubGroup />
       </tr>
     );
 
     if (!collapsedViews[substage.value]) {
-      this.sortRecords(group).forEach((record, index) => {
-        subGroup.push(this.renderRecord(record, index));
-      });
+      if (group) {
+        this.sortRecords(group).forEach((record, index) => {
+          subGroup.push(this.renderRecord(record, index));
+        });
+      }
     }
+
     return subGroup;
+  };
+
+  renderList = salesRecords => {
+    const sortedGroup = this.sortGroups(
+      SUB_STAGES,
+      _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)
+    );
+    const sortedByStageGroup = this.sortGroups(
+      STAGES,
+      _.groupBy(salesRecords, DEALS.GROUP_BY.STAGE)
+    );
+    const currentStage = Object.keys(sortedByStageGroup)[0];
+    const currentSubStages = this.getSubStages(currentStage);
+    let defaultSubGroup = [];
+    currentSubStages.map(subStage => {
+      defaultSubGroup[subStage.value] = [];
+    });
+    console.log("defaultSubGroup", defaultSubGroup);
+
+    const subGroups = { ...defaultSubGroup, ...sortedGroup };
+
+    return _.map(subGroups, (group, key) =>
+      _.map(this.renderSubGroup(group, key), (record, index) =>
+        React.cloneElement(record, { key: index })
+      )
+    );
   };
 
   renderGroup = (group, stage) => {
@@ -260,25 +282,13 @@ class SalesRecordPage extends Component {
             </div>
           </ThGroup>
         </tr>
+
         {!collapsedViews[stage]
           ? kanbanViews[stage]
             ? this.renderKanbanView(group, stage)
             : this.renderList(group)
           : null}
       </tbody>
-    );
-  };
-
-  renderList = salesRecords => {
-    return _.map(
-      this.sortGroups(
-        SUB_STAGES,
-        _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)
-      ),
-      (group, key) =>
-        _.map(this.renderSubGroup(group, key), (record, index) =>
-          React.cloneElement(record, { key: index })
-        )
     );
   };
 
@@ -323,6 +333,7 @@ class SalesRecordPage extends Component {
       showArchivedDeals,
       stage
     });
+
     return (
       <div className="projects-page" style={{ height: "auto" }}>
         <SalesRecordsNavbar
