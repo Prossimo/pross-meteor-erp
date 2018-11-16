@@ -127,19 +127,13 @@ class SalesRecordPage extends Component {
     this.forceUpdate(); /** @todo possible its need */
   };
 
-  filteredStages = (stages, groups) => {
-    const fs = stages.filter(value => {
+  filteredStages = (stages, groups) =>
+    stages.filter(value => {
       return groups[value];
     });
-    console.log("fs", fs);
-
-    return fs;
-  };
 
   sortGroups = (stages, groups) => {
     const sorted = {};
-    console.log("sortGroups");
-
     this.filteredStages(stages, groups).forEach(value => {
       sorted[value] = groups[value];
     });
@@ -195,8 +189,8 @@ class SalesRecordPage extends Component {
     const { columns, collapsedViews } = this.props;
     const subGroup = [];
     const substage = _.find(subStages, { value: key });
-    // debugger;
-    // console.log("substage, group", substage, group);
+    debugger;
+    console.log("substage, group", substage, group);
     subGroup.push(
       <tr key="trSubHead">
         <ThSubGroup
@@ -209,35 +203,36 @@ class SalesRecordPage extends Component {
     );
 
     if (!collapsedViews[substage.value]) {
-      // console.log("substage", substage);
-      // debugger;
       if (group) {
         this.sortRecords(group).forEach((record, index) => {
           subGroup.push(this.renderRecord(record, index));
         });
       }
     }
-    //console.log("subGroup", subGroup);
-    debugger;
+
     return subGroup;
   };
 
   renderList = salesRecords => {
-    // console.log("salesRecords: ", salesRecords);
-    // console.log("groupBy: ", _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE));
     const sortedGroup = this.sortGroups(
       SUB_STAGES,
       _.groupBy(salesRecords, DEALS.GROUP_BY.SUBSTAGE)
     );
+    const sortedByStageGroup = this.sortGroups(
+      STAGES,
+      _.groupBy(salesRecords, DEALS.GROUP_BY.STAGE)
+    );
+    const currentStage = Object.keys(sortedByStageGroup)[0];
+    const currentSubStages = this.getSubStages(currentStage);
+    let defaultSubGroup = [];
+    currentSubStages.map(subStage => {
+      defaultSubGroup[subStage.value] = [];
+    });
+    console.log("defaultSubGroup", defaultSubGroup);
 
-    const defaultSubGroup = {
-      proposed: [],
-      proposed: [],
-      proposed: [],
-      proposed: []
-    };
     const subGroups = { ...defaultSubGroup, ...sortedGroup };
-    return _.map(sortedGroup, (group, key) =>
+
+    return _.map(subGroups, (group, key) =>
       _.map(this.renderSubGroup(group, key), (record, index) =>
         React.cloneElement(record, { key: index })
       )
@@ -246,7 +241,6 @@ class SalesRecordPage extends Component {
 
   renderGroup = (group, stage) => {
     const { columns, kanbanViews, collapsedViews } = this.props;
-    console.log("group, stage", group, stage);
     return (
       <tbody key={stage}>
         <tr>
@@ -339,14 +333,7 @@ class SalesRecordPage extends Component {
       showArchivedDeals,
       stage
     });
-    // console.log(
-    //   "AAAAA: ",
 
-    //   this.sortGroups(
-    //     STAGES_MAP.map(item => item.value),
-    //     _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
-    //   )
-    // );
     return (
       <div className="projects-page" style={{ height: "auto" }}>
         <SalesRecordsNavbar
