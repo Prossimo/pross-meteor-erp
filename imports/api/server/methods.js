@@ -328,6 +328,7 @@ Meteor.methods({
     console.log("userFields", userFields);
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
       throw new Meteor.Error("Access denied");
+
     // if ((Roles.userIsInRole(this.userId, role === ROLES.ADMIN))
     //   throw new Meteor.Error("Can not set current user as super admin");
 
