@@ -203,7 +203,7 @@ class Details extends TrackerReact(React.Component) {
     const salesRecord = _.clone(this.state.salesRecord);
 
     if (!_.isEqual(this.salesRecord, salesRecord)) {
-      console.log("salesRecord", salesRecord);
+      // console.log("salesRecord", salesRecord);
       Meteor.call(
         "updateSalesRecord",
         {

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Task from './Task.jsx'
-import TaskAdding from './TaskAdding.jsx'
+import Task from './Task'
+import TaskAdding from './TaskAdding'
 
 class TaskList extends Component {
     handleDrop = (event) => {

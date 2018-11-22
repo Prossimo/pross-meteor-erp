@@ -67,7 +67,6 @@ class TaskModal extends Component {
       parentType
     };
 
-    console.log(task);
     if (!this.props.task || !this.props.task._id) {
       Meteor.call("task.create", task, error => {
         if (error) {

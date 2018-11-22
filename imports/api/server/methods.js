@@ -325,7 +325,7 @@ Meteor.methods({
       status: Match.Maybe(String)
     });
     const { firstName, lastName, role, status } = userFields;
-    console.log("userFields", userFields);
+    // console.log("userFields", userFields);
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
       throw new Meteor.Error("Access denied");
 
