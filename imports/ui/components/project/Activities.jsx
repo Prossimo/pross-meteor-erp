@@ -3,7 +3,7 @@ import moment from 'moment'
 import { createContainer } from 'meteor/react-meteor-data'
 import SlackMessages from '/imports/api/models/slackMessages/slackMessages'
 import Projects from '/imports/api/models/projects/projects'
-import Message from '../salesRecord/Message.jsx'
+import Message from '../salesRecord/Message'
 import { getUserName } from '../../../api/lib/filters'
 
 class Activities extends Component {

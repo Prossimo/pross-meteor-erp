@@ -724,7 +724,6 @@ class AllSalesRecords extends React.Component {
           });
         })
     }).then(({ isRemoveFolders, isRemoveSlack }) => {
-      console.log(isRemoveSlack, isRemoveFolders);
       Meteor.call(
         "removeSalesRecord",
         { _id, isRemoveFolders, isRemoveSlack },

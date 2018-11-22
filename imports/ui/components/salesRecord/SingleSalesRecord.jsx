@@ -24,7 +24,7 @@ import ContactInfo from "../account/ContactInfo";
 import QuotesComponent from "./Quotes";
 import Details from "./Details";
 import Activity from "./Activity";
-import Tasks from "../tasks/TaskBoard.jsx";
+import Tasks from "../tasks/TaskBoard";
 import FilesComponent from "../files/Files";
 import Conversations from "./conversations/Conversations";
 import { Modal } from "react-bootstrap";

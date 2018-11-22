@@ -1,83 +1,83 @@
-import _ from 'underscore'
-import Reflux from 'reflux'
-import Actions from './actions'
-import CategoryStore from './category-store'
-import {NylasAccounts} from '../models'
+import _ from "underscore";
+import Reflux from "reflux";
+import Actions from "./actions";
+import CategoryStore from "./category-store";
+import { NylasAccounts } from "../models";
 
 class AccountStoreClass extends Reflux.Store {
-    constructor() {
-        super()
+  constructor() {
+    super();
 
-        this._accounts = []
+    this._accounts = [];
 
-        this.listenTo(Actions.changedAccounts, this.onChangedAccounts)
+    this.listenTo(Actions.changedAccounts, this.onChangedAccounts);
+  }
+
+  onChangedAccounts = () => {
+    this.trigger();
+
+    const accounts = this.accounts();
+
+    if (!accounts || accounts.length == 0) return;
+
+    const currentCategory = CategoryStore.currentCategory;
+    let allCategories = [];
+
+    accounts.forEach(account => {
+      allCategories = allCategories.concat(account.categories);
+    });
+
+    if (!currentCategory || !_.contains(allCategories, currentCategory)) {
+      CategoryStore.selectCategory(allCategories[0]);
     }
 
-    onChangedAccounts = () => {
-        this.trigger()
+    Actions.loadContacts();
+  };
+  accounts = (onlyTeamMembers = false) => {
+    if (!Meteor.user()) return null;
+    this._accounts = Meteor.user().nylasAccounts(onlyTeamMembers);
 
-        const accounts = this.accounts()
+    return this._accounts;
+  };
+  defaultAccount() {
+    const accounts = this.accounts();
+    return accounts && accounts.length ? accounts[0] : null;
+  }
 
-        if(!accounts || accounts.length==0) return
+  accountForEmail(email) {
+    return _.findWhere(this.accounts(), { emailAddress: email });
+  }
 
-        const currentCategory = CategoryStore.currentCategory
-        let allCategories = []
-
-        accounts.forEach((account) => {
-            allCategories = allCategories.concat(account.categories)
-        })
-
-        if(!currentCategory || !_.contains(allCategories, currentCategory)) {
-            CategoryStore.selectCategory(allCategories[0])
-        }
-
-        Actions.loadContacts()
-    }
-    accounts = (onlyTeamMembers = false) => {
-        if(!Meteor.user()) return null
-        this._accounts = Meteor.user().nylasAccounts(onlyTeamMembers)
-
-        return this._accounts
-    }
-    defaultAccount() {
-        const accounts = this.accounts()
-        return accounts&&accounts.length ? accounts[0] : null
+  accountForAccountId(accountId) {
+    if (accountId) {
+      return NylasAccounts.findOne({ accountId });
     }
 
-    accountForEmail(email) {
-        return _.findWhere(this.accounts(), {emailAddress:email})
+    return this.defaultAccount();
+  }
+
+  tokenForAccountId(accountId) {
+    const account = NylasAccounts.findOne({ accountId }); //this.accountForAccountId(accountId)
+
+    return account ? account.accessToken : null;
+  }
+
+  getSelectedAccount() {
+    const currentCategory = CategoryStore.currentCategory;
+
+    if (currentCategory) {
+      return this.accountForAccountId(currentCategory.account_id);
     }
 
-    accountForAccountId(accountId) {
-        if(accountId) {
-            return NylasAccounts.findOne({accountId})
-        }
+    return this.defaultAccount();
+  }
 
-        return this.defaultAccount()
-    }
+  signatureForAccountId(accountId) {
+    const account = this.accountForAccountId(accountId);
 
-    tokenForAccountId(accountId) {
-        const account = NylasAccounts.findOne({accountId})//this.accountForAccountId(accountId)
-
-        return account ? account.accessToken : null
-    }
-
-    getSelectedAccount() {
-        const currentCategory = CategoryStore.currentCategory
-
-        if(currentCategory) {
-            return this.accountForAccountId(currentCategory.account_id)
-        }
-
-        return this.defaultAccount()
-    }
-
-    signatureForAccountId(accountId) {
-        const account = this.accountForAccountId(accountId)
-
-        return account ? account.signature : null
-    }
+    return account ? account.signature : null;
+  }
 }
 
-const AccountStore = new AccountStoreClass()
-export default AccountStore
+const AccountStore = new AccountStoreClass();
+export default AccountStore;

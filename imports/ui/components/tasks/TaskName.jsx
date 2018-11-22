@@ -36,7 +36,6 @@ class TaskName extends Component {
   }
 
   render() {
-    console.log("textAreaFocus===", this.state.textAreaFocus);
     const HeaderContainer = styled.div`
       position: relative;
     `;

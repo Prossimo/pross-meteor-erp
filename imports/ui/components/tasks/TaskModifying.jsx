@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import TaskDetail from './TaskDetail.jsx'
+import TaskDetail from './TaskDetail'
 import store from '/imports/redux/store'
 import {activeTask} from '/imports/redux/actions'
 
