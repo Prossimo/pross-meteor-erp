@@ -9,6 +9,8 @@ import { setParam } from "/imports/redux/actions";
 import SalesRecord from "/imports/ui/components/salesRecord/SalesRecord";
 import SalesRecordsNavbar from "/imports/ui/components/salesRecord/SalesRecordsNavbar";
 import SalesRecordsTableHeader from "/imports/ui/components/salesRecord/SalesRecordsTableHeader";
+import ScrollPosition from "../components/utils/ScrollPosition";
+
 import KanbanView from "/imports/ui/components/salesRecord/kanbanView/KanbanView";
 import {
   SHIPPING_MODE_LIST,
@@ -60,13 +62,13 @@ class SalesRecordPage extends Component {
         throw new Meteor.Error(error.message);
       }
       store.dispatch(setParam("columns", columns));
+      // const $tableContainer = $(this.tableContainer);
+      // $tableContainer.css({
+      //   "max-height": $(window).height() - $tableContainer.offset().top
+      // });
+      // Meteor.setTimeout(() => {
 
-      Meteor.setTimeout(() => {
-        const $tableContainer = $(this.tableContainer);
-        $tableContainer.css({
-          "max-height": $(window).height() - $tableContainer.offset().top
-        });
-      }, 200);
+      // }, 200);
     });
   }
 
@@ -163,13 +165,14 @@ class SalesRecordPage extends Component {
     store.dispatch(setParam("columns", columns));
   };
 
-  handleScroll = event => {
-    const scrollTop = event.currentTarget.scrollTop;
-    this.setState({
-      fixedHeader: scrollTop > $("th", $(this.tableContainer)).height()
-    });
-    store.dispatch(setParam("scrollTop", scrollTop));
-  };
+  // handleScroll = event => {
+  //   const scrollTop = event.currentTarget.scrollTop;
+  //   console.log("scrollTop: ", scrollTop);
+  //   this.setState({
+  //     fixedHeader: scrollTop > $("th", $(this.tableContainer)).height()
+  //   });
+  //   store.dispatch(setParam("scrollTop", scrollTop));
+  // };
 
   renderRecord = (record, index) => {
     const { columns } = this.props;
@@ -189,8 +192,7 @@ class SalesRecordPage extends Component {
     const { columns, collapsedViews } = this.props;
     const subGroup = [];
     const substage = _.find(subStages, { value: key });
-    debugger;
-    console.log("substage, group", substage, group);
+
     subGroup.push(
       <tr key="trSubHead">
         <ThSubGroup
@@ -228,7 +230,6 @@ class SalesRecordPage extends Component {
     currentSubStages.map(subStage => {
       defaultSubGroup[subStage.value] = [];
     });
-    console.log("defaultSubGroup", defaultSubGroup);
 
     const subGroups = { ...defaultSubGroup, ...sortedGroup };
 
@@ -335,32 +336,27 @@ class SalesRecordPage extends Component {
     });
 
     return (
-      <div className="projects-page" style={{ height: "auto" }}>
+      <div className="projects-page">
         <SalesRecordsNavbar
           title={this.getTitle(stage)}
           modalProps={{ ...props, stage }}
         />
-        <div
-          id="tableContainer"
-          ref={node => (this.tableContainer = node)}
-          style={{
-            maxHeight: "1000rem",
-            overflow: "auto",
-            position: "relative"
-          }}
-          onScroll={this.handleScroll}
-        >
-          <Table hover>
-            <SalesRecordsTableHeader fixedHeader={fixedHeader} />
-            {_.map(
-              this.sortGroups(
-                STAGES_MAP.map(item => item.value),
-                _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
-              ),
-              this.renderGroup
-            )}
-          </Table>
-        </div>
+
+        <ScrollPosition>
+          <div style={{ overflowY: "auto", height: "calc(100% - 120px)" }}>
+            <Table hover>
+              <SalesRecordsTableHeader fixedHeader={fixedHeader} />
+
+              {_.map(
+                this.sortGroups(
+                  STAGES_MAP.map(item => item.value),
+                  _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
+                ),
+                this.renderGroup
+              )}
+            </Table>
+          </div>
+        </ScrollPosition>
       </div>
     );
   }

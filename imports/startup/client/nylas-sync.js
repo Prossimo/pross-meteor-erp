@@ -1,18 +1,17 @@
-import _ from 'underscore'
-import Actions from '/imports/api/nylas/actions'
-import '/imports/api/nylas/contact-store'
-import '/imports/api/nylas/thread-store'
+import _ from "underscore";
+import Actions from "/imports/api/nylas/actions";
+import "/imports/api/nylas/contact-store";
+import "/imports/api/nylas/thread-store";
 
 const fetchContacts = () => {
-    // console.log('fetchContacts', Meteor.userId())
-    if (Meteor.userId()) {
-        Actions.loadContacts()
+  // console.log('fetchContacts', Meteor.userId())
+  if (Meteor.userId()) {
+    Actions.loadContacts();
 
-        clearInterval(fetchContactsInterval)
-    }
-}
-const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 120)    // every 2 minutes
-
+    clearInterval(fetchContactsInterval);
+  }
+};
+const fetchContactsInterval = setInterval(fetchContacts, 1 * 1000 * 120); // every 2 minutes
 
 /*const fetchUnreadsCount = () => {
     if (Meteor.userId()) {

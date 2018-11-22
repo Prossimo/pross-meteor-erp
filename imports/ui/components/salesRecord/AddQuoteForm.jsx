@@ -104,7 +104,6 @@ class AddQuoteForm extends React.Component {
         const {draftClientId} = this.props
         const {selectedMailTemplate} = this.state
         const addQuoteCb = (err) => {
-            console.log(this.props)
             if (err) return console.log(err)
 
             if (this.props.saved) this.props.saved()

@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import Textcomplete from 'textcomplete/lib/textcomplete'
 import Textarea from 'textcomplete/lib/textarea'
-import CommentList from './comments/CommentList.jsx'
-import CommentIcon from './comments/CommentIcon.jsx'
+import CommentList from './comments/CommentList'
+import CommentIcon from './comments/CommentIcon'
 
 class TaskComment extends Component {
   constructor() {

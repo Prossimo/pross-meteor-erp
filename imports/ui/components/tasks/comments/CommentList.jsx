@@ -7,7 +7,7 @@ import swal from 'sweetalert2'
 import Textcomplete from 'textcomplete/lib/textcomplete'
 import Textarea from 'textcomplete/lib/textarea'
 import 'sweetalert2/dist/sweetalert2.min.css'
-import CommentIcon from './CommentIcon.jsx'
+import CommentIcon from './CommentIcon'
 
 class CommentList extends Component {
   constructor() {

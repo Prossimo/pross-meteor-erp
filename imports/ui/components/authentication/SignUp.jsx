@@ -78,7 +78,7 @@ class SignUp extends React.Component {
 
     userRegistration() {
         const userData = this.userRegistrationData
-        Meteor.call('userRegistration', userData, (err, res) => {console.log('Signup', res)
+        Meteor.call('userRegistration', userData, (err, res) => {//console.log('Signup', res)
             if(err) {
                 console.log(err)
                 return warning(err.message)

@@ -1,387 +1,408 @@
-import _ from 'underscore'
-import Reflux from 'reflux'
-import Actions from './actions'
-import DraftFactory from './draft-factory'
-import SendDraftTask from './tasks/send-draft-task'
-import SyncbackDraftTask from './tasks/syncback-draft-task'
-import SyncbackDraftFilesTask from './tasks/syncback-draft-files-task'
-import NylasUtils from './nylas-utils'
-import NylasAPI from './nylas-api'
-import {saveMessage, upsertMessage} from '/imports/api/models/messages/methods'
-import {SalesRecords, Conversations} from '/imports/api/models'
-import {ErrorLog, ClientErrorLog} from '/imports/utils/logger'
+import _ from "underscore";
+import Reflux from "reflux";
+import Actions from "./actions";
+import DraftFactory from "./draft-factory";
+import SendDraftTask from "./tasks/send-draft-task";
+import SyncbackDraftTask from "./tasks/syncback-draft-task";
+import SyncbackDraftFilesTask from "./tasks/syncback-draft-files-task";
+import NylasUtils from "./nylas-utils";
+import NylasAPI from "./nylas-api";
+import {
+  saveMessage,
+  upsertMessage
+} from "/imports/api/models/messages/methods";
+import { SalesRecords, Conversations } from "/imports/api/models";
+import { ErrorLog, ClientErrorLog } from "/imports/utils/logger";
 
 const ComposeType = {
-   Creating: 'creating',
-   Replying: 'replying',
-   ReplyingAll: 'replying all',
-   Forwarding: 'forwarding'
-}
+  Creating: "creating",
+  Replying: "replying",
+  ReplyingAll: "replying all",
+  Forwarding: "forwarding"
+};
 
 class DraftStoreClass extends Reflux.Store {
-   constructor() {
-      super()
+  constructor() {
+    super();
 
-      this.listenTo(Actions.composeNew, this._onComposeNew)
-      this.listenTo(Actions.composeReply, this._onComposeReply)
-      this.listenTo(Actions.composeForward, this._onComposeForward)
-      this.listenTo(Actions.composeDraft, this._onComposeDraft)
-      this.listenTo(Actions.sendDraft, this._onSendDraft)
-      this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess)
-      this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed)
-      this.listenTo(Actions.saveDraft, this._onSaveDraft)
-      this.listenTo(Actions.saveDraftSuccess, this._onSaveDraftSuccess)
-      this.listenTo(Actions.removeDraft, this._onRemoveDraft)
-      this.listenTo(Actions.removeFile, this._onRemoveFile)
+    this.listenTo(Actions.composeNew, this._onComposeNew);
+    this.listenTo(Actions.composeReply, this._onComposeReply);
+    this.listenTo(Actions.composeForward, this._onComposeForward);
+    this.listenTo(Actions.composeDraft, this._onComposeDraft);
+    this.listenTo(Actions.sendDraft, this._onSendDraft);
+    this.listenTo(Actions.sendDraftSuccess, this._onSendDraftSuccess);
+    this.listenTo(Actions.sendDraftFailed, this._onSendDraftFailed);
+    this.listenTo(Actions.saveDraft, this._onSaveDraft);
+    this.listenTo(Actions.saveDraftSuccess, this._onSaveDraftSuccess);
+    this.listenTo(Actions.removeDraft, this._onRemoveDraft);
+    this.listenTo(Actions.removeFile, this._onRemoveFile);
 
-      this._drafts = []
-      this._draftsSending = {}
-      this._draftsSaving = {}
-      this._draftsViewState = {}
-      this._lastSavedDrafts = {}
-   }
+    this._drafts = [];
+    this._draftsSending = {};
+    this._draftsSaving = {};
+    this._draftsViewState = {};
+    this._lastSavedDrafts = {};
+  }
 
-   _onComposeNew = ({conversationId, modal = true, show = true} = {}) => {
-      console.log('_onComposeNew called', conversationId)
-      DraftFactory.createDraft().then((draft) => {
-         if (conversationId) {
-            draft.conversationId = conversationId
-            console.log('DraftStore -> _onComposeNew -> conversation -> before', conversationId)
-            const conversation = Conversations.findOne(conversationId)
-            console.log('DraftStore -> _onComposeNew -> conversation -> after', conversation)
-            const contacts = conversation ? conversation.contacts() : []
-            draft.to = contacts.filter(p => p.isMain)
-            draft.cc = contacts.filter(p => !p.isMain)
-         }
-         draft.isNew = true
-
-         this._drafts.push(draft)
-
-         if (modal) this.hideModals()
-         this._draftsViewState[draft.clientId] = {
-            clientId: draft.clientId,
-            modal,
-            show
-         }
-
-         this.trigger()
-      })
-   }
-
-   _onComposeReply = ({message, type, modal, conversationId}) => {
-      if (!message) return
-
-
-      const existingDraft = this.draftForReply(message.thread_id, message.id)
-
-      if (existingDraft) {
-         const {to, cc} = type == 'reply-all' ? NylasUtils.participantsForReplyAll(message) : NylasUtils.participantsForReply(message)
-         existingDraft.to = to
-         existingDraft.cc = cc
-
-         if (modal) this.hideModals()
-
-         this._draftsViewState[existingDraft.clientId] = {
-            clientId: existingDraft.clientId,
-            modal,
-            show: true
-         }
-         this.trigger()
-      } else {
-         DraftFactory.createDraftForReply({message, type}).then((draft) => {
-            console.log('created draft', draft)
-            draft.conversationId = conversationId
-            draft.isReply = true
-
-            this._drafts.push(draft)
-
-            if (modal) this.hideModals()
-            this._draftsViewState[draft.clientId] = {
-               clientId: draft.clientId,
-               modal,
-               show: true
-            }
-
-            this.trigger()
-         })
+  _onComposeNew = ({ conversationId, modal = true, show = true } = {}) => {
+    //  console.log("_onComposeNew called", conversationId);
+    DraftFactory.createDraft().then(draft => {
+      if (conversationId) {
+        draft.conversationId = conversationId;
+        // console.log('DraftStore -> _onComposeNew -> conversation -> before', conversationId)
+        const conversation = Conversations.findOne(conversationId);
+        // console.log('DraftStore -> _onComposeNew -> conversation -> after', conversation)
+        const contacts = conversation ? conversation.contacts() : [];
+        draft.to = contacts.filter(p => p.isMain);
+        draft.cc = contacts.filter(p => !p.isMain);
       }
-   }
+      draft.isNew = true;
 
-   _onComposeForward = ({message, modal, conversationId}) => {
-      DraftFactory.createDraftForForward({message}).then((draft) => {
-         draft.conversationId = conversationId
-         this._drafts.push(draft)
+      this._drafts.push(draft);
 
-         if (modal) this.hideModals()
-         this._draftsViewState[draft.clientId] = {
-            clientId: draft.clientId,
-            modal,
-            show: true
-         }
+      if (modal) this.hideModals();
+      this._draftsViewState[draft.clientId] = {
+        clientId: draft.clientId,
+        modal,
+        show
+      };
 
-         this.trigger()
-      })
-   }
+      this.trigger();
+    });
+  };
 
-   _onComposeDraft = ({message, modal=true, conversationId}) => {
-      DraftFactory.createDraft(message).then((draft) => {
-         draft.conversationId = conversationId
-         this._drafts.push(draft)
+  _onComposeReply = ({ message, type, modal, conversationId }) => {
+    if (!message) return;
 
-         if (modal) this.hideModals()
-         this._draftsViewState[draft.clientId] = {
-            clientId: draft.clientId,
-            modal,
-            show: true
-         }
+    const existingDraft = this.draftForReply(message.thread_id, message.id);
 
-         this.trigger()
-      })
-   }
+    if (existingDraft) {
+      const { to, cc } =
+        type == "reply-all"
+          ? NylasUtils.participantsForReplyAll(message)
+          : NylasUtils.participantsForReply(message);
+      existingDraft.to = to;
+      existingDraft.cc = cc;
 
-   hideModals = () => {
-      Object.keys(this._draftsViewState).forEach(key => {
-         this._draftsViewState[key]['modal'] = false
-      })
-   }
+      if (modal) this.hideModals();
 
-   createDraftForQuoteEmail = (data = {}) => new Promise((resolve, reject) => {
-      DraftFactory.createDraft(data).then((draft) => {
-         draft.hideSignature = true
-         draft.conversationId = data.conversationId
-         this._drafts.push(draft)
+      this._draftsViewState[existingDraft.clientId] = {
+        clientId: existingDraft.clientId,
+        modal,
+        show: true
+      };
+      this.trigger();
+    } else {
+      DraftFactory.createDraftForReply({ message, type }).then(draft => {
+        draft.conversationId = conversationId;
+        draft.isReply = true;
 
-         this._draftsViewState[draft.clientId] = {
-            clientId: draft.clientId
-         }
+        this._drafts.push(draft);
 
-         resolve(draft)
-      })
-   })
+        if (modal) this.hideModals();
+        this._draftsViewState[draft.clientId] = {
+          clientId: draft.clientId,
+          modal,
+          show: true
+        };
 
-   _onSaveDraft(clientId) {
-      const draft = this.draftForClientId(clientId)
-      if (!draft) return
+        this.trigger();
+      });
+    }
+  };
 
-      this._draftsSaving[clientId] = true
+  _onComposeForward = ({ message, modal, conversationId }) => {
+    DraftFactory.createDraftForForward({ message }).then(draft => {
+      draft.conversationId = conversationId;
+      this._drafts.push(draft);
 
-      Actions.queueTask(new SyncbackDraftTask(clientId))
+      if (modal) this.hideModals();
+      this._draftsViewState[draft.clientId] = {
+        clientId: draft.clientId,
+        modal,
+        show: true
+      };
 
-      this.trigger()
-   }
+      this.trigger();
+    });
+  };
 
-   _onSaveDraftSuccess = ({message, clientId}) => {
-       const draft = this.draftForClientId(clientId)
+  _onComposeDraft = ({ message, modal = true, conversationId }) => {
+    DraftFactory.createDraft(message).then(draft => {
+      draft.conversationId = conversationId;
+      this._drafts.push(draft);
 
-       console.log('_onSaveDraftSuccess results', message, clientId, draft)
-       this._draftsSaving[clientId] = false
+      if (modal) this.hideModals();
+      this._draftsViewState[draft.clientId] = {
+        clientId: draft.clientId,
+        modal,
+        show: true
+      };
 
-       const savedDraft = _.extend(draft, {...message, body:draft.body})
-       this.changeDraftForClientId(clientId, savedDraft)
+      this.trigger();
+    });
+  };
 
-       const {conversationId, isNew, isReply} = draft
+  hideModals = () => {
+    Object.keys(this._draftsViewState).forEach(key => {
+      this._draftsViewState[key]["modal"] = false;
+    });
+  };
 
-       try {
-           saveMessage.call({conversationId, isNew, isReply, message})
-           setTimeout(Actions.changedMessages, 500)
-       } catch (err) {
-           ErrorLog.error(err)
-       }
+  createDraftForQuoteEmail = (data = {}) =>
+    new Promise((resolve, reject) => {
+      DraftFactory.createDraft(data).then(draft => {
+        draft.hideSignature = true;
+        draft.conversationId = data.conversationId;
+        this._drafts.push(draft);
 
-      this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft)
+        this._draftsViewState[draft.clientId] = {
+          clientId: draft.clientId
+        };
 
-      this.trigger()
-   }
+        resolve(draft);
+      });
+    });
 
-   _onRemoveDraft = (draft) => {
-      NylasAPI.makeDraftDeletionRequest(draft)
-   }
+  _onSaveDraft(clientId) {
+    const draft = this.draftForClientId(clientId);
+    if (!draft) return;
 
-   _onSendDraft(clientId) {
-      const draft = this.draftForClientId(clientId)
-      if (!draft) return
+    this._draftsSaving[clientId] = true;
 
-      this._draftsSending[clientId] = true
+    Actions.queueTask(new SyncbackDraftTask(clientId));
 
-      if (draft.files && draft.files.length > 0 || draft.uploads && draft.uploads.length > 0) {
-         //Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
+    this.trigger();
+  }
+
+  _onSaveDraftSuccess = ({ message, clientId }) => {
+    const draft = this.draftForClientId(clientId);
+
+    //  console.log("_onSaveDraftSuccess results", message, clientId, draft);
+    this._draftsSaving[clientId] = false;
+
+    const savedDraft = _.extend(draft, { ...message, body: draft.body });
+    this.changeDraftForClientId(clientId, savedDraft);
+
+    const { conversationId, isNew, isReply } = draft;
+
+    try {
+      saveMessage.call({ conversationId, isNew, isReply, message });
+      setTimeout(Actions.changedMessages, 500);
+    } catch (err) {
+      ErrorLog.error(err);
+    }
+
+    this._lastSavedDrafts[savedDraft.clientId] = _.clone(savedDraft);
+
+    this.trigger();
+  };
+
+  _onRemoveDraft = draft => {
+    NylasAPI.makeDraftDeletionRequest(draft);
+  };
+
+  _onSendDraft(clientId) {
+    const draft = this.draftForClientId(clientId);
+    if (!draft) return;
+
+    this._draftsSending[clientId] = true;
+
+    if (
+      (draft.files && draft.files.length > 0) ||
+      (draft.uploads && draft.uploads.length > 0)
+    ) {
+      //Actions.queueTask(new SyncbackDraftFilesTask(draft.clientId))
+    }
+    Actions.queueTask(new SendDraftTask(clientId));
+
+    this.trigger();
+  }
+
+  _onSendDraftSuccess = ({ message, clientId } = {}) => {
+    const draft = this.draftForClientId(clientId);
+    //console.log('_onSendDraftSuccess results', message, clientId, draft)
+
+    const { conversationId, isNew, isReply } = draft;
+
+    try {
+      saveMessage.call({
+        conversationId,
+        isNew,
+        isReply,
+        message,
+        shouldNotifySlack: true
+      });
+      setTimeout(Actions.changedMessages, 500);
+
+      // Add user as member to deal or project
+      if (conversationId) {
+        const conversation = Conversations.findOne(conversationId);
+        const parent = conversation.parent();
+
+        const members = parent.members;
+
+        if (parent.type === "deal") {
+          if (members.indexOf(Meteor.userId()) === -1) {
+            members.push(Meteor.userId());
+            Meteor.call(
+              "updateSalesRecordMembers",
+              parent._id,
+              members,
+              err => {
+                if (err) return ClientErrorLog.error(err);
+              }
+            );
+          }
+        } else if (parent.type === "project") {
+          if (!members.find(m => m.userId === Meteor.userId())) {
+            members.push({ userId: Meteor.userId() });
+            Meteor.call("updateProjectMembers", parent._id, members, err => {
+              if (err) return ClientErrorLog.error(err);
+            });
+          }
+        }
       }
-      Actions.queueTask(new SendDraftTask(clientId))
+    } catch (err) {
+      ErrorLog.error(err);
+    }
 
+    this.removeDraftForClientId(clientId);
+    this.trigger();
+  };
 
-      this.trigger()
-   }
+  _onSendDraftFailed = ({ threadId, clientId, errorMessage } = {}) => {
+    alert(
+      `Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`
+    );
 
-   _onSendDraftSuccess = ({message, clientId} = {}) => {
-      const draft = this.draftForClientId(clientId)
-      //console.log('_onSendDraftSuccess results', message, clientId, draft)
+    this._draftsViewState[clientId] = {
+      modal: true,
+      show: true
+    };
+    this.trigger();
+  };
 
-      const {conversationId, isNew, isReply} = draft
+  _onRemoveFile = ({ file, clientId }) => {
+    this.removeFileFromDraftForClientId(clientId, file);
+  };
 
-      try {
-         saveMessage.call({conversationId, isNew, isReply, message, shouldNotifySlack: true})
-         setTimeout(Actions.changedMessages, 500)
+  draftForClientId(clientId) {
+    return _.findWhere(this._drafts, { clientId });
+  }
 
-         // Add user as member to deal or project
-         if (conversationId) {
-            const conversation = Conversations.findOne(conversationId)
-            const parent = conversation.parent()
+  draftForReply(threadId, messageId) {
+    return _.findWhere(this._drafts, {
+      thread_id: threadId,
+      reply_to_message_id: messageId
+    });
+  }
 
-            const members = parent.members
+  changeDraftForClientId(clientId, data = {}) {
+    let draft = this.draftForClientId(clientId);
 
-             if (parent.type === 'deal') {
-               if (members.indexOf(Meteor.userId()) === -1) {
-                  members.push(Meteor.userId())
-                  Meteor.call('updateSalesRecordMembers', parent._id, members, (err) => {
-                     if (err) return ClientErrorLog.error(err)
-                  })
-               }
-            } else if (parent.type === 'project') {
-               if (!members.find(m => m.userId === Meteor.userId())) {
-                  members.push({userId: Meteor.userId()})
-                  Meteor.call('updateProjectMembers', parent._id, members, (err) => {
-                     if (err) return ClientErrorLog.error(err)
-                  })
-               }
-            }
-         }
-      } catch (err) {
-         ErrorLog.error(err)
-      }
+    draft = _.extend(draft, data);
+  }
 
-      this.removeDraftForClientId(clientId)
-      this.trigger()
-   }
+  addUploadToDraftForClientId(clientId, upload) {
+    const draft = this.draftForClientId(clientId);
+    if (draft) {
+      if (!draft.uploads) draft.uploads = [];
+      draft.uploads.push(upload);
 
-   _onSendDraftFailed = ({threadId, clientId, errorMessage} = {}) => {
-      alert(`Failed to send draft with clientId="${clientId}" because of "${errorMessage}"`)
+      this.trigger();
+    }
+  }
 
-      this._draftsViewState[clientId] = {
-         modal: true,
-         show: true
-      }
-      this.trigger()
-   }
+  removeUploadFromDraftForClientId(clientId, upload) {
+    const draft = this.draftForClientId(clientId);
+    if (draft && draft.uploads) {
+      const index = _.indexOf(draft.uploads, upload);
 
-   _onRemoveFile = ({file, clientId}) => {
-      this.removeFileFromDraftForClientId(clientId, file)
-   }
+      draft.uploads.splice(index, 1);
+      this.trigger();
 
-   draftForClientId(clientId) {
-      return _.findWhere(this._drafts, {clientId})
-   }
+      upload.cancel();
+    }
+  }
 
-   draftForReply(threadId, messageId) {
-      return _.findWhere(this._drafts, {thread_id: threadId, reply_to_message_id: messageId})
-   }
+  addFileToDraftForClientId(clientId, file) {
+    const draft = this.draftForClientId(clientId);
+    if (draft) {
+      if (!draft.files) draft.files = [];
+      draft.files.push(file);
 
-   changeDraftForClientId(clientId, data = {}) {
-      let draft = this.draftForClientId(clientId)
+      this.trigger();
+    }
+  }
 
-      draft = _.extend(draft, data)
-   }
+  removeFileFromDraftForClientId(clientId, file) {
+    const draft = this.draftForClientId(clientId);
+    if (draft && draft.files) {
+      const index = _.indexOf(draft.files, file);
 
-   addUploadToDraftForClientId(clientId, upload) {
-      const draft = this.draftForClientId(clientId)
-      if (draft) {
-         if (!draft.uploads) draft.uploads = []
-         draft.uploads.push(upload)
+      draft.files.splice(index, 1);
+      this.trigger();
+    }
+  }
 
-         this.trigger()
-      }
-   }
+  removeDraftForClientId(clientId) {
+    const draft = this.draftForClientId(clientId);
 
-   removeUploadFromDraftForClientId(clientId, upload) {
-      const draft = this.draftForClientId(clientId)
-      if (draft && draft.uploads) {
-         const index = _.indexOf(draft.uploads, upload)
+    if (!draft) return;
 
-         draft.uploads.splice(index, 1)
-         this.trigger()
+    if (draft.uploads) {
+      draft.uploads.forEach(upload => {
+        upload.cancel();
+      });
+    }
+    const index = _.indexOf(this._drafts, draft);
 
-         upload.cancel()
-      }
-   }
+    if (index > -1) this._drafts.splice(index, 1);
 
-   addFileToDraftForClientId(clientId, file) {
-      const draft = this.draftForClientId(clientId)
-      if (draft) {
-         if (!draft.files) draft.files = []
-         draft.files.push(file)
+    if (this._draftsViewState[clientId]) delete this._draftsViewState[clientId];
 
-         this.trigger()
-      }
-   }
+    this.trigger();
+  }
 
-   removeFileFromDraftForClientId(clientId, file) {
-      const draft = this.draftForClientId(clientId)
-      if (draft && draft.files) {
-         const index = _.indexOf(draft.files, file)
+  isSendingDraft(clientId) {
+    return this._draftsSending[clientId] ? true : false;
+  }
 
-         draft.files.splice(index, 1)
-         this.trigger()
-      }
-   }
+  isSavingDraft(clientId) {
+    return this._draftsSaving[clientId] ? true : false;
+  }
 
+  draftViewStateForModal() {
+    const states = _.values(this._draftsViewState);
 
-   removeDraftForClientId(clientId) {
-      const draft = this.draftForClientId(clientId)
+    const stateForModal = _.findWhere(states, { modal: true });
 
-      if (!draft) return
+    return stateForModal;
+  }
 
-      if (draft.uploads) {
-         draft.uploads.forEach((upload) => {
-            upload.cancel()
-         })
-      }
-      const index = _.indexOf(this._drafts, draft)
+  draftViewStateForDraft() {
+    const states = _.values(this._draftsViewState);
 
-      if (index > -1)
-         this._drafts.splice(index, 1)
+    return _.findWhere(states, { draft: true });
+  }
 
-      if (this._draftsViewState[clientId]) delete this._draftsViewState[clientId]
+  isUploadingDraftFiles(clientId) {
+    const draft = this.draftForClientId(clientId);
 
-      this.trigger()
-   }
+    return draft.uploads && draft.uploads.some(upload => upload.isUploading());
+  }
 
-   isSendingDraft(clientId) {
-      return this._draftsSending[clientId] ? true : false
-   }
+  isEqualToLastSavedDraft(clientId) {
+    const lastSavedDraft = this._lastSavedDrafts[clientId];
+    if (!lastSavedDraft) return false;
 
-   isSavingDraft(clientId) {
-      return this._draftsSaving[clientId] ? true : false
-   }
+    const draft = this.draftForClientId(clientId);
 
-   draftViewStateForModal() {
-      const states = _.values(this._draftsViewState)
-
-      const stateForModal = _.findWhere(states, {modal: true})
-
-      return stateForModal
-   }
-
-   draftViewStateForDraft() {
-      const states = _.values(this._draftsViewState)
-
-      return _.findWhere(states, {draft: true})
-   }
-
-   isUploadingDraftFiles(clientId) {
-      const draft = this.draftForClientId(clientId)
-
-      return draft.uploads && draft.uploads.some(upload => upload.isUploading())
-   }
-
-   isEqualToLastSavedDraft(clientId) {
-      const lastSavedDraft = this._lastSavedDrafts[clientId]
-      if(!lastSavedDraft) return false
-
-      const draft = this.draftForClientId(clientId)
-
-       console.log(lastSavedDraft, draft)
-      return _.isEqual(draft, lastSavedDraft)
-   }
+    //  console.log(lastSavedDraft, draft);
+    return _.isEqual(draft, lastSavedDraft);
+  }
 }
 
-const DraftStore = new DraftStoreClass()
-export default DraftStore
+const DraftStore = new DraftStoreClass();
+export default DraftStore;

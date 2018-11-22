@@ -17,7 +17,6 @@ class TextEditor extends Component {
   }
 
   render() {
-    console.log("inputFocus=====", this.state.inputFocus);
     const TextArea = styled.textarea`
       font-size: 14px;
       margin-top: 15px;

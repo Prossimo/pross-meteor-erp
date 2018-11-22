@@ -187,7 +187,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
     }
 
     updateStakeholders = (stakeholders) => {
-        console.log('updateStakeholders', stakeholders)
+        // console.log('updateStakeholders', stakeholders)
         this.state.stakeholders = stakeholders
     }
 
@@ -302,7 +302,7 @@ class CreateSalesRecord extends TrackerReact(React.Component) {
 
         const conversations = Conversations.find({_id: {$in: salesRecord.conversationIds}}).fetch()
 
-        console.log(JSON.stringify({_id: {$in: salesRecord.conversationIds}}), conversations)
+        //console.log(JSON.stringify({_id: {$in: salesRecord.conversationIds}}), conversations)
 
         if (!conversations || conversations.length == 0) return ''
 

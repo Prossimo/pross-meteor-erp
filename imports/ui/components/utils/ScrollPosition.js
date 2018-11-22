@@ -5,7 +5,6 @@ import store from "/imports/redux/store";
 import { setParam } from "/imports/redux/actions";
 
 class ScrollPosition extends React.Component {
-
   componentDidMount() {
     const { scrollTop, children } = this.props;
     if (!children.length) {
@@ -17,8 +16,7 @@ class ScrollPosition extends React.Component {
 
   componentWillUnmount() {
     const scrollTop = ReactDOM.findDOMNode(this).scrollTop;
-
-    store.dispatch(setParam("scrollTop", scrollTop));
+    store.dispatch(setParam("previousScrollTop", scrollTop));
   }
 
   render() {
@@ -26,7 +24,7 @@ class ScrollPosition extends React.Component {
   }
 }
 const mapStateToProps = ({ dealsParams }) => ({
-  scrollTop: dealsParams.scrollTop || 0
+  scrollTop: dealsParams.previousScrollTop || 0
 });
 
 export default connect(mapStateToProps)(ScrollPosition);
