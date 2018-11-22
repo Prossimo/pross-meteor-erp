@@ -7,7 +7,7 @@ import DatePicker from "react-datepicker";
 import { info, warning } from "/imports/api/lib/alerts";
 import Select from "react-select";
 import { ROLES } from "/imports/api/models";
-import ScrollPosition from "../utils/ScrollPosition";
+// import ScrollPosition from "../utils/ScrollPosition";
 
 class Sheets extends Component {
   constructor(props) {
@@ -300,21 +300,21 @@ class Sheets extends Component {
       ({ selected }) => selected
     );
     return (
-      <ScrollPosition>
-        <div className="list-view-container" style={{ overflowY: "auto" }}>
-          <Table condensed hover>
-            <thead>
-              <tr>
-                {selectedColumns.map(({ label, key }) => (
-                  <th key={key}>{label}</th>
-                ))}
-                <th />
-              </tr>
-            </thead>
-            <tbody>{this.renderRows()}</tbody>
-          </Table>
-        </div>
-      </ScrollPosition>
+      // <ScrollPosition>
+      <div className="list-view-container" style={{ overflowY: "auto" }}>
+        <Table condensed hover>
+          <thead>
+            <tr>
+              {selectedColumns.map(({ label, key }) => (
+                <th key={key}>{label}</th>
+              ))}
+              <th />
+            </tr>
+          </thead>
+          <tbody>{this.renderRows()}</tbody>
+        </Table>
+      </div>
+      // </ScrollPosition>
     );
   }
 
