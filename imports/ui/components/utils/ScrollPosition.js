@@ -16,7 +16,7 @@ class ScrollPosition extends React.Component {
 
   componentWillUnmount() {
     const scrollTop = ReactDOM.findDOMNode(this).scrollTop;
-    store.dispatch(setParam("previousScrollTop", scrollTop));
+    store.dispatch(setParam(`scrollTop:${this.props.path}`, scrollTop));
   }
 
   render() {
@@ -24,7 +24,7 @@ class ScrollPosition extends React.Component {
   }
 }
 const mapStateToProps = ({ dealsParams }) => ({
-  scrollTop: dealsParams.previousScrollTop || 0
+  scrollTop: dealsParams[`scrollTop:${this.window.location.pathname}`] || 0
 });
 
 export default connect(mapStateToProps)(ScrollPosition);

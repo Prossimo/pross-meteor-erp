@@ -342,7 +342,7 @@ class SalesRecordPage extends Component {
           modalProps={{ ...props, stage }}
         />
 
-        <ScrollPosition>
+        <ScrollPosition path="/deals">
           <div style={{ overflowY: "auto", height: "calc(100% - 120px)" }}>
             <Table hover>
               <SalesRecordsTableHeader fixedHeader={fixedHeader} />

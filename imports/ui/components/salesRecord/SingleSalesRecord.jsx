@@ -130,6 +130,26 @@ class SingleSalesRecord extends React.Component {
       {
         label: "Tasks",
         component: <Tasks projectId={this.props.salesRecord._id} />
+      },
+      {
+        label: "Orders",
+        component: <Tasks projectId={this.props.salesRecord._id} />
+      },
+      {
+        label: "Bills",
+        component: <Tasks projectId={this.props.salesRecord._id} />
+      },
+      {
+        label: "Invoices",
+        component: <Tasks projectId={this.props.salesRecord._id} />
+      },
+      {
+        label: "Shipments",
+        component: <Tasks projectId={this.props.salesRecord._id} />
+      },
+      {
+        label: "Tickets",
+        component: <Tasks projectId={this.props.salesRecord._id} />
       }
     ];
 
@@ -137,7 +157,7 @@ class SingleSalesRecord extends React.Component {
 
     if (!activeTab) activeTab = this.tabs.find(tab => tab.label === "Details");
     return (
-      <ul>
+      <ul className="scroller">
         {this.tabs.map(item => (
           <li
             key={item.label}
