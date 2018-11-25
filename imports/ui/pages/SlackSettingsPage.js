@@ -10,7 +10,7 @@ import {
 import Select from "react-select";
 // import 'react-select/dist/react-select.css'
 import Settings from "/imports/api/models/settings/settings";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 
 const SLACK_NOTIFICATION_CHANNEL = "SLACK_NOTIFICATION_CHANNEL";
 
@@ -91,11 +91,11 @@ const SlackPageWithData = compose(
   })
 )(SlackSettingsPage);
 
-export default createContainer(() => {
+export default withTracker(() => {
   const sub = Meteor.subscribe("settings.all");
   const settings = Settings.find({ key: SLACK_NOTIFICATION_CHANNEL }).fetch();
   return {
     ready: sub.ready(),
     slackChannel: _.first(settings)
   };
-}, SlackPageWithData);
+})(SlackPageWithData);

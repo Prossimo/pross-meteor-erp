@@ -4,7 +4,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Select from "react-select";
 import { Panel, Table, Dropdown, MenuItem } from "react-bootstrap";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import Tasks, { TaskStatus } from "/imports/api/models/tasks/tasks";
 import { getUserName } from "/imports/api/lib/filters";
 import { ROLES } from "/imports/api/models";
@@ -344,7 +344,7 @@ class MyTasks extends Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const userId = Meteor.userId();
   const subscribers = [];
   let loading = true;
@@ -369,4 +369,4 @@ export default createContainer(() => {
     userId,
     users: Meteor.users.find().fetch()
   };
-}, MyTasks);
+})(MyTasks);

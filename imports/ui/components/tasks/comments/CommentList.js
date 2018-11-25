@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import styled from "styled-components";
 import moment from "moment";
 import swal from "sweetalert2";
@@ -196,7 +196,7 @@ CommentList.propTypes = {
   taskId: PropTypes.string.isRequired
 };
 
-export default createContainer(({ comments }) => {
+export default withTracker(({ comments }) => {
   return {
     comments: comments.map(
       ({ content, createdAt, userId, _id, updatedAt, parentId }) => {
@@ -211,4 +211,4 @@ export default createContainer(({ comments }) => {
       }
     )
   };
-}, CommentList);
+})(CommentList);

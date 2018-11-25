@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import styled from "styled-components";
 import picker from "meteor/picker";
 import swal from "sweetalert2";
@@ -108,11 +108,11 @@ class DriveSettingsPage extends Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const subs = [];
   subs.push(Meteor.subscribe("settings.all"));
   return {
     subs,
     settings: Settings.find().fetch()
   };
-}, DriveSettingsPage);
+})(DriveSettingsPage);

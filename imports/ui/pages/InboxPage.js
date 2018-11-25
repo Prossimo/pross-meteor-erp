@@ -1,6 +1,6 @@
 /* global FlowRouter, subsManager */
 import _ from "underscore";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import { Roles } from "meteor/alanning:roles";
 import React from "react";
 import PropTypes from "prop-types";
@@ -862,7 +862,7 @@ class InboxPage extends React.Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const subscribers = [];
   const threadFilter = Session.get("currentThreadFilter") || { _id: null };
   countThreads.call({ query: threadFilter }, (err, res) => {
@@ -882,4 +882,4 @@ export default createContainer(() => {
     threadsCount: Session.get("threadsCount"),
     drafts
   };
-}, InboxPage);
+})(InboxPage);

@@ -1,7 +1,7 @@
 import { FlowRouter } from "meteor/kadira:flow-router";
 import React from "react";
 import PropTypes from "prop-types";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import { Alert } from "react-bootstrap";
 import ItemMessage from "../components/inbox/ItemMessage";
 import NylasAPI from "/imports/api/nylas/nylas-api";
@@ -112,7 +112,7 @@ class EmailViewPage extends React.Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const messageId = FlowRouter.getQueryParam("message_id");
   const threadId = FlowRouter.getQueryParam("thread_id");
 
@@ -142,4 +142,4 @@ export default createContainer(() => {
     ),
     message
   };
-}, EmailViewPage);
+})(EmailViewPage);

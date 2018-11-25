@@ -1,6 +1,6 @@
 /* global FlowRouter, subsManager */
 import React, { Component } from "react";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import Projects from "/imports/api/models/projects/projects";
 import Sheets from "/imports/ui/components/libs/Sheets";
 import swal from "sweetalert2";
@@ -160,7 +160,7 @@ class AllProjects extends Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const subscribers = [];
   subscribers.push(subsCache.subscribe("projects.mine"));
   return {
@@ -170,4 +170,4 @@ export default createContainer(() => {
     ),
     projects: Projects.find({}, { sort: { createdAt: -1 } }).fetch()
   };
-}, AllProjects);
+})(AllProjects);

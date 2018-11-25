@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import SlackMessages from "/imports/api/models/slackMessages/slackMessages";
 import Projects from "/imports/api/models/projects/projects";
 import Message from "../salesRecord/Message";
@@ -57,7 +57,7 @@ class Activities extends Component {
   }
 }
 
-export default createContainer(props => {
+export default withTracker(props => {
   const { projectId } = props;
   const subscribers = [];
   subscribers.push(Meteor.subscribe("projects.one", projectId));
@@ -70,4 +70,4 @@ export default createContainer(props => {
     ).fetch(),
     subscribers
   };
-}, Activities);
+})(Activities);

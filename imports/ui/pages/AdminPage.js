@@ -1,7 +1,7 @@
 import { Roles } from "meteor/alanning:roles";
 import React, { Component } from "react";
 import EditableUsersTable from "../components/admin/EditableUsersTable";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import { ROLES } from "/imports/api/models";
 
 class AdminPage extends Component {
@@ -31,7 +31,7 @@ class AdminPage extends Component {
   }
 }
 
-export default createContainer(() => {
+export default withTracker(() => {
   const subscribers = [];
   let users = [];
   subscribers.push(Meteor.subscribe("users.all"));
@@ -47,4 +47,4 @@ export default createContainer(() => {
     ),
     users
   };
-}, AdminPage);
+})(AdminPage);

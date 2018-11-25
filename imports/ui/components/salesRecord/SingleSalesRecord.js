@@ -28,7 +28,7 @@ import Tasks from "../tasks/TaskBoard";
 import FilesComponent from "../files/Files";
 import Conversations from "./conversations/Conversations";
 import { Modal } from "react-bootstrap";
-import { createContainer } from "meteor/react-meteor-data";
+import { withTracker } from "meteor/react-meteor-data";
 import { Panel, SlackChannelSelector, Selector } from "../common";
 import SelectSubStage from "./components/SelectSubStage";
 import Spinner from "../utils/spinner";
@@ -769,7 +769,7 @@ class SingleSalesRecord extends React.Component {
   }
 }
 
-export default createContainer(props => {
+export default withTracker(props => {
   const _id = FlowRouter.getParam("id");
   if (
     subsCache.subscribe("salesrecords.one", _id).ready() &&
@@ -829,4 +829,4 @@ export default createContainer(props => {
       loading: true
     };
   }
-}, SingleSalesRecord);
+})(SingleSalesRecord);
