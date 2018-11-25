@@ -66,7 +66,6 @@ class Header extends Component {
     return (
       <NavDropdown
         title={label}
-        as={NavLink}
         to={route}
         onClick={() => this.goToRoute(route)}
         key={key}
@@ -82,12 +81,7 @@ class Header extends Component {
       subItems && route != "Deals" ? (
         this.renderSubMenu(label, route, subItems, index)
       ) : (
-        <NavItem
-          key={index}
-          as={NavLink}
-          to={route}
-          onClick={() => this.goToRoute(route)}
-        >
+        <NavItem key={index} to={route} onClick={() => this.goToRoute(route)}>
           {label}
         </NavItem>
       )
