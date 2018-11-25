@@ -6,6 +6,6 @@ import { name as packageName } from "meteor/picker";
 
 // Write your tests here!
 // Here is an example.
-Tinytest.add('picker - example', function (test) {
+Tinytest.add("picker - example", function(test) {
   test.equal(packageName, "picker");
 });

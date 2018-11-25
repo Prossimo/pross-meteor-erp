@@ -9,7 +9,7 @@ import {
   ControlLabel,
   Checkbox
 } from "react-bootstrap";
-import { isValidEmail, isValidPassword } from "../../../api/lib/validation.js";
+import { isValidEmail, isValidPassword } from "../../../api/lib/validation";
 import config from "../../../api/config";
 import { info, warning } from "/imports/api/lib/alerts";
 import Actions from "../../../api/nylas/actions";

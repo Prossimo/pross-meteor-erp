@@ -13,7 +13,7 @@ import {
   Conversations
 } from "../index";
 import { prossDocDrive } from "../../drive";
-import { getSubStages } from "../../lib/filters.js";
+import { getSubStages } from "../../lib/filters";
 import { ServerLog } from "/imports/utils/logger";
 
 import config from "../../config";

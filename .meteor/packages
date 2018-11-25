@@ -68,7 +68,6 @@ percolate:synced-cron
 templating
 ccorcos:subs-cache
 dynamic-import@0.5.0
-abernix:standard-minifier-js
 ostrio:logger
 ostrio:loggerfile
 omega:meteor-desktop-watcher@=0.17.2
@@ -79,3 +78,4 @@ tunifight:loggedin-mixin
 
 
 
+abernix:standard-minifier-js
