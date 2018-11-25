@@ -853,7 +853,7 @@ class InboxPage extends React.Component {
   }
 
   renderDraftComposeView() {
-    return <div />;
+    return <></>;
   }
 
   onSelectCategory(category) {

@@ -72,7 +72,7 @@ export default class InboxSettingsPage extends React.Component {
 
   renderInboxesTab() {
     return (
-      <PanelGroup style={{ height: "100%" }}>
+      <PanelGroup id="inboxesTab" style={{ height: "100%" }}>
         {Meteor.user().isAdmin() && (
           <Panel>
             <Panel.Heading>Team Inboxes</Panel.Heading>

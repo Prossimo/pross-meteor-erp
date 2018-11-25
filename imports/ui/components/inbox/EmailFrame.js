@@ -99,6 +99,10 @@ export default class EmailFrame extends React.Component {
   }
 
   _onMustRecalculateFrameHeight() {
+    if (!this._mounted) {
+      return;
+    }
+
     this.refs.iframe.setHeightQuietly(0);
     this._lastComputedHeight = 0;
     this._setFrameHeight();
@@ -154,7 +158,7 @@ export default class EmailFrame extends React.Component {
       <div
         className="iframe-container"
         ref="iframeHeightHolder"
-        style={{ height: this._lastComputedHeight + 20 }}
+        style={{ height: this._lastComputedHeight + 20 || 0 }}
       >
         <EventedIFrame
           ref="iframe"
