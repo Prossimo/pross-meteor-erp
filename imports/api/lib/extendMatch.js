@@ -1,5 +1,5 @@
-import {isValidPhone} from './validation.js';
+import { isValidPhone } from "./validation";
 
 Match.phone = Match.Where(phoneNumber => {
-  return isValidPhone(phoneNumber); 
+  return isValidPhone(phoneNumber);
 });

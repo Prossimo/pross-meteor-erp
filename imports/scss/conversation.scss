@@ -1,0 +1,20 @@
+.panel-content-list {
+  .panel-content-item {
+    border-bottom: 1px solid $border-color-divider;
+    padding: 5px;
+    display: flex;
+  }
+}
+.delete-conversation-wrapper {
+  position: relative;
+
+  i {
+    position: absolute;
+    top: -6px;
+    right: -11px;
+    font-size: 11px;
+    &:hover {
+      color: red;
+    }
+  }
+}

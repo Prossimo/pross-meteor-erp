@@ -15,7 +15,7 @@ import {
 import { prossDocDrive } from "../drive";
 import { getUserEmail } from "/imports/api/lib/filters";
 
-import "../lib/extendMatch.js";
+import "../lib/extendMatch";
 import google from "googleapis";
 import config from "../config";
 
