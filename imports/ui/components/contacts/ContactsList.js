@@ -5,6 +5,7 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Button, Table, InputGroup, FormControl } from "react-bootstrap";
 
 import Contacts from "/imports/api/models/contacts/contacts";
+import ScrollPosition from "../utils/ScrollPosition";
 
 const PAGESIZE = 100;
 export default class ContactsList extends TrackerReact(React.Component) {
@@ -127,9 +128,11 @@ export default class ContactsList extends TrackerReact(React.Component) {
               <th width="10%">Inbox</th>
             </tr>
           </thead>
-          <tbody onScroll={this.onScrollContactList}>
-            {this.renderContacts()}
-          </tbody>
+          <ScrollPosition elementPath={window.location.pathname}>
+            <tbody onScroll={this.onScrollContactList}>
+              {this.renderContacts()}
+            </tbody>
+          </ScrollPosition>
         </Table>
       </div>
     );

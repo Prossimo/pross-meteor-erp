@@ -4,6 +4,8 @@ import TrackerReact from "meteor/ultimatejs:tracker-react";
 import { Button, Table, InputGroup, FormControl } from "react-bootstrap";
 
 import { Companies } from "/imports/api/models";
+import ScrollPosition from "../utils/ScrollPosition";
+
 const PAGESIZE = 100;
 
 export default class CompaniesList extends TrackerReact(React.Component) {
@@ -124,9 +126,11 @@ export default class CompaniesList extends TrackerReact(React.Component) {
               <th width="10%">People</th>
             </tr>
           </thead>
-          <tbody onScroll={this.onScrollCompanyList}>
-            {this.renderCompanies()}
-          </tbody>
+          <ScrollPosition elementPath={window.location.pathname}>
+            <tbody onScroll={this.onScrollCompanyList}>
+              {this.renderCompanies()}
+            </tbody>
+          </ScrollPosition>
         </Table>
       </div>
     );
