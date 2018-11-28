@@ -2,9 +2,9 @@ module.exports = {
   servers: {
     one: {
       // TODO: set host address, username, and authentication method
-      host: "104.248.8.8",
+      host: "138.197.5.55",
       username: "root",
-      pem: "~/.ssh/do_id_rsa"
+      pem: "~/.ssh/id_rsa"
       // password: 'server-password'
       // or neither for authenticate from ssh-agent
     }
@@ -12,7 +12,7 @@ module.exports = {
 
   app: {
     // TODO: change app name and path
-    name: "prossimo-ref",
+    name: "prossimo-prod",
     path: "../",
 
     servers: {
@@ -28,7 +28,7 @@ module.exports = {
     env: {
       // TODO: Change to your app's url
       // If you are using ssl, it needs to start with https://
-      ROOT_URL: "https://crossdevs.com",
+      ROOT_URL: "https://crm.mavrik.build",
       MONGO_URL:
         "mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580",
       MONGO_OPLOG_URL:
@@ -57,11 +57,11 @@ module.exports = {
   // app when there are several apps
 
   proxy: {
-    domains: "crossdevs.com",
+    domains: "crm.mavrik.build",
 
     ssl: {
       // Enable Let's Encrypt
-      letsEncryptEmail: "aram@alienlab.xyz",
+      letsEncryptEmail: "quotes@prossimo.us",
       forceSSL: true
     }
   }
