@@ -24,7 +24,14 @@ import NylasSigninForm from "../components/inbox/NylasSigninForm";
 import CreateSalesRecord from "../components/salesRecord/CreateSalesRecord";
 import CreateProject from "../components/project/CreateProject";
 import PeopleForm from "../components/people/PeopleForm";
-import { People, Users, ROLES } from "/imports/api/models";
+import {
+  People,
+  PeopleDesignations,
+  Users,
+  ROLES,
+  Messages,
+  Threads
+} from "/imports/api/models";
 import {
   unbindThreadFromConversation,
   countThreads
@@ -33,15 +40,16 @@ import ThreadList from "../components/inbox/ThreadList";
 import DraftList from "../components/inbox/DraftList";
 import { ClientErrorLog } from "/imports/utils/logger";
 import { Session } from "meteor/session";
-import { Messages } from "/imports/api/models";
+// import { Messages } from "/imports/api/models";
 
 import Utils from "../../utils/Utils";
 import { Panel } from "../components/common";
-import Threads, {
+import {
   THREAD_STATUS_CLOSED,
   THREAD_STATUS_OPEN
 } from "../../api/models/threads/threads";
 import { PAGESIZE } from "../../utils/constants";
+import { constants } from "zlib";
 
 Session.set("currentThreadFilter", null);
 Session.set("currentThreadOptions", {
@@ -127,6 +135,7 @@ class InboxPage extends React.Component {
   };
 
   onCategoryStoreChanged = () => {
+    console.log("onCategoryStoreChanged");
     const currentCategory = CategoryStore.currentCategory;
     setTimeout(() => {
       this.setState({ currentCategory, threadStartIndex: 0 });
@@ -215,6 +224,7 @@ class InboxPage extends React.Component {
   };
 
   threadFilter = category => {
+    // debugger;
     if (!category) return {};
 
     const { keyword } = this.state;
@@ -260,15 +270,18 @@ class InboxPage extends React.Component {
     } else {
       let inboxes;
       if (category.name === "inbox") {
+        console.log("inbox threadIds");
         inboxes = Meteor.user()
           .nylasAccounts()
           .find(({ accountId }) => accountId === category.account_id)
           .categories.filter(c => c.name === "inbox" || c.name === "archive");
       } else if (category.id === "not_filed") {
+        debugger;
         const conversationThreadIds = Threads.find(
           { conversationId: { $ne: null } },
           { fields: { id: 1 } }
         ).map(t => t.id);
+        console.log("not_filed threadIds", conversationThreadIds);
         //filters['conversationId'] = null
         filters["id"] = { $nin: conversationThreadIds };
         inboxes = Meteor.user()
@@ -281,9 +294,80 @@ class InboxPage extends React.Component {
           .nylasAccounts()
           .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
           .filter(inbox => inbox != null);
-      } /* else if(currentCategory.type === 'teammember') {
+      } else if (category.id === "no_vendors") {
+        debugger;
+
+        // const vendorId = PeopleDesignations.findOne({ name: "Vendor" })._id;
+        // const vendorPeople = People.find({ designation_id: vendorId });
+        // let vendorPeopleEmails = [];
+        // vendorPeople.map(person => {
+        //   person.emails.map(email => {
+        //     vendorPeopleEmails.push(email.email);
+        //   });
+        // });
+        const vendorPeopleEmails = [
+          "piotr@urzedowski.pl",
+          "project@bfo.com.pl",
+          "director@favorbud.com.ua",
+          "alba-windowinstallation@hotmail.com",
+          "milewska@cdm-okna.pl",
+          "rvizzari@GfsFreight.com",
+          "Konrad@GfsFreight.com",
+          "zeljko@tehnomarket.com",
+          "miroslav@savabien.co.rs",
+          "radovan@savabien.co.rs",
+          "jasna.radivojevic@nissal.co.rs",
+          "info@proal.rs",
+          "office@vizus.rs",
+          "milena.grozdanovic@vizus.rs",
+          "p.muniak@anwis.pl",
+          "lukasz@medos.pl",
+          "lukasz_medos@skype",
+          "js@aluproject.eu",
+          "info@aluproject.eu",
+          "mk@aluproject.eu",
+          "margiewicz@cdm-okna.pl",
+          "marija.petrovic@vizus.rs",
+          "monika.walczyk@domel.pl",
+          "kundzicz@cdm-okna.pl",
+          "Sales@budwig.com",
+          "bezdziecki@cdm-okna.pl",
+          "a.trzcinska@anwis.pl",
+          "anwis@anwis.pl",
+          "kaminski@cdm-okna.pl",
+          "reklamacje@cdm-okna.pl",
+          "milewska@cdm-drewno.pl",
+          "d.kekic@beohramplus.rs",
+          "sales@beohramplus.rs",
+          "format.alde@gmail.com",
+          "kontakt@stolarijagradac.rs",
+          "ivabrest@mts.rs",
+          "office@mrdoor.rs",
+          "beodrvocasa@gmail.com",
+          "radionica@kucastolarije.com",
+          "trejdsistem@yahoo.com",
+          "savokusic@gmail.com",
+          "krajinadrvo@gmail.com",
+          "info@sorabi.rs",
+          "office@exportwood.rs"
+        ];
+        const vendorThreadIds = Threads.find({
+          participants: { $elemMatch: { email: { $in: vendorPeopleEmails } } }
+        }).map(t => t.id);
+
+        console.log(vendorPeopleEmails);
+
+        //const vendorThreadIds = vendorThreads.map(t => t.id);
+        console.log("vendor threadIds", vendorThreadIds);
+        filters["id"] = { $nin: vendorThreadIds };
+        inboxes = Meteor.user()
+          .nylasAccounts()
+          .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+          .filter(inbox => inbox != null);
+      } else {
+        /* else if(currentCategory.type === 'teammember') {
                 inboxes = currentCategory.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            }*/ else {
+            }*/
         inboxes = [category];
       }
 
@@ -314,10 +398,12 @@ class InboxPage extends React.Component {
   });
 
   render() {
+    console.log("render");
     return <div className="inbox-page">{this.renderContents()}</div>;
   }
 
   renderContents() {
+    console.log("renderContents");
     const {
       hasNylasAccounts,
       composeStateForModal,
@@ -381,6 +467,7 @@ class InboxPage extends React.Component {
     });
   };
   renderInbox() {
+    console.log("renderInbox");
     const { threadsCount, drafts } = this.props;
     const isDrafts =
       this.state.currentCategory &&
@@ -566,6 +653,7 @@ class InboxPage extends React.Component {
   };
 
   renderCategories() {
+    console.log("renderCategories");
     const { currentCategory, fetching } = this.state;
 
     const appCategories = [
@@ -588,6 +676,11 @@ class InboxPage extends React.Component {
         id: "unassigned",
         name: "unassigned",
         display_name: "Unassigned"
+      },
+      {
+        id: "no_vendors",
+        name: "no_vendors",
+        display_name: "No Vendors"
       }
     ];
     if (!currentCategory) {
@@ -824,6 +917,7 @@ class InboxPage extends React.Component {
     );
   };
   renderThreads() {
+    console.log("renderThreads");
     const { currentCategory, currentThread } = this.state;
 
     return (
@@ -863,6 +957,7 @@ class InboxPage extends React.Component {
 }
 
 export default withTracker(() => {
+  console.log("withTracker");
   const subscribers = [];
   const threadFilter = Session.get("currentThreadFilter") || { _id: null };
   countThreads.call({ query: threadFilter }, (err, res) => {
