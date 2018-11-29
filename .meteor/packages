@@ -77,4 +77,6 @@ tunifight:loggedin-mixin
 
 
 
-abernix:standard-minifier-js
+cultofcoders:redis-oplog
+disable-oplog
+standard-minifier-js
