@@ -2,7 +2,7 @@
   "name": "MavrikCRM",
   "private": true,
   "scripts": {
-    "start": "meteor run --settings settings.json",
+    "start": "meteor run --settings .deploy/settings.json",
     "debug": "meteor run --inspect",
     "unit-test": "meteor test --driver-package practicalmeteor:mocha",
     "full-test": "meteor test --settings settings.json --full-app --driver-package tmeasday:acceptance-test-driver",

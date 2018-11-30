@@ -33,37 +33,43 @@ class TaskBoard extends Component {
     taskFilter.set(defaultFilterState);
     this.props.subscribers.forEach(sub => sub.stop());
   }
+  taskList = () => {
+    const tabName = this.props.tabName;
+    allowedStatus.map(allowedStatus => {
+      const tasks = this.props.tasks.filter(
+        ({ status, tabName }) => status === allowedStatus && tabName === tabName
+      );
+
+      const users = this.props.users;
+      const taskFolderId = this.props.taskFolderId;
+      return (
+        <TaskList
+          tabName={tabName}
+          listName={allowedStatus}
+          tasks={tasks}
+          users={users}
+          key={allowedStatus}
+          taskFolderId={taskFolderId}
+          total={this.props.tasks.length}
+        />
+      );
+    });
+  };
 
   render() {
     return (
       <div className="task-board-container flex column">
         <TaskFilter taskFilter={taskFilter} />
-        <div className="col-md-12 flex-1">
-          {allowedStatus.map(allowedStatus => {
-            const tasks = this.props.tasks.filter(
-              ({ status }) => status === allowedStatus
-            );
-            const users = this.props.users;
-            const taskFolderId = this.props.taskFolderId;
-            return (
-              <TaskList
-                listName={allowedStatus}
-                tasks={tasks}
-                users={users}
-                key={allowedStatus}
-                taskFolderId={taskFolderId}
-                total={this.props.tasks.length}
-              />
-            );
-          })}
-        </div>
+        <div className="col-md-12 flex-1">{this.taskList()}</div>
       </div>
     );
   }
 }
 
-export default withTracker(() => {
+export default withTracker(props => {
   const subscribers = [];
+  const { tabName } = props;
+  //console.log("tabName-------", tabName);
   const parentId = FlowRouter.current().params.id;
   const taskId = FlowRouter.current().params.taskId;
   if (taskId) {

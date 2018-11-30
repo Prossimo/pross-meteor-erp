@@ -56,6 +56,7 @@ class TaskAdding extends Component {
           + Add a task ...
         </a>
         <TaskDetail
+          tabName={this.props.tabName}
           showDetail={this.showDetail}
           hideDetail={this.hideDetail}
           isShown={this.state.task.showDetail}
@@ -70,6 +71,7 @@ class TaskAdding extends Component {
 }
 
 TaskAdding.propTypes = {
+  tabName: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired

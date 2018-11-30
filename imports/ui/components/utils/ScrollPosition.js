@@ -7,7 +7,7 @@ import { setParam } from "/imports/redux/actions";
 class ScrollPosition extends React.Component {
   componentDidMount() {
     const { scrollTop, children } = this.props;
-    debugger;
+
     if (!children.length) {
       ReactDOM.findDOMNode(this).scrollTop = scrollTop;
     } else {
@@ -16,7 +16,6 @@ class ScrollPosition extends React.Component {
   }
 
   componentWillUnmount() {
-    debugger;
     const scrollTop = ReactDOM.findDOMNode(this).scrollTop;
     store.dispatch(setParam(`scrollTop${this.props.elementPath}`, scrollTop));
   }

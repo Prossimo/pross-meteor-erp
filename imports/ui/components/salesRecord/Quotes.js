@@ -387,7 +387,7 @@ class Quotes extends React.Component {
         return warning(err.message);
       }
       console.log("===get files list from google drive===");
-      console.log(filesList);
+      //console.log(filesList);
       console.log("======================================");
     });
   }
@@ -412,7 +412,7 @@ class Quotes extends React.Component {
               return warning(err.message);
             }
             console.log("===file save result on google drive===");
-            console.log(result);
+            //console.log(result);
             console.log("======================================");
           }
         );

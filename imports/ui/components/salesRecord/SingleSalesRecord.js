@@ -129,7 +129,39 @@ class SingleSalesRecord extends React.Component {
       },
       {
         label: "Tasks",
-        component: <Tasks projectId={this.props.salesRecord._id} />
+        component: (
+          <Tasks tabName="Tasks" projectId={this.props.salesRecord._id} />
+        )
+      },
+      {
+        label: "Orders",
+        component: (
+          <Tasks tabName="Orders" projectId={this.props.salesRecord._id} />
+        )
+      },
+      {
+        label: "Bills",
+        component: (
+          <Tasks tabName="Bills" projectId={this.props.salesRecord._id} />
+        )
+      },
+      {
+        label: "Invoices",
+        component: (
+          <Tasks tabName="Invoices" projectId={this.props.salesRecord._id} />
+        )
+      },
+      {
+        label: "Shipments",
+        component: (
+          <Tasks tabName="Shipments" projectId={this.props.salesRecord._id} />
+        )
+      },
+      {
+        label: "Tickets",
+        component: (
+          <Tasks tabName="Tickets" projectId={this.props.salesRecord._id} />
+        )
       }
     ];
 
