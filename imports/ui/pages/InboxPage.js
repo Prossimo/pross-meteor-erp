@@ -268,6 +268,39 @@ class InboxPage extends React.Component {
       }
     } else {
       let inboxes;
+      const _designationFilter = (designationName, categoryId) => {
+        if (category.id === categoryId) {
+          const designationId = PeopleDesignations.findOne({
+            name: designationName
+          })._id;
+          const people = People.find({
+            designation_id: designationId
+          });
+          let peopleEmails = [];
+          people.map(person => {
+            person.emails.map(email => {
+              peopleEmails.push(email.email);
+            });
+          });
+          let filteredEmails =
+            categoryId == "vendors"
+              ? { $nin: peopleEmails }
+              : { $in: peopleEmails };
+          const filteredThreadIds = Threads.find({
+            participants: {
+              $elemMatch: { email: filteredEmails }
+            }
+          }).map(t => t.id);
+
+          //console.log(stakeholderPeopleEmails);
+
+          filters["id"] = { $nin: filteredThreadIds };
+          inboxes = Meteor.user()
+            .nylasAccounts()
+            .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+            .filter(inbox => inbox != null);
+        }
+      };
       if (category.name === "inbox") {
         //console.log("inbox threadIds");
         inboxes = Meteor.user()
@@ -292,75 +325,36 @@ class InboxPage extends React.Component {
           .nylasAccounts()
           .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
           .filter(inbox => inbox != null);
-      } else if (category.id === "no_vendors") {
-        const vendorId = PeopleDesignations.findOne({ name: "Vendor" })._id;
-        const vendorPeople = People.find({ designation_id: vendorId });
-        let vendorPeopleEmails = [];
-        vendorPeople.map(person => {
-          person.emails.map(email => {
-            vendorPeopleEmails.push(email.email);
-          });
-        });
-        // const vendorPeopleEmails = [
-        //   "piotr@urzedowski.pl",
-        //   "project@bfo.com.pl",
-        //   "director@favorbud.com.ua",
-        //   "alba-windowinstallation@hotmail.com",
-        //   "milewska@cdm-okna.pl",
-        //   "rvizzari@GfsFreight.com",
-        //   "Konrad@GfsFreight.com",
-        //   "zeljko@tehnomarket.com",
-        //   "miroslav@savabien.co.rs",
-        //   "radovan@savabien.co.rs",
-        //   "jasna.radivojevic@nissal.co.rs",
-        //   "info@proal.rs",
-        //   "office@vizus.rs",
-        //   "milena.grozdanovic@vizus.rs",
-        //   "p.muniak@anwis.pl",
-        //   "lukasz@medos.pl",
-        //   "lukasz_medos@skype",
-        //   "js@aluproject.eu",
-        //   "info@aluproject.eu",
-        //   "mk@aluproject.eu",
-        //   "margiewicz@cdm-okna.pl",
-        //   "marija.petrovic@vizus.rs",
-        //   "monika.walczyk@domel.pl",
-        //   "kundzicz@cdm-okna.pl",
-        //   "Sales@budwig.com",
-        //   "bezdziecki@cdm-okna.pl",
-        //   "a.trzcinska@anwis.pl",
-        //   "anwis@anwis.pl",
-        //   "kaminski@cdm-okna.pl",
-        //   "reklamacje@cdm-okna.pl",
-        //   "milewska@cdm-drewno.pl",
-        //   "d.kekic@beohramplus.rs",
-        //   "sales@beohramplus.rs",
-        //   "format.alde@gmail.com",
-        //   "kontakt@stolarijagradac.rs",
-        //   "ivabrest@mts.rs",
-        //   "office@mrdoor.rs",
-        //   "beodrvocasa@gmail.com",
-        //   "radionica@kucastolarije.com",
-        //   "trejdsistem@yahoo.com",
-        //   "savokusic@gmail.com",
-        //   "krajinadrvo@gmail.com",
-        //   "info@sorabi.rs",
-        //   "office@exportwood.rs"
-        // ];
-        const vendorThreadIds = Threads.find({
-          participants: { $elemMatch: { email: { $in: vendorPeopleEmails } } }
-        }).map(t => t.id);
+      }
+      /* People designations folders in Inbox page, which contain filtered emails related each designation */
+      //==================================================================================================
+      //  1.LOGISTICS --TODO
+      else if (category.id === "logistics") {
+        _designationFilter("Logistics", "logistics");
+      }
+      // 2.CONSULTANTS
+      else if (category.id === "consultants") {
+        _designationFilter("Consultant", "consultants");
+      }
 
-        //console.log(vendorPeopleEmails);
+      //  3.DEALERS
+      else if (category.id === "dealers") {
+        _designationFilter("Dealer", "dealers");
+      }
 
-        //const vendorThreadIds = vendorThreads.map(t => t.id);
-        // console.log("vendor threadIds", vendorThreadIds);
-        filters["id"] = { $nin: vendorThreadIds };
-        inboxes = Meteor.user()
-          .nylasAccounts()
-          .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
-          .filter(inbox => inbox != null);
-      } else {
+      // 4.STAKEHOLDERS
+      else if (category.id === "stakeholders") {
+        _designationFilter("Stakeholder", "stakeholders");
+      }
+
+      //5. NO VENDORS
+      else if (category.id === "no_vendors") {
+        _designationFilter("Vendor", "no_vendors");
+      }
+
+      //==========================================================================================
+      //End of designations folders creation
+      else {
         /* else if(currentCategory.type === 'teammember') {
                 inboxes = currentCategory.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
             }*/
@@ -673,11 +667,33 @@ class InboxPage extends React.Component {
         name: "unassigned",
         display_name: "Unassigned"
       },
+      //Designation folders------------------------------------------------------
+      {
+        id: "logistics",
+        name: "logistics",
+        display_name: "Logistics"
+      },
+      {
+        id: "consultants",
+        name: "consultants",
+        display_name: "Consultants"
+      },
+      {
+        id: "dealers",
+        name: "dealers",
+        display_name: "Dealers"
+      },
+      {
+        id: "stakeholders",
+        name: "stakeholders",
+        display_name: "Stakeholders"
+      },
       {
         id: "no_vendors",
         name: "no_vendors",
         display_name: "No Vendors"
       }
+      //-------------------------------------------------------------------------
     ];
     if (!currentCategory) {
       const accounts = AccountStore.accounts(true);
