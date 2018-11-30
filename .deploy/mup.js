@@ -30,8 +30,10 @@ module.exports = {
       // If you are using ssl, it needs to start with https://
       NODE_ENV: "production",
       ROOT_URL: "https://crossdevs.com",
-      MONGO_URL: "mongodb://mongodb/meteor",
-      MONGO_OPLOG_URL: "mongodb://mongodb/local"
+      MONGO_URL:
+        "mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580",
+      MONGO_OPLOG_URL:
+        "mongodb://oplog-reader:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/local?replicaSet=rs-ds115580&authSource=admin"
     },
 
     docker: {
@@ -44,12 +46,12 @@ module.exports = {
     enableUploadProgressBar: true
   },
 
-  mongo: {
-    version: "3.4.1",
-    servers: {
-      one: {}
-    }
-  },
+  // mongo: {
+  //   version: "3.4.1",
+  //   servers: {
+  //     one: {}
+  //   }
+  // },
 
   // (Optional)
   // Use the proxy to setup ssl or to route requests to the correct
