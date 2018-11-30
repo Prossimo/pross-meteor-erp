@@ -41,12 +41,15 @@ class TaskBoard extends Component {
         <div className="col-md-12 flex-1">
           {allowedStatus.map(allowedStatus => {
             const tasks = this.props.tasks.filter(
-              ({ status }) => status === allowedStatus
+              ({ status, tabName }) =>
+                status === allowedStatus && tabName === this.props.tabName
             );
+            //const tabName = this.props.tabName;
             const users = this.props.users;
             const taskFolderId = this.props.taskFolderId;
             return (
               <TaskList
+                tabName={this.props.tabName}
                 listName={allowedStatus}
                 tasks={tasks}
                 users={users}
@@ -62,8 +65,10 @@ class TaskBoard extends Component {
   }
 }
 
-export default withTracker(() => {
+export default withTracker(props => {
   const subscribers = [];
+  const { tabName } = props;
+  //console.log("tabName-------", tabName);
   const parentId = FlowRouter.current().params.id;
   const taskId = FlowRouter.current().params.taskId;
   if (taskId) {

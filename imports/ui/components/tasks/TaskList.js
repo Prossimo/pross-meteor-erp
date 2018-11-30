@@ -52,6 +52,7 @@ class TaskList extends Component {
             })}
           </div>
           <TaskAdding
+            tabName={this.props.tabName}
             status={this.props.listName}
             taskFolderId={this.props.taskFolderId}
             total={this.props.total}

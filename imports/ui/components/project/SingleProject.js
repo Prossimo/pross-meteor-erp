@@ -188,6 +188,9 @@ class SingleProject extends Component {
     if (tab === "files") {
       props.type = "Project";
     }
+    if (tab === "tasks") {
+      props.tabName = "Tasks";
+    }
     return React.createElement(projectTabs[tab].component, props);
   }
 
