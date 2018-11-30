@@ -24,6 +24,7 @@ class TaskDetail extends Component {
       errors: [],
       isAttach: false,
       task: (!props.isNew && props.task) || {
+        tabName: `${this.props.tabName}`,
         name: `Task #${props.total + 1}`,
         assignee: null,
         approver: null,
@@ -47,6 +48,7 @@ class TaskDetail extends Component {
     const parentId = FlowRouter.current().params.id;
     const parentType = FlowRouter.current().route.name.toLowerCase();
     const {
+      tabName,
       name,
       assignee,
       approver,
@@ -55,6 +57,7 @@ class TaskDetail extends Component {
       status
     } = this.state.task;
     const task = {
+      tabName,
       name,
       assignee: assignee ? assignee._id : "",
       approver: approver ? approver._id : "",
@@ -69,6 +72,7 @@ class TaskDetail extends Component {
 
     if (this.props.isNew) {
       Meteor.call("task.create", task, error => {
+        console.log("task===", task);
         if (error) {
           const msg = error.reason ? error.reason : error.message;
           this.setState({ errors: [msg] });

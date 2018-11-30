@@ -28,6 +28,7 @@ module.exports = {
     env: {
       // TODO: Change to your app's url
       // If you are using ssl, it needs to start with https://
+      NODE_ENV: "production",
       ROOT_URL: "https://crm.mavrik.build",
       MONGO_URL:
         "mongodb://mavrik_user:P4ssiveH0use@ds115580-a0.mlab.com:15580,ds115580-a1.mlab.com:15580/mavrikprod?replicaSet=rs-ds115580",

@@ -24,7 +24,14 @@ import NylasSigninForm from "../components/inbox/NylasSigninForm";
 import CreateSalesRecord from "../components/salesRecord/CreateSalesRecord";
 import CreateProject from "../components/project/CreateProject";
 import PeopleForm from "../components/people/PeopleForm";
-import { People, Users, ROLES } from "/imports/api/models";
+import {
+  People,
+  PeopleDesignations,
+  Users,
+  ROLES,
+  Messages,
+  Threads
+} from "/imports/api/models";
 import {
   unbindThreadFromConversation,
   countThreads
@@ -33,15 +40,16 @@ import ThreadList from "../components/inbox/ThreadList";
 import DraftList from "../components/inbox/DraftList";
 import { ClientErrorLog } from "/imports/utils/logger";
 import { Session } from "meteor/session";
-import { Messages } from "/imports/api/models";
+// import { Messages } from "/imports/api/models";
 
 import Utils from "../../utils/Utils";
 import { Panel } from "../components/common";
-import Threads, {
+import {
   THREAD_STATUS_CLOSED,
   THREAD_STATUS_OPEN
 } from "../../api/models/threads/threads";
 import { PAGESIZE } from "../../utils/constants";
+import { constants } from "zlib";
 
 Session.set("currentThreadFilter", null);
 Session.set("currentThreadOptions", {
@@ -127,6 +135,7 @@ class InboxPage extends React.Component {
   };
 
   onCategoryStoreChanged = () => {
+    //console.log("onCategoryStoreChanged");
     const currentCategory = CategoryStore.currentCategory;
     setTimeout(() => {
       this.setState({ currentCategory, threadStartIndex: 0 });
@@ -259,7 +268,41 @@ class InboxPage extends React.Component {
       }
     } else {
       let inboxes;
+      const _designationFilter = (designationName, categoryId) => {
+        if (category.id === categoryId) {
+          const designationId = PeopleDesignations.findOne({
+            name: designationName
+          })._id;
+          const people = People.find({
+            designation_id: designationId
+          });
+          let peopleEmails = [];
+          people.map(person => {
+            person.emails.map(email => {
+              peopleEmails.push(email.email);
+            });
+          });
+          let filteredEmails =
+            categoryId == "vendors"
+              ? { $nin: peopleEmails }
+              : { $in: peopleEmails };
+          const filteredThreadIds = Threads.find({
+            participants: {
+              $elemMatch: { email: filteredEmails }
+            }
+          }).map(t => t.id);
+
+          //console.log(stakeholderPeopleEmails);
+
+          filters["id"] = { $nin: filteredThreadIds };
+          inboxes = Meteor.user()
+            .nylasAccounts()
+            .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+            .filter(inbox => inbox != null);
+        }
+      };
       if (category.name === "inbox") {
+        //console.log("inbox threadIds");
         inboxes = Meteor.user()
           .nylasAccounts()
           .find(({ accountId }) => accountId === category.account_id)
@@ -269,6 +312,7 @@ class InboxPage extends React.Component {
           { conversationId: { $ne: null } },
           { fields: { id: 1 } }
         ).map(t => t.id);
+        //console.log("not_filed threadIds", conversationThreadIds);
         //filters['conversationId'] = null
         filters["id"] = { $nin: conversationThreadIds };
         inboxes = Meteor.user()
@@ -281,9 +325,39 @@ class InboxPage extends React.Component {
           .nylasAccounts()
           .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
           .filter(inbox => inbox != null);
-      } /* else if(currentCategory.type === 'teammember') {
+      }
+      /* People designations folders in Inbox page, which contain filtered emails related each designation */
+      //==================================================================================================
+      //  1.LOGISTICS --TODO
+      else if (category.id === "logistics") {
+        _designationFilter("Logistics", "logistics");
+      }
+      // 2.CONSULTANTS
+      else if (category.id === "consultants") {
+        _designationFilter("Consultant", "consultants");
+      }
+
+      //  3.DEALERS
+      else if (category.id === "dealers") {
+        _designationFilter("Dealer", "dealers");
+      }
+
+      // 4.STAKEHOLDERS
+      else if (category.id === "stakeholders") {
+        _designationFilter("Stakeholder", "stakeholders");
+      }
+
+      //5. NO VENDORS
+      else if (category.id === "no_vendors") {
+        _designationFilter("Vendor", "no_vendors");
+      }
+
+      //==========================================================================================
+      //End of designations folders creation
+      else {
+        /* else if(currentCategory.type === 'teammember') {
                 inboxes = currentCategory.privateNylasAccounts().map(({categories}) => _.findWhere(categories, {name:'inbox'})).filter((inbox) => inbox!=null)
-            }*/ else {
+            }*/
         inboxes = [category];
       }
 
@@ -314,10 +388,12 @@ class InboxPage extends React.Component {
   });
 
   render() {
+    // console.log("render");
     return <div className="inbox-page">{this.renderContents()}</div>;
   }
 
   renderContents() {
+    // console.log("renderContents");
     const {
       hasNylasAccounts,
       composeStateForModal,
@@ -381,6 +457,7 @@ class InboxPage extends React.Component {
     });
   };
   renderInbox() {
+    // console.log("renderInbox");
     const { threadsCount, drafts } = this.props;
     const isDrafts =
       this.state.currentCategory &&
@@ -566,6 +643,7 @@ class InboxPage extends React.Component {
   };
 
   renderCategories() {
+    // console.log("renderCategories");
     const { currentCategory, fetching } = this.state;
 
     const appCategories = [
@@ -588,7 +666,34 @@ class InboxPage extends React.Component {
         id: "unassigned",
         name: "unassigned",
         display_name: "Unassigned"
+      },
+      //Designation folders------------------------------------------------------
+      {
+        id: "logistics",
+        name: "logistics",
+        display_name: "Logistics"
+      },
+      {
+        id: "consultants",
+        name: "consultants",
+        display_name: "Consultants"
+      },
+      {
+        id: "dealers",
+        name: "dealers",
+        display_name: "Dealers"
+      },
+      {
+        id: "stakeholders",
+        name: "stakeholders",
+        display_name: "Stakeholders"
+      },
+      {
+        id: "no_vendors",
+        name: "no_vendors",
+        display_name: "No Vendors"
       }
+      //-------------------------------------------------------------------------
     ];
     if (!currentCategory) {
       const accounts = AccountStore.accounts(true);
@@ -824,6 +929,7 @@ class InboxPage extends React.Component {
     );
   };
   renderThreads() {
+    // console.log("renderThreads");
     const { currentCategory, currentThread } = this.state;
 
     return (
@@ -863,6 +969,7 @@ class InboxPage extends React.Component {
 }
 
 export default withTracker(() => {
+  // console.log("withTracker");
   const subscribers = [];
   const threadFilter = Session.get("currentThreadFilter") || { _id: null };
   countThreads.call({ query: threadFilter }, (err, res) => {
