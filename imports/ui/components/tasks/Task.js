@@ -64,7 +64,7 @@ class Task extends Component {
     this.refs.taskModifying.showDetail();
   };
 
-  closeTask = (_id, event) => {
+  closeTask = (tabName, _id, event) => {
     event.preventDefault();
     event.stopPropagation();
     swal({
@@ -76,7 +76,7 @@ class Task extends Component {
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, remove it!"
     }).then(() => {
-      Meteor.call("task.remove", { _id }, error => {
+      Meteor.call("task.remove", { tabName, _id }, error => {
         if (error) {
           const msg = error.reason ? error.reason : error.message;
           swal("Delete task failed", msg, "warning");
@@ -100,7 +100,9 @@ class Task extends Component {
       >
         <p>{this.props.task.name}</p>
         <CloseButton
-          onClick={event => this.closeTask(this.props.task._id, event)}
+          onClick={event =>
+            this.closeTask(this.props.task.tabName, this.props.task._id, event)
+          }
         >
           <i className="fa fa-times" />
         </CloseButton>

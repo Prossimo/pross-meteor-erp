@@ -67,8 +67,8 @@ export default new ValidatedMethod({
       taskOperators: [assignee, approver]
     });
     if (!name) {
-      task.name = `Task #${Tasks.find({ parentId, parentType }).fetch().length +
-        1}`;
+      task.name = `${tabName} #${Tasks.find({ parentId, parentType }).fetch()
+        .length + 1}`;
     }
     if (!dueDate) {
       task.dueDate = new Date();

@@ -41,7 +41,8 @@ class TaskDetail extends Component {
 
   assignToMe() {
     const _id = this.props.task._id;
-    Meteor.call("task.assignToMe", { _id });
+    const tabName = this.props.task.tabName;
+    Meteor.call("task.assignToMe", { tabName, _id });
   }
 
   saveTask() {

@@ -71,7 +71,7 @@ class TaskAdding extends Component {
 }
 
 TaskAdding.propTypes = {
-  tabName: PropTypes.string.isRequired,
+  tabName: PropTypes.string,
   status: PropTypes.string.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired

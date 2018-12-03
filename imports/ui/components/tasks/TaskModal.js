@@ -25,6 +25,7 @@ class TaskModal extends Component {
     isAttach: false,
     task: Object.assign(
       {
+        tabName: "",
         name: "",
         assignee: null,
         approver: null,
@@ -40,11 +41,13 @@ class TaskModal extends Component {
 
   assignToMe = () => {
     const _id = this.props.task._id;
-    Meteor.call("task.assignToMe", { _id });
+    const tabName = this.props.task.tabName;
+    Meteor.call("task.assignToMe", { tabName, _id });
   };
 
   saveTask = () => {
     const {
+      tabName,
       name,
       assignee,
       approver,
@@ -55,6 +58,7 @@ class TaskModal extends Component {
       parentType
     } = this.state.task;
     const task = {
+      tabName,
       name,
       assignee: assignee ? assignee._id : "",
       approver: approver ? approver._id : "",
