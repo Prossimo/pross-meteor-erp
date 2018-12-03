@@ -22,7 +22,7 @@ export default new ValidatedMethod({
       optional: true
     }
   }).validator(),
-  run({ tabName, _id, content, parentId }) {
+  run({ _id, content, parentId }) {
     if (!this.userId) throw new Error("User is not allowed to add comment");
     Tasks.update(_id, {
       $push: {

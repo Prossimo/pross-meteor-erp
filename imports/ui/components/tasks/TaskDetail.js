@@ -25,7 +25,7 @@ class TaskDetail extends Component {
       isAttach: false,
       task: (!props.isNew && props.task) || {
         tabName: `${this.props.tabName}`,
-        name: `Task #${props.total + 1}`,
+        name: `${this.props.tabName.slice(0, -1)} #${props.total + 1}`,
         assignee: null,
         approver: null,
         dueDate: new Date(),

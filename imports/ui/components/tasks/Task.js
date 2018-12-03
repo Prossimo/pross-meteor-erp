@@ -94,9 +94,9 @@ class Task extends Component {
         className="task-container"
         onClick={this.showDetail}
         draggable="true"
-        onDragStart={event =>
-          event.dataTransfer.setData("task", JSON.stringify(this.props.task))
-        }
+        onDragStart={event => {
+          event.dataTransfer.setData("task", JSON.stringify(this.props.task));
+        }}
       >
         <p>{this.props.task.name}</p>
         <CloseButton
