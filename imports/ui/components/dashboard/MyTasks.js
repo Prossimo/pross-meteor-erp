@@ -12,22 +12,18 @@ import { CustomToggle } from "../common";
 import { ClientErrorLog } from "/imports/utils/logger";
 
 class MyTasks extends Component {
-  constructor(props) {
-    super();
-    this.renderTasks = this.renderTasks.bind(this);
-
-    this.state = {
-      showAllTasks: false,
-      showCompletedTasks: false,
-      viewOption: "all",
-      sort: {
-        by: "dueDate",
-        asc: false
-      },
-      dueDateOption: "all",
-      userOption: "all"
-    };
-  }
+  state = {
+    showAllTasks: false,
+    showCompletedTasks: false,
+    viewOption: "all",
+    sort: {
+      by: "dueDate",
+      asc: false
+    },
+    dueDateOption: "all",
+    userOption: "all"
+    //tabName: this.props.tabName.toLowerCase()
+  };
 
   componentWillReceiveProps(newProps) {
     const { showCompletedTasks } = this.state;
@@ -46,9 +42,10 @@ class MyTasks extends Component {
       dueDateOption,
       userOption
     } = this.state;
+    const tabName = this.props.tabName;
 
     let tasks = showAllTasks
-      ? Tasks.find()
+      ? Tasks.find({ tabName })
           .fetch()
           .filter(t => t.parent() != null)
       : this.props.tasks;
@@ -248,7 +245,6 @@ class MyTasks extends Component {
 
     const header = (
       <div style={{ display: "flex" }}>
-        <div style={{ flex: 1 }}>My Tasks</div>
         <div style={{ display: "flex" }}>
           {Roles.userIsInRole(Meteor.userId(), [ROLES.ADMIN]) && (
             <span>
@@ -257,7 +253,7 @@ class MyTasks extends Component {
                 value={this.state.showAllTasks}
                 onChange={this.toggleShowAllTasks}
               />
-              &nbsp;All tasks&nbsp;&nbsp;
+              &nbsp;All {this.props.tabName.toLowerCase()} &nbsp;&nbsp;
             </span>
           )}
           <span>
@@ -266,7 +262,7 @@ class MyTasks extends Component {
               value={this.state.showCompletedTasks}
               onChange={this.toggleShowCompletedTasks}
             />
-            &nbsp;Completed tasks&nbsp;&nbsp;
+            &nbsp;Completed {this.props.tabName.toLowerCase()}&nbsp;&nbsp;
           </span>
           <Select
             className="small-select"
@@ -304,47 +300,43 @@ class MyTasks extends Component {
     };
 
     return (
-      <div className="my-tasks">
-        <Panel>
-          <Panel.Heading>{header}</Panel.Heading>
-          <Panel.Body>
-            All tasks assigned from/to you.
-            <Table responsive>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th onClick={() => this.sortBy("name")}>
-                    Name{sortIcon("name")}
-                  </th>
-                  <th onClick={() => this.sortBy("status")}>
-                    Status{sortIcon("status")}
-                  </th>
-                  <th onClick={() => this.sortBy("parentId")}>
-                    Deal/Project{sortIcon("parentId")}
-                  </th>
-                  <th colSpan={2}>Desciption</th>
-                  <th onClick={() => this.sortBy("assignee")}>
-                    Assignee{sortIcon("assignee")}
-                  </th>
-                  <th onClick={() => this.sortBy("approver")}>
-                    Approver{sortIcon("approver")}
-                  </th>
-                  <th onClick={() => this.sortBy("dueDate")}>
-                    DueDate{sortIcon("dueDate")}
-                  </th>
-                  <th />
-                </tr>
-              </thead>
-              <tbody>{this.renderTasks()}</tbody>
-            </Table>
-          </Panel.Body>
-        </Panel>
-      </div>
+      <Panel.Body>
+        <Panel.Heading>{header}</Panel.Heading>
+        All {this.props.tabName.toLowerCase()} assigned from/to you.
+        <Table responsive>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th onClick={() => this.sortBy("name")}>
+                Name{sortIcon("name")}
+              </th>
+              <th onClick={() => this.sortBy("status")}>
+                Status{sortIcon("status")}
+              </th>
+              <th onClick={() => this.sortBy("parentId")}>
+                Deal/Project{sortIcon("parentId")}
+              </th>
+              <th colSpan={2}>Desciption</th>
+              <th onClick={() => this.sortBy("assignee")}>
+                Assignee{sortIcon("assignee")}
+              </th>
+              <th onClick={() => this.sortBy("approver")}>
+                Approver{sortIcon("approver")}
+              </th>
+              <th onClick={() => this.sortBy("dueDate")}>
+                DueDate{sortIcon("dueDate")}
+              </th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>{this.renderTasks()}</tbody>
+        </Table>
+      </Panel.Body>
     );
   }
 }
 
-export default withTracker(() => {
+export default withTracker(props => {
   const userId = Meteor.userId();
   const subscribers = [];
   let loading = true;
@@ -360,7 +352,12 @@ export default withTracker(() => {
     (result, subscriber) => result && subscriber.ready(),
     true
   );
-  tasks = Tasks.find({ $or: [{ assignee: userId }, { approver: userId }] })
+  tasks = Tasks.find({
+    $and: [
+      { $or: [{ assignee: userId }, { approver: userId }] },
+      { tabName: props.tabName }
+    ]
+  })
     .fetch()
     .filter(t => t.parent() != null);
   return {

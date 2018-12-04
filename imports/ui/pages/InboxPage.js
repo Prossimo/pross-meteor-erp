@@ -66,7 +66,7 @@ Session.set("currentDraftOptions", {
     date: -1
   },
   skip: 0,
-  limit: 200
+  limit: 20
 });
 
 class InboxPage extends React.Component {
@@ -328,7 +328,7 @@ class InboxPage extends React.Component {
       }
       /* People designations folders in Inbox page, which contain filtered emails related each designation */
       //==================================================================================================
-      //  1.LOGISTICS --TODO
+      //  1.LOGISTICS
       else if (category.id === "logistics") {
         _designationFilter("Logistics", "logistics");
       }
@@ -985,6 +985,10 @@ export default withTracker(() => {
     subsCache.subscribe("messages.custom", draftFilter, draftOptions)
   );
   const drafts = Messages.find(draftFilter, { draftOptions }).fetch();
+
+  // console.log("length aaa: ", Messages.find().count());
+  // console.log("length: ", drafts.length);
+
   return {
     threadsCount: Session.get("threadsCount"),
     drafts

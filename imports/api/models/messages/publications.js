@@ -5,8 +5,8 @@ import { ROLES } from "../users/users";
 import Messages from "./messages";
 import SalesRecords from "../salesRecords/salesRecords";
 import Projects from "../projects/projects";
-import Conversations from "../conversations/conversations";
-import Threads from "../threads/threads";
+// import Conversations from "../conversations/conversations";
+// import Threads from "../threads/threads";
 
 Meteor.publish("messages.mine", function() {
   if (!this.userId) {
