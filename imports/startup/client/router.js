@@ -28,6 +28,7 @@ import {
 subsCache = new SubsCache({ expireAfter: -1, cacheLimit: -1 });
 
 function checkAuth() {
+  //console.log("checkAuth");
   Session.set("prevPath", FlowRouter.current().path);
   if (!Meteor.userId()) FlowRouter.go("Root");
 }

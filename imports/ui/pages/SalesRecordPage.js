@@ -53,7 +53,9 @@ const ThSubGroup = styled(ThGroup)`
 class SalesRecordPage extends Component {
   state = {
     editing: null,
-    fixedHeader: false
+    fixedHeader: false,
+    keywordChange: true,
+    keyword: ""
   };
 
   componentDidMount() {
@@ -144,12 +146,22 @@ class SalesRecordPage extends Component {
 
   filterRecords = (list, { stage, keyword, showArchivedDeals }) => {
     const keyfilter = new RegExp(keyword, "i");
+    let { collapsedViews } = this.props;
+    if (this.state.keyword !== keyword) {
+      this.setState({ keywordChange: true });
+    }
 
     if (keyword || stage || showArchivedDeals) {
       return list.filter(item => {
         const byKey = !keyword || item.name.search(keyfilter) > -1;
         const byStage = !stage || item.stage == stage;
         const byArchive = !showArchivedDeals || item.archived;
+
+        if (byKey && byStage && byArchive && this.state.keywordChange) {
+          collapsedViews[item.subStage] = false;
+          collapsedViews[item.stage] = false;
+          this.setState({ keywordChange: false, keyword });
+        }
         return byKey && byStage && byArchive;
       });
     } else {

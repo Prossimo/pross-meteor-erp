@@ -715,7 +715,10 @@ class SingleSalesRecord extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="tab-controls">{this.getTabs()}</div>
+
+            <div className="tab-controls">
+              <div className="flex-2">{this.getTabs()}</div>
+            </div>
             <div className="tab-content">{this.getContent()}</div>
           </div>
         </div>

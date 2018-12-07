@@ -1,239 +1,256 @@
-import _ from 'underscore'
-import {Meteor} from 'meteor/meteor'
-import {Roles} from 'meteor/alanning:roles'
-import {ValidatedMethod} from 'meteor/mdg:validated-method'
-import SimpleSchema from 'simpl-schema'
-import Threads from './threads'
-import Messages from '../messages/messages'
-import NylasAccounts from '../nylasaccounts/nylas-accounts'
-import NylasAPI from '/imports/api/nylas/nylas-api'
-import ThreadStore from '/imports/api/nylas/thread-store'
+import _ from "underscore";
+import { Meteor } from "meteor/meteor";
+import { Roles } from "meteor/alanning:roles";
+import { ValidatedMethod } from "meteor/mdg:validated-method";
+import SimpleSchema from "simpl-schema";
+import Threads from "./threads";
+import Messages from "../messages/messages";
+import NylasAccounts from "../nylasaccounts/nylas-accounts";
+import NylasAPI from "/imports/api/nylas/nylas-api";
+import ThreadStore from "/imports/api/nylas/thread-store";
 
 export const getThread = new ValidatedMethod({
-    name: 'thread.get',
-    validate: new SimpleSchema({id: String}).validator({clean: true}),
-    run({id}) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
-        return Threads.findOne({id})
-    }
-})
+  name: "thread.get",
+  validate: new SimpleSchema({ id: String }).validator({ clean: true }),
+  run({ id }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
+    return Threads.findOne({ id });
+  }
+});
 
 export const countThreads = new ValidatedMethod({
-    name: 'thread.count',
-    validate: new SimpleSchema({
-      query: {
-        type: Object,
-        blackbox: true,
-      },
-   }).validator({clean: true}),
-    run({ query }) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
-        const count = Threads.find(query).count()
-        return count
+  name: "thread.count",
+  validate: new SimpleSchema({
+    query: {
+      type: Object,
+      blackbox: true
     }
-})
+  }).validator({ clean: true }),
+  run({ query }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
+    const count = Threads.find(query).count();
+    return count;
+  }
+});
 
 export const insertThread = new ValidatedMethod({
-    name: 'thread.insert',
-    validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
-    run(thread) {
-        //console.log('insertThread')
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.insert",
+  validate: Threads.schema
+    .omit("_id", "created_at", "modified_at")
+    .validator({ clean: true }),
+  run(thread) {
+    //console.log('insertThread')
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
 
-        return Threads.insert(thread)
-    }
-})
+    return Threads.insert(thread);
+  }
+});
 
 export const updateThread = new ValidatedMethod({
-    name: 'thread.update',
-    validate: Threads.schema.omit('created_at', 'modified_at').validator({clean: true}),
-    run({_id, ...data}) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.update",
+  validate: Threads.schema
+    .omit("created_at", "modified_at")
+    .validator({ clean: true }),
+  run({ _id, ...data }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
 
-        const thread = Threads.findOne(_id)
-        if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
+    const thread = Threads.findOne(_id);
+    if (!thread)
+      throw new Meteor.Error(`Could not found thread with _id:${_id}`);
 
-        //console.log('updateThread', _id, data)
-        Threads.update({_id}, {$set: data})
+    //console.log('updateThread', _id, data)
+    Threads.update({ _id }, { $set: data });
 
-        return true
-    }
-})
-
+    return true;
+  }
+});
 
 export const upsertThread = new ValidatedMethod({
-    name: 'thread.upsert',
-    validate: Threads.schema.omit('_id', 'created_at', 'modified_at').validator({clean: true}),
-    run(thread) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.upsert",
+  validate: Threads.schema
+    .omit("_id", "created_at", "modified_at")
+    .validator({ clean: true }),
+  run(thread) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
 
-        if(Meteor.isServer) {
-            const existingThread = Threads.findOne({id: thread.id})
+    if (Meteor.isServer) {
+      const existingThread = Threads.findOne({ id: thread.id });
 
-            if (!existingThread) {
-                //console.log('insetThread')
-                Threads.insert(thread)
-            } else if (existingThread && (thread.version != existingThread.version || thread.unread!=existingThread.unread)) { // It should be uncommented after deployment
-                //console.log('updateThread')
-                const updateData = {...thread}
-                updateData.conversationId = existingThread.conversationId
-                if (thread.unread) updateData.readByUsers = []
-                Threads.update({_id: existingThread._id}, {$set: updateData})
-            }
-        }
-
-        return true
+      if (!existingThread) {
+        //console.log('insetThread')
+        Threads.insert(thread);
+      } else if (
+        existingThread &&
+        (thread.version != existingThread.version ||
+          thread.unread != existingThread.unread)
+      ) {
+        // It should be uncommented after deployment
+        //console.log('updateThread')
+        const updateData = { ...thread };
+        updateData.conversationId = existingThread.conversationId;
+        if (thread.unread) updateData.readByUsers = [];
+        Threads.update({ _id: existingThread._id }, { $set: updateData });
+      }
     }
-})
+
+    return true;
+  }
+});
 
 export const fetchNewThreads = new ValidatedMethod({
-    name: 'thread.fetchNewThreads',
-    validate: new SimpleSchema({accounts: [NylasAccounts.schema.omit('_id')]}).validator({clean: true}),
-    run({accounts}) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.fetchNewThreads",
+  validate: new SimpleSchema({
+    accounts: [NylasAccounts.schema.omit("_id")]
+  }).validator({ clean: true }),
+  run({ accounts }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
+    throw new Meteor.Error(
+      500,
+      "thread.fetchNewThreads: categories++++++++++++++++++++++++++++",
+      accounts
+    );
+    const loadThreads = ({ accessToken, categories }) => {
+      const auth = {
+        user: accessToken,
+        pass: "",
+        sendImmediately: true
+      };
 
-        const loadThreads = ({accessToken, categories}) => {
-            const auth = {
-                user: accessToken,
-                pass: '',
-                sendImmediately: true
+      const inbox = _.findWhere(categories, { name: "inbox" });
+      if (!inbox) return Promise.resolve([]);
+
+      return new Promise((resolve, reject) =>
+        NylasAPI.makeRequest({
+          path: `/threads?in=${inbox.id}`,
+          method: "GET",
+          auth
+        })
+          .then(threads => {
+            let existing = null;
+            if (Meteor.isServer) {
+              threads.forEach(thread => {
+                existing = Threads.findOne({ id: thread.id });
+                if (!existing) {
+                  Threads.insert({
+                    ...thread,
+                    created_at: new Date()
+                  });
+                }
+              });
             }
 
-            const inbox = _.findWhere(categories, {name: 'inbox'})
-            if (!inbox) return Promise.resolve([])
+            resolve(threads);
+          })
+          .catch(err => {
+            reject(err);
+          })
+      );
+    };
 
-            return new Promise((resolve, reject) => NylasAPI.makeRequest({
-                path: `/threads?in=${inbox.id}`,
-                method: 'GET',
-                auth
-            }).then(threads => {
-                let existing = null;
-                if (Meteor.isServer) {                
-                    threads.forEach((thread) => {
-                        existing = Threads.findOne({ id: thread.id });
-                        if (!existing) {
-                            Threads.insert({
-                                ...thread,
-                                created_at: new Date(),
-                            });
-                        }
-                    });
-                }
+    const promises = accounts.map(account => loadThreads(account));
 
-                resolve(threads);
-            }).catch((err) => {
-                reject(err);
-            }))
-        }
-
-        const promises = accounts.map(account => loadThreads(account))
-
-        Promise.all(promises).then((threads) => {
-
-        }).finally(() => {
-
-        })
-    }
-})
-
+    Promise.all(promises)
+      .then(threads => {})
+      .finally(() => {});
+  }
+});
 
 export const removeThread = new ValidatedMethod({
-    name: 'thread.remove',
-    validate: new SimpleSchema({
-        _id: {type: String, regEx: SimpleSchema.RegEx.Id, optional: true},
-        id: {type: String, optional: true}
-    }).validator({clean: true}),
-    run({_id, id}) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.remove",
+  validate: new SimpleSchema({
+    _id: { type: String, regEx: SimpleSchema.RegEx.Id, optional: true },
+    id: { type: String, optional: true }
+  }).validator({ clean: true }),
+  run({ _id, id }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
 
-        if (_id) {
+    if (_id) {
+      const thread = Threads.findOne(_id);
+      if (!thread)
+        throw new Meteor.Error(`Could not found thread with _id:${_id}`);
 
-            const thread = Threads.findOne(_id)
-            if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
+      const account = NylasAccounts.findOne({ accountId: thread.account_id });
+      const trashCategory = account.categories.find(c => c.name === "trash");
+      const updateData = {};
+      if (account.organizationUnit === "label") {
+        updateData.labels = [trashCategory];
+      } else {
+        updateData.folders = [trashCategory];
+      }
+      Threads.update({ _id }, { $set: updateData });
 
-            const account = NylasAccounts.findOne({accountId: thread.account_id})
-            const trashCategory = account.categories.find(c => c.name === 'trash')
-            const updateData = {}
-            if (account.organizationUnit === 'label') {
-                updateData.labels = [trashCategory]
-            } else {
-                updateData.folders = [trashCategory]
-            }
-            Threads.update({_id}, {$set: updateData})
+      // Messages.remove({thread_id: thread.id})
 
-            // Messages.remove({thread_id: thread.id})
+      return true;
+    } else if (id) {
+      const thread = Threads.findOne({ id });
+      if (!thread)
+        throw new Meteor.Error(`Could not found thread with _id:${_id}`);
 
-            return true
-        } else if (id) {
+      const account = NylasAccounts.findOne({ accountId: thread.account_id });
+      const trashCategory = account.categories.find(c => c.name === "trash");
+      const updateData = {};
+      if (account.organizationUnit === "label") {
+        updateData.labels = [trashCategory];
+      } else {
+        updateData.folders = [trashCategory];
+      }
+      Threads.update({ id }, { $set: updateData });
 
-            const thread = Threads.findOne({id})
-            if (!thread) throw new Meteor.Error(`Could not found thread with _id:${_id}`)
+      // Messages.remove({thread_id: id})
 
-            const account = NylasAccounts.findOne({accountId: thread.account_id})
-            const trashCategory = account.categories.find(c => c.name === 'trash')
-            const updateData = {}
-            if (account.organizationUnit === 'label') {
-                updateData.labels = [trashCategory]
-            } else {
-                updateData.folders = [trashCategory]
-            }
-            Threads.update({id}, {$set: updateData})
-
-            // Messages.remove({thread_id: id})
-
-            return true
-        }
+      return true;
     }
-})
-
+  }
+});
 
 export const unbindThreadFromConversation = new ValidatedMethod({
-    name: 'thread.unbindFromConversation',
-    validate: new SimpleSchema({
-        id: {type: String, optional: true}
-    }).validator({clean: true}),
-    run({id}) {
-        if (!this.userId) throw new Meteor.Error(403, 'Not authorized')
+  name: "thread.unbindFromConversation",
+  validate: new SimpleSchema({
+    id: { type: String, optional: true }
+  }).validator({ clean: true }),
+  run({ id }) {
+    if (!this.userId) throw new Meteor.Error(403, "Not authorized");
 
-        const thread = Threads.findOne({id})
-        if (!thread) throw new Meteor.Error(`Could not found thread with id:${id}`)
+    const thread = Threads.findOne({ id });
+    if (!thread) throw new Meteor.Error(`Could not found thread with id:${id}`);
 
-        Threads.update({id}, {$set: {conversationId: null}})
-    }
-})
+    Threads.update({ id }, { $set: { conversationId: null } });
+  }
+});
 
 Meteor.methods({
   threadMarkAsReadByUser(threadId, read) {
-      check(threadId, String)
-      check(read, Boolean)
+    check(threadId, String);
+    check(read, Boolean);
 
-      const userId = Meteor.userId()
-      if (!userId) throw new Meteor.Error(403, 'Not authorized')
+    const userId = Meteor.userId();
+    if (!userId) throw new Meteor.Error(403, "Not authorized");
 
-      const thread = Threads.findOne({id: threadId})
-      if (!thread) throw new Meteor.Error(404, 'Not found entity')
+    const thread = Threads.findOne({ id: threadId });
+    if (!thread) throw new Meteor.Error(404, "Not found entity");
 
-      const readByUsers = thread.readByUsers || []
-      const index = _.findIndex(readByUsers, {userId})
-      if (index > -1) readByUsers[index]['read'] = read
-      else readByUsers.push({
-          userId,
-          read
-      })
+    const readByUsers = thread.readByUsers || [];
+    const index = _.findIndex(readByUsers, { userId });
+    if (index > -1) readByUsers[index]["read"] = read;
+    else
+      readByUsers.push({
+        userId,
+        read
+      });
 
-      Threads.update({id: threadId}, {$set: {readByUsers}})
+    Threads.update({ id: threadId }, { $set: { readByUsers } });
   },
-    threadSetStatus(_id, status) {
-      check(_id, String)
-        check(status, String)
+  threadSetStatus(_id, status) {
+    check(_id, String);
+    check(status, String);
 
+    const userId = Meteor.userId();
+    if (!userId) throw new Meteor.Error(403, "Not authorized");
 
-        const userId = Meteor.userId()
-        if (!userId) throw new Meteor.Error(403, 'Not authorized')
+    const thread = Threads.findOne({ _id });
+    if (!thread) throw new Meteor.Error(404, "Not found entity");
 
-        const thread = Threads.findOne({_id})
-        if (!thread) throw new Meteor.Error(404, 'Not found entity')
-
-        Threads.update({_id}, {$set: {status}})
-    }
-})
+    Threads.update({ _id }, { $set: { status } });
+  }
+});

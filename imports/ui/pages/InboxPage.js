@@ -3,7 +3,7 @@ import _ from "underscore";
 import { withTracker } from "meteor/react-meteor-data";
 import { Roles } from "meteor/alanning:roles";
 import React from "react";
-import PropTypes from "prop-types";
+//import PropTypes from "prop-types";
 import { Button, DropdownButton, MenuItem, Modal } from "react-bootstrap";
 import { warning } from "/imports/api/lib/alerts";
 import {
@@ -268,6 +268,17 @@ class InboxPage extends React.Component {
       }
     } else {
       let inboxes;
+      if (category.name === "inbox") {
+        inboxes = Meteor.user()
+          .nylasAccounts()
+          .find(({ accountId }) => accountId === category.account_id)
+          .categories.filter(c => c.name === "inbox" || c.name === "archive");
+      } else {
+        inboxes = Meteor.user()
+          .nylasAccounts()
+          .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+          .filter(inbox => inbox != null);
+      }
       const _designationFilter = (designationName, categoryId) => {
         if (category.id === categoryId) {
           const designationId = PeopleDesignations.findOne({
@@ -295,19 +306,16 @@ class InboxPage extends React.Component {
           //console.log(stakeholderPeopleEmails);
 
           filters["id"] = { $nin: filteredThreadIds };
-          inboxes = Meteor.user()
-            .nylasAccounts()
-            .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
-            .filter(inbox => inbox != null);
         }
       };
-      if (category.name === "inbox") {
-        //console.log("inbox threadIds");
-        inboxes = Meteor.user()
-          .nylasAccounts()
-          .find(({ accountId }) => accountId === category.account_id)
-          .categories.filter(c => c.name === "inbox" || c.name === "archive");
-      } else if (category.id === "not_filed") {
+      // if (category.name === "inbox") {
+      //   //console.log("inbox threadIds");
+      //   // inboxes = Meteor.user()
+      //   //   .nylasAccounts()
+      //   //   .find(({ accountId }) => accountId === category.account_id)
+      //   //   .categories.filter(c => c.name === "inbox" || c.name === "archive");
+      // } else
+      if (category.id === "not_filed") {
         const conversationThreadIds = Threads.find(
           { conversationId: { $ne: null } },
           { fields: { id: 1 } }
@@ -315,16 +323,16 @@ class InboxPage extends React.Component {
         //console.log("not_filed threadIds", conversationThreadIds);
         //filters['conversationId'] = null
         filters["id"] = { $nin: conversationThreadIds };
-        inboxes = Meteor.user()
-          .nylasAccounts()
-          .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
-          .filter(inbox => inbox != null);
+        // inboxes = Meteor.user()
+        //   .nylasAccounts()
+        //   .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+        //   .filter(inbox => inbox != null);
       } else if (category.id === "unassigned") {
         filters["assignee"] = { $ne: Meteor.userId() };
-        inboxes = Meteor.user()
-          .nylasAccounts()
-          .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
-          .filter(inbox => inbox != null);
+        // inboxes = Meteor.user()
+        //   .nylasAccounts()
+        //   .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+        //   .filter(inbox => inbox != null);
       }
       /* People designations folders in Inbox page, which contain filtered emails related each designation */
       //==================================================================================================
@@ -388,7 +396,7 @@ class InboxPage extends React.Component {
   });
 
   render() {
-    // console.log("render");
+    //console.log("render");
     return <div className="inbox-page">{this.renderContents()}</div>;
   }
 
@@ -444,6 +452,7 @@ class InboxPage extends React.Component {
     this.setState(({ threadStartIndex }) => {
       threadStartIndex -= PAGESIZE;
       const newThreadOptions = this.threadOptions(threadStartIndex);
+      //console.log("onPrevPage");
       Session.set("currentThreadOptions", newThreadOptions);
       return { threadStartIndex };
     });
@@ -969,7 +978,7 @@ class InboxPage extends React.Component {
 }
 
 export default withTracker(() => {
-  // console.log("withTracker");
+  console.log("withTracker");
   const subscribers = [];
   const threadFilter = Session.get("currentThreadFilter") || { _id: null };
   countThreads.call({ query: threadFilter }, (err, res) => {
