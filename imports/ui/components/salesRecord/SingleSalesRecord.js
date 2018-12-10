@@ -635,7 +635,7 @@ class SingleSalesRecord extends React.Component {
   }
 
   render() {
-    if (this.props.loading) return <Spinner />;
+    if (this.props.loading) return <Spinner visible={true} />;
 
     const { salesRecord } = this.props;
     const defaultStage = this.stageOptions.find(
