@@ -123,16 +123,16 @@ div.error-msg {
 
     ul {
       display: flex;
-      overflow: hidden;
-      flex-wrap: wrap;
-      margin: 0 -10px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      margin: 0;
     }
     li {
       height: 40px;
       line-height: 40px;
       font-size: 18px;
-      padding: 0 12px;
-      margin: 0 10px;
+      padding: 0 10px;
+      margin: 0 5px;
       position: relative;
       overflow: hidden;
 
