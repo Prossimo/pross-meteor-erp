@@ -68,6 +68,7 @@ class TaskBoard extends Component {
 export default withTracker(props => {
   const subscribers = [];
   const { tabName } = props;
+
   //const tabs = tabName? tabName: "Tasks"
   //console.log("tabName-------", tabName);
   const parentId = FlowRouter.current().params.id;

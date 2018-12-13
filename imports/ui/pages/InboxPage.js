@@ -268,7 +268,41 @@ class InboxPage extends React.Component {
       }
     } else {
       let inboxes;
+      const _designationFilter = (designationName, categoryId) => {
+        if (category.id === categoryId) {
+          const designationId = PeopleDesignations.findOne({
+            name: designationName
+          })._id;
+          const people = People.find({
+            designation_id: designationId
+          });
+          let peopleEmails = [];
+          people.map(person => {
+            person.emails.map(email => {
+              peopleEmails.push(email.email);
+            });
+          });
+          let filteredEmails =
+            categoryId == "vendors"
+              ? { $nin: peopleEmails }
+              : { $in: peopleEmails };
+          const filteredThreadIds = Threads.find({
+            participants: {
+              $elemMatch: { email: filteredEmails }
+            }
+          }).map(t => t.id);
+
+          //console.log(stakeholderPeopleEmails);
+
+          filters["id"] = { $nin: filteredThreadIds };
+          inboxes = Meteor.user()
+            .nylasAccounts()
+            .map(({ categories }) => _.findWhere(categories, { name: "inbox" }))
+            .filter(inbox => inbox != null);
+        }
+      };
       if (category.name === "inbox") {
+        //console.log("inbox threadIds");
         inboxes = Meteor.user()
           .nylasAccounts()
           .find(({ accountId }) => accountId === category.account_id)
@@ -396,7 +430,6 @@ class InboxPage extends React.Component {
   });
 
   render() {
-    //console.log("render");
     return <div className="inbox-page">{this.renderContents()}</div>;
   }
 
@@ -978,7 +1011,6 @@ class InboxPage extends React.Component {
 }
 
 export default withTracker(() => {
-  console.log("withTracker");
   const subscribers = [];
   const threadFilter = Session.get("currentThreadFilter") || { _id: null };
   countThreads.call({ query: threadFilter }, (err, res) => {

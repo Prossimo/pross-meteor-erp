@@ -22,9 +22,11 @@ export default new ValidatedMethod({
   run({ parentId, taskId, type, tabName, actorId }) {
     let parent = null;
     let parentType = null;
+
     tabName = tabName.slice(0, -1).toLowerCase();
     const check = ["a", "e", "i", "o", "u"];
     let article = check.includes(tabName.charAt(0)) ? "An" : "A";
+
     if ((parent = SalesRecords.findOne(parentId))) {
       parentType = "deal";
     } else if ((parent = Projects.findOne(parentId))) {
@@ -145,6 +147,7 @@ export default new ValidatedMethod({
                 ? `<@${actor.slack.id}>`
                 : actor.username;
             const attachments = slackClient.attachments.create({
+
               pretext: `${article} ${tabName} have been updated by ${actorRefer} in ${status} board of <${title_link}|${
                 parent.name
               }>`,
