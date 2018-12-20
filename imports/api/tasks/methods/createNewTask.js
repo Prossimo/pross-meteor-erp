@@ -2,8 +2,10 @@ import SimpleSchema from "simpl-schema";
 import { ValidatedMethod } from "meteor/mdg:validated-method";
 import inviteUsers from "./inviteUsers";
 import sendSlackMessage from "./sendSlackMessage";
-import { Tasks, SalesRecords, Projects } from "../../models";
-
+import { Tasks, SalesRecords, Projects, Users } from "../../models";
+import union from "lodash/union";
+import compact from "lodash/compact";
+import isEmpty from "lodash/isEmpty";
 export default new ValidatedMethod({
   name: "task.create",
   validate: new SimpleSchema({
@@ -11,15 +13,27 @@ export default new ValidatedMethod({
       type: String,
       optional: true
     },
+    // projectId: {
+    //   type: String,
+    //   optional: true
+    // },
     name: {
       type: String,
       optional: true
     },
     assignee: {
+      type: Array,
+      optional: true
+    },
+    "assignee.$": {
       type: String,
       optional: true
     },
     approver: {
+      type: Array,
+      optional: true
+    },
+    "approver.$": {
       type: String,
       optional: true
     },
@@ -64,7 +78,7 @@ export default new ValidatedMethod({
     } = task;
     inviteUsers.call({
       parentId,
-      taskOperators: [assignee, approver]
+      taskOperators: union(assignee, approver)
     });
     if (!name) {
       task.name = `${tabName} #${Tasks.find({ parentId, parentType }).fetch()
@@ -83,29 +97,37 @@ export default new ValidatedMethod({
     if (parentType === "deal") {
       const salesrecord = SalesRecords.findOne(parentId);
       if (salesrecord) {
-        const members = (salesrecord.members || []).filter(m => m !== null);
-        if (assignee && assignee.length > 0 && members.indexOf(assignee) == -1)
-          members.push(assignee);
-        if (approver && approver.length > 0 && members.indexOf(approver) == -1)
-          members.push(approver);
+        let members = compact(salesrecord.members || []);
+        members = union(members, assignee, approver);
+
+        approver.map(ap => {
+          const currentApprover = Users.findOne({ _id: ap });
+          console.log(
+            "currentApprover==========",
+            currentApprover.emails[0].address
+          );
+        });
+        console.log("members==>", members);
         SalesRecords.update(parentId, { $set: { members } });
       }
     } else if (parentType === "project") {
       const project = Projects.findOne(parentId);
       if (project) {
-        const members = (project.members || []).filter(m => m !== null);
-        if (
-          assignee &&
-          assignee.length > 0 &&
-          members.map(m => m.userId).indexOf(assignee) == -1
-        )
-          members.push({ userId: assignee });
-        if (
-          approver &&
-          approver.length > 0 &&
-          members.map(m => m.userId).indexOf(approver) == -1
-        )
-          members.push({ userId: approver });
+        const members = compact(project.members || []).map(m => m.userId);
+
+        if (!isEmpty(assignee)) {
+          assignee.map(assignee => {
+            if (!members.map(m => m.userId).includes(assignee))
+              members.push({ userId: assignee });
+          });
+        }
+        if (!isEmpty(approver)) {
+          approver.map(approver => {
+            if (!members.map(m => m.userId).includes(approver))
+              members.push({ userId: approver });
+          });
+        }
+
         Projects.update(parentId, { $set: { members } });
       }
     }

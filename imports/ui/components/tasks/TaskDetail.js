@@ -12,6 +12,10 @@ import TaskComment from "./TaskComment";
 import UploadFrom from "./upload/UploadFrom";
 import UploadOverlay from "./upload/UploadOverlay";
 import Attachments from "./upload/Attachments";
+import union from "lodash/union";
+import remove from "lodash/remove";
+import { Email } from "meteor/email";
+import { SalesRecords, Users } from "/imports/api/models";
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -25,9 +29,10 @@ class TaskDetail extends Component {
       isAttach: false,
       task: (!props.isNew && props.task) || {
         tabName: `${this.props.tabName}`,
+        //projectId: `${this.props.projectId}`,
         name: `${this.props.tabName.slice(0, -1)} #${props.total + 1}`,
-        assignee: null,
-        approver: null,
+        assignee: [],
+        approver: [],
         dueDate: new Date(),
         description: "",
         status: props.status
@@ -37,6 +42,8 @@ class TaskDetail extends Component {
     this.changeState = this.changeState.bind(this);
     this.saveTask = this.saveTask.bind(this);
     this.assignToMe = this.assignToMe.bind(this);
+    this.addToState = this.addToState.bind(this);
+    this.removeFromState = this.removeFromState.bind(this);
   }
 
   assignToMe() {
@@ -46,10 +53,12 @@ class TaskDetail extends Component {
   }
 
   saveTask() {
+    //const projectId = this.props.projectId;
     const parentId = FlowRouter.current().params.id;
     const parentType = FlowRouter.current().route.name.toLowerCase();
     const {
       tabName,
+      //projectId,
       name,
       assignee,
       approver,
@@ -59,9 +68,10 @@ class TaskDetail extends Component {
     } = this.state.task;
     const task = {
       tabName,
+      //projectId,
       name,
-      assignee: assignee ? assignee._id : "",
-      approver: approver ? approver._id : "",
+      assignee,
+      approver,
       description,
       dueDate: moment(
         `${moment(dueDate).format("YYYY-MM-DD")} 23:59:59`
@@ -79,6 +89,7 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.props.hideDetail();
+
           this.setState({ errors: [] });
         }
       });
@@ -90,6 +101,8 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.props.hideDetail();
+          // Email.send();
+
           this.setState({ errors: [] });
         }
       });
@@ -98,6 +111,16 @@ class TaskDetail extends Component {
 
   changeState(prop, propName, propValue) {
     prop[propName] = propValue;
+    this.setState(prevState => prevState);
+  }
+
+  addToState(prop, propName, propValue) {
+    prop[propName] = union(prop[propName], [propValue]);
+    this.setState(prevState => prevState);
+  }
+  removeFromState(prop, propName, propValue) {
+    remove(prop[propName], value => value == propValue);
+
     this.setState(prevState => prevState);
   }
 
@@ -113,7 +136,7 @@ class TaskDetail extends Component {
         name: "approver",
         top: 50,
         ignore: "assignee",
-        label: "Approver"
+        label: "Followers"
       }
     ];
     let hasAssignToMe = false;
@@ -121,8 +144,7 @@ class TaskDetail extends Component {
       hasAssignToMe =
         !this.props.task.assignee ||
         (this.props.task.assignee &&
-          this.props.task.assignee._id &&
-          this.props.task.assignee._id !== Meteor.userId());
+          !this.props.task.assignee.includes(Meteor.userId()));
     }
     return (
       <Modal
@@ -161,10 +183,10 @@ class TaskDetail extends Component {
                   top={top}
                   user={this.state.task[name]}
                   onSelectUser={user =>
-                    this.changeState(this.state.task, name, user)
+                    this.addToState(this.state.task, name, user)
                   }
-                  removeUser={() =>
-                    this.changeState(this.state.task, name, null)
+                  removeUser={user =>
+                    this.removeFromState(this.state.task, name, user)
                   }
                   toggleFinding={() =>
                     this.changeState(
@@ -283,6 +305,7 @@ TaskDetail.propTypes = {
   task: PropTypes.object,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired
+  //projectId: PropTypes.string
 };
 
 export default TaskDetail;

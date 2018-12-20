@@ -33,20 +33,27 @@ class TaskList extends Component {
           <div>
             tasks list
             {this.props.tasks.map(task => {
-              const assignee = this.props.users.find(
-                ({ _id }) => _id === task.assignee
+              const assignee = this.props.users.filter(
+                ({ _id }) => task.assignee && task.assignee.includes(_id)
               );
-              const approver = this.props.users.find(
-                ({ _id }) => _id === task.approver
+              const assigneeIds =
+                assignee && assignee.map(assignee => assignee._id);
+
+              const approver = this.props.users.filter(
+                ({ _id }) => task.approver && task.approver.includes(_id)
               );
+              const approverIds =
+                approver && approver.map(approver => approver._id);
+
               return (
                 <Task
                   key={task._id}
                   task={task}
-                  assignee={assignee}
-                  approver={approver}
+                  assignee={assigneeIds}
+                  approver={approverIds}
                   taskFolderId={this.props.taskFolderId}
                   total={this.props.total}
+                  //projectId={this.props.projectId}
                 />
               );
             })}
@@ -56,6 +63,7 @@ class TaskList extends Component {
             status={this.props.listName}
             taskFolderId={this.props.taskFolderId}
             total={this.props.total}
+            //projectId={this.props.projectId}
           />
         </div>
       </div>
@@ -69,6 +77,7 @@ TaskList.propTypes = {
   listName: PropTypes.string.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired
+  //projectId: PropTypes.string
 };
 
 export default TaskList;

@@ -14,14 +14,16 @@ export default new ValidatedMethod({
     if (!this.userId) return;
     const task = Tasks.findOne(_id);
     if (task) {
-      const { approver, parentId } = task;
+      const { approver, assignee, parentId } = task;
+
       inviteUsers.call({
         parentId,
-        taskOperators: [this.userId, approver]
+        taskOperators: [this.userId, ...approver]
       });
+      assignee.push[this.userId];
       Tasks.update(_id, {
         $set: {
-          assignee: this.userId
+          assignee
         }
       });
       const actorId = this.userId;

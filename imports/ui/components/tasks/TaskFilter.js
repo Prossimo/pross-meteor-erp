@@ -33,7 +33,7 @@ class TaskFilter extends Component {
   state = {
     filters: {
       AssignToMe: this.props.taskFilter.get("AssignToMe"),
-      IamApprover: this.props.taskFilter.get("IamApprover"),
+      IamFollowing: this.props.taskFilter.get("IamFollowing"),
       DueDate: this.props.taskFilter.get("DueDate"),
       Today: this.props.taskFilter.get("Today"),
       Tomorrow: this.props.taskFilter.get("Tomorrow")

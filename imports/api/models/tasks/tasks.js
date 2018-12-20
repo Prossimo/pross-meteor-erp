@@ -40,14 +40,25 @@ Tasks.schema = new SimpleSchema({
   tabName: {
     type: String
   },
+  // projectId: {
+  //   type: String
+  // },
   name: {
     type: String
   },
   assignee: {
+    type: Array,
+    optional: true
+  },
+  "assignee.$": {
     type: String,
     optional: true
   },
   approver: {
+    type: Array,
+    optional: true
+  },
+  "approver.$": {
     type: String,
     optional: true
   },
@@ -151,12 +162,12 @@ const applyFilter = ({ parentId, filter, userId }) => {
   };
 
   if (parentId && filter) {
-    const { AssignToMe, DueDate, IamApprover, Today, Tomorrow } = filter;
+    const { AssignToMe, DueDate, IamFollowing, Today, Tomorrow } = filter;
 
     selector.parentId = parentId;
 
-    if (AssignToMe) selector.assignee = userId;
-    if (IamApprover) selector.approver = userId;
+    if (AssignToMe) selector.assignee = [userId];
+    if (IamFollowing) selector.approver = [userId];
     if (DueDate)
       selector.dueDate = {
         $lt: new Date()

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import TaskModifying from "./TaskModifying";
 import swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
-
+import _ from "lodash";
 const AssigneeIcon = styled.div`
   width: 35px;
   height: 20px;
@@ -54,7 +54,10 @@ const DueDateIcon = styled(ApproverIcon)`
 `;
 
 class Task extends Component {
-  shortenName({ profile: { firstName, lastName } }) {
+  shortenName(_id) {
+    const {
+      profile: { firstName, lastName }
+    } = Meteor.users.findOne({ _id });
     return `${firstName} ${lastName}`
       .split(" ")
       .reduce((result, next) => `${result}${next.charAt(0)}`, "");
@@ -107,10 +110,14 @@ class Task extends Component {
           <i className="fa fa-times" />
         </CloseButton>
         <AssigneeIcon>
-          {this.props.assignee ? this.shortenName(this.props.assignee) : "?"}
+          {!_.isEmpty(this.props.assignee)
+            ? this.shortenName(this.props.assignee[0])
+            : "?"}
         </AssigneeIcon>
         <ApproverIcon>
-          {this.props.approver ? this.shortenName(this.props.approver) : "?"}
+          {!_.isEmpty(this.props.approver)
+            ? this.shortenName(this.props.approver[0])
+            : "?"}
         </ApproverIcon>
         <DueDateIcon status={task.status} dueDate={task.dueDate}>
           {moment(task.dueDate).format("YYYY/MM/DD")}
@@ -122,6 +129,7 @@ class Task extends Component {
           approver={this.props.approver}
           taskFolderId={this.props.taskFolderId}
           total={this.props.total}
+          //projectId={this.props.projectId}
         />
       </div>
     );
@@ -130,10 +138,11 @@ class Task extends Component {
 
 Task.propTypes = {
   task: PropTypes.object.isRequired,
-  approver: PropTypes.object,
-  assignee: PropTypes.object,
+  approver: PropTypes.array,
+  assignee: PropTypes.array,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired
+  //projectId: PropTypes.string
 };
 
 export default Task;

@@ -4,17 +4,18 @@ import PropTypes from "prop-types";
 class FindUser extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      users: []
+    };
+
     this.changeState = this.changeState.bind(this);
     this.selectUser = this.selectUser.bind(this);
     this.changeKeyword = _.throttle(keyword => {
-      const ignore = props.ignore ? props.ignore._id : "";
+      const ignore = props.ignore ? props.ignore : [];
       Meteor.call("task.findUsers", { keyword, ignore }, (error, users) => {
         if (!error) this.setState({ users });
       });
     }, 2000);
-    this.state = {
-      users: []
-    };
   }
 
   componentDidMount() {
@@ -27,7 +28,7 @@ class FindUser extends Component {
   }
 
   selectUser(user) {
-    this.props.selectUser(user);
+    this.props.selectUser(user._id);
     this.props.close();
   }
 
@@ -81,7 +82,7 @@ FindUser.propTypes = {
   selectUser: PropTypes.func.isRequired,
   top: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  ignore: PropTypes.object
+  ignore: PropTypes.array
 };
 
 export default FindUser;

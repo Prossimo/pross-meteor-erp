@@ -38,7 +38,7 @@ class TaskComment extends Component {
             "task.findUsers",
             {
               keyword: term,
-              ignore: ""
+              ignore: []
             },
             (error, users) => {
               if (!error) {

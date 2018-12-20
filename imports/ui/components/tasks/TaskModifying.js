@@ -53,6 +53,7 @@ class TaskModifying extends Component {
         key={task._id}
         taskFolderId={this.props.taskFolderId}
         total={this.props.total}
+        //projectId={this.props.projectId}
       />
     );
   }
@@ -60,10 +61,11 @@ class TaskModifying extends Component {
 
 TaskModifying.propTypes = {
   task: PropTypes.object.isRequired,
-  assignee: PropTypes.object,
-  approver: PropTypes.object,
+  assignee: PropTypes.array,
+  approver: PropTypes.array,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired
+  //projectId: PropTypes.string
 };
 
 export default TaskModifying;

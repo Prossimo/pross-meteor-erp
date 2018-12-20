@@ -2,13 +2,16 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import FindUser from "./FindUser";
-
+import _ from "lodash";
 class SelectUser extends Component {
   constructor() {
     super();
   }
 
-  shortenName({ profile: { firstName, lastName } }) {
+  shortenName(_id) {
+    const {
+      profile: { firstName, lastName }
+    } = Meteor.users.findOne({ _id });
     return `${firstName} ${lastName}`
       .split(" ")
       .reduce((result, next) => `${result}${next.charAt(0)}`, "");
@@ -20,17 +23,19 @@ class SelectUser extends Component {
       width: 125px;
     `;
     const UserElem = styled.div`
+      flex-wrap: nowrap;
+      display: flex;
       position: relative;
       height: 38px;
       line-height: 38px;
       padding-left: 10px;
       border-radius: 5px;
       font-weight: 700;
-      overflow-x: hidden;
+      overflow: hidden;
       div {
-        position: absolute;
+        position: relative;
+
         top: 0px;
-        right: 20px;
         border: 0px;
         outline: none;
         cursor: pointer;
@@ -58,19 +63,33 @@ class SelectUser extends Component {
       case "Assignee":
         SelectUserButton = SelectedAssignee;
         break;
-      case "Approver":
+      case "Followers":
         SelectUserButton = SelectedApprover;
         break;
     }
 
     return (
       <div className="form-group">
-        {this.props.user ? (
+        {!_.isEmpty(this.props.user) ? (
           <SelectUserButton>
-            <p>{this.shortenName(this.props.user)}</p>
+            {/* <p>{this.shortenName(this.props.user)}</p>
             <div onClick={this.props.removeUser}>
-              <i className="fa fa-times" />
+              <i className="fa fa-times" /> */}
+
+            <div style={{ width: "95px", display: "flex" }}>
+              {this.props.user.map(user => {
+                return (
+                  <div key={user}>
+                    {this.shortenName(user)}
+                    <i
+                      onClick={() => this.props.removeUser(user)}
+                      className="fa fa-times"
+                    />
+                  </div>
+                );
+              })}
             </div>
+            <div onClick={this.props.toggleFinding}>+</div>
           </SelectUserButton>
         ) : (
           <TaskControl
@@ -99,10 +118,10 @@ class SelectUser extends Component {
 SelectUser.propTypes = {
   isFinding: PropTypes.bool.isRequired,
   closeFinding: PropTypes.func.isRequired,
-  ignoreUser: PropTypes.object,
+  ignoreUser: PropTypes.array,
   title: PropTypes.string.isRequired,
   top: PropTypes.number.isRequired,
-  user: PropTypes.object,
+  user: PropTypes.array,
   onSelectUser: PropTypes.func.isRequired,
   removeUser: PropTypes.func.isRequired,
   toggleFinding: PropTypes.func.isRequired

@@ -325,7 +325,7 @@ Meteor.methods({
       status: Match.Maybe(String)
     });
     const { firstName, lastName, role, status } = userFields;
-    // console.log("userFields", userFields);
+    //console.log("userFields", userFields);
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
       throw new Meteor.Error("Access denied");
 
@@ -345,20 +345,20 @@ Meteor.methods({
         status
       }
     });
-    if (user.status === "pending" && status === "active") {
-      Meteor.call("inviteUserToSlack", getUserEmail(user));
-      Meteor.defer(() => {
-        Meteor.call("sendEmail", {
-          to: user.emails[0].address,
-          from: "Prossimo Service",
-          replyTo: "noreply@gmail.com",
-          subject: "[Prossimo] Active user",
-          html: `<div>
+    //if (user.status === "pending" && status === "active") {
+    Meteor.call("inviteUserToSlack", getUserEmail(user));
+    Meteor.defer(() => {
+      Meteor.call("sendEmail", {
+        to: user.emails[0].address,
+        from: "Prossimo Service",
+        replyTo: "noreply@gmail.com",
+        subject: "[Prossimo] Active user",
+        html: `<div>
           <p>Your account is active, now </p>
          <div>`
-        });
       });
-    }
+    });
+    //}
   },
 
   adminRemoveUser(userIds) {

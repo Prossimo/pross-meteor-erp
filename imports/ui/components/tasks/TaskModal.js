@@ -113,7 +113,7 @@ class TaskModal extends Component {
         name: "approver",
         top: 50,
         ignore: "assignee",
-        label: "Approver"
+        label: "Followers"
       }
     ];
     let hasAssignToMe = false;

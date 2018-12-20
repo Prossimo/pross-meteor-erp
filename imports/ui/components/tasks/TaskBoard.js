@@ -13,7 +13,7 @@ import "./TaskBoard.scss";
 
 const defaultFilterState = {
   AssignToMe: false,
-  IamApprover: false,
+  IamFollowing: false,
   DueDate: false,
   Today: false,
   Tomorrow: false
@@ -56,6 +56,7 @@ class TaskBoard extends Component {
                 key={allowedStatus}
                 taskFolderId={taskFolderId}
                 total={this.props.tasks.length}
+                //projectId={this.props.projectId}
               />
             );
           })}
@@ -67,7 +68,8 @@ class TaskBoard extends Component {
 
 export default withTracker(props => {
   const subscribers = [];
-  const { tabName } = props;
+  // const { tabName, projectId } = props;
+  // console.log("projectId --------", projectId);
   //const tabs = tabName? tabName: "Tasks"
   //console.log("tabName-------", tabName);
   const parentId = FlowRouter.current().params.id;
@@ -96,5 +98,6 @@ export default withTracker(props => {
     tasks,
     users: Meteor.users.find().fetch(),
     taskFolderId
+    //projectId
   };
 })(TaskBoard);

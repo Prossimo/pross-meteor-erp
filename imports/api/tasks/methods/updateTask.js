@@ -3,6 +3,7 @@ import SimpleSchema from "simpl-schema";
 import inviteUsers from "./inviteUsers";
 import { Tasks, SalesRecords, Projects } from "../../models";
 import sendSlackMessage from "./sendSlackMessage";
+import _ from "lodash";
 
 export default new ValidatedMethod({
   name: "task.update",
@@ -12,7 +13,7 @@ export default new ValidatedMethod({
     const { tabName, assignee, approver, parentId } = task;
     inviteUsers.call({
       parentId,
-      taskOperators: [assignee, approver]
+      taskOperators: _.union(assignee, approver)
     });
     const oldVersionTask = Tasks.findOne(task._id);
 
@@ -28,36 +29,40 @@ export default new ValidatedMethod({
     if (task.parentType === "deal") {
       const salesrecord = SalesRecords.findOne(parentId);
       if (salesrecord) {
-        const members = (salesrecord.members || []).filter(m => m !== null);
-        if (assignee && assignee.length > 0 && members.indexOf(assignee) == -1)
-          members.push(assignee);
-        if (approver && approver.length > 0 && members.indexOf(approver) == -1)
-          members.push(approver);
+        let members = _.compact(salesrecord.members || []);
+        members = _.union(members, assignee, approver);
+
         SalesRecords.update(parentId, { $set: { members } });
       }
     } else if (task.parentType === "project") {
       const project = Projects.findOne(parentId);
       if (project) {
-        const members = (project.members || []).filter(m => m !== null);
-        if (
-          assignee &&
-          assignee.length > 0 &&
-          members.map(m => m.userId).indexOf(assignee) == -1
-        )
-          members.push({ userId: assignee });
-        if (
-          approver &&
-          approver.length > 0 &&
-          members.map(m => m.userId).indexOf(approver) == -1
-        )
-          members.push({ userId: approver });
+        const members = _.compact(project.members || []).map(m => m.userId);
+
+        if (!_.isEmpty(assignee)) {
+          assignee.map(assignee => {
+            if (!members.map(m => m.userId).includes(assignee))
+              members.push({ userId: assignee });
+          });
+        }
+        if (!_.isEmpty(approver)) {
+          approver.map(approver => {
+            if (!members.map(m => m.userId).includes(approver))
+              members.push({ userId: approver });
+          });
+        }
+
         Projects.update(parentId, { $set: { members } });
       }
     }
 
     let type = "UPDATE_TASK";
     const actorId = this.userId;
-    if (oldVersionTask && !oldVersionTask.assignee && task.assignee) {
+    if (
+      oldVersionTask &&
+      !_.isEmpty(oldVersionTask.assignee) &&
+      !_.isEmpty(task.assignee)
+    ) {
       type = "ASSIGN_TASK";
     }
     Meteor.defer(() => {

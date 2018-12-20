@@ -35,7 +35,7 @@ class TaskAdding extends Component {
   }
 
   render() {
-    const TaskAdding = styled.div`
+    const AddingTask = styled.div`
       font-size: 13px;
       padding: 5px;
       &:hover {
@@ -44,7 +44,7 @@ class TaskAdding extends Component {
       }
     `;
     return (
-      <TaskAdding>
+      <AddingTask>
         <a
           href="#"
           style={{ display: "block" }}
@@ -64,8 +64,9 @@ class TaskAdding extends Component {
           isNew={true}
           taskFolderId={this.props.taskFolderId}
           total={this.props.total}
+          //projectId={this.props.projectId}
         />
-      </TaskAdding>
+      </AddingTask>
     );
   }
 }
@@ -75,6 +76,7 @@ TaskAdding.propTypes = {
   status: PropTypes.string.isRequired,
   taskFolderId: PropTypes.string,
   total: PropTypes.number.isRequired
+  //projectId: PropTypes.string
 };
 
 export default TaskAdding;
