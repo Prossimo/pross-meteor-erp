@@ -9,7 +9,7 @@ import Actions from "/imports/api/nylas/actions";
 import Radium from "radium";
 import Conversations from "../../../../api/models/conversations/conversations";
 
-@Radium
+// @Radium
 class ConversationList extends TrackerReact(React.Component) {
   constructor(props) {
     super(props);

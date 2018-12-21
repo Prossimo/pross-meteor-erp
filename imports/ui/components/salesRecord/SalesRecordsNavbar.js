@@ -35,9 +35,9 @@ class SalesRecordsNavbar extends Component {
       style: "btn-primary",
       size: 5
     });
-    $(this.saveState).on("changed.bs.select", function() {
-      const selectedState = $(this).val();
-    });
+    // $(this.saveState).on("changed.bs.select", function() {
+    //   const selectedState = $(this).val();
+    // });
 
     $(this.selectCols).selectpicker({
       style: "btn-default",

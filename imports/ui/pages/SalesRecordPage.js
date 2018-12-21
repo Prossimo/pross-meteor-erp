@@ -68,13 +68,11 @@ class SalesRecordPage extends Component {
       // $tableContainer.css({
       //   "max-height": $(window).height() - $tableContainer.offset().top
       // });
-      // Meteor.setTimeout(() => {
-
-      // }, 200);
+      //Meteor.setTimeout(() => {}, 200);
     });
   }
 
-  componentDidUpdate() {}
+  //componentDidUpdate() {}
 
   getTitle = stage => {
     switch (stage) {
@@ -148,7 +146,7 @@ class SalesRecordPage extends Component {
     const keyfilter = new RegExp(keyword, "i");
     let { collapsedViews } = this.props;
     if (this.state.keyword !== keyword) {
-      this.setState({ keywordChange: true });
+      this.setState({ keywordChange: true, keyword });
     }
 
     if (keyword || stage || showArchivedDeals) {
@@ -156,11 +154,10 @@ class SalesRecordPage extends Component {
         const byKey = !keyword || item.name.search(keyfilter) > -1;
         const byStage = !stage || item.stage == stage;
         const byArchive = !showArchivedDeals || item.archived;
-
         if (byKey && byStage && byArchive && this.state.keywordChange) {
           collapsedViews[item.subStage] = false;
           collapsedViews[item.stage] = false;
-          this.setState({ keywordChange: false, keyword });
+          this.setState({ keywordChange: false });
         }
         return byKey && byStage && byArchive;
       });

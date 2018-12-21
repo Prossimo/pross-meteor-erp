@@ -104,11 +104,6 @@ export const fetchNewThreads = new ValidatedMethod({
   }).validator({ clean: true }),
   run({ accounts }) {
     if (!this.userId) throw new Meteor.Error(403, "Not authorized");
-    throw new Meteor.Error(
-      500,
-      "thread.fetchNewThreads: categories++++++++++++++++++++++++++++",
-      accounts
-    );
     const loadThreads = ({ accessToken, categories }) => {
       const auth = {
         user: accessToken,
