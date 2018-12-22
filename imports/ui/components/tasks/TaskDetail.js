@@ -14,8 +14,8 @@ import UploadOverlay from "./upload/UploadOverlay";
 import Attachments from "./upload/Attachments";
 import union from "lodash/union";
 import remove from "lodash/remove";
-import { Email } from "meteor/email";
-import { SalesRecords, Users } from "/imports/api/models";
+// import { Email } from "meteor/email";
+// import { SalesRecords, Users } from "/imports/api/models";
 
 class TaskDetail extends Component {
   constructor(props) {
@@ -80,7 +80,7 @@ class TaskDetail extends Component {
       parentId,
       parentType
     };
-
+    // debugger;
     if (this.props.isNew) {
       Meteor.call("task.create", task, error => {
         console.log("task===", task);
@@ -101,7 +101,6 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.props.hideDetail();
-          // Email.send();
 
           this.setState({ errors: [] });
         }

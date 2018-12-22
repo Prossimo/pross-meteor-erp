@@ -3,7 +3,9 @@ import SimpleSchema from "simpl-schema";
 import inviteUsers from "./inviteUsers";
 import { Tasks, SalesRecords, Projects } from "../../models";
 import sendSlackMessage from "./sendSlackMessage";
-import _ from "lodash";
+import union from "lodash/union";
+import compact from "lodash/compact";
+import isEmpty from "lodash/isEmpty";
 
 export default new ValidatedMethod({
   name: "task.update",
@@ -13,7 +15,7 @@ export default new ValidatedMethod({
     const { tabName, assignee, approver, parentId } = task;
     inviteUsers.call({
       parentId,
-      taskOperators: _.union(assignee, approver)
+      taskOperators: union(assignee, approver)
     });
     const oldVersionTask = Tasks.findOne(task._id);
 
@@ -29,25 +31,27 @@ export default new ValidatedMethod({
     if (task.parentType === "deal") {
       const salesrecord = SalesRecords.findOne(parentId);
       if (salesrecord) {
-        let members = _.compact(salesrecord.members || []);
-        members = _.union(members, assignee, approver);
+        let members = compact(salesrecord.members || []);
+        members = union(members, assignee, approver);
 
         SalesRecords.update(parentId, { $set: { members } });
       }
     } else if (task.parentType === "project") {
       const project = Projects.findOne(parentId);
-      if (project) {
-        const members = _.compact(project.members || []).map(m => m.userId);
 
-        if (!_.isEmpty(assignee)) {
+      if (project) {
+        let members = compact(project.members || []);
+        const memberIds = members.map(m => m.userId);
+
+        if (!isEmpty(assignee)) {
           assignee.map(assignee => {
-            if (!members.map(m => m.userId).includes(assignee))
+            if (!memberIds.includes(assignee))
               members.push({ userId: assignee });
           });
         }
-        if (!_.isEmpty(approver)) {
+        if (!isEmpty(approver)) {
           approver.map(approver => {
-            if (!members.map(m => m.userId).includes(approver))
+            if (!memberIds.includes(approver))
               members.push({ userId: approver });
           });
         }
@@ -60,8 +64,8 @@ export default new ValidatedMethod({
     const actorId = this.userId;
     if (
       oldVersionTask &&
-      !_.isEmpty(oldVersionTask.assignee) &&
-      !_.isEmpty(task.assignee)
+      !isEmpty(oldVersionTask.assignee) &&
+      !isEmpty(task.assignee)
     ) {
       type = "ASSIGN_TASK";
     }

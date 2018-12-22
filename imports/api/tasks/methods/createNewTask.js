@@ -113,17 +113,18 @@ export default new ValidatedMethod({
     } else if (parentType === "project") {
       const project = Projects.findOne(parentId);
       if (project) {
-        const members = compact(project.members || []).map(m => m.userId);
+        let members = compact(project.members || []);
+        const memberIds = members.map(m => m.userId);
 
         if (!isEmpty(assignee)) {
           assignee.map(assignee => {
-            if (!members.map(m => m.userId).includes(assignee))
+            if (!memberIds.includes(assignee))
               members.push({ userId: assignee });
           });
         }
         if (!isEmpty(approver)) {
           approver.map(approver => {
-            if (!members.map(m => m.userId).includes(approver))
+            if (!memberIds.includes(approver))
               members.push({ userId: approver });
           });
         }
