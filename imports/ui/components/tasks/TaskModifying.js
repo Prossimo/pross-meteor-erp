@@ -6,9 +6,7 @@ import { activeTask } from "/imports/redux/actions";
 
 class TaskModifying extends Component {
   state = {
-    task: {
-      showDetail: false
-    }
+    showDetail: false
   };
 
   componentDidMount() {
@@ -23,17 +21,13 @@ class TaskModifying extends Component {
 
   showDetail = () => {
     this.setState({
-      task: {
-        showDetail: true
-      }
+      showDetail: true
     });
   };
 
   hideDetail = () => {
     this.setState({
-      task: {
-        showDetail: false
-      }
+      showDetail: false
     });
     store.dispatch(activeTask(null));
   };
@@ -46,7 +40,7 @@ class TaskModifying extends Component {
       <TaskDetail
         showDetail={this.showDetail}
         hideDetail={this.hideDetail}
-        isShown={this.state.task.showDetail}
+        isShown={this.state.showDetail}
         status={task.status}
         isNew={false}
         task={task}

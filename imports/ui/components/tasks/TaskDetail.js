@@ -36,12 +36,7 @@ class TaskDetail extends Component {
           label: "Followers"
         }
       ],
-      hasAssignToMe:
-        this.props.task && !this.props.isNew
-          ? !this.props.task.assignee ||
-            (this.props.task.assignee &&
-              !this.props.task.assignee.includes(Meteor.userId()))
-          : false,
+
       isFinding: {
         assignee: false,
         approver: false
@@ -67,13 +62,8 @@ class TaskDetail extends Component {
     this.removeFromState = this.removeFromState.bind(this);
   }
 
-  assignToMe() {
-    const _id = this.props.task._id;
-    const tabName = this.props.task.tabName;
-    Meteor.call("task.assignToMe", { tabName, _id });
-  }
-
   saveTask() {
+    debugger;
     //const projectId = this.props.projectId;
     const parentId = FlowRouter.current().params.id;
     const parentType = FlowRouter.current().route.name.toLowerCase();
@@ -120,9 +110,9 @@ class TaskDetail extends Component {
           this.setState({ errors: [msg] });
         } else {
           this.setState({ errors: [] });
+          this.props.hideDetail();
         }
       });
-      this.props.hideDetail();
     }
   }
 
@@ -140,8 +130,23 @@ class TaskDetail extends Component {
 
     this.setState(prevState => prevState);
   }
+  assignToMe() {
+    debugger;
+    const _id = this.props.task._id;
+    const tabName = this.props.task.tabName;
+    Meteor.call("task.assignToMe", { tabName, _id });
+    // this.addToState(this.state.task, assignee, Meteor.userId());
+  }
 
   render() {
+    let hasAssignToMe = false;
+    if (this.props.task && !this.props.isNew) {
+      hasAssignToMe =
+        !this.props.task.assignee ||
+        (this.props.task.assignee &&
+          !this.props.task.assignee.includes(Meteor.userId()));
+    }
+
     return (
       <Modal
         dialogClassName="task-details"
@@ -244,7 +249,7 @@ class TaskDetail extends Component {
                   ""
                 )}
               </div>
-              {this.state.hasAssignToMe ? (
+              {hasAssignToMe ? (
                 <div className="form-group">
                   <button
                     className="btn btn-warning full-width"
