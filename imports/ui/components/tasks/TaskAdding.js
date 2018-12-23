@@ -7,9 +7,7 @@ class TaskAdding extends Component {
   constructor() {
     super();
     this.state = {
-      task: {
-        showDetail: false
-      }
+      showDetail: false
     };
 
     this.showDetail = this.showDetail.bind(this);
@@ -18,19 +16,13 @@ class TaskAdding extends Component {
 
   showDetail() {
     this.setState({
-      task: {
-        ...this.state.task,
-        showDetail: true
-      }
+      showDetail: true
     });
   }
 
   hideDetail() {
     this.setState({
-      task: {
-        ...this.state.task,
-        showDetail: false
-      }
+      showDetail: false
     });
   }
 
@@ -59,7 +51,7 @@ class TaskAdding extends Component {
           tabName={this.props.tabName}
           showDetail={this.showDetail}
           hideDetail={this.hideDetail}
-          isShown={this.state.task.showDetail}
+          isShown={this.state.showDetail}
           status={this.props.status}
           isNew={true}
           taskFolderId={this.props.taskFolderId}

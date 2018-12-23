@@ -20,7 +20,28 @@ import remove from "lodash/remove";
 class TaskDetail extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
+      selectUsers: [
+        {
+          name: "assignee",
+          top: 50,
+          ignore: "approver",
+          label: "Assignee"
+        },
+        {
+          name: "approver",
+          top: 50,
+          ignore: "assignee",
+          label: "Followers"
+        }
+      ],
+      hasAssignToMe:
+        this.props.task && !this.props.isNew
+          ? !this.props.task.assignee ||
+            (this.props.task.assignee &&
+              !this.props.task.assignee.includes(Meteor.userId()))
+          : false,
       isFinding: {
         assignee: false,
         approver: false
@@ -80,7 +101,6 @@ class TaskDetail extends Component {
       parentId,
       parentType
     };
-    // debugger;
     if (this.props.isNew) {
       Meteor.call("task.create", task, error => {
         console.log("task===", task);
@@ -88,11 +108,10 @@ class TaskDetail extends Component {
           const msg = error.reason ? error.reason : error.message;
           this.setState({ errors: [msg] });
         } else {
-          this.props.hideDetail();
-
           this.setState({ errors: [] });
         }
       });
+      this.props.hideDetail();
     } else {
       task._id = this.props.task._id;
       Meteor.call("task.update", task, error => {
@@ -100,11 +119,10 @@ class TaskDetail extends Component {
           const msg = error.reason ? error.reason : error.message;
           this.setState({ errors: [msg] });
         } else {
-          this.props.hideDetail();
-
           this.setState({ errors: [] });
         }
       });
+      this.props.hideDetail();
     }
   }
 
@@ -124,27 +142,6 @@ class TaskDetail extends Component {
   }
 
   render() {
-    const selectUsers = [
-      {
-        name: "assignee",
-        top: 50,
-        ignore: "approver",
-        label: "Assignee"
-      },
-      {
-        name: "approver",
-        top: 50,
-        ignore: "assignee",
-        label: "Followers"
-      }
-    ];
-    let hasAssignToMe = false;
-    if (this.props.task && !this.props.isNew) {
-      hasAssignToMe =
-        !this.props.task.assignee ||
-        (this.props.task.assignee &&
-          !this.props.task.assignee.includes(Meteor.userId()));
-    }
     return (
       <Modal
         dialogClassName="task-details"
@@ -158,19 +155,23 @@ class TaskDetail extends Component {
                 name={this.state.task.name}
                 isNew={this.props.isNew}
                 onChange={name => {
-                  this.state.task.name = name;
+                  const task = { ...this.state.task };
+                  task.name = name;
+                  this.setState({ task });
                 }}
               />
               <TextEditor
                 content={this.state.task.description}
                 onChange={description => {
-                  this.state.task.description = description;
+                  const task = { ...this.state.task };
+                  task.description = description;
+                  this.setState({ task });
                 }}
               />
             </div>
 
             <div className="col-md-3">
-              {selectUsers.map(({ name, top, label, ignore }) => (
+              {this.state.selectUsers.map(({ name, top, label, ignore }) => (
                 <SelectUser
                   key={name}
                   isFinding={this.state.isFinding[name]}
@@ -243,7 +244,7 @@ class TaskDetail extends Component {
                   ""
                 )}
               </div>
-              {hasAssignToMe ? (
+              {this.state.hasAssignToMe ? (
                 <div className="form-group">
                   <button
                     className="btn btn-warning full-width"

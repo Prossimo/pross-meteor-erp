@@ -100,14 +100,6 @@ export default new ValidatedMethod({
         let members = compact(salesrecord.members || []);
         members = union(members, assignee, approver);
 
-        approver.map(ap => {
-          const currentApprover = Users.findOne({ _id: ap });
-          console.log(
-            "currentApprover==========",
-            currentApprover.emails[0].address
-          );
-        });
-        console.log("members==>", members);
         SalesRecords.update(parentId, { $set: { members } });
       }
     } else if (parentType === "project") {
