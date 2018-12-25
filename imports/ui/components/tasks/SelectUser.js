@@ -77,19 +77,22 @@ class SelectUser extends Component {
               <i className="fa fa-times" /> */}
 
             <div style={{ width: "95px", display: "flex" }}>
-              {this.props.user.map(user => {
-                return (
-                  <div key={user}>
-                    {this.shortenName(user)}
-                    <i
-                      onClick={() => this.props.removeUser(user)}
-                      className="fa fa-times"
-                    />
-                  </div>
-                );
-              })}
+              {this.props.user.map(user => (
+                <div key={user}>
+                  {this.shortenName(user)}
+                  <i
+                    onClick={() => this.props.removeUser(user)}
+                    className="fa fa-times"
+                  />
+                </div>
+              ))}
             </div>
-            <div onClick={this.props.toggleFinding}>+</div>
+
+            {this.props.name == "approver" ? (
+              <div onClick={this.props.toggleFinding}>+</div>
+            ) : (
+              ""
+            )}
           </SelectUserButton>
         ) : (
           <TaskControl

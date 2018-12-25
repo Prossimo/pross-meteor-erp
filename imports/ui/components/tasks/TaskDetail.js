@@ -179,6 +179,7 @@ class TaskDetail extends Component {
               {this.state.selectUsers.map(({ name, top, label, ignore }) => (
                 <SelectUser
                   key={name}
+                  name={name}
                   isFinding={this.state.isFinding[name]}
                   closeFinding={() =>
                     this.changeState(this.state.isFinding, name, false)
