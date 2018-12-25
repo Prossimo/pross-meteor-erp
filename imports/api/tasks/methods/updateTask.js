@@ -1,5 +1,5 @@
 import { ValidatedMethod } from "meteor/mdg:validated-method";
-import SimpleSchema from "simpl-schema";
+//import SimpleSchema from "simpl-schema";
 import inviteUsers from "./inviteUsers";
 import { Tasks, SalesRecords, Projects } from "../../models";
 import sendSlackMessage from "./sendSlackMessage";
@@ -27,7 +27,7 @@ export default new ValidatedMethod({
       $set: task
     });
 
-    // Add approver and assignee as teammember to project or deal
+    // Add approver and assignee as teamMember to project or deal
     if (task.parentType === "deal") {
       const salesrecord = SalesRecords.findOne(parentId);
       if (salesrecord) {

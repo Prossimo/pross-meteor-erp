@@ -115,7 +115,7 @@ div.error-msg {
   }
   .tab-container {
     background: $white;
-    min-height: 500px;
+    padding-bottom: 10px;
     width: 100%;
   }
   .tab-controls {
@@ -196,7 +196,7 @@ div.error-msg {
     width: 300px;
     flex-shrink: 0;
     margin-left: 10px;
-
+    overflow: auto;
     .title {
       text-transform: uppercase;
       padding: 20px 0;

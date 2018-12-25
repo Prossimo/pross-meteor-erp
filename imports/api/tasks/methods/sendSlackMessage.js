@@ -112,7 +112,7 @@ export default new ValidatedMethod({
             const actor = Meteor.users.findOne(actorId);
             const userRefer =
               user.slack && user.slack.id
-                ? `<@${user.slack.id}>`
+                ? `<@${user.slack.profile.display_name}>`
                 : user.username;
             const actorRefer =
               actor.slack && actor.slack.id
@@ -185,14 +185,15 @@ export default new ValidatedMethod({
           }
 
           case "NEW_TASK":
-            assignee.map(assignee => {
+            {
+              //assignee.map(assignee => {
               let pretext = null;
-              const user = Meteor.users.findOne(assignee);
+              const user = Meteor.users.findOne(assignee[0]);
               const actor = Meteor.users.findOne(actorId);
               if (user) {
                 const userRefer =
                   user.slack && user.slack.id
-                    ? `<@${user.slack.id}>`
+                    ? `<@${user.slack.profile.display_name}>`
                     : user.username;
                 const actorRefer =
                   actor.slack && actor.slack.id
@@ -218,7 +219,8 @@ export default new ValidatedMethod({
                   attachments
                 });
               }
-            });
+              // });
+            }
             break;
         }
       }
