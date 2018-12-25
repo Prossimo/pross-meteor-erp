@@ -111,14 +111,14 @@ export default new ValidatedMethod({
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
             const userRefer =
-              user.slack && user.slack.id
+              user.slack && user.slack.profile.display_name
                 ? `<@${user.slack.profile.display_name}>`
                 : user.username;
             const actorRefer =
               actor.slack && actor.slack.id
                 ? `<@${actor.slack.id}>`
                 : actor.username;
-            const pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
+            const pretext = `${article} ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
               parent.name
             }>`;
 
@@ -192,7 +192,7 @@ export default new ValidatedMethod({
               const actor = Meteor.users.findOne(actorId);
               if (user) {
                 const userRefer =
-                  user.slack && user.slack.id
+                  user.slack && user.slack.profile.display_name
                     ? `<@${user.slack.profile.display_name}>`
                     : user.username;
                 const actorRefer =
