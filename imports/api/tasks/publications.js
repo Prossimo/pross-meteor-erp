@@ -1,5 +1,5 @@
 import Tasks, { applyFilter } from "/imports/api/models/tasks/tasks";
-import _ from "lodash";
+import union from "lodash/union";
 
 Meteor.publishComposite("task.all", function(param = {}) {
   /*if (!Match.test(param, {
@@ -33,7 +33,7 @@ Meteor.publishComposite("task.all", function(param = {}) {
       {
         find({ assignee, approver }) {
           return Meteor.users.find({
-            _id: { $in: _.union(assignee, approver) }
+            _id: { $in: union(assignee, approver) }
           });
         }
       }
@@ -77,7 +77,7 @@ Meteor.publishComposite("task.details", function({ _id }) {
 /*
  * publish tasks by userId
  * */
-
+//TODO: ===========================================================
 Meteor.publishComposite("task.byUserId", function() {
   const userId = this.userId;
   if (!userId) return this.ready();

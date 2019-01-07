@@ -106,13 +106,50 @@ export default new ValidatedMethod({
             }
             break;
           }
-
+          case "NEW_TASK":
+            {
+              //assignee.map(assignee => {
+              let pretext = null;
+              const user = Meteor.users.findOne(assignee[0]);
+              const actor = Meteor.users.findOne(actorId);
+              if (user) {
+                const userRefer =
+                  user.slack && user.slack.id
+                    ? `<@${user.slack.id}>`
+                    : user.username;
+                const actorRefer =
+                  actor.slack && actor.slack.id
+                    ? `<@${actor.slack.id}>`
+                    : actor.username;
+                pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
+                  parent.name
+                }>`;
+              } else {
+                pretext = `New unassigned ${tabName} has been created`;
+              }
+              const attachments = slackClient.attachments.create({
+                pretext,
+                title,
+                text,
+                color: BLUE,
+                title_link
+              });
+              slackClient.chat.postAttachments({ channel, attachments });
+              if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+                slackClient.chat.postAttachments({
+                  channel: adminChanel.value,
+                  attachments
+                });
+              }
+              // });
+            }
+            break;
           case "ASSIGN_TASK": {
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
             const userRefer =
-              user.slack && user.slack.profile.display_name
-                ? `<@${user.slack.profile.display_name}>`
+              user.slack && user.slack.id //profile.display_name
+                ? `<@${user.slack.id}>`
                 : user.username;
             const actorRefer =
               actor.slack && actor.slack.id
@@ -183,45 +220,6 @@ export default new ValidatedMethod({
             }
             break;
           }
-
-          case "NEW_TASK":
-            {
-              //assignee.map(assignee => {
-              let pretext = null;
-              const user = Meteor.users.findOne(assignee[0]);
-              const actor = Meteor.users.findOne(actorId);
-              if (user) {
-                const userRefer =
-                  user.slack && user.slack.profile.display_name
-                    ? `<@${user.slack.profile.display_name}>`
-                    : user.username;
-                const actorRefer =
-                  actor.slack && actor.slack.id
-                    ? `<@${actor.slack.id}>`
-                    : actor.username;
-                pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
-                  parent.name
-                }>`;
-              } else {
-                pretext = `New unassigned ${tabName} has been created`;
-              }
-              const attachments = slackClient.attachments.create({
-                pretext,
-                title,
-                text,
-                color: BLUE,
-                title_link
-              });
-              slackClient.chat.postAttachments({ channel, attachments });
-              if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
-                slackClient.chat.postAttachments({
-                  channel: adminChanel.value,
-                  attachments
-                });
-              }
-              // });
-            }
-            break;
         }
       }
     }

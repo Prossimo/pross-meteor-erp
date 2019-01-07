@@ -3,18 +3,10 @@ import PropTypes from "prop-types";
 import styled from "styled-components";
 
 class TextEditor extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      inputFocus: false
-    };
-    this.changeContent = this.changeContent.bind(this);
-  }
-
-  changeContent(event) {
+  changeContent = event => {
     const content = event.target.value;
     this.props.onChange(content);
-  }
+  };
 
   render() {
     const TextArea = styled.textarea`
@@ -38,19 +30,19 @@ class TextEditor extends Component {
       border-left-color: green;
       resize: none;
       &:focus {
-        background: none repeat scroll 0 0 rgba(0, 0, 0, 0.07);
         outline-width: 0;
       }
     `;
     return (
       <TextArea
-        ref="content"
-        autoFocus={this.state.inputFocus}
         placeholder="This task is about ..."
         defaultValue={this.props.content}
-        onClick={() => this.setState({ inputFocus: true })}
-        onBlur={() => this.setState({ inputFocus: false })}
-        onChange={this.changeContent}
+        onClick={event => {
+          event.stopPropagation();
+        }}
+        onBlur={event => {
+          this.changeContent(event);
+        }}
       />
     );
   }

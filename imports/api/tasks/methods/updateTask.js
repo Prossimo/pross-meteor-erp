@@ -6,6 +6,8 @@ import sendSlackMessage from "./sendSlackMessage";
 import union from "lodash/union";
 import compact from "lodash/compact";
 import isEmpty from "lodash/isEmpty";
+import isEqual from "lodash/isEqual";
+import sortBy from "lodash/sortBy";
 
 export default new ValidatedMethod({
   name: "task.update",
@@ -64,8 +66,9 @@ export default new ValidatedMethod({
     const actorId = this.userId;
     if (
       oldVersionTask &&
-      !isEmpty(oldVersionTask.assignee) &&
-      !isEmpty(task.assignee)
+      // !isEmpty(oldVersionTask.assignee) &&
+      !isEmpty(task.assignee) &&
+      !isEqual(sortBy(oldVersionTask.assignee), sortBy(task.assignee)) //true)
     ) {
       type = "ASSIGN_TASK";
     }

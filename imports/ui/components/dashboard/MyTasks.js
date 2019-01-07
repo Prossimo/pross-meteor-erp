@@ -65,9 +65,13 @@ class MyTasks extends Component {
       );
 
     if (userOption === "assignee")
-      tasks = tasks.filter(({ assignee }) => assignee === Meteor.userId());
+      tasks = tasks.filter(({ assignee }) =>
+        assignee.includes(Meteor.userId())
+      );
     if (userOption === "approver")
-      tasks = tasks.filter(({ approver }) => approver === Meteor.userId());
+      tasks = tasks.filter(({ approver }) =>
+        approver.includes(Meteor.userId())
+      );
 
     return tasks;
   }
@@ -85,7 +89,7 @@ class MyTasks extends Component {
       showAllTasks: checked
     });
   };
-
+  //TODO:===========================================================
   getSortedData() {
     const tasks = this.getTasks();
     const { by, asc } = this.state.sort;
@@ -180,6 +184,7 @@ class MyTasks extends Component {
       </Dropdown>
     );
   }
+  //TODO:style of task showing all assignees and followers=============================================
   renderTasks() {
     const tasks = this.getSortedData();
     const { users, userId } = this.props;
@@ -240,7 +245,7 @@ class MyTasks extends Component {
     const usersOptions = [
       { value: "all", label: "All" },
       { value: "assignee", label: "Assignee" },
-      { value: "approver", label: "Approver" }
+      { value: "approver", label: "Followers" }
     ];
 
     const header = (
@@ -321,7 +326,7 @@ class MyTasks extends Component {
                 Assignee{sortIcon("assignee")}
               </th>
               <th onClick={() => this.sortBy("approver")}>
-                Approver{sortIcon("approver")}
+                Followers{sortIcon("approver")}
               </th>
               <th onClick={() => this.sortBy("dueDate")}>
                 DueDate{sortIcon("dueDate")}

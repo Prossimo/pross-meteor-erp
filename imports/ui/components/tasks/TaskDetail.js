@@ -18,52 +18,44 @@ import remove from "lodash/remove";
 // import { SalesRecords, Users } from "/imports/api/models";
 
 class TaskDetail extends Component {
-  constructor(props) {
-    super(props);
+  // constructor(props) {
+  //   super(props);
 
-    this.state = {
-      selectUsers: [
-        {
-          name: "assignee",
-          top: 50,
-          ignore: "approver",
-          label: "Assignee"
-        },
-        {
-          name: "approver",
-          top: 50,
-          ignore: "assignee",
-          label: "Followers"
-        }
-      ],
-
-      isFinding: {
-        assignee: false,
-        approver: false
+  state = {
+    selectUsers: [
+      {
+        name: "assignee",
+        top: 50,
+        ignore: "approver",
+        label: "Assignee"
       },
-      errors: [],
-      isAttach: false,
-      task: (!props.isNew && props.task) || {
-        tabName: `${this.props.tabName}`,
-        //projectId: `${this.props.projectId}`,
-        name: `${this.props.tabName.slice(0, -1)} #${props.total + 1}`,
-        assignee: [],
-        approver: [],
-        dueDate: new Date(),
-        description: "",
-        status: props.status
+      {
+        name: "approver",
+        top: 50,
+        ignore: "assignee",
+        label: "Followers"
       }
-    };
+    ],
 
-    this.changeState = this.changeState.bind(this);
-    this.saveTask = this.saveTask.bind(this);
-    this.assignToMe = this.assignToMe.bind(this);
-    this.addToState = this.addToState.bind(this);
-    this.removeFromState = this.removeFromState.bind(this);
-  }
+    isFinding: {
+      assignee: false,
+      approver: false
+    },
+    errors: [],
+    isAttach: false,
+    task: (!this.props.isNew && this.props.task) || {
+      tabName: `${this.props.tabName}`,
+      //projectId: `${this.props.projectId}`,
+      name: `${this.props.tabName.slice(0, -1)} #${this.props.total + 1}`,
+      assignee: [],
+      approver: [],
+      dueDate: new Date(),
+      description: "",
+      status: this.props.status
+    }
+  };
 
-  saveTask() {
-    debugger;
+  saveTask = () => {
     //const projectId = this.props.projectId;
     const parentId = FlowRouter.current().params.id;
     const parentType = FlowRouter.current().route.name.toLowerCase();
@@ -114,30 +106,29 @@ class TaskDetail extends Component {
         }
       });
     }
-  }
+  };
 
-  changeState(prop, propName, propValue) {
+  changeState = (prop, propName, propValue) => {
     prop[propName] = propValue;
     this.setState(prevState => prevState);
-  }
+  };
 
-  addToState(prop, propName, propValue) {
+  addToState = (prop, propName, propValue) => {
     prop[propName] = union(prop[propName], [propValue]);
     this.setState(prevState => prevState);
-  }
-  removeFromState(prop, propName, propValue) {
+  };
+  removeFromState = (prop, propName, propValue) => {
     remove(prop[propName], value => value == propValue);
 
     this.setState(prevState => prevState);
-  }
-  assignToMe() {
-    debugger;
+  };
+  assignToMe = () => {
     const _id = this.props.task._id;
     const tabName = this.props.task.tabName;
     Meteor.call("task.assignToMe", { tabName, _id });
     // this.addToState(this.state.task, assignee, Meteor.userId());
-  }
-
+  };
+  //TODO: assignToMe method have to mention me on assignee button
   render() {
     let hasAssignToMe = false;
     if (this.props.task && !this.props.isNew) {

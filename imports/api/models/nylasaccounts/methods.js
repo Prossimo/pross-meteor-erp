@@ -5,7 +5,7 @@ import config from "../../config";
 import NylasAccounts from "./nylas-accounts";
 import { ROLES } from "../users/users";
 import { createProject } from "../projects/methods";
-import { ErrorLog } from "/imports/utils/logger";
+import { ErrorLog, ServerLog } from "/imports/utils/logger";
 
 const bound = Meteor.bindEnvironment(callback => callback());
 

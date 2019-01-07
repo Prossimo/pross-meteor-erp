@@ -32,6 +32,7 @@ class TaskList extends Component {
           </div>
           <div>
             tasks list
+            {/* TODO: ???maybe task.assignee and task.approver below were enouth, and users.filter isnt necessary */}
             {this.props.tasks.map(task => {
               const assignee = this.props.users.filter(
                 ({ _id }) => task.assignee && task.assignee.includes(_id)

@@ -4,27 +4,30 @@ import styled from "styled-components";
 import TaskDetail from "./TaskDetail";
 
 class TaskAdding extends Component {
-  constructor() {
-    super();
-    this.state = {
-      showDetail: false
-    };
+  // constructor() {
+  //   super();
+  //   this.state = {
+  //     showDetail: false
+  //   };
 
-    this.showDetail = this.showDetail.bind(this);
-    this.hideDetail = this.hideDetail.bind(this);
-  }
+  //   this.showDetail = this.showDetail.bind(this);
+  //   this.hideDetail = this.hideDetail.bind(this);
+  // }
+  state = {
+    showDetail: false
+  };
 
-  showDetail() {
+  showDetail = () => {
     this.setState({
       showDetail: true
     });
-  }
+  };
 
-  hideDetail() {
+  hideDetail = () => {
     this.setState({
       showDetail: false
     });
-  }
+  };
 
   render() {
     const AddingTask = styled.div`

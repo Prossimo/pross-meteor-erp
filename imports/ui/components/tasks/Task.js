@@ -54,14 +54,14 @@ const DueDateIcon = styled(ApproverIcon)`
 `;
 
 class Task extends Component {
-  shortenName(_id) {
+  shortenName = _id => {
     const {
       profile: { firstName, lastName }
     } = Meteor.users.findOne({ _id });
     return `${firstName} ${lastName}`
       .split(" ")
       .reduce((result, next) => `${result}${next.charAt(0)}`, "");
-  }
+  };
 
   showDetail = () => {
     this.refs.taskModifying.showDetail();
@@ -91,7 +91,7 @@ class Task extends Component {
 
   render() {
     const { task } = this.props;
-
+    //TODO: assignee and followers icons view ================================================
     return (
       <div
         className="task-container"
