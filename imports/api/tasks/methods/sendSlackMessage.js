@@ -113,8 +113,13 @@ export default new ValidatedMethod({
               const user = Meteor.users.findOne(assignee[0]);
               const actor = Meteor.users.findOne(actorId);
               if (user) {
+                const slackUsers = Meteor.call("getSlackUsers");
+                //const currentUser = slackUsers.members.find(({id})=>id==user.slack.id)
+                console.log("slackUsers", slackUsers);
                 const userRefer =
-                  user.slack && user.slack.id
+                  user.slack &&
+                  user.slack.id &&
+                  slackUsers.members.find(({ id }) => id == user.slack.id)
                     ? `<@${user.slack.id}>`
                     : user.username;
                 const actorRefer =
@@ -148,7 +153,9 @@ export default new ValidatedMethod({
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
             const userRefer =
-              user.slack && user.slack.id //profile.display_name
+              user.slack &&
+              user.slack.id &&
+              slackUsers.members.find(({ id }) => id == user.slack.id) //profile.display_name
                 ? `<@${user.slack.id}>`
                 : user.username;
             const actorRefer =
