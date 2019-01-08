@@ -76,11 +76,28 @@ class Message extends Component {
           {formattedMessage}
           {message.attachments.map(
             ({ text, pretext, title, id, color, title_link }) => {
-              const url = /\<(\S+)\|(.+)\>/.exec(text);
+              //const url = /\<(\S+)\|(.+)\>/.exec(pretext);
               let pretextEl = "",
                 textEl = "";
+              let currentUser = {};
+              let userName = "";
+              let html = "";
+
               if (pretext) {
-                const html = Utils.slackParsedText(pretext);
+                userName = pretext.match(/(?<=\<@)(.*?)(?=\>)/i);
+                if (userName) {
+                  currentUser = Meteor.users.findOne({
+                    username: userName[0],
+                    slack: { $exists: true }
+                  });
+
+                  if (currentUser && currentUser.slack) {
+                    const slackId = currentUser.slack.id;
+                    pretext = pretext.replace(userName[0], slackId);
+                  }
+                }
+
+                html = Utils.slackParsedText(pretext);
                 try {
                   pretextEl = new HtmlToReact.Parser().parse(html);
                 } catch (err) {
