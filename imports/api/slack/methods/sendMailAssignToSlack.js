@@ -9,7 +9,7 @@ Meteor.methods({
     check(thread, Object);
     check(assignee, Object);
     check(assigner, Match.Maybe(Object));
-
+    console.log("thread assignee****************", assignee);
     let target;
     if (thread && thread.conversationId) {
       const conversation = Conversations.findOne({

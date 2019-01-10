@@ -57,7 +57,8 @@ export default new ValidatedMethod({
             if (
               user.slack &&
               user.slack.id &&
-              slackUsers.members.find(({ id }) => id == user.slack.id)
+              slackUsers.members.find(({ id }) => id == user.slack.id) &&
+              user.slack.id != "UDREHBLMS"
             )
               pretext = `A new comment from <@${user.slack.id}> has been added`;
             const attachments = slackClient.attachments.create({
@@ -123,14 +124,16 @@ export default new ValidatedMethod({
               const userRefer =
                 user.slack &&
                 user.slack.id &&
-                slackUsers.members.find(({ id }) => id == user.slack.id)
+                slackUsers.members.find(({ id }) => id == user.slack.id) &&
+                user.slack.id != "UDREHBLMS"
                   ? `<@${user.slack.id}>`
                   : `@${user.username}`;
 
               const actorRefer =
                 actor.slack &&
                 actor.slack.id &&
-                slackUsers.members.find(({ id }) => id == actor.slack.id)
+                slackUsers.members.find(({ id }) => id == actor.slack.id) &&
+                actor.slack.id != "UDREHBLMS"
                   ? `<@${actor.slack.id}>`
                   : `@${actor.username}`;
               pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
@@ -166,14 +169,16 @@ export default new ValidatedMethod({
               user.slack &&
               user.slack.id &&
               slackUsers &&
-              slackUsers.members.find(({ id }) => id == user.slack.id)
+              slackUsers.members.find(({ id }) => id == user.slack.id) &&
+              user.slack.id != "UDREHBLMS"
                 ? `<@${user.slack.id}>`
                 : `@${user.username}`;
 
             const actorRefer =
               actor.slack &&
               actor.slack.id &&
-              slackUsers.members.find(({ id }) => id == actor.slack.id)
+              slackUsers.members.find(({ id }) => id == actor.slack.id) &&
+              actor.slack.id != "UDREHBLMS"
                 ? `<@${actor.slack.id}>`
                 : `@${actor.username}`;
             const pretext = `${article} ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
@@ -203,7 +208,8 @@ export default new ValidatedMethod({
             const actorRefer =
               actor.slack &&
               actor.slack.id &&
-              slackUsers.members.find(({ id }) => id == actor.slack.id)
+              slackUsers.members.find(({ id }) => id == actor.slack.id) &&
+              actor.slack.id != "UDREHBLMS"
                 ? `<@${actor.slack.id}>`
                 : `@${actor.username}`;
 
