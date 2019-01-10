@@ -30,23 +30,13 @@ module.exports = {
   slack: {
     apiRoot: "https://slack.com/api",
     apiKey:
-      "xoxp-136423598965-161812623025-208199237427-122c8210835397e9ddb2b122eb1f8e92",
+      "xoxp-136423598965-473999462080-519862349376-ee6d8938db4b375ef5a3ccb8528d6689",
     inviteKey:
       "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666",
-    botToken: "xoxb-208218577667-PFnQBmx9AFaHsEpOElyZzbSC",
+    botToken: "xoxb-136423598965-520599759090-kr7TKjlSWSYPNfRJB7tSqHV9",
     botId: "U646EGZKM",
     botName: "mavrikbot"
   },
-  // slack: {
-  //   apiRoot: "https://slack.com/api",
-  //   apiKey:
-  //     "xoxp-136423598965-136423599189-208253208400-8116cad548d6084a7f02841f53b06f05",
-  //   inviteKey:
-  //     "xoxp-136423598965-136423599189-142146118262-9e22fb56f47ce5af80c9f3d5ae363666",
-  //   botToken: "xoxb-208218577667-PFnQBmx9AFaHsEpOElyZzbSC",
-  //   botId: "U646EGZKM",
-  //   botName: "mavrikbot"
-  // },
   prossDocDrive: {
     clientId:
       "977294428736-it2160rgkpdtrp4hjm3mhjr97n4q5rmp.apps.googleusercontent.com",
