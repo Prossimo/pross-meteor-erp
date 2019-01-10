@@ -20,7 +20,7 @@ class MessageParticipants extends React.Component {
   shortNames(participants = [], max = MAX_COLLAPSED) {
     let names = NylasUtils.getParticipantsNamesArray(participants, false);
     if (names.length > max) {
-      extra = names.length - max;
+      const extra = names.length - max;
       names = names.slice(0, max);
       names.push(`and ${extra} more`);
     }
@@ -28,12 +28,12 @@ class MessageParticipants extends React.Component {
   }
 
   selectText(e) {
-    textNode = e.currentTarget.childNodes[0];
+    const textNode = e.currentTarget.childNodes[0];
 
-    range = document.createRange();
+    const range = document.createRange();
     range.setStart(textNode, 0);
     range.setEnd(textNode, textNode.length);
-    selection = document.getSelection();
+    let selection = document.getSelection();
     selection.removeAllRanges();
     selection.addRange(range);
   }
