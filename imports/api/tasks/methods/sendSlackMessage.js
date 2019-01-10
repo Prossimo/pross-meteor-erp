@@ -2,7 +2,8 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { SalesRecords, Projects, Tasks, Settings } from "/imports/api/models";
 import { slackClient } from "/imports/api/slack";
-import _ from "lodash";
+import isEmpty from "lodash/isEmpty";
+import last from "lodash/last";
 
 const RED = "#FF4C4C";
 const ORANGE = "#FFA64C";
@@ -50,10 +51,14 @@ export default new ValidatedMethod({
         const title = `${tabName}: ${name}`;
         switch (type) {
           case "ADD_COMMENT": {
-            const comment = _.last(comments);
+            const comment = last(comments);
             const user = Meteor.users.findOne(comment.userId);
             let pretext = `A new comment from @${user.username} has been added`;
-            if (user.slack && user.slack.id)
+            if (
+              user.slack &&
+              user.slack.id &&
+              slackUsers.members.find(({ id }) => id == user.slack.id)
+            )
               pretext = `A new comment from <@${user.slack.id}> has been added`;
             const attachments = slackClient.attachments.create({
               pretext,
@@ -62,7 +67,7 @@ export default new ValidatedMethod({
               color: BLUE
             });
             slackClient.chat.postAttachments({ channel, attachments });
-            if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
               slackClient.chat.postAttachments({
                 channel: adminChanel.value,
                 attachments
@@ -80,7 +85,7 @@ export default new ValidatedMethod({
               title_link
             });
             slackClient.chat.postAttachments({ channel, attachments });
-            if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
               slackClient.chat.postAttachments({
                 channel: adminChanel.value,
                 attachments
@@ -98,7 +103,7 @@ export default new ValidatedMethod({
               title_link
             });
             slackClient.chat.postAttachments({ channel, attachments });
-            if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
               slackClient.chat.postAttachments({
                 channel: adminChanel.value,
                 attachments
@@ -106,66 +111,74 @@ export default new ValidatedMethod({
             }
             break;
           }
-          case "NEW_TASK":
-            {
-              //assignee.map(assignee => {
-              let pretext = null;
-              const user = Meteor.users.findOne(assignee[0]);
-              const actor = Meteor.users.findOne(actorId);
-              if (user) {
-                const slackUsers = Meteor.call("getSlackUsers");
-                //const currentUser = slackUsers.members.find(({id})=>id==user.slack.id)
-                console.log("slackUsers", slackUsers);
-                const userRefer =
-                  user.slack &&
-                  user.slack.id &&
-                  slackUsers.members.find(({ id }) => id == user.slack.id)
-                    ? `<@${user.slack.id}>`
-                    : user.username;
-                const actorRefer =
-                  actor.slack && actor.slack.id
-                    ? `<@${actor.slack.id}>`
-                    : actor.username;
-                pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
-                  parent.name
-                }>`;
-              } else {
-                pretext = `New unassigned ${tabName} has been created`;
-              }
-              const attachments = slackClient.attachments.create({
-                pretext,
-                title,
-                text,
-                color: BLUE,
-                title_link
+
+          case "NEW_TASK": {
+            //assignee.map(assignee => {
+            let pretext = null;
+            const user = Meteor.users.findOne(assignee[0]);
+            const actor = Meteor.users.findOne(actorId);
+            if (user) {
+              const slackUsers = Meteor.call("getSlackUsers");
+
+              const userRefer =
+                user.slack &&
+                user.slack.id &&
+                slackUsers.members.find(({ id }) => id == user.slack.id)
+                  ? `<@${user.slack.id}>`
+                  : `@${user.username}`;
+
+              const actorRefer =
+                actor.slack &&
+                actor.slack.id &&
+                slackUsers.members.find(({ id }) => id == actor.slack.id)
+                  ? `<@${actor.slack.id}>`
+                  : `@${actor.username}`;
+              pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
+                parent.name
+              }>`;
+            } else {
+              pretext = `New unassigned ${tabName} has been created`;
+            }
+            const attachments = slackClient.attachments.create({
+              pretext,
+              title,
+              text,
+              color: BLUE,
+              title_link
+            });
+            slackClient.chat.postAttachments({ channel, attachments });
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
+              slackClient.chat.postAttachments({
+                channel: adminChanel.value,
+                attachments
               });
-              slackClient.chat.postAttachments({ channel, attachments });
-              if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
-                slackClient.chat.postAttachments({
-                  channel: adminChanel.value,
-                  attachments
-                });
-              }
-              // });
             }
             break;
+            // });
+          }
+
           case "ASSIGN_TASK": {
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
+            const slackUsers = Meteor.call("getSlackUsers");
+
             const userRefer =
               user.slack &&
               user.slack.id &&
-              slackUsers.members.find(({ id }) => id == user.slack.id) //profile.display_name
+              slackUsers &&
+              slackUsers.members.find(({ id }) => id == user.slack.id)
                 ? `<@${user.slack.id}>`
-                : user.username;
+                : `@${user.username}`;
+
             const actorRefer =
-              actor.slack && actor.slack.id
+              actor.slack &&
+              actor.slack.id &&
+              slackUsers.members.find(({ id }) => id == actor.slack.id)
                 ? `<@${actor.slack.id}>`
-                : actor.username;
+                : `@${actor.username}`;
             const pretext = `${article} ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
               parent.name
             }>`;
-
             const attachments = slackClient.attachments.create({
               pretext,
               title,
@@ -185,10 +198,15 @@ export default new ValidatedMethod({
 
           case "UPDATE_TASK": {
             const actor = Meteor.users.findOne(actorId);
+            const slackUsers = Meteor.call("getSlackUsers");
+
             const actorRefer =
-              actor.slack && actor.slack.id
+              actor.slack &&
+              actor.slack.id &&
+              slackUsers.members.find(({ id }) => id == actor.slack.id)
                 ? `<@${actor.slack.id}>`
-                : actor.username;
+                : `@${actor.username}`;
+
             const attachments = slackClient.attachments.create({
               pretext: `${article} ${tabName} have been updated by ${actorRefer} in ${status} board of <${title_link}|${
                 parent.name
@@ -199,7 +217,7 @@ export default new ValidatedMethod({
               title_link
             });
             slackClient.chat.postAttachments({ channel, attachments });
-            if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
               slackClient.chat.postAttachments({
                 channel: adminChanel.value,
                 attachments
@@ -219,7 +237,7 @@ export default new ValidatedMethod({
               title_link
             });
             slackClient.chat.postAttachments({ channel, attachments });
-            if (adminChanel && adminChanel.value && _.isEmpty(assignee)) {
+            if (adminChanel && adminChanel.value && isEmpty(assignee)) {
               slackClient.chat.postAttachments({
                 channel: adminChanel.value,
                 attachments

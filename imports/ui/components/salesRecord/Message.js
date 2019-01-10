@@ -84,6 +84,7 @@ class Message extends Component {
               let html = "";
 
               if (pretext) {
+                // checking the pretext has tag with usarname and replacing with slack.id for mentioned user in slack chat
                 userName = pretext.match(/(?<=\<@)(.*?)(?=\>)/i);
                 if (userName) {
                   currentUser = Meteor.users.findOne({
