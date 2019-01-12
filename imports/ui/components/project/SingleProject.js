@@ -246,11 +246,13 @@ class SingleProject extends Component {
     return (
       <div className="page-container single-project">
         <div className="main-content">
-          <div className="tab-container">
-            <h2 className="page-title">{project.name}</h2>
-            <div className="tab-controls">{this.renderTabs()}</div>
-            <div className="tab-content">{this.renderContent()}</div>
+          {/* <div className="tab-container"> */}
+          <h2 className="page-title">{project.name}</h2>
+          <div className="tab-container tab-controls ">{this.renderTabs()}</div>
+          <div className="tab-container tab-content">
+            {this.renderContent()}
           </div>
+          {/* </div> */}
         </div>
         <aside className="right-sidebar">
           <div className="sidebar-box">
