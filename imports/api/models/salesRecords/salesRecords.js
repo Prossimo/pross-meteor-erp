@@ -231,7 +231,6 @@ SalesRecords.helpers({
   },
 
   slackActivities() {
-    debugger;
     if (!this.slackChannel) return [];
     const msg = SlackMessages.find(
       { channel: this.slackChannel.id },
