@@ -30,7 +30,7 @@ class MessageParticipants extends React.Component {
   selectText(e) {
     const textNode = e.currentTarget.childNodes[0];
 
-    const range = document.createRange();
+    let range = document.createRange();
     range.setStart(textNode, 0);
     range.setEnd(textNode, textNode.length);
     let selection = document.getSelection();

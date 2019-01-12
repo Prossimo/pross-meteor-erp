@@ -76,12 +76,11 @@ class Message extends Component {
           {formattedMessage}
           {message.attachments.map(
             ({ text, pretext, title, id, color, title_link }) => {
-              //const url = /\<(\S+)\|(.+)\>/.exec(pretext);
+              const url = /\<(\S+)\|(.+)\>/.exec(pretext);
               let pretextEl = "",
                 textEl = "";
               let currentUser = {};
               let userName = "";
-              let html = "";
 
               if (pretext) {
                 // checking the pretext has tag with usarname and replacing with slack.id for mentioned user in slack chat
@@ -98,7 +97,7 @@ class Message extends Component {
                   }
                 }
 
-                html = Utils.slackParsedText(pretext);
+                const html = Utils.slackParsedText(pretext);
                 try {
                   pretextEl = new HtmlToReact.Parser().parse(html);
                 } catch (err) {
