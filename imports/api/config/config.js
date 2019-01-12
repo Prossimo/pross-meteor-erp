@@ -22,10 +22,10 @@ module.exports = {
     serviceAccountPemCertPath: `${Meteor.absolutePath}/prossimo-us.pem`
   },
   twilio: {
-    accountSid: "AC3c2ae50d8872dbe6b907b157deb5483c",
-    authToken: "afdae10c9f35c595678a5af23301d022",
+    accountSid: "invalid",
+    authToken: "invalid",
     appSid: twilioAppSid[Meteor.absoluteUrl()],
-    phoneNumber: "+19142905527"
+    phoneNumber: "+10000000000"
   },
   slack: {
     apiRoot: "https://slack.com/api",
