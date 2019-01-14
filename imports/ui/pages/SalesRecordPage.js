@@ -352,7 +352,13 @@ class SalesRecordPage extends Component {
         />
 
         <ScrollPosition elementPath={window.location.pathname}>
-          <div style={{ overflowY: "auto", height: "calc(100% - 120px)" }}>
+          <div
+            style={{
+              overflowY: "auto",
+              height: "calc(100% - 120px)",
+              marginTop: "17px"
+            }}
+          >
             <Table hover>
               <SalesRecordsTableHeader fixedHeader={fixedHeader} />
 
