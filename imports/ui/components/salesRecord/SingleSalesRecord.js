@@ -671,56 +671,56 @@ class SingleSalesRecord extends React.Component {
         {this.renderSupplierStatusModal()}
         {/* <ScrollPosition elName="Deal"> */}
         <div className="main-content">
-          <div className="tab-container">
-            <div className="page-title row">
-              <div className="col-md-4">
-                <h2>{salesRecord.name}</h2>
+          {/* <div className="tab-container"> */}
+          <div className="page-title row">
+            <div className="col-md-4">
+              <h2>{salesRecord.name}</h2>
+            </div>
+            <div className="col-md-8 flex">
+              <div className="header-field-container" style={{ flex: 1 }}>
+                <div className="label">Team Lead:</div>
+                <div className="value">
+                  <Select
+                    value={salesRecord.teamLead}
+                    options={salesRecord.getMembers().map(m => ({
+                      value: m._id,
+                      label: m.name()
+                    }))}
+                    clearable={false}
+                    onChange={this.onChangeTeamLead}
+                  />
+                </div>
               </div>
-              <div className="col-md-8 flex">
-                <div className="header-field-container" style={{ flex: 1 }}>
-                  <div className="label">Team Lead:</div>
-                  <div className="value">
-                    <Select
-                      value={salesRecord.teamLead}
-                      options={salesRecord.getMembers().map(m => ({
-                        value: m._id,
-                        label: m.name()
-                      }))}
-                      clearable={false}
-                      onChange={this.onChangeTeamLead}
-                    />
-                  </div>
+              <div className="header-field-container" style={{ flex: 1.2 }}>
+                <div className="label">Client Status:</div>
+                <div className="value">
+                  <Select
+                    value={salesRecord.clientStatus}
+                    options={clientStatusOptions}
+                    clearable={false}
+                    onChange={this.onChangeClientStatus}
+                  />
                 </div>
-                <div className="header-field-container" style={{ flex: 1.2 }}>
-                  <div className="label">Client Status:</div>
-                  <div className="value">
-                    <Select
-                      value={salesRecord.clientStatus}
-                      options={clientStatusOptions}
-                      clearable={false}
-                      onChange={this.onChangeClientStatus}
-                    />
-                  </div>
-                </div>
-                <div className="header-field-container" style={{ flex: 1.2 }}>
-                  <div className="label">Supplier Status:</div>
-                  <div className="value">
-                    <Select
-                      value={salesRecord.supplierStatus}
-                      options={supplierStatusOptions}
-                      clearable={false}
-                      onChange={this.onChangeSupplierStatus}
-                    />
-                  </div>
+              </div>
+              <div className="header-field-container" style={{ flex: 1.2 }}>
+                <div className="label">Supplier Status:</div>
+                <div className="value">
+                  <Select
+                    value={salesRecord.supplierStatus}
+                    options={supplierStatusOptions}
+                    clearable={false}
+                    onChange={this.onChangeSupplierStatus}
+                  />
                 </div>
               </div>
             </div>
-
-            <div className="tab-controls">
-              <div className="flex-2">{this.getTabs()}</div>
-            </div>
-            <div className="tab-content">{this.getContent()}</div>
           </div>
+
+          <div className="tab-controls">
+            <div className="tab-container flex-2">{this.getTabs()}</div>
+          </div>
+          <div className="tab-content tab-container">{this.getContent()}</div>
+          {/* </div> */}
         </div>
         {/* </ScrollPosition> */}
         <aside className="right-sidebar" style={{ overflow: "auto" }}>

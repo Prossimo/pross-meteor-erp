@@ -1,5 +1,4 @@
 @import "var.scss";
-
 * {
   margin: 0;
   padding: 0;
@@ -62,7 +61,7 @@ div.error-msg {
   position: relative;
   min-height: 100vh !important;
   width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   padding-top: $header-height;
   background: rgba($main-color, 0.5);
 
@@ -95,10 +94,11 @@ div.error-msg {
     margin: 0 auto;
     height: 100%;
     width: 80%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    //overflow-y: auto;
+    overflow: hidden;
   }
   .page-title {
+    height: 90px;
     padding: 25px 30px 20px;
     text-transform: uppercase;
     font-size: 32px;
@@ -163,7 +163,8 @@ div.error-msg {
     }
   }
   .tab-content {
-    height: calc(100% - 189px);
+    height: calc(100% - 125px);
+    overflow: auto;
 
     .content-container {
       height: 100%;

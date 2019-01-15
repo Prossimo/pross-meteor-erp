@@ -78,7 +78,9 @@ class DashboardPage extends React.Component {
               </Panel>
             </div>
           </div>
-          <div className="tab-content">{this.renderContent()}</div>
+          <div className="tab-content" style={{ marginTop: "17px" }}>
+            {this.renderContent()}
+          </div>
         </div>
       </div>
     );
