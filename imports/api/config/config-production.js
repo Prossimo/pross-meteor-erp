@@ -30,10 +30,10 @@ module.exports = {
   slack: {
     apiRoot: "https://slack.com/api",
     apiKey:
-      "xoxp-6955176705-475789195319-519805433123-23f195f092ec2bc14163e23fa12f40a7",
+      "xoxp-6955176705-6955117235-523990654306-c2b746465e15410ce1b67bee53e26e58",
     inviteKey:
       "xoxp-6955176705-6955117235-208497785602-cda88bc4c2e4dcca4acf99c1e265441b",
-    botToken: "xoxb-209156147511-pPGIh2mklQofQh0ofpZbvAcY",
+    botToken: "xoxb-209156147511-5YIM51Zy0p5VDFkPSIoDdN2f",
     botId: "U654L4BF1",
     botName: "mavrikbot"
   },
