@@ -10,7 +10,7 @@ import { getUserName } from "/imports/api/lib/filters";
 import { ROLES } from "/imports/api/models";
 import { CustomToggle } from "../common";
 import { ClientErrorLog } from "/imports/utils/logger";
-
+import isEpmty from "lodash/isEmpty";
 class MyTasks extends Component {
   state = {
     showAllTasks: false,
@@ -65,12 +65,12 @@ class MyTasks extends Component {
       );
 
     if (userOption === "assignee")
-      tasks = tasks.filter(({ assignee }) =>
-        assignee.includes(Meteor.userId())
+      tasks = tasks.filter(
+        ({ assignee }) => assignee && assignee.includes(Meteor.userId())
       );
     if (userOption === "approver")
-      tasks = tasks.filter(({ approver }) =>
-        approver.includes(Meteor.userId())
+      tasks = tasks.filter(
+        ({ approver }) => approver && approver.includes(Meteor.userId())
       );
 
     return tasks;
@@ -191,10 +191,13 @@ class MyTasks extends Component {
     const { hoverStatusTask } = this.state;
 
     return tasks.map((task, index) => {
-      const assignee = users.filter(u => u._id === task.assignee)[0];
-      const assigneeName = assignee ? getUserName(assignee) : "";
-      const approver = users.filter(u => u._id === task.approver)[0];
-      const approverName = approver ? getUserName(approver) : "";
+      debugger;
+      const assignee =
+        task.assignee && users.filter(u => u._id === task.assignee[0]);
+      const assigneeName = !isEpmty(assignee) ? getUserName(assignee[0]) : "";
+      const approver =
+        task.approver && users.filter(u => u._id === task.approver[0]);
+      const approverName = !isEpmty(approver) ? getUserName(approver[0]) : "";
       const formatedDate = moment(task.dueDate).format("MM/DD/YYYY");
       const isOverDate = moment("MM/DD/YYYY").isBefore(formatedDate);
 
@@ -359,7 +362,7 @@ export default withTracker(props => {
   );
   tasks = Tasks.find({
     $and: [
-      { $or: [{ assignee: userId }, { approver: userId }] },
+      { $or: [{ assignee: [userId] }, { approver: [userId] }] },
       { tabName: props.tabName }
     ]
   })
