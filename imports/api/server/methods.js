@@ -274,7 +274,7 @@ Meteor.methods({
     // create a random password
     const password = Math.random()
       .toString(36)
-      .substr(7);
+      .substr(-7);
     const createdUserId = Accounts.createUser({
       username,
       email,
