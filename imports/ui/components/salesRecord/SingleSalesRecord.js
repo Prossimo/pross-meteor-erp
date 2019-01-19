@@ -440,6 +440,7 @@ class SingleSalesRecord extends React.Component {
 
   onSelectMembers = members => {
     const { salesRecord } = this.props;
+    // console.log("members===", members);
     if (
       members &&
       salesRecord.members &&

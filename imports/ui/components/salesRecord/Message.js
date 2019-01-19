@@ -85,20 +85,23 @@ class Message extends Component {
               if (pretext) {
                 // checking the pretext has tag with usarname and replacing with slack.id for mentioned user in slack chat
                 userNames = pretext.match(/(?<=\<@)(.*?)(?=\>)/gi);
-                // debugger;
+                //userNameTags = pretext.match(/(?=\<@)(.*?)(?<=\>)/gi);
+
                 console.log(
-                  "matches(username, pretext) ===>",
+                  "matches(usernames, pretext) ===>",
                   userNames,
                   pretext
                 );
                 if (userNames) {
                   userNames.map(userName => {
                     currentUser = Meteor.users.findOne({
-                      username: userName,
-                      slack: { $exists: true }
+                      "slack.profile.display_name": userName
                     });
-                    if (currentUser && currentUser.slack) {
-                      console.log("currentUser ===========>", currentUser);
+                    if (currentUser) {
+                      console.log(
+                        "currentUser refresh===========>",
+                        currentUser
+                      );
                       const slackId = currentUser.slack.id;
                       pretext = pretext.replace(userName, slackId);
                     }
