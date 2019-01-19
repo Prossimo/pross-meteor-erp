@@ -95,7 +95,7 @@ div.error-msg {
     height: 100%;
     width: 80%;
     //overflow-y: auto;
-    overflow: hidden;
+    overflow-x: hidden;
   }
   .page-title {
     height: 90px;
@@ -163,7 +163,7 @@ div.error-msg {
     }
   }
   .tab-content {
-    height: calc(100% - 125px);
+    height: calc(100% - 180px);
     overflow: auto;
 
     .content-container {
