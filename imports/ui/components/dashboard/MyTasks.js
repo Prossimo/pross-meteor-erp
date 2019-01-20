@@ -191,7 +191,6 @@ class MyTasks extends Component {
     const { hoverStatusTask } = this.state;
 
     return tasks.map((task, index) => {
-      debugger;
       const assignee =
         task.assignee && users.filter(u => u._id === task.assignee[0]);
       const assigneeName = !isEpmty(assignee) ? getUserName(assignee[0]) : "";
