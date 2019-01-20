@@ -321,10 +321,11 @@ Meteor.methods({
     check(userFields, {
       firstName: String,
       lastName: String,
+      email: String,
       role: String,
       status: Match.Maybe(String)
     });
-    const { firstName, lastName, role, status } = userFields;
+    const { firstName, lastName, email, role, status } = userFields;
     //console.log("userFields", userFields);
     if (!Roles.userIsInRole(this.userId, [ROLES.ADMIN]))
       throw new Meteor.Error("Access denied");
@@ -341,6 +342,7 @@ Meteor.methods({
       $set: {
         "profile.firstName": firstName,
         "profile.lastName": lastName,
+        "emails.0.address": email,
         "roles.0": role,
         status
       }

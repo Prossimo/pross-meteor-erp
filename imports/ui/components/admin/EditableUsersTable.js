@@ -58,6 +58,7 @@ class EditableUsersTable extends Component {
     const userData = {
       firstName: row.firstName,
       lastName: row.lastName,
+      email: row.email,
       role: row.role,
       status: row.status
     };
