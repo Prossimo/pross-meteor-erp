@@ -262,7 +262,7 @@ class EditableUsersTable extends Component {
         >
           Username
         </TableHeaderColumn>
-        <TableHeaderColumn dataField="email" editable={false} dataSort={true}>
+        <TableHeaderColumn dataField="email" dataSort={true}>
           Email
         </TableHeaderColumn>
         <TableHeaderColumn
