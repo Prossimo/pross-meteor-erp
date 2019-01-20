@@ -2,6 +2,7 @@ import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
 import { Projects, SalesRecords } from "../../models";
 import { slackClient } from "/imports/api/slack";
+import union from "lodash/union";
 
 export default new ValidatedMethod({
   name: "task.inviteUsers",
@@ -39,9 +40,15 @@ export default new ValidatedMethod({
             return userId;
           }
         });
+      const currentMembers = union(members, willInviteUserIds);
 
       // Invite user to project
       if (project) {
+        console.log("User was invite to project");
+        Meteor.call("updateProjectMembers", parentId, currentMembers, err => {
+          if (err) return ClientErrorLog.error(err);
+        });
+
         Projects.update(parentId, {
           $push: {
             members: {
@@ -53,6 +60,16 @@ export default new ValidatedMethod({
 
       // Invite user to saleRecord
       if (salesRecord) {
+        console.log("User was invited to saleRecord");
+        Meteor.call(
+          "updateSalesRecordMembers",
+          parentId,
+          currentMembers,
+          err => {
+            if (err) return ClientErrorLog.error(err);
+          }
+        );
+
         SalesRecords.update(parentId, {
           $push: {
             members: {

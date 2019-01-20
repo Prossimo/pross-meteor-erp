@@ -495,20 +495,8 @@ Meteor.methods({
       members.length == salesRecord.members.length &&
       members.every(m => salesRecord.members.indexOf(m) > -1)
     )
-      // {
-      //   console.log(
-      //     "debugger step members and salesRecord.members",
-      //     members,
-      //     salesRecord.members
-      //   );
       return;
-    // }
 
-    // console.log(
-    //   "debugger step 2 members and salesRecord.members",
-    //   members,
-    //   salesRecord.members
-    // );
     if (members && members.length) {
       Meteor.users
         .find({
@@ -524,23 +512,19 @@ Meteor.methods({
           });
         });
     }
-    // console.log("before allow edit");
     SalesRecords.update(salesRecordId, { $set: { members } });
 
     // allow edit folder
     Meteor.defer(() => {
-      //  console.log("in defer");
       members
         .filter(m => salesRecord.members.indexOf(m) === -1)
         .forEach(m => {
           const user = Meteor.users.findOne(m);
-          // console.log("user", user);
           if (user && user.emails && user.emails.length > 0) {
             const email = user.emails[0].address;
             if (email) {
               const salesRecord = SalesRecords.findOne(salesRecordId);
               if (salesRecord && salesRecord.folderId) {
-                // console.log("drive====true");
                 prossDocDrive.shareWith.call({
                   fileId: salesRecord.folderId,
                   email

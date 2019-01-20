@@ -99,21 +99,8 @@ export default new ValidatedMethod({
       const salesrecord = SalesRecords.findOne(parentId);
       if (salesrecord) {
         let members = compact(salesrecord.members || []);
-        // console.log("members(before createNewTask)", members);
-        // // if (members.length != union(members, assignee, approver).length) {
-        // //   console.log("members length checked");
-        // // }
         members = union(members, assignee, approver);
 
-        // console.log("members(after createNewTask)", members);
-        // Meteor.call(
-        //   "updateSalesRecordMembers",
-        //   salesrecord._id,
-        //   members,
-        //   err => {
-        //     if (err) return ClientErrorLog.error(err);
-        //   }
-        // );
         SalesRecords.update(parentId, { $set: { members } });
       }
     } else if (parentType === "project") {
@@ -126,30 +113,12 @@ export default new ValidatedMethod({
           assignee.map(assignee => {
             if (!memberIds.includes(assignee))
               members.push({ userId: assignee });
-            // Meteor.call(
-            //   "updateSalesRecordMembers",
-            //   project._id,
-            //   memberIds,
-            //   err => {
-            //     if (err) return ClientErrorLog.error(err);
-            //   }
-            // );
           });
         }
         if (!isEmpty(approver)) {
           approver.map(approver => {
             if (!memberIds.includes(approver))
-              //{
               members.push({ userId: approver });
-            // Meteor.call(
-            //   "updateSalesRecordMembers",
-            //   project._id,
-            //   memberIds,
-            //   err => {
-            //     if (err) return ClientErrorLog.error(err);
-            //   }
-            // );
-            //}
           });
         }
 
