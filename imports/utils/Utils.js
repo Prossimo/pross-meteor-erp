@@ -168,10 +168,17 @@ module.exports = Utils = {
           const slackUser = SlackUsers.findOne({
             id: m.substr(2, m.length - 3)
           });
-          //console.log(slackUser)
+
+          // console.log("slackUser  and m", slackUser, m);
           if (slackUser) {
-            text = text.replace(m, `<a>@${slackUser.name}</a>`);
+            text = text.replace(m, `<a>@${slackUser.display_name}</a>`);
+          } else {
+            text = text.replace(
+              m,
+              `<a title="the user isn't in the list of members of the current Workspace">@${m}</a>`
+            );
           }
+          console.log("text", text);
         } else if (new RegExp(/\<\#[^\>]+\|[^\>]+\>/g).test(m)) {
           // <#C716GCL3E|channel>
           //console.log(m, `@${m.substr(m.indexOf('|') + 1, m.length - m.indexOf('|') - 2)}`)

@@ -1,9 +1,16 @@
 import { ValidatedMethod } from "meteor/mdg:validated-method";
 import SimpleSchema from "simpl-schema";
-import { SalesRecords, Projects, Tasks, Settings } from "/imports/api/models";
+import {
+  SalesRecords,
+  Projects,
+  Tasks,
+  Settings,
+  SlackUsers
+} from "/imports/api/models";
 import { slackClient } from "/imports/api/slack";
 import isEmpty from "lodash/isEmpty";
 import last from "lodash/last";
+import { users } from "/imports/api/slack/restful";
 
 const RED = "#FF4C4C";
 const ORANGE = "#FFA64C";
@@ -49,6 +56,7 @@ export default new ValidatedMethod({
           key: "SLACK_NOTIFICATION_CHANNEL"
         });
         const title = `${tabName}: ${name}`;
+
         switch (type) {
           case "ADD_COMMENT": {
             const comment = last(comments);
@@ -113,26 +121,38 @@ export default new ValidatedMethod({
           }
 
           case "NEW_TASK": {
-            //assignee.map(assignee => {
+            // let cursor
+            const list = users.list().data.members;
+
             let pretext = null;
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
+
             if (user) {
               const slackUsers = Meteor.call("getSlackUsers");
+              let userRefer = `<@${user.username}>`;
+              if (user.slack && user.slack.id) {
+                const userEmail = user.slack.profile.email;
+                const currentSlackUser = list.find(
+                  l => l.profile.email == userEmail
+                );
+                if (currentSlackUser) {
+                  userRefer = `<@${currentSlackUser.id}>`;
+                }
+              }
 
-              const userRefer =
-                user.slack &&
-                user.slack.id &&
-                slackUsers.members.find(({ id }) => id == user.slack.id)
-                  ? `<@${user.slack.id}>`
-                  : `@${user.username}`;
+              let actorRefer = `@${actor.username}`;
 
-              const actorRefer =
-                actor.slack &&
-                actor.slack.id &&
-                slackUsers.members.find(({ id }) => id == actor.slack.id)
-                  ? `<@${actor.slack.id}>`
-                  : `@${actor.username}`;
+              if (actor.slack && actor.slack.id) {
+                const actorEmail = actor.slack.profile.email;
+                const currentSlackActor = list.find(
+                  l => l.profile.email == actorEmail
+                );
+                if (currentSlackActor) {
+                  actorRefer = `<@${currentSlackActor.id}>`;
+                }
+              }
+
               pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
                 parent.name
               }>`;
@@ -161,21 +181,30 @@ export default new ValidatedMethod({
             const user = Meteor.users.findOne(assignee[0]);
             const actor = Meteor.users.findOne(actorId);
             const slackUsers = Meteor.call("getSlackUsers");
+            const list = users.list().data.members;
 
-            const userRefer =
-              user.slack &&
-              user.slack.id &&
-              slackUsers &&
-              slackUsers.members.find(({ id }) => id == user.slack.id)
-                ? `<@${user.slack.id}>`
-                : `@${user.username}`;
+            let userRefer = `<@${user.username}>`;
+            if (user.slack && user.slack.id) {
+              const userEmail = user.slack.profile.email;
+              const currentSlackUser = list.find(
+                l => l.profile.email == userEmail
+              );
+              if (currentSlackUser) {
+                userRefer = `<@${currentSlackUser.id}>`;
+              }
+            }
 
-            const actorRefer =
-              actor.slack &&
-              actor.slack.id &&
-              slackUsers.members.find(({ id }) => id == actor.slack.id)
-                ? `<@${actor.slack.id}>`
-                : `@${actor.username}`;
+            let actorRefer = `@${actor.username}`;
+
+            if (actor.slack && actor.slack.id) {
+              const actorEmail = actor.slack.profile.email;
+              const currentSlackActor = list.find(
+                l => l.profile.email == actorEmail
+              );
+              if (currentSlackActor) {
+                actorRefer = `<@${currentSlackActor.id}>`;
+              }
+            }
             const pretext = `${article} ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
               parent.name
             }>`;
@@ -199,13 +228,18 @@ export default new ValidatedMethod({
           case "UPDATE_TASK": {
             const actor = Meteor.users.findOne(actorId);
             const slackUsers = Meteor.call("getSlackUsers");
+            const list = users.list().data.members;
+            let actorRefer = `@${actor.username}`;
 
-            const actorRefer =
-              actor.slack &&
-              actor.slack.id &&
-              slackUsers.members.find(({ id }) => id == actor.slack.id)
-                ? `<@${actor.slack.id}>`
-                : `@${actor.username}`;
+            if (actor.slack && actor.slack.id) {
+              const actorEmail = actor.slack.profile.email;
+              const currentSlackActor = list.find(
+                l => l.profile.email == actorEmail
+              );
+              if (currentSlackActor) {
+                actorRefer = `<@${currentSlackActor.id}>`;
+              }
+            }
 
             const attachments = slackClient.attachments.create({
               pretext: `${article} ${tabName} have been updated by ${actorRefer} in ${status} board of <${title_link}|${
