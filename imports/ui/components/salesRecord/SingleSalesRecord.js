@@ -673,11 +673,11 @@ class SingleSalesRecord extends React.Component {
         {/* <ScrollPosition elName="Deal"> */}
         <div className="main-content">
           {/* <div className="tab-container"> */}
-          <div className="page-title row">
-            <div className="col-md-4">
-              <h2>{salesRecord.name}</h2>
-            </div>
-            <div className="col-md-8 flex">
+          <div className="page-title row ">
+            {/* <div className="col-md-4 "> */}
+            <h2>{salesRecord.name}</h2>
+            {/* </div> */}
+            <div className="col-md-8 flex" style={{ minWidth: "660px" }}>
               <div className="header-field-container" style={{ flex: 1 }}>
                 <div className="label">Team Lead:</div>
                 <div className="value">

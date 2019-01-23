@@ -17,7 +17,7 @@ class AdminPage extends Component {
     if (Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN)) {
       return (
         <div className="page-container admin-page">
-          <div className="main-content">
+          <div className="main-content" style={{ overflowX: "hidden" }}>
             <div className="tab-container">
               <h2 className="page-title">Admin page</h2>
               <EditableUsersTable createdUsers={this.props.users} />

@@ -94,11 +94,14 @@ div.error-msg {
     margin: 0 auto;
     height: 100%;
     width: 80%;
-    overflow-x: hidden;
   }
   .page-title {
-    height: 90px;
-    padding: 25px 30px 20px;
+    height: 110px;
+    display: flex !important;
+    //flex-wrap: wrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 20px;
     text-transform: uppercase;
     font-size: 32px;
     position: relative;
@@ -107,6 +110,10 @@ div.error-msg {
     color: #fff;
     font-weight: 900;
 
+    h2 {
+      margin-top: 10px !important;
+    }
+
     .Select {
       font-size: 12px;
       font-weight: normal;
@@ -114,7 +121,7 @@ div.error-msg {
   }
   .tab-container {
     background: $white;
-    padding-bottom: 10px;
+    padding-top: 5px;
     width: 100%;
   }
   .tab-controls {
@@ -162,7 +169,7 @@ div.error-msg {
     }
   }
   .tab-content {
-    height: calc(100% - 125px);
+    height: calc(100% - 155px);
     overflow: auto;
 
     .content-container {
