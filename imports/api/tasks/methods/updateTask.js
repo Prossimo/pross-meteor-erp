@@ -6,7 +6,7 @@ import sendSlackMessage from "./sendSlackMessage";
 import union from "lodash/union";
 import compact from "lodash/compact";
 import isEmpty from "lodash/isEmpty";
-import isEqual from "lodash/isEqual";
+import difference from "lodash/difference";
 import sortBy from "lodash/sortBy";
 
 export default new ValidatedMethod({
@@ -20,7 +20,8 @@ export default new ValidatedMethod({
       taskOperators: union(assignee, approver)
     });
     const oldVersionTask = Tasks.findOne(task._id);
-
+    const oldAssignees = sortBy(oldVersionTask.assignee);
+    const oldFollowers = sortBy(oldVersionTask.approver);
     delete task.created_at;
     task.modified_at = new Date();
 
@@ -65,10 +66,8 @@ export default new ValidatedMethod({
     let type = "UPDATE_TASK";
     const actorId = this.userId;
     if (
-      oldVersionTask &&
-      // !isEmpty(oldVersionTask.assignee) &&
-      !isEmpty(task.assignee) &&
-      !isEqual(sortBy(oldVersionTask.assignee), sortBy(task.assignee)) //true)
+      (oldVersionTask && !isEmpty(difference(task.assignee, oldAssignees))) ||
+      !isEmpty(difference(task.approver, oldFollowers))
     ) {
       type = "ASSIGN_TASK";
     }
@@ -78,7 +77,9 @@ export default new ValidatedMethod({
         taskId: task._id,
         parentId,
         type,
-        actorId
+        actorId,
+        oldAssignees, //: difference(task.assignee, oldAssignees),
+        oldFollowers //: difference(task.approver, oldFollowers)
       });
     });
   }

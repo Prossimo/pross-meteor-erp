@@ -10,6 +10,7 @@ import {
 import { slackClient } from "/imports/api/slack";
 import isEmpty from "lodash/isEmpty";
 import last from "lodash/last";
+import difference from "lodash/difference";
 import { users } from "/imports/api/slack/restful";
 
 const RED = "#FF4C4C";
@@ -26,9 +27,34 @@ export default new ValidatedMethod({
     actorId: {
       type: String,
       optional: true
+    },
+    oldAssignees: {
+      type: Array,
+      optional: true
+    },
+    "oldAssignees.$": {
+      type: String,
+      optional: true
+    },
+
+    oldFollowers: {
+      type: Array,
+      optional: true
+    },
+    "oldFollowers.$": {
+      type: String,
+      optional: true
     }
   }).validator(),
-  run({ parentId, taskId, type, tabName, actorId }) {
+  run({
+    parentId,
+    taskId,
+    type,
+    tabName,
+    actorId,
+    oldAssignees,
+    oldFollowers
+  }) {
     let parent = null;
     let parentType = null;
     tabName = tabName.slice(0, -1).toLowerCase();
@@ -39,6 +65,21 @@ export default new ValidatedMethod({
     } else if ((parent = Projects.findOne(parentId))) {
       parentType = "project";
     }
+    const _userRefer = user => {
+      const list = users.list().data.members; //slack Workspace's members list
+
+      Meteor.call("getSlackUsers");
+      let userRefer = `<@${user.username}>`;
+
+      if (user.slack && user.slack.id) {
+        const userEmail = user.slack.profile.email;
+        const currentSlackUser = list.find(l => l.profile.email == userEmail);
+        if (currentSlackUser) {
+          userRefer = `<@${currentSlackUser.id}>`;
+        }
+      }
+      return userRefer;
+    };
 
     if (parent) {
       const { slackChannel } = parent;
@@ -49,7 +90,8 @@ export default new ValidatedMethod({
           description: text,
           status,
           comments,
-          assignee
+          assignee,
+          approver
         } = Tasks.findOne(taskId);
         const title_link = Meteor.absoluteUrl(`${parentType}/${parentId}`);
         const adminChanel = Settings.findOne({
@@ -120,44 +162,56 @@ export default new ValidatedMethod({
             break;
           }
 
+          //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
           case "NEW_TASK": {
-            // let cursor
-            const list = users.list().data.members;
-
-            let pretext = null;
-            const user = Meteor.users.findOne(assignee[0]);
+            //main variables
+            const newAssignee = Meteor.users.findOne(assignee[0]); //returns string
+            const followers = approver.map(item => Meteor.users.findOne(item));
             const actor = Meteor.users.findOne(actorId);
 
-            if (user) {
-              const slackUsers = Meteor.call("getSlackUsers");
-              let userRefer = `<@${user.username}>`;
-              if (user.slack && user.slack.id) {
-                const userEmail = user.slack.profile.email;
-                const currentSlackUser = list.find(
-                  l => l.profile.email == userEmail
-                );
-                if (currentSlackUser) {
-                  userRefer = `<@${currentSlackUser.id}>`;
-                }
-              }
+            let unassigned = "unassigned";
+            let pretext = ""; //`New unassigned ${tabName} has been created`;
+            let followersText = "";
+            let assigneeText = "";
+            let and = "";
 
-              let actorRefer = `@${actor.username}`;
+            const actorRefer = _userRefer(actor);
 
-              if (actor.slack && actor.slack.id) {
-                const actorEmail = actor.slack.profile.email;
-                const currentSlackActor = list.find(
-                  l => l.profile.email == actorEmail
-                );
-                if (currentSlackActor) {
-                  actorRefer = `<@${currentSlackActor.id}>`;
-                }
-              }
+            //Followers text part creation
+            //========================================================
 
-              pretext = `New ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
+            if (!isEmpty(followers)) {
+              //unassigned = "";
+
+              const followersRefer = followers
+                .map(item => _userRefer(item))
+                .join();
+
+              followersText = `${actorRefer} has added ${followersRefer} as follower`;
+              and = "and";
+            }
+
+            //Assignee text part creation
+            //=========================================================
+
+            if (newAssignee) {
+              unassigned = "";
+
+              const assigneeRefer = _userRefer(newAssignee);
+
+              assigneeText = `has been assigned to ${assigneeRefer} by ${actorRefer} in ${status} board of <${title_link}|${
                 parent.name
               }>`;
+            }
+
+            //Full pretext creation
+            //========================================================
+            if (unassigned) {
+              pretext = `New ${unassigned} ${tabName} has been created by ${actorRefer} in ${status} board of <${title_link}|${
+                parent.name
+              }> ${and} ${followersText}`;
             } else {
-              pretext = `New unassigned ${tabName} has been created`;
+              pretext = `New ${tabName} ${assigneeText} ${and} ${followersText} `;
             }
             const attachments = slackClient.attachments.create({
               pretext,
@@ -174,40 +228,62 @@ export default new ValidatedMethod({
               });
             }
             break;
-            // });
           }
-
+          //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
           case "ASSIGN_TASK": {
-            const user = Meteor.users.findOne(assignee[0]);
+            //main variables
+            const newAddedAssignees = difference(assignee, oldAssignees);
+            const newAddedFollowers = difference(approver, oldFollowers);
+
             const actor = Meteor.users.findOne(actorId);
-            const slackUsers = Meteor.call("getSlackUsers");
-            const list = users.list().data.members;
 
-            let userRefer = `<@${user.username}>`;
-            if (user.slack && user.slack.id) {
-              const userEmail = user.slack.profile.email;
-              const currentSlackUser = list.find(
-                l => l.profile.email == userEmail
-              );
-              if (currentSlackUser) {
-                userRefer = `<@${currentSlackUser.id}>`;
-              }
+            let isAssigned = false;
+            let pretext = "";
+            let followersText = "";
+            let assigneeText = "";
+            let and = "";
+
+            const actorRefer = _userRefer(actor);
+
+            //Assignee text part creation
+            //=========================================================
+            if (!isEmpty(newAddedAssignees)) {
+              isAssigned = true;
+              const newAssignee = Meteor.users.findOne(newAddedAssignees[0]);
+              const assigneeRefer = _userRefer(newAssignee); //returns a string
+
+              assigneeText = `has been assigned to ${assigneeRefer} by ${actorRefer}`;
+            } else {
             }
 
-            let actorRefer = `@${actor.username}`;
+            //Followers text part creation
+            //========================================================
 
-            if (actor.slack && actor.slack.id) {
-              const actorEmail = actor.slack.profile.email;
-              const currentSlackActor = list.find(
-                l => l.profile.email == actorEmail
+            if (!isEmpty(newAddedFollowers)) {
+              const newFollowers = newAddedFollowers.map(item =>
+                Meteor.users.findOne(item)
               );
-              if (currentSlackActor) {
-                actorRefer = `<@${currentSlackActor.id}>`;
-              }
+              const followersRefer = newFollowers
+                .map(item => _userRefer(item))
+                .join(); //returns a string of joined array'd elements
+
+              followersText = `${actorRefer} has added ${followersRefer} as follower`;
+              and = "and";
             }
-            const pretext = `${article} ${tabName} has been assigned to ${userRefer} by ${actorRefer} in ${status} board of <${title_link}|${
-              parent.name
-            }>`;
+
+            //Full pretext creation
+            //========================================================
+
+            if (isAssigned) {
+              pretext = `${article} ${tabName} ${assigneeText} in ${status} board of <${title_link}|${
+                parent.name
+              }>  ${and} ${followersText} `;
+            } else {
+              pretext = `${article} ${tabName} has been updated in ${status} board of <${title_link}|${
+                parent.name
+              }> ${and} ${followersText} `;
+            }
+
             const attachments = slackClient.attachments.create({
               pretext,
               title,
@@ -225,24 +301,14 @@ export default new ValidatedMethod({
             break;
           }
 
+          //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
           case "UPDATE_TASK": {
+            //main variables
             const actor = Meteor.users.findOne(actorId);
-            const slackUsers = Meteor.call("getSlackUsers");
-            const list = users.list().data.members;
-            let actorRefer = `@${actor.username}`;
-
-            if (actor.slack && actor.slack.id) {
-              const actorEmail = actor.slack.profile.email;
-              const currentSlackActor = list.find(
-                l => l.profile.email == actorEmail
-              );
-              if (currentSlackActor) {
-                actorRefer = `<@${currentSlackActor.id}>`;
-              }
-            }
+            const actorRefer = _userRefer(actor);
 
             const attachments = slackClient.attachments.create({
-              pretext: `${article} ${tabName} have been updated by ${actorRefer} in ${status} board of <${title_link}|${
+              pretext: `${article} ${tabName} have been updated  by ${actorRefer} in ${status} board of <${title_link}|${
                 parent.name
               }>`,
               title,
@@ -260,6 +326,7 @@ export default new ValidatedMethod({
             break;
           }
 
+          //||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
           case "REMOVE_TASK": {
             const attachments = slackClient.attachments.create({
               pretext: `${article} ${tabName} have been removed from ${status} board of <${title_link}|${
