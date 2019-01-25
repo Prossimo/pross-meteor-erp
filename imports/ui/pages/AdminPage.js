@@ -18,9 +18,11 @@ class AdminPage extends Component {
       return (
         <div className="page-container admin-page">
           <div className="main-content" style={{ overflowX: "hidden" }}>
-            <div className="tab-container">
+            <div className="tab-container" style={{ marginTop: "-5px" }}>
               <h2 className="page-title">Admin page</h2>
-              <EditableUsersTable createdUsers={this.props.users} />
+              <div style={{ padding: "5px" }}>
+                <EditableUsersTable createdUsers={this.props.users} />
+              </div>
             </div>
           </div>
         </div>
