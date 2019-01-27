@@ -6,21 +6,23 @@ import { setParam } from "/imports/redux/actions";
 import * as columnsDetails from "./columnsDetails";
 import { DEALS } from "/imports/utils/constants";
 
-const ActiveThInner = styled.div`
-  transition: color 0.2s ease;
-  padding: 8px;
-  width: 100%;
-  color: #2e2e2e;
+// const ActiveThInner = styled.div`
+//   transition: color 0.2s ease;
+//   padding: 8px;
+//   width: 100%;
+//   color: #2e2e2e;
+//   margin-right: 32px
 
-  position: fixed;
-  border-bottom: 2px solid #dddddd;
-  margin-left: -10px;
-  background-color: #fff;
-  z-index: 10;
-  margin-top: -30px;
-`;
+//   position: fixed;
+//   border-bottom: 2px solid #dddddd;
+//   margin-left: -8px;
+//   background-color: #fff;
+//   z-index: 10;
+//   margin-top: -30px;
+// `;
 
 const ActiveTh = styled.th`
+    width: -webkit-fill-available;
     cursor: pointer;
     padding: 0;
     min-height: 30px;
@@ -70,20 +72,21 @@ class SalesRecordsTableHeader extends Component {
                 {...{ "data-key": col }}
                 onClick={this.handleSort}
               >
-                <ActiveThInner fixedHeader={fixedHeader} topOffset={topOffset}>
-                  {columnsDetails[col].label}
-                  {col === sort.key && col !== DEALS.GROUP_BY.SUBSTAGE ? (
-                    <i
-                      className={`fa fa-caret-${
-                        sort.order > 0 ? "up" : "down"
-                      }`}
-                    />
-                  ) : null}
-                </ActiveThInner>
+                {/* <ActiveThInner fixedHeader={fixedHeader} topOffset={topOffset}> */}
+                {columnsDetails[col].label}
+                {col === sort.key && col !== DEALS.GROUP_BY.SUBSTAGE ? (
+                  <i
+                    className={`fa fa-caret-${sort.order > 0 ? "up" : "down"}`}
+                  />
+                ) : null}
+                <div style={{ width: "32px", float: "right" }} />
+                {/* </ActiveThInner> */}
               </ActiveTh>
             );
           })}
-          <ActiveTh />
+          <th>
+            <div style={{ width: "80px" }} />
+          </th>
         </tr>
       </thead>
     );

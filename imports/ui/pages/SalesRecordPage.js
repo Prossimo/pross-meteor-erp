@@ -32,6 +32,7 @@ const subStages = [].concat(
 import { DEALS } from "/imports/utils/constants";
 
 const ThGroup = styled.th`
+  width: -webkit-fill-available;
   vertical-align: middle;
   text-transform: uppercase;
   color: rgba(78, 217, 123, 0.7);
@@ -252,7 +253,8 @@ class SalesRecordPage extends Component {
   renderGroup = (group, stage) => {
     const { columns, kanbanViews, collapsedViews } = this.props;
     return (
-      <tbody key={stage}>
+      // < key={stage} style={{ display: "contents" }}>
+      <>
         <tr>
           <ThGroup
             colSpan={columns.length}
@@ -260,7 +262,7 @@ class SalesRecordPage extends Component {
           >
             {this.getTitle(stage)}
           </ThGroup>
-          <ThGroup style={{ width: "80px" }}>
+          <ThGroup style={{ width: "103px" }}>
             <div className="btn-group" style={{ float: "right" }}>
               <button
                 className={`btn btn-default ${
@@ -298,7 +300,7 @@ class SalesRecordPage extends Component {
             ? this.renderKanbanView(group, stage)
             : this.renderList(group)
           : null}
-      </tbody>
+      </>
     );
   };
 
@@ -345,33 +347,28 @@ class SalesRecordPage extends Component {
     });
 
     return (
-      <div className="projects-page">
-        <SalesRecordsNavbar
-          title={this.getTitle(stage)}
-          modalProps={{ ...props, stage }}
-        />
+      <div className="contact-page">
+        <div className="contact-list">
+          <SalesRecordsNavbar
+            title={this.getTitle(stage)}
+            modalProps={{ ...props, stage }}
+          />
 
-        <ScrollPosition elementPath={window.location.pathname}>
-          <div
-            style={{
-              overflowY: "auto",
-              height: "calc(100% - 120px)",
-              marginTop: "17px"
-            }}
-          >
-            <Table hover>
-              <SalesRecordsTableHeader fixedHeader={fixedHeader} />
-
-              {_.map(
-                this.sortGroups(
-                  STAGES_MAP.map(item => item.value),
-                  _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
-                ),
-                this.renderGroup
-              )}
-            </Table>
-          </div>
-        </ScrollPosition>
+          <Table table-striped hover>
+            <SalesRecordsTableHeader fixedHeader={fixedHeader} />
+            <ScrollPosition elementPath={window.location.pathname}>
+              <tbody>
+                {_.map(
+                  this.sortGroups(
+                    STAGES_MAP.map(item => item.value),
+                    _.groupBy(filteredRecords, DEALS.GROUP_BY.STAGE)
+                  ),
+                  this.renderGroup
+                )}
+              </tbody>
+            </ScrollPosition>
+          </Table>
+        </div>
       </div>
     );
   }

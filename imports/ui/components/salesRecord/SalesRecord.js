@@ -104,7 +104,7 @@ class SalesRecord extends Component {
 
   renderRecordButtons = ({ _id, archived }) => {
     return (
-      <td>
+      <td style={{ width: "105px" }}>
         <div className="btn-group" style={{ width: "80px" }}>
           {Roles.userIsInRole(Meteor.userId(), ROLES.ADMIN) && (
             <Button
@@ -159,7 +159,11 @@ class SalesRecord extends Component {
         {columns.map((col, idx) => {
           const colDetails = columnsDetails[col];
           return colDetails ? (
-            <td key={idx} className={colDetails.editable ? "editable" : null}>
+            <td
+              key={idx}
+              className={colDetails.editable ? "editable" : null}
+              style={{ width: "-webkit-fill-available" }}
+            >
               {colDetails.editable ? (
                 <EditableField
                   editing={editing}
@@ -175,7 +179,9 @@ class SalesRecord extends Component {
               )}
             </td>
           ) : (
-            <td key={idx}>{record[col]}</td>
+            <td key={idx} style={{ width: "-webkit-fill-available" }}>
+              {record[col]}
+            </td>
           );
         })}
         {this.renderRecordButtons(record)}

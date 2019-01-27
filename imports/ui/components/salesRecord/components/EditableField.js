@@ -4,7 +4,7 @@ import { Button } from "react-bootstrap";
 import getComponent from "./fields";
 
 const EditField = styled.div`
-    padding: 0;
+    padding: 8px;
     box-sizing: border-box;
     outline: none !important;
     position: relative;
@@ -83,11 +83,21 @@ class EditableField extends Component {
           : record[colDetails.key]}
 
         {canEdit ? (
-          <Button bsSize="small" bsStyle="warning" onClick={this.handleSave}>
+          <Button
+            bsSize="small"
+            bsStyle="warning"
+            onClick={this.handleSave}
+            style={{ marginLeft: "auto" }}
+          >
             <i className="fa fa-save" />
           </Button>
         ) : (
-          <Button bsSize="small" bsStyle="danger" onClick={this.handleEdit}>
+          <Button
+            bsSize="small"
+            bsStyle="danger"
+            onClick={this.handleEdit}
+            style={{ marginLeft: "auto" }}
+          >
             <i className="fa fa-edit" />
           </Button>
         )}
