@@ -281,9 +281,10 @@ class InboxPage extends React.Component {
       }
       const _designationFilter = (designationName, categoryId) => {
         if (category.id === categoryId) {
-          const designationId = PeopleDesignations.findOne({
+          const designation = PeopleDesignations.findOne({
             name: designationName
-          })._id;
+          });
+          const designationId = designation && designation._id;
           const people = People.find({
             designation_id: designationId
           });

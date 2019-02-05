@@ -134,6 +134,7 @@ class SalesRecordsNavbar extends Component {
             <Navbar.Brand>{title}</Navbar.Brand>
             <br />
             <button
+              style={{ marginBottom: "5px" }}
               className="btn btn-primary"
               onClick={() => this.setState({ showModal: true })}
             >

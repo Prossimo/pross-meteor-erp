@@ -26,7 +26,6 @@ class SelectUser extends Component {
       flex-wrap: nowrap;
       display: flex;
       position: relative;
-      height: 38px;
       line-height: 38px;
       padding-left: 10px;
       border-radius: 5px;
@@ -76,9 +75,9 @@ class SelectUser extends Component {
             <div onClick={this.props.removeUser}>
               <i className="fa fa-times" /> */}
 
-            <div style={{ width: "95px", display: "flex" }}>
+            <div style={{ width: "95px", display: "inline-block" }}>
               {this.props.user.map(user => (
-                <div key={user}>
+                <div key={user} style={{ float: "left" }}>
                   {this.shortenName(user)}
                   <i
                     onClick={() => this.props.removeUser(user)}

@@ -16,7 +16,7 @@ const AssigneeIcon = styled.div`
   overflow-x: hidden;
   position: relative;
   float: right;
-  margin-left: 2px;
+  margin: 1px;
   color: white;
 `;
 
@@ -30,7 +30,7 @@ const ApproverIcon = styled.div`
   overflow-x: hidden;
   position: relative;
   float: right;
-  margin-left: 2px;
+  margin: 1px;
 `;
 
 const CloseButton = styled.a`
@@ -114,11 +114,13 @@ class Task extends Component {
             ? this.shortenName(this.props.assignee[0])
             : "?"}
         </AssigneeIcon>
-        <ApproverIcon>
-          {!_.isEmpty(this.props.approver)
-            ? this.shortenName(this.props.approver[0])
-            : "?"}
-        </ApproverIcon>
+        {!_.isEmpty(this.props.approver) ? (
+          this.props.approver.map(ap => (
+            <ApproverIcon>{this.shortenName(ap)}</ApproverIcon>
+          ))
+        ) : (
+          <ApproverIcon>"?"</ApproverIcon>
+        )}
         <DueDateIcon status={task.status} dueDate={task.dueDate}>
           {moment(task.dueDate).format("YYYY/MM/DD")}
         </DueDateIcon>

@@ -255,7 +255,7 @@ class SalesRecordPage extends Component {
     return (
       // < key={stage} style={{ display: "contents" }}>
       <>
-        <tr>
+        <tr key={stage}>
           <ThGroup
             colSpan={columns.length}
             onClick={() => this.setCollapsedView(stage)}
