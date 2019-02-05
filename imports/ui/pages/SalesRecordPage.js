@@ -355,7 +355,7 @@ class SalesRecordPage extends Component {
           />
 
           <Table table-striped hover>
-            <SalesRecordsTableHeader fixedHeader={fixedHeader} />
+            <SalesRecordsTableHeader />
             <ScrollPosition elementPath={window.location.pathname}>
               <tbody>
                 {_.map(

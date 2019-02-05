@@ -119,7 +119,7 @@ class Task extends Component {
             <ApproverIcon>{this.shortenName(ap)}</ApproverIcon>
           ))
         ) : (
-          <ApproverIcon>"?"</ApproverIcon>
+          <ApproverIcon>?</ApproverIcon>
         )}
         <DueDateIcon status={task.status} dueDate={task.dueDate}>
           {moment(task.dueDate).format("YYYY/MM/DD")}
