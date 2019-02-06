@@ -175,7 +175,10 @@ class TaskDetail extends Component {
                   closeFinding={() =>
                     this.changeState(this.state.isFinding, name, false)
                   }
-                  ignoreUser={this.state.task[ignore]}
+                  ignoreUser={union(
+                    this.state.task[ignore],
+                    this.state.task[name]
+                  )}
                   title={label}
                   top={top}
                   user={this.state.task[name]}
